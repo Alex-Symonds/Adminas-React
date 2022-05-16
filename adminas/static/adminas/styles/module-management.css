@@ -1,0 +1,234 @@
+/*  Module Management page formatting.
+    Contents:
+        || Panel formatting
+        || Modular items
+        || Pop-up "bucket" menu
+*/
+.excess-modules {
+  border: 2px solid red;
+}
+
+.modular-item-container {
+  margin-top: 2rem;
+  padding-bottom: 1rem;
+}
+.modular-item-container .subsection {
+  position: relative;
+  margin-top: 1rem;
+  margin-right: 3px;
+  border-top: 1px solid #666;
+  border-right: 1px solid #666;
+}
+.modular-item-container .subsection.excess-modules {
+  border: 2px solid red;
+}
+.modular-item-container .modular-slot-container {
+  display: grid;
+  grid-template-columns: minmax(6rem, 25%) auto;
+  grid-column-gap: 10px;
+}
+.modular-item-container .modular-slot-container .spine {
+  color: white;
+  border-right: 1px solid #444;
+  text-align: right;
+  padding: 0.2rem;
+}
+.modular-item-container .modular-slot-container .spine .add-slot {
+  font-size: 0.8rem;
+  font-style: italic;
+  margin-top: 3px;
+  padding: 2px 5px;
+  background: #666;
+  border: 1px solid #444;
+  border-radius: 0.4rem;
+  color: white;
+}
+.modular-item-container .modular-slot-container .spine .add-slot:hover {
+  background: #888;
+  border: 1px solid #666;
+}
+.modular-item-container .modular-slot-container .spine .slot-info {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  font-size: 0.8rem;
+}
+.modular-item-container .modular-slot-container .spine .slot-info div {
+  margin: 0.1rem;
+  border-radius: 3px;
+}
+.modular-item-container .modular-slot-container .spine .slot-info .head {
+  padding: 0 4px;
+}
+.modular-item-container .modular-slot-container .spine .slot-info .body {
+  padding: 3px;
+}
+.modular-item-container .modular-slot-container .spine .slot-info .required {
+  background: #141414;
+  color: #F6F6F6;
+  border: 1px solid #cf0000;
+  box-shadow: 0 0 2px 2px rgba(255, 255, 255, 0.2);
+}
+.modular-item-container .modular-slot-container .spine .slot-info .required .head {
+  border-right: 2px solid red;
+}
+.modular-item-container .modular-slot-container .spine .slot-info .optional {
+  background: #888;
+  color: white;
+  border: 1px solid #BBB;
+}
+.modular-item-container .modular-slot-container .spine .slot-info .optional .head {
+  border-right: 1px solid #BBB;
+}
+.modular-item-container .modular-slot-container .spine .slot-info .filled {
+  background: transparent;
+  border: 1px solid #666;
+  color: white;
+  box-shadow: 0 0 0 0;
+}
+.modular-item-container .modular-slot-container .spine .slot-info .filled .head {
+  border-right: 1px solid #666;
+}
+.modular-item-container .modular-slot-container .spine .slot-info .excess {
+  background: white;
+  color: #cf0000;
+  border: 1px solid red;
+  font-weight: bold;
+}
+.modular-item-container .modular-slot-container .spine .slot-info .excess .head {
+  background: red;
+  color: white;
+  border-right: 1px solid red;
+}
+.modular-item-container .modular-slot-container .contents {
+  flex-grow: 2;
+  padding: 0.5rem 0;
+}
+.modular-item-container .modular-slot-container .contents .module-slot {
+  position: relative;
+  margin: 3px 5px 0 0;
+  border: 1px solid #444;
+  border-radius: 0.75rem;
+  font-size: 1rem;
+  padding: 0.25rem 10px;
+  min-height: 1.5rem;
+}
+.modular-item-container .modular-slot-container .contents .module-slot .child-desc {
+  margin-top: 3px;
+}
+.modular-item-container .modular-slot-container .contents .module-slot .combo-input-and-button span {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.3rem;
+}
+.modular-item-container .modular-slot-container .contents .module-slot .combo-input-and-button .delete-panel {
+  display: inline-block;
+  float: none;
+  height: 22px;
+  width: 24px;
+  margin-left: 1rem;
+}
+.modular-item-container .modular-slot-container .contents .module-slot .combo-input-and-button .delete-panel span {
+  display: block;
+}
+.modular-item-container .modular-slot-container .contents .module-slot.editing, .modular-item-container .modular-slot-container .contents .module-slot.new-slot-filler-inputs {
+  background: #666;
+  border-color: #888;
+}
+.modular-item-container .modular-slot-container .contents .module-slot.new-slot-filler-inputs .combo-input-and-button {
+  margin-top: 0.3rem;
+}
+.modular-item-container .modular-slot-container .contents .module-slot .close {
+  margin-top: -3px;
+  margin-right: -3px;
+}
+.modular-item-container .modular-slot-container .contents .empty {
+  padding-top: 0.5rem;
+  color: black;
+  background: #F6F6F6;
+}
+.modular-item-container .modular-slot-container .contents .new-slot-filler-inputs {
+  color: white;
+}
+.modular-item-container .modular-slot-container .contents .jobitem {
+  background: transparent;
+  color: white;
+}
+.modular-item-container .modular-slot-container .contents .jobitem .edit-icon:hover {
+  background-position: 5px 4px;
+}
+
+@media screen and (max-width: 500px) {
+  .modular-item-container .modular-slot-container .contents .module-slot.editing, .modular-item-container .modular-slot-container .contents .module-slot.new-slot-filler-inputs {
+    position: absolute;
+    top: 2rem;
+    left: 0.1rem;
+    max-width: 100%;
+    z-index: 2;
+    box-shadow: 0px 0px 15px 8px #0f0f0f;
+  }
+  .modular-item-container .modular-slot-container .contents .module-slot .delete-panel {
+    position: absolute;
+    top: 5px;
+    right: 35px;
+  }
+}
+.module-bucket-container {
+  position: absolute;
+  left: 0;
+  max-width: 400px;
+  background: #444;
+  padding: 0;
+  z-index: 2;
+}
+.module-bucket-container .bucket-options-container {
+  display: flex;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #DDD;
+}
+.module-bucket-container .bucket-options-container .bucket-item {
+  display: block;
+  border-radius: 10px;
+  padding: 2px 10px;
+  margin: 8px;
+}
+.module-bucket-container .bucket-options-container .bucket-item.jobitem {
+  background: #666;
+  border: 1px solid #888;
+  color: #F6F6F6;
+}
+.module-bucket-container .bucket-options-container .bucket-item.jobitem:hover {
+  background: #888;
+  border-color: #AAA;
+}
+.module-bucket-container .bucket-options-container .bucket-item.jobitem_usedup {
+  background: #444;
+  border: 1px solid #666;
+  color: #666;
+  font-style: italic;
+}
+.module-bucket-container p {
+  margin: 0 0.5rem 0;
+  padding: 1rem 0.3rem 1rem;
+  border-bottom: 1px solid #222;
+}
+.module-bucket-container .add-button {
+  margin: 6px;
+}
+.module-bucket-container .add-new-btn {
+  border: 1px solid #008e0f;
+  background: white;
+  color: #008e0f;
+  font-size: 0.9rem;
+  border-radius: 10px;
+  padding: 3px 10px;
+  margin: 8px;
+}
+
+@media screen and (min-width: 625px) {
+  .module-bucket-container {
+    left: auto;
+  }
+}
+
+/*# sourceMappingURL=module-management.css.map */

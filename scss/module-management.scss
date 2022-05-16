@@ -1,0 +1,288 @@
+@use "variables" as v;
+
+/*  Module Management page formatting.
+    Contents:
+        || Panel formatting
+        || Modular items
+        || Pop-up "bucket" menu
+*/
+
+// || Panel formatting
+.excess-modules{
+    border: 2px solid red;
+}
+
+// || Modular item layout and formatting
+.modular-item-container{
+    margin-top: 2rem;
+    padding-bottom: 1rem;
+
+    .subsection{
+        position: relative;
+        margin-top: 1rem;
+        margin-right: 3px;
+        border-top: 1px solid v.$c_tone_03;
+        border-right: 1px solid v.$c_tone_03;
+
+        &.excess-modules{
+            border: 2px solid red;
+        }
+    }
+
+    .modular-slot-container{
+        display: grid;
+        grid-template-columns: minmax(6rem, 25%) auto;
+        grid-column-gap: 10px;
+
+        .spine{
+            color: white;
+            border-right: 1px solid v.$c_tone_02;
+
+            text-align: right;
+            padding: 0.2rem;
+
+            .add-slot{
+                font-size: 0.8rem;
+                font-style: italic;
+                margin-top: 3px;
+                padding: 2px 5px;
+                background: v.$c_tone_03;
+                border: 1px solid v.$c_tone_02;
+                border-radius: 0.4rem;
+                color: white;
+
+                &:hover{
+                    background: v.$c_tone_04;
+                    border: 1px solid v.$c_tone_03;                    
+                }
+            }
+
+            .slot-info{
+                display: flex;
+                justify-content: flex-end;
+                flex-wrap:wrap;
+                font-size: 0.8rem;
+
+                div {
+                    margin: 0.1rem;
+                    border-radius: 3px;
+                }
+
+                .head{
+                    padding: 0 4px;
+                }
+
+                .body{
+                    padding: 3px;
+                }
+
+                .required{
+                    background: v.$c_tone_00;
+                    color: v.$c_txt_main;
+                    border: 1px solid v.$c_warning;
+                    box-shadow: 0 0 2px 2px rgba(white, 20%);
+
+                    .head{
+                        border-right: 2px solid v.$c_warning_bright;
+                    }
+                }
+
+                .optional{
+                    background: v.$c_tone_04;
+                    color: white;
+                    border: 1px solid v.$c_tone_06;
+
+                    .head{
+                        border-right: 1px solid v.$c_tone_06;
+                    }
+                }
+
+                .filled{
+                    background: transparent;
+                    border: 1px solid v.$c_tone_03;
+                    color: white;
+                    box-shadow: 0 0 0 0;
+
+                    .head{
+                        border-right: 1px solid v.$c_tone_03;
+                    }
+                }
+
+                .excess{
+                    background: white;
+                    color: v.$c_warning;
+                    border: 1px solid v.$c_warning_bright;
+                    font-weight: bold;
+
+                    .head{
+                        background: v.$c_warning_bright;
+                        color: white;
+                        border-right: 1px solid v.$c_warning_bright;
+                    }
+                }
+            }
+        }
+
+        .contents{
+            flex-grow: 2;
+            padding: 0.5rem 0;
+
+            .module-slot{
+                position: relative;
+
+                margin: 3px 5px 0 0;
+                border: 1px solid v.$c_tone_02;
+                border-radius: 0.75rem;
+                font-size: 1rem;
+                padding: 0.25rem 10px;
+                min-height: 1.5rem;
+
+                .child-desc{
+                    margin-top: 3px;
+                }
+
+                .combo-input-and-button{
+                    span{
+                        display: flex;
+                        align-items:center;
+                        margin-bottom: 0.3rem;
+                    }
+
+                    .delete-panel{
+                        display: inline-block;
+                        float: none;
+                        height: 22px;
+                        width: 24px;
+                        margin-left: 1rem;
+                        
+                        span{
+                            display: block;
+                        }
+                    }
+                }
+
+                &.editing, &.new-slot-filler-inputs{
+                    background: v.$c_tone_03;
+                    border-color: v.$c_tone_04; 
+                }
+
+                &.new-slot-filler-inputs{
+                    .combo-input-and-button{
+                        margin-top: 0.3rem;
+                    }
+                }
+
+                .close{
+                    margin-top: -3px;
+                    margin-right: -3px;
+                }
+            }
+
+            .empty{
+                padding-top: 0.5rem;
+                color: black;
+                background: v.$c_tone_07;
+            }
+
+            .new-slot-filler-inputs{
+                color: white;
+            }
+
+            .jobitem{
+                background: transparent;
+                color: white;
+
+                .edit-icon:hover{
+                    background-position: 5px 4px;
+                }
+            }
+        }
+    }
+}
+@media screen and (max-width: 500px){
+    .modular-item-container .modular-slot-container .contents .module-slot{
+        &.editing,
+        &.new-slot-filler-inputs{
+            position: absolute;
+            top: 2rem;
+            left: 0.1rem;
+            max-width: 100%;
+            z-index: 2;
+            box-shadow: 0px 0px 15px 8px rgb(15,15,15);
+        }
+
+        .delete-panel{
+            position: absolute;
+            top: 5px;
+            right: 35px;
+        }
+    } 
+}
+
+// || Pop-up "bucket" menu
+.module-bucket-container{
+    position: absolute;
+    left: 0;
+    max-width: 400px;
+    background: v.$c_tone_02;
+    padding: 0;
+    z-index: 2;
+
+    .bucket-options-container{
+        display: flex;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #DDD;
+
+        .bucket-item{
+            display: block;
+            border-radius: 10px;
+            padding: 2px 10px;
+            margin: 8px;
+        }
+    
+        .bucket-item.jobitem{
+            background: v.$c_tone_03;
+            border: 1px solid v.$c_tone_04;
+            color: v.$c_txt_main;
+
+            &:hover{
+                background: v.$c_tone_04;
+                border-color: v.$c_tone_05;
+            }
+        }
+    
+        .bucket-item.jobitem_usedup{
+            background: v.$c_tone_02;
+            border: 1px solid v.$c_tone_03;
+            color: v.$c_tone_03;
+            font-style: italic;
+        }
+
+    }
+
+    p{
+        margin: 0 0.5rem 0;
+        padding: 1rem 0.3rem 1rem;
+        border-bottom: 1px solid v.$c_tone_01;
+    }
+
+    .add-button{
+        margin: 6px;
+    }
+
+    .add-new-btn{
+        border: 1px solid rgb(0, 142, 15);
+        background: white;
+        color: rgb(0, 142, 15);
+
+        font-size: 0.9rem;
+        border-radius: 10px;
+        padding: 3px 10px;
+        margin: 8px;
+    }
+}
+@media screen and (min-width: 625px) {
+    .module-bucket-container{
+        left: auto;
+    }
+}

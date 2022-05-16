@@ -1,0 +1,141 @@
+@use "variables" as v;
+
+/*  Records formatting.
+    Contents:
+        || Filter
+        || Responsive table
+*/
+
+// || Filter
+#filter_controls{
+    margin: 1rem 0;
+
+    #id_filter_records, #id_clear_filter_records{
+        margin: 0 1rem 0 0;
+        padding: 0.3rem 0.5rem;
+    }
+    
+    #id_clear_filter_records{
+        text-decoration: none;
+    }
+    
+    #id_filter_options{
+        display: block;
+        width: 95%;
+        max-width: 310px;
+    
+        .filter-options-body{
+            &:first-of-type label{
+                border-top: none;
+                margin-bottom: 0;
+            }
+    
+            span{
+                padding: 0 0 0.2rem;
+                font-size: 0.9rem;
+                font-style: italic;
+                color: v.$c_tone_06;
+            }
+    
+            fieldset{
+                margin: 1.5rem 0.5rem 0;
+        
+                label{
+                    clear: both;
+                    font-size: 1rem;
+                    border: none;
+                    margin: 0.2rem 0 0.3rem 0;
+                    width: 3rem;
+                    float: left;
+                    text-align: right;
+                }
+        
+                input{
+                    float: left;
+                }
+            }
+        }
+    }  
+}
+
+// || Responsive table
+#id_records{
+    .todo-list-add{
+        border-radius: 0.3rem;
+        padding: 0.3rem 0.5rem;
+        margin: 0 auto 0.2rem;
+    }
+
+    .list-show-btn{
+        border-radius: 0.3rem;
+        padding: 0.2rem 0.5rem;
+        margin: 0 auto 0; 
+    }
+
+    td{
+        position: relative;
+    }
+
+    .records-list{
+        position: absolute;
+        top: 0;
+        left: 0;
+
+        background: v.$c_tone_02;
+        z-index: 3;
+
+        min-width: 200px;
+        max-width: 85vw;
+
+        &.product{
+            width: 30rem;
+        }
+
+        &.po{
+            width: 15rem;
+        }
+
+        ul{
+            list-style-type: none;
+            padding: 0;
+            border-bottom: 1px solid v.$c_tone_03;
+
+            max-height: calc(90vh - 5rem);
+            overflow: auto;
+        }
+
+        li{
+            border-top: 1px solid v.$c_tone_03;
+            padding: 0.1rem 1rem;
+        }
+
+    }
+}
+
+@media screen and (max-width: v.$breakpoint_table_to_rows){
+    #id_records{
+        button.todo-list-add{
+            padding: 0 0.5rem;
+        }
+        span.todo-list-add{
+            padding: 0;
+        }
+    
+        td:nth-of-type(1):before { content: "View"; }
+        td:nth-of-type(2):before { content: "To-Do"; }
+        td:nth-of-type(3):before { content: "Job Ref."; }
+        td:nth-of-type(4):before { content: "Agent"; }
+        td:nth-of-type(5):before { content: "Customer"; }
+        td:nth-of-type(6):before { content: "Country"; }
+        td:nth-of-type(7):before { content: "Language"; }
+        td:nth-of-type(8):before { content: "Entered"; }
+        td:nth-of-type(9):before { content: "Currency"; }
+        td:nth-of-type(10):before { content: "Invoice to"; }
+        td:nth-of-type(11):before { content: "Quote Ref."; }
+        td:nth-of-type(12):before { content: "PO Number"; }
+        td:nth-of-type(13):before { content: "PO Value"; }
+        td:nth-of-type(14):before { content: "Incoterm"; }
+        td:nth-of-type(15):before { content: "Deliver to"; }
+        td:nth-of-type(16):before { content: "Products"; }
+    }
+}

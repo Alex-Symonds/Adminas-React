@@ -1,0 +1,621 @@
+/*  Job formatting.
+    Contents:
+        || Status indicator (toto, price confirmation)
+        || Notifications
+        || Layout
+
+        || Responsive table
+*/
+.status-indicator {
+  display: flex;
+  flex: row;
+  width: 100%;
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+  color: #888;
+  font-weight: bold;
+}
+.status-indicator :first-child,
+.status-indicator :last-child {
+  border: 1px solid #666;
+}
+.status-indicator :first-child {
+  border-top-left-radius: 0.2rem;
+  border-bottom-left-radius: 0.2rem;
+}
+.status-indicator :last-child {
+  border-top-right-radius: 0.95rem;
+  border-bottom-right-radius: 0.95rem;
+}
+.status-indicator .status-name {
+  display: block;
+  padding: 0.1rem 0.5rem 0.1rem 1rem;
+  width: fit-content;
+  color: white;
+}
+.status-indicator #price_confirmation_button,
+.status-indicator .todo-list-toggle {
+  display: block;
+  padding: 0.1rem 1rem 0.1rem 0.7rem;
+  background: transparent;
+  color: #BBB;
+  border: 1px solid #666;
+  border-left: 3px solid #AAA;
+}
+.status-indicator #price_confirmation_button:hover,
+.status-indicator .todo-list-toggle:hover {
+  background: #666;
+}
+.status-indicator.on #price_confirmation_button,
+.status-indicator.on .todo-list-toggle {
+  color: #0DFA96;
+  border: 1px solid #09BA70;
+  border-left: 3px solid #0DFA96;
+}
+.status-indicator.on #price_confirmation_button:hover,
+.status-indicator.on .todo-list-toggle:hover {
+  background: linear-gradient(335deg, #0AC778 0%, #0DFA96 100%);
+  color: black;
+  font-weight: bold;
+}
+
+#admin_info {
+  position: relative;
+}
+#admin_info .admin-info-btn {
+  margin-top: 0.5rem;
+  padding: 0.5rem;
+}
+#admin_info .panel {
+  position: absolute;
+  top: 2rem;
+  left: 0;
+  z-index: 3;
+  background: #444;
+  color: #F6F6F6;
+  width: fit-content;
+}
+#admin_info .panel ul {
+  margin: 0;
+  padding: 8px 30px;
+}
+#admin_info .panel li {
+  padding: 0.2rem 0;
+}
+
+.job-page-sections-wrapper,
+.document-sections-wrapper {
+  display: flex;
+  flex-flow: row wrap;
+  gap: 3rem;
+  width: 100%;
+}
+.job-page-sections-wrapper h3,
+.document-sections-wrapper h3 {
+  margin-bottom: 0;
+}
+.job-page-sections-wrapper .po-row,
+.document-sections-wrapper .po-row {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  border: 1px solid #666;
+  padding: 0.3rem;
+  margin-top: 0.5rem;
+  border-radius: 5px;
+}
+.job-page-sections-wrapper .po-row .panel,
+.document-sections-wrapper .po-row .panel {
+  display: block;
+}
+.job-page-sections-wrapper .po-row .edit-icon:hover,
+.document-sections-wrapper .po-row .edit-icon:hover {
+  background-position: 5px 4px;
+}
+
+#job_items_section {
+  width: 100%;
+}
+
+.document-sections-wrapper {
+  align-items: flex-start;
+}
+.document-sections-wrapper .subsection {
+  flex-grow: 2;
+}
+
+.pair-related {
+  display: flex;
+  flex-flow: row wrap;
+  gap: 2rem;
+  min-width: 40%;
+  max-width: 100%;
+  flex-grow: 2;
+}
+.pair-related .item {
+  flex-grow: 2;
+  min-width: 275px;
+}
+
+#job_po_section .warning {
+  box-shadow: 0 0 2px 2px rgba(255, 255, 255, 0.8);
+}
+
+#toggle_po_form_btn {
+  margin-top: 0.4rem;
+}
+
+#job_details {
+  max-width: 700px;
+}
+
+.ji-edit {
+  margin-right: 0;
+}
+.ji-edit:hover {
+  background-position: 5px 4px;
+}
+
+.job-doc-section {
+  min-width: 280px;
+}
+.job-doc-section a {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+}
+.job-doc-section ul {
+  list-style-type: none;
+  margin: 5px 3px 0;
+  padding: 0 0 0 0.2rem;
+  border-bottom: 1px solid #444;
+}
+.job-doc-section li {
+  border-top: 1px solid #444;
+}
+.job-doc-section li a {
+  padding: 0.2rem 0.2rem;
+  margin: 0;
+}
+.job-doc-section li a:hover {
+  background: #444;
+}
+.job-doc-section .add-button {
+  color: #F6F6F6;
+  margin: 3px 5px;
+  padding: 0;
+  text-decoration: none;
+  font-size: 1rem;
+}
+.job-doc-section .add-button:hover {
+  animation-name: expand_add_document;
+}
+.job-doc-section .issued-icon, .job-doc-section .saved-icon {
+  display: block;
+  width: 1rem;
+  text-align: center;
+  padding: 0.04rem 0 0.02rem;
+  border-radius: 2px;
+  font-weight: bold;
+  font-family: "Times New Roman", serif;
+  margin: 3px 0.5rem 0 0;
+  font-size: 0.9rem;
+  border: 1px solid #141414;
+}
+.job-doc-section .issued-icon {
+  color: white;
+  background: #222;
+}
+.job-doc-section .saved-icon {
+  color: black;
+  background: white;
+}
+
+@keyframes expand_add_document {
+  from {
+    width: 30px;
+    text-indent: -9999px;
+  }
+  95% {
+    text-indent: -9999px;
+  }
+  to {
+    width: 8rem;
+    text-indent: 44px;
+  }
+}
+.existing-items-container {
+  display: flex;
+  flex-flow: row wrap;
+  align-items: flex-start;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #222;
+  width: 100%;
+}
+.existing-items-container .multi-parent-warning {
+  margin: 0.5rem;
+  padding: 0.5rem;
+  background: #444;
+  color: #BBB;
+}
+.existing-items-container .multi-parent-warning emphasis {
+  font-weight: bold;
+  font-style: italic;
+  color: #F6F6F6;
+}
+.existing-items-container span.desc {
+  margin: 0.2rem 0 0 0.75rem;
+}
+
+#container_edit_item {
+  width: 96%;
+}
+
+#po_edit_form {
+  width: calc(100% - 1rem);
+  margin-bottom: 1.1rem;
+}
+#po_edit_form .button-container {
+  gap: 5%;
+}
+#po_edit_form .button-container button, #po_edit_form .button-container #po_submit_button {
+  max-width: 10rem;
+  width: 25%;
+  height: 2rem;
+}
+
+.selling-price-container {
+  position: relative;
+}
+
+#new_items_container {
+  width: 95%;
+  max-width: 500px;
+}
+#new_items_container .add-button {
+  position: absolute;
+  margin: 0.5rem 0 0 0.5rem;
+}
+#new_items_container .add-multiple {
+  background: #222;
+  border: 1px solid #141414;
+  border-radius: 3px;
+  width: fit-content;
+  display: block;
+  float: right;
+  margin: 0.5rem 0.5rem 0;
+  padding: 0.15rem 0.35rem;
+  font-size: 0.8rem;
+}
+#new_items_container .add-multiple input {
+  width: 3rem;
+  height: 0.9rem;
+  margin-left: 0.1rem;
+}
+#new_items_container .add-multiple .button-primary {
+  margin-left: 1.5rem;
+  font-size: 0.9rem;
+  width: 3rem;
+  padding: 0.15rem 0.5rem;
+}
+
+.combo-input-and-button {
+  margin: 0;
+  display: flex;
+  flex-flow: row wrap;
+  align-items: stretch;
+}
+.combo-input-and-button span {
+  display: block;
+  margin: 0 0 0.2rem 0;
+  min-width: 100%;
+}
+.combo-input-and-button input {
+  margin: 0;
+  width: 12rem;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+.combo-input-and-button button {
+  margin: 0;
+  font-size: 0.9rem;
+  width: 3.5rem;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.price-checker-edit-window {
+  position: absolute;
+  z-index: 2;
+  left: -10px;
+  background: #444;
+  min-width: 280px;
+  text-align: left;
+}
+.price-checker-edit-window p {
+  margin: 0.5rem;
+}
+.price-checker-edit-window .price-options-container {
+  border-top: 1px solid #222;
+}
+.price-checker-edit-window .price-options-container h6 {
+  font-size: 0.95rem;
+  font-weight: normal;
+  width: 100%;
+  margin: 0.5rem 0 0 0.5rem;
+  padding-bottom: 0.2rem;
+}
+.price-checker-edit-window .price-options-container button {
+  margin: 0.2rem 5% 0.2rem;
+  padding: 0.4rem 0.3rem;
+  width: 40%;
+}
+.price-checker-edit-window .combo-input-and-button {
+  margin: 1rem 0 1rem 0.5rem;
+}
+.price-checker-edit-window .button-primary-hollow {
+  background: #141414;
+}
+.price-checker-edit-window .button-primary-hollow:hover {
+  background: #222;
+  color: #6bfaff;
+}
+
+.job-item-container {
+  max-width: 700px;
+  box-shadow: 0 0 10px 1px rgba(0, 0, 0, 0.85);
+}
+.job-item-container .panel-header {
+  border-bottom: none;
+  width: calc(100% - 16px);
+}
+.job-item-container ul {
+  margin: 3px 0 0 0;
+  padding-bottom: 0.3rem;
+}
+.job-item-container li {
+  color: #BBB;
+}
+.job-item-container div:last-child {
+  border-bottom: none;
+}
+.job-item-container .assignment-icon {
+  display: inline-block;
+  border: 1px solid #141414;
+  border-radius: 0.2rem;
+  font-size: 0.75rem;
+  margin: 0;
+  padding: 0;
+  margin: 0 0.1rem;
+}
+.job-item-container .assignment-icon span {
+  display: block;
+  float: left;
+  padding: 1px 6px;
+  margin: 0;
+}
+.job-item-container .assignment-icon .label {
+  border-top-left-radius: 0.15rem;
+  border-bottom-left-radius: 0.15rem;
+  border-right: 2px solid #00D4F5;
+  background: #222;
+  color: #BBB;
+}
+.job-item-container .assignment-icon .status {
+  background: #222;
+  font-weight: bold;
+}
+.job-item-container .assignment-icon:last-of-type {
+  border-bottom: 1px solid #141414;
+}
+.job-item-container .money {
+  margin: 0 3px;
+  padding: 4px 2px 10px 5px;
+  border-top: 1px solid #888;
+  border-left: 3px solid transparent;
+}
+.job-item-container .money .currency,
+.job-item-container .money .selling_price {
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+.job-item-container .money .selling_price {
+  margin-left: 0.5rem;
+}
+.job-item-container .std-accs-container {
+  margin-left: 3px;
+  border-left: 3px solid #888;
+}
+.job-item-container .std-accs-container p {
+  padding: 0.2rem 0 0.2rem 0.4rem;
+  width: calc(100% - 0.4rem);
+  background: #444;
+  margin: 0;
+}
+.job-item-container .module-status-section {
+  margin: 3px 0 1px 3px;
+  border-bottom-left-radius: 3px;
+}
+.job-item-container .module-status-section .intro-line {
+  display: flex;
+  align-items: center;
+  padding: 0.2rem 0 0.2rem 0.4rem;
+  width: calc(100% - 0.4rem - 3px);
+  background: #00c2e0;
+}
+.job-item-container .module-status-section .intro-line .display-text {
+  flex-grow: 2;
+}
+.job-item-container .module-status-section .intro-line:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+.job-item-container .assignments {
+  border-left: 3px solid #00D4F5;
+}
+.job-item-container .assignments .intro-line {
+  background: #444;
+}
+.job-item-container .modules-ok {
+  border-left: 3px solid #0DFA96;
+}
+.job-item-container .modules-ok .intro-line {
+  background: #444;
+}
+.job-item-container .modules-incomplete {
+  border-left: 3px solid red;
+}
+.job-item-container .modules-incomplete .intro-line {
+  background: #cf0000;
+}
+.job-item-container .modules-excess {
+  border-left: 3px solid #cf0000;
+}
+.job-item-container .modules-excess .intro-line {
+  background: #141414;
+  border: 1px solid #444;
+  border-left: none;
+}
+.job-item-container .modules-excess li {
+  color: #F6F6F6;
+}
+
+#toggle_item_form_btn {
+  margin-top: 3px;
+}
+
+.warning.subsection {
+  margin: 1rem 0;
+}
+
+table.price-comparison {
+  margin: 0.5rem;
+  border-spacing: 0;
+}
+table.price-comparison th {
+  text-align: right;
+  padding: 0.1rem 0.3rem;
+  border-right: 2px solid #444;
+}
+table.price-comparison td {
+  padding: 0.3rem;
+}
+table.price-comparison th, table.price-comparison td {
+  border-top: 1px solid #444;
+}
+table.price-comparison .diff-perc:before {
+  content: "(";
+}
+table.price-comparison .diff-perc:after {
+  content: "%)";
+}
+table.price-comparison .number {
+  text-align: right;
+}
+table.price-comparison .conclusion {
+  background: #222;
+}
+table.price-comparison .conclusion th {
+  border-right: 2px solid #0DFA96;
+}
+table.price-comparison .conclusion th, table.price-comparison .conclusion td {
+  border-top: 1px solid #666;
+}
+
+.status-toggle-indicator {
+  display: block;
+  padding: 0.1rem 1rem 0.1rem 0.7rem;
+  background: transparent;
+  color: #BBB;
+  border: 1px solid #666;
+  border-left: 3px solid #AAA;
+}
+.status-toggle-indicator:hover {
+  background: #666;
+}
+
+#price_summary {
+  margin-top: 1.5rem;
+}
+
+#price_check_table .selling-price {
+  display: inline-block;
+  margin-top: 0.25rem;
+}
+#price_check_table td {
+  text-align: right;
+}
+#price_check_table .description {
+  position: relative;
+}
+#price_check_table .details {
+  display: block;
+  font-style: italic;
+  color: #BBB;
+}
+
+@media screen and (max-width: 930px) {
+  #price_check_section {
+    max-width: 475px;
+    width: 100%;
+    /*
+    Label the data
+    */
+  }
+  #price_check_section .selling-price {
+    margin-top: 0;
+  }
+  #price_check_section #price_check_table td:nth-of-type(2):before {
+    content: "Quantity";
+  }
+  #price_check_section #price_check_table td:nth-of-type(1):before {
+    content: "Part Number";
+  }
+  #price_check_section #price_check_table td:nth-of-type(3):before {
+    content: "Sold @";
+  }
+  #price_check_section #price_check_table td:nth-of-type(4):before {
+    content: "Price List: Version";
+  }
+  #price_check_section #price_check_table td:nth-of-type(5):before {
+    content: "Price List: Value";
+  }
+  #price_check_section #price_check_table td:nth-of-type(6):before {
+    content: "Price List vs. Sold";
+  }
+  #price_check_section #price_check_table td:nth-of-type(7):before {
+    content: "Price List vs. Sold (%)";
+  }
+  #price_check_section #price_check_table td:nth-of-type(8):before {
+    content: "Resale: Discount";
+  }
+  #price_check_section #price_check_table td:nth-of-type(9):before {
+    content: "Resale: Value";
+  }
+  #price_check_section #price_check_table td:nth-of-type(10):before {
+    content: "Resale vs. Sold";
+  }
+  #price_check_section #price_check_table td:nth-of-type(11):before {
+    content: "Resale vs. Sold (%)";
+  }
+  #price_check_section .details {
+    position: absolute;
+    bottom: -1rem;
+    right: 5px;
+    z-index: 2;
+    width: 15rem;
+    color: #F6F6F6;
+    background: #444;
+    border: 1px solid #222;
+    padding: 3px;
+    box-shadow: 0 0 10px 1px rgba(0, 0, 0, 0.85);
+    border-right: 3px solid #0DFA96;
+    padding-right: 10px;
+    text-align: right;
+    border-top-left-radius: 0.5rem;
+    border-bottom-left-radius: 0.5rem;
+  }
+}
+
+/*# sourceMappingURL=job.css.map */

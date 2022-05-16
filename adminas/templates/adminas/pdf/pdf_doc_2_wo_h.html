@@ -1,0 +1,68 @@
+{% extends 'adminas/pdf/pdf_doc_1_header.html' %}
+
+{% block document_header %}
+    <h1>{{ title }}</h1>
+
+
+    <section id="doc_reference" class="fields-row">
+        <h2>{{ doc_ref }}</h2>
+        <span>Issue Date: {% if issue_date %}{{ issue_date|date:'Y-m-d' }}{% else %}DRAFT COPY{% endif %}</span>
+    </div>
+
+    <div style="clear: both;"></div>
+
+    <div id="addresses" class="fields-row">
+        <section id="invoice_to">
+            <h2>Invoice to</h2>
+            <span>{{ invoice_to }}</span>
+        </section>
+
+        <section id="delivery_to">
+            <h2>Deliver to</h2>
+            <span>{{ delivery_to }}</span>
+        </section>
+    </div>
+
+    <div style="clear: both;"></div>
+
+    <section id="fields" class="fields-row">
+        {% for fld in fields %}
+            {% if fld.css_id == None %}
+            <div>
+                <h2>{{ fld.h }}</h2>
+                <span>{{ fld.body }}</span>
+            </div>
+            {% endif %}
+        {% endfor %}
+    </section>
+
+
+    <div style="clear: both;"></div>
+
+    <section id="special_fields" class="fields-row">
+        {% for fld in fields %}
+            {% if fld.css_id %}
+            <div id="{{ fld.css_id }}">
+                <h2>{{ fld.h }}</h2>
+                <span>{{ fld.body }}</span>
+            </div>
+            {% endif %}
+        {% endfor %}
+    </section>
+
+    <div style="clear: both;"></div>
+
+    {% if instructions %}
+    <section id="special_instructions">
+        <h2>Special Instructions</h2>
+        {% for sp_inst in instructions %}
+        <div class="one-special-instruction">
+            <div class="contents">{{ sp_inst }}</div>
+        </div>
+        {% endfor %}
+    </section>
+    {% endif %}
+
+    <div class="spacer"></div>
+
+{% endblock %}

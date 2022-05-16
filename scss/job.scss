@@ -1,0 +1,718 @@
+@use "variables" as v;
+
+
+/*  Job formatting.
+    Contents:
+        || Status indicator (toto, price confirmation)
+        || Notifications
+        || Layout
+
+        || Responsive table
+*/
+
+// || Status indicator (toto, price confirmation)
+.status-indicator{
+    display: flex;
+    flex: row;
+    width: 100%;
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+    color: v.$c_tone_04;
+    font-weight:bold;
+
+    :first-child,
+    :last-child{
+        border: 1px solid v.$c_tone_03;
+    }
+    :first-child{
+        border-top-left-radius: 0.2rem;
+        border-bottom-left-radius: 0.2rem;
+    }
+    :last-child{
+        border-top-right-radius: 0.95rem;
+        border-bottom-right-radius: 0.95rem;  
+    }
+
+    .status-name{
+        display: block;
+        padding: 0.1rem 0.5rem 0.1rem 1rem;
+        width: fit-content;
+        color: white;
+    }
+
+    #price_confirmation_button,
+    .todo-list-toggle{
+        display: block;
+        padding: 0.1rem 1rem 0.1rem 0.7rem;
+        background: transparent;
+
+        color: v.$c_tone_06;
+        border: 1px solid v.$c_tone_03;
+        border-left: 3px solid v.$c_tone_05;
+
+        &:hover{
+            background: v.$c_tone_03;
+        }
+    }
+
+    &.on{
+        #price_confirmation_button,
+        .todo-list-toggle{
+            color: v.$c_accent_secondary;
+            border: 1px solid v.$c_accent_secondary_03;
+            border-left: 3px solid v.$c_accent_secondary;
+
+            &:hover{
+                background: v.$g_button_secondary;
+                color: black;
+                font-weight: bold;
+            }
+        }
+    }
+}
+
+
+
+
+// || Notifications
+#admin_info{
+    position: relative;
+
+    .admin-info-btn{
+        margin-top: 0.5rem;
+        padding: 0.5rem;
+    }
+
+    .panel{
+        position: absolute;
+        top: 2rem;
+        left: 0;
+        z-index: 3;
+        background: v.$c_tone_02;
+        color: v.$c_txt_main;
+        width: fit-content;
+
+        ul{
+            margin: 0;
+            padding: 8px 30px;
+        }
+
+        li{
+            padding: 0.2rem 0;
+        }
+    }
+}
+
+
+
+// || Layout
+.job-page-sections-wrapper,
+.document-sections-wrapper{
+    display: flex;
+    flex-flow: row wrap;
+    gap: 3rem;
+    width: 100%;
+
+    h3{
+        margin-bottom: 0;
+    }
+
+    .po-row{
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
+
+        border: 1px solid v.$c_tone_03;
+        padding: 0.3rem;
+        margin-top: 0.5rem;
+        border-radius: 5px;
+
+        .panel{
+            display: block;
+        }
+
+        .edit-icon:hover{
+            background-position: 5px 4px;
+        }
+    }
+}
+
+#job_items_section{
+    width: 100%;
+}
+
+.document-sections-wrapper{
+    align-items: flex-start;
+
+    .subsection{
+        flex-grow: 2;
+    }
+}
+
+
+
+
+
+.pair-related{
+    display: flex;
+    flex-flow: row wrap;
+    gap: 2rem;
+    min-width: 40%;
+    max-width: 100%;
+
+    flex-grow: 2;
+
+    .item{
+        flex-grow: 2;
+        min-width: 275px;
+    }
+
+}
+
+#job_po_section{
+    .warning{
+        box-shadow: v.$warning_shadow;
+    }
+}
+
+#toggle_po_form_btn{
+    margin-top: 0.4rem;
+}
+
+#job_details{
+    max-width: v.$MAX_WIDTH;
+}
+
+.ji-edit{
+    margin-right: 0;
+
+    &:hover{
+        background-position: 5px 4px;
+    }
+}
+
+.job-doc-section{
+    min-width: 280px;
+    a{
+        display: flex;
+        align-items: center;
+        text-decoration: none;
+    }
+
+    ul{
+        list-style-type: none;
+        margin: 5px 3px 0;
+        padding: 0 0 0 0.2rem;
+        border-bottom: 1px solid v.$c_tone_02;
+    }
+
+    li{
+        border-top: 1px solid v.$c_tone_02;
+        a{
+            padding: 0.2rem 0.2rem;
+            margin: 0;
+            &:hover{
+                background: v.$c_tone_02;
+            }
+        }
+
+    }
+
+    .add-button{
+        color: v.$c_txt_main;
+        margin: 3px 5px;
+        padding: 0;
+        text-decoration: none;
+        font-size: 1rem;
+
+        &:hover{
+            animation-name: expand_add_document;
+        }
+    }
+
+    .issued-icon, .saved-icon{
+        display: block;
+        width: 1rem;
+        text-align: center;
+        padding: 0.04rem 0 0.02rem;
+        border-radius: 2px;
+        font-weight: bold;
+        font-family: 'Times New Roman', serif;
+        margin: 3px 0.5rem 0 0;
+        font-size: 0.9rem;
+        border: 1px solid v.$c_tone_00;
+    }
+    .issued-icon{
+        color: white;
+        background: v.$c_tone_01;
+    }
+    .saved-icon{
+        color: black;
+        background:white;
+    }
+}
+
+@keyframes expand_add_document{
+    from {
+        width: 30px;
+        text-indent: -9999px;
+    }
+
+    95%{
+        text-indent: -9999px;
+    }
+    
+    to {
+        width: 8rem;
+        text-indent: 44px;
+    }
+}
+
+.existing-items-container{
+    display: flex;
+    flex-flow: row wrap;
+    align-items: flex-start;
+
+    padding-bottom: 1rem;
+    border-bottom: 1px solid v.$c_tone_01;
+
+    width: 100%;
+
+    .multi-parent-warning{
+        margin: 0.5rem;
+        padding: 0.5rem;
+        background: v.$c_tone_02;
+        color: v.$c_tone_06;
+
+        emphasis{
+            font-weight: bold;
+            font-style: italic;
+            color: v.$c_tone_07;
+        }
+    }
+
+    span.desc{
+        margin: 0.2rem 0 0 0.75rem;
+    }
+}
+
+#container_edit_item{
+    width: 96%;
+}
+
+#po_edit_form{
+    width: calc(100% - 1rem);
+    margin-bottom: 1.1rem;
+
+    .button-container{
+        gap: 5%;
+
+        button, #po_submit_button{
+            max-width: 10rem;
+            width: 25%;
+            height: 2rem;
+        }
+    }
+}
+
+.selling-price-container{
+    position: relative;
+}
+
+
+#new_items_container{
+    width: 95%;
+    max-width: 500px;
+
+    .add-button{
+        // On a narrow screen, make it so the expansion occurs /over/ the "Add [_] more" box, 
+        // instead of pushing the box down.
+        position: absolute;
+        margin: 0.5rem 0 0 0.5rem;
+    }
+
+    .add-multiple{
+        background: v.$c_tone_01;
+        border: 1px solid v.$c_tone_00;
+        border-radius: 3px;
+
+        width: fit-content;
+
+        display: block;
+        float: right;
+        margin: 0.5rem 0.5rem 0;
+        padding: 0.15rem 0.35rem;
+
+        font-size: 0.8rem;
+
+        input{
+            width: 3rem;
+            height: 0.9rem;
+            margin-left: 0.1rem;
+        }
+
+        .button-primary{
+            margin-left: 1.5rem;
+            font-size: 0.9rem;
+            width: 3rem;
+            padding: 0.15rem 0.5rem;
+        }
+    }
+
+}
+
+.combo-input-and-button{
+    margin: 0;
+    display: flex;
+    flex-flow: row wrap;
+    align-items: stretch;
+
+    span{
+        display: block;
+        margin: 0 0 0.2rem 0;
+        min-width: 100%;
+    }
+    
+    input{
+        margin: 0;
+        width: 12rem;
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+    }
+    button{
+        margin: 0;
+        font-size: 0.9rem;
+        width: 3.5rem;
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+    } 
+}
+
+.price-checker-edit-window{
+    position: absolute;
+    z-index: 2;
+    left: -10px;
+
+    background: v.$c_tone_02;
+    min-width: 280px;
+
+    text-align: left;
+
+    p{
+        margin: 0.5rem;
+    }
+
+    .price-options-container{
+        border-top: 1px solid v.$c_tone_01;
+
+        h6{
+            font-size: 0.95rem;
+            font-weight: normal;
+            width: 100%;
+            margin: 0.5rem 0 0 0.5rem;
+            padding-bottom: 0.2rem;
+        }
+
+        button{
+            margin: 0.2rem 5% 0.2rem;
+            padding: 0.4rem 0.3rem;
+            width: 40%;
+        }
+    }
+
+    .combo-input-and-button{
+        margin: 1rem 0 1rem 0.5rem;
+    }
+
+    .button-primary-hollow{
+        background: v.$c_tone_00;
+
+        &:hover{
+            background: v.$c_tone_01;
+            color: v.$c_accent_04;
+        }
+    }
+}
+
+
+.job-item-container{
+    max-width: v.$MAX_WIDTH;
+    box-shadow: v.$panel_shadow;
+
+    .panel-header{
+        border-bottom: none;
+        width: calc(100% - 16px);
+    }
+
+    ul{
+        margin: 3px 0 0 0;
+        padding-bottom: 0.3rem;
+    }
+
+    li{
+        color: v.$c_tone_06;
+    }
+
+    div:last-child{
+        border-bottom: none;
+    }
+
+    .assignment-icon{
+        display: inline-block;
+        border: 1px solid v.$c_tone_00;
+        border-radius: 0.2rem;
+        font-size: 0.75rem;
+        margin: 0;
+        padding: 0;
+        margin: 0 0.1rem;
+    
+        span{
+            display: block;
+            float: left;
+            padding: 1px 6px;
+            margin: 0;
+        }
+    
+        .label{
+            border-top-left-radius: 0.15rem;
+            border-bottom-left-radius: 0.15rem;
+            border-right: 2px solid v.$c_accent;
+            background: v.$c_tone_01;
+            color: v.$c_tone_06;
+        }
+        .status{
+            background: v.$c_tone_01;
+            font-weight: bold;
+        }
+       
+        &:last-of-type{
+            border-bottom: 1px solid v.$c_tone_00;
+        }
+    }
+
+    .money{
+        margin: 0 3px;
+        padding: 4px 2px 10px 5px;
+        border-top: 1px solid v.$c_tone_04;
+        border-left: 3px solid transparent;
+
+        .currency,
+        .selling_price{
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .selling_price{
+            margin-left: 0.5rem;
+        }
+
+    }
+
+    .std-accs-container{
+        margin-left: 3px;
+        border-left: 3px solid v.$c_tone_04;
+
+        p{
+            padding: 0.2rem 0 0.2rem 0.4rem;
+            width: calc(100% - 0.4rem);
+            background: v.$c_tone_02; 
+            margin: 0;
+        }
+    }
+
+    .module-status-section{
+        margin: 3px 0 1px 3px;
+        border-bottom-left-radius: 3px;
+
+        .intro-line{
+            display: flex;
+            align-items: center;
+            padding: 0.2rem 0 0.2rem 0.4rem;
+            width: calc(100% - 0.4rem - 3px);
+            background: v.$c_accent_02;
+
+            .display-text{
+                flex-grow: 2;
+            }
+            &:after{
+                content: '';
+                display: table;
+                clear: both;
+            }
+        }
+    }
+
+    .assignments{
+        border-left: 3px solid v.$c_accent;
+        .intro-line{
+            background: v.$c_tone_02;
+        }
+    }
+
+    .modules-ok{
+        border-left: 3px solid v.$c_accent_secondary;
+        .intro-line{
+            background: v.$c_tone_02;
+        }
+    }  
+
+    .modules-incomplete{
+        border-left: 3px solid red;
+        .intro-line{
+            background: v.$c_warning;
+        }
+    }
+
+    .modules-excess{
+        border-left: 3px solid v.$c_warning;
+        .intro-line{
+            background: v.$c_tone_00;
+            border: 1px solid v.$c_tone_02;
+            border-left: none;
+        }
+        li{
+            color: v.$c_txt_main;
+        }
+    }  
+}
+
+#toggle_item_form_btn{
+    margin-top: 3px;
+}
+
+.warning.subsection{
+    margin: 1rem 0;
+}
+
+table.price-comparison{
+    margin: 0.5rem;
+    border-spacing: 0;
+
+    th{
+        text-align: right;
+        padding: 0.1rem 0.3rem;
+        border-right: 2px solid v.$c_tone_02;
+    }
+    td{
+        padding: 0.3rem;
+    }
+
+    th, td{
+        border-top: 1px solid v.$c_tone_02;
+    }
+
+    .diff-perc{
+        &:before{
+            content: "(";
+        }
+        &:after{
+            content: "%)";
+        }
+    }
+
+    .number{
+        text-align: right;
+    }
+
+    .conclusion{
+        background: v.$c_tone_01;
+
+        th{
+            border-right: 2px solid v.$c_accent_secondary; 
+        }
+
+        th, td{
+            border-top: 1px solid v.$c_tone_03;
+        }
+    }
+}
+
+.status-toggle-indicator{
+    display: block;
+    padding: 0.1rem 1rem 0.1rem 0.7rem;
+    background: transparent;
+
+    color: v.$c_tone_06;
+    border: 1px solid v.$c_tone_03;
+    border-left: 3px solid v.$c_tone_05;
+
+    &:hover{
+        background: v.$c_tone_03;
+    }
+}
+
+#price_summary{
+    margin-top: 1.5rem;
+}
+
+#price_check_table{
+    .selling-price{
+        display: inline-block;
+        margin-top: 0.25rem;
+    }
+    td{
+        text-align: right;
+    }
+    .description{
+        position: relative;
+    }
+    .details{
+        display: block;
+        font-style: italic;
+        color: v.$c_tone_06;
+    }
+}
+
+// || Responsive table
+@media screen and (max-width: v.$breakpoint_table_to_rows){
+    #price_check_section{
+        max-width: 475px;
+        width: 100%;
+
+        .selling-price{
+            margin-top: 0;
+        }
+        
+        /*
+        Label the data
+        */
+        #price_check_table{
+            td:nth-of-type(2):before { content: "Quantity"; }
+            td:nth-of-type(1):before { content: "Part Number"; }
+            td:nth-of-type(3):before { content: "Sold @"; }
+            td:nth-of-type(4):before { content: "Price List: Version"; }
+            td:nth-of-type(5):before { content: "Price List: Value"; }
+            td:nth-of-type(6):before { content: "Price List vs. Sold"; }
+            td:nth-of-type(7):before { content: "Price List vs. Sold (%)"; }
+            td:nth-of-type(8):before { content: "Resale: Discount"; }
+            td:nth-of-type(9):before { content: "Resale: Value"; }
+            td:nth-of-type(10):before { content: "Resale vs. Sold"; }
+            td:nth-of-type(11):before { content: "Resale vs. Sold (%)"; }
+        }
+
+        // In narrow-mode the descriptions overlap the row below, so
+        // add a background; then add other formatting so the background
+        // doesn't look weird.
+        .details{
+            position: absolute;
+            bottom: -1rem;
+            right: 5px;
+            z-index: 2; // So you can click it off again
+
+            width: 15rem;
+
+            color: v.$c_tone_07;
+            background: v.$c_tone_02;
+            border: 1px solid v.$c_tone_01;
+            padding: 3px;
+            box-shadow: v.$panel_shadow;
+
+            border-right: 3px solid v.$c_accent_secondary;
+            padding-right: 10px;
+            text-align: right;
+
+            border-top-left-radius: 0.5rem;
+            border-bottom-left-radius: 0.5rem;
+        }
+    }
+}

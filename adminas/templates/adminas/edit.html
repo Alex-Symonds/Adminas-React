@@ -1,0 +1,94 @@
+{% extends "adminas/layout.html" %}
+{% load static %}
+
+{% block title %}
+    - Edit
+{% endblock %}
+
+{% block page_specific_css %}
+    <link href="{% static 'adminas/styles/edit-job.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block javascript %}
+    <script>
+        URL_SITE_ADDRESS = "{% url 'get_data' %}";
+        URL_DELETE_JOB = "{% url 'edit_job' %}?delete_id={{ job_id }}"
+    </script>
+    <script src="{% static 'adminas/scripts/auto_address.js' %}" type="text/javascript"></script>
+    <script src="{% static 'adminas/scripts/job_delete.js' %}" type="text/javascript"></script>
+{% endblock %}
+
+{% block body %}
+    <h2>{{ task_name }} Job</h2>
+    {% if job_id != 0 %}
+    <button id="delete_job_btn" class="button-warning">delete</button>
+    {% endif %}
+    <div class="job_form_container">
+        <form action="{% url 'edit_job' %}" method='POST'>
+            {% csrf_token %}
+            <input type='hidden' name='job_id' value='{{ job_id }}'>
+
+            <h3>Identification</h3>
+            <div class="form-row">
+                <label>{{ job_form.name.label }}</label>
+                <div>{{ job_form.name }}</div>
+            </div>
+            <div class="form-row">
+                <label>{{ job_form.quote_ref.label }}</label>
+                <div>{{ job_form.quote_ref }}</div>
+            </div>
+            <div class="form-row">
+                <label>{{ job_form.agent.label }}</label>
+                <div>{{ job_form.agent }}</div>
+            </div>
+            <div class="form-row">
+                <label>{{ job_form.customer.label }}</label>
+                <div>{{ job_form.customer }}</div>
+            </div>
+            <div class="form-row">
+                <label>{{ job_form.country.label }}
+                    <div class="hover-parent">
+                        [?]
+                        <span class="hover-child">Used for statistical purposes only. Does not affect invoice/delivery addresses.</span>
+                    </div>
+                </label>
+                <div>{{ job_form.country }}</div>
+            </div>
+            <div class="form-row">
+                <label>{{ job_form.language.label }}</label>
+                <div>{{ job_form.language }}</div>
+            </div>
+
+            <h3>Payment</h3>
+            <div class="form-row">
+                <label>{{ job_form.invoice_to.label }}</label>
+                <div class="address-dropdown">{{ job_form.invoice_to }}</div>
+                <div class="display-address" id="display-addr-invoice"></div>
+            </div>
+            <div class="form-row">
+                <label>{{ job_form.currency.label }}</label>
+                <div>{{ job_form.currency }}</div>
+            </div>
+            <div class="form-row">
+                <label>{{ job_form.payment_terms.label }}</label>
+                <div>{{ job_form.payment_terms }}</div>
+            </div>
+
+            <h3>Delivery</h3>
+            <div class="form-row">
+                <label>{{ job_form.delivery_to.label }}</label>
+                <div class="address-dropdown">{{ job_form.delivery_to }}</div>
+                <div class="display-address" id="display-addr-delivery"></div>
+            </div>
+            <div class="form-row">
+                <label>Incoterm</label>
+                <div>{{ job_form.incoterm_code }} {{ job_form.incoterm_location }}</div>
+            </div>
+            <hr>
+            <input id="submit_btn" type="submit" value="submit">
+        </form>
+    </div>
+
+{% endblock %}
+
+

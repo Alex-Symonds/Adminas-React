@@ -1,0 +1,153 @@
+{% extends "adminas/layout.html" %}
+{% load static %}
+
+{% block title %}
+    - Document Builder
+{% endblock %}
+
+{% block page_specific_css %}
+    <link href="{% static 'adminas/styles/documents.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block javascript %}
+    <script>
+        const DOC_CODE = '{{ doc_type }}';
+        const DOC_ID = '{{ doc_id }}';
+        const JOB_ID = '{{ job_id }}';
+        const URL_DOCBUILDER = "{% url 'doc_builder' %}";
+        const URL_DOCMAIN = "{% url 'doc_main' doc_id %}"
+        const URL_PREVIEW = "{% url 'doc_display' doc_id %}?mode=preview";
+    </script>
+    <script src="{% static 'adminas/scripts/document_builder_main.js' %}" type="text/javascript"></script>
+    <script src="{% static 'adminas/scripts/document_items.js' %}" type="text/javascript"></script>
+{% endblock %}
+
+
+{% block body %}
+
+    <h2>Document Builder</h2>
+    <div class="subheading">{{ doc_title }}</div>
+    <a class="return-to-job" href="{% url 'job' job_id %}">&laquo; return to Job</a>
+
+<div class="document-sections-wrapper edit-document"> 
+    <section class="status-controls draft">
+        <h3>Working on document</h3>
+
+    {% if doc_id == 0 %}
+        <p>Preview is disabled until the document has been saved.</p>
+    {% else %}
+        <a class="return-to-job" href="{% url 'doc_main' doc_id %}">&laquo; exit edit mode</a>
+        <a class="filled" href="{% url 'doc_display' doc_id %}?mode=preview">preview PDF</a>
+    {% endif %}
+
+        <button id="document_save_btn" class="filled">save draft</button>
+        <button id="document_delete_btn" class="button-warning">delete</button>
+        <button id="document_issue_btn" class="filled">issue final</button>
+    </section>
+
+
+    <section class="document-fields-container subsection">
+        <h4>General</h4>
+        <div class="form-row">
+            <label class="row-label" for="id_doc_reference">Reference</label>
+            <input type="text" id="id_doc_reference" value="{{reference}}">
+            <div class="doc-version" id="id_doc_version">version {{ version_number }}</div>
+        </div>
+
+
+    {% if doc_type == 'WO' %}
+        <div class="form-row">
+            <label class="row-label" for="id_req_prod_date">Requested Completion Date</label>
+            <input type="date" id="id_req_prod_date" value="{{doc_specific.date_requested|date:'Y-m-d'}}">
+        </div>
+
+        <div class="form-row">
+            <label class="row-label" for="id_sched_prod_date">Scheduled Completion Date</label>
+            <input type="date" id="id_sched_prod_date" value="{{doc_specific.date_scheduled|date:'Y-m-d'}}">
+        </div>
+    {% endif %}
+    </section>
+
+
+
+
+    <section class="special-instructions subsection">
+        <h4>Special Instructions</h4>
+        <div class="existing">
+    {% for sp_inst in special_instructions %}
+            <div class="read_row" data-siid="{{ sp_inst.id }}">
+                <div class="contents">{{ sp_inst.instruction }}</div>
+                <button class="edit-special-instruction-btn edit-icon"><span>edit</span></button>
+                <div class="who-and-when"><span class="username">{{ sp_inst.created_by }}</span> on <span class="when">{{ sp_inst.created_on }}</span></div>
+            </div>
+    {% empty %}
+            <p class="no-special-instructions">No special instructions on this document.</p>
+    {% endfor %}
+        </div>
+        <div class="add-button-container">
+            <button class="add-button special-instruction">special instruction</button>
+        </div>
+        <div class="add-new form-like panel hide">
+            <button class="close close-new-instr"><span>close</span></button>
+            <label for="id_add_special_instruction">Add pending special instruction</label>
+            <textarea id="id_add_special_instruction"></textarea>
+            <button class="add-special-instruction-btn button-primary full-width-button">add to pending</button>
+        </div>
+    </section>
+
+
+
+
+    <section class="existing-items-container">
+        <h3>Items</h3>
+        <div class="included-container panel">
+            <h4 class="panel-header">Include</h4>
+            <ul id="included">
+    {% for inc in included_items %}
+                <li data-jiid="{{ inc.jiid }}">
+                    <span class="display">{{ inc.display }}</span>
+                    <div class="button-container">
+                        <button class="toggle-docitem-btn button-primary">excl. &raquo;</button>
+        {% if inc.total_quantity > 1 %}
+                        <button class="split-docitem-btn button-primary-hollow">&laquo; split &raquo;</button>
+        {% endif %}
+                    </div>
+                </li>
+    {% empty %}
+                <li class="none">None</li>
+    {% endfor %}
+            </ul>
+        </div>
+        <div class="excluded-container panel">
+            <h4 class="panel-header">Exclude</h4>
+            <ul id="excluded">
+        {% for excl in excluded_items %}
+                <li data-jiid="{{ excl.id }}" {% if excl.is_available == False %}class="unavailable"{% endif %}>
+                    <span class="display">
+                        {{ excl.display }}
+            {% if excl.is_available %}
+                    </span>
+                    <div class="button-container">
+                        <button class="toggle-docitem-btn button-primary">&laquo; incl.</button>
+                {% if excl.total_quantity > 1 %}
+                        <button class="split-docitem-btn button-primary-hollow">&laquo; split &raquo;</button>
+                {% endif %}
+                    </div>
+            {% else %}
+                        <span><a href="{% url 'doc_builder' %}?id={{excl.doc_id}}">
+                            (on&nbsp;{% if excl.used_by %}{{ excl.used_by }}{% else %}unnamed{% endif %})
+                        </a></span>
+                    </span>
+            {% endif %}
+                </li>
+        {% empty %}
+                <li class="none">None</li>
+        {% endfor %}                
+            </ul>
+        </div>
+    </section>
+
+</div>
+
+
+{% endblock %}

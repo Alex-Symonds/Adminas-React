@@ -1,0 +1,144 @@
+/*  Records formatting.
+    Contents:
+        || Filter
+        || Responsive table
+*/
+#filter_controls {
+  margin: 1rem 0;
+}
+#filter_controls #id_filter_records, #filter_controls #id_clear_filter_records {
+  margin: 0 1rem 0 0;
+  padding: 0.3rem 0.5rem;
+}
+#filter_controls #id_clear_filter_records {
+  text-decoration: none;
+}
+#filter_controls #id_filter_options {
+  display: block;
+  width: 95%;
+  max-width: 310px;
+}
+#filter_controls #id_filter_options .filter-options-body:first-of-type label {
+  border-top: none;
+  margin-bottom: 0;
+}
+#filter_controls #id_filter_options .filter-options-body span {
+  padding: 0 0 0.2rem;
+  font-size: 0.9rem;
+  font-style: italic;
+  color: #BBB;
+}
+#filter_controls #id_filter_options .filter-options-body fieldset {
+  margin: 1.5rem 0.5rem 0;
+}
+#filter_controls #id_filter_options .filter-options-body fieldset label {
+  clear: both;
+  font-size: 1rem;
+  border: none;
+  margin: 0.2rem 0 0.3rem 0;
+  width: 3rem;
+  float: left;
+  text-align: right;
+}
+#filter_controls #id_filter_options .filter-options-body fieldset input {
+  float: left;
+}
+
+#id_records .todo-list-add {
+  border-radius: 0.3rem;
+  padding: 0.3rem 0.5rem;
+  margin: 0 auto 0.2rem;
+}
+#id_records .list-show-btn {
+  border-radius: 0.3rem;
+  padding: 0.2rem 0.5rem;
+  margin: 0 auto 0;
+}
+#id_records td {
+  position: relative;
+}
+#id_records .records-list {
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: #444;
+  z-index: 3;
+  min-width: 200px;
+  max-width: 85vw;
+}
+#id_records .records-list.product {
+  width: 30rem;
+}
+#id_records .records-list.po {
+  width: 15rem;
+}
+#id_records .records-list ul {
+  list-style-type: none;
+  padding: 0;
+  border-bottom: 1px solid #666;
+  max-height: calc(90vh - 5rem);
+  overflow: auto;
+}
+#id_records .records-list li {
+  border-top: 1px solid #666;
+  padding: 0.1rem 1rem;
+}
+
+@media screen and (max-width: 930px) {
+  #id_records button.todo-list-add {
+    padding: 0 0.5rem;
+  }
+  #id_records span.todo-list-add {
+    padding: 0;
+  }
+  #id_records td:nth-of-type(1):before {
+    content: "View";
+  }
+  #id_records td:nth-of-type(2):before {
+    content: "To-Do";
+  }
+  #id_records td:nth-of-type(3):before {
+    content: "Job Ref.";
+  }
+  #id_records td:nth-of-type(4):before {
+    content: "Agent";
+  }
+  #id_records td:nth-of-type(5):before {
+    content: "Customer";
+  }
+  #id_records td:nth-of-type(6):before {
+    content: "Country";
+  }
+  #id_records td:nth-of-type(7):before {
+    content: "Language";
+  }
+  #id_records td:nth-of-type(8):before {
+    content: "Entered";
+  }
+  #id_records td:nth-of-type(9):before {
+    content: "Currency";
+  }
+  #id_records td:nth-of-type(10):before {
+    content: "Invoice to";
+  }
+  #id_records td:nth-of-type(11):before {
+    content: "Quote Ref.";
+  }
+  #id_records td:nth-of-type(12):before {
+    content: "PO Number";
+  }
+  #id_records td:nth-of-type(13):before {
+    content: "PO Value";
+  }
+  #id_records td:nth-of-type(14):before {
+    content: "Incoterm";
+  }
+  #id_records td:nth-of-type(15):before {
+    content: "Deliver to";
+  }
+  #id_records td:nth-of-type(16):before {
+    content: "Products";
+  }
+}
+
+/*# sourceMappingURL=records.css.map */

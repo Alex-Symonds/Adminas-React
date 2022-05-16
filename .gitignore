@@ -1,0 +1,6 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+db.sqlite3
+migrations/
+adminas-project/__pycache__/
+.env

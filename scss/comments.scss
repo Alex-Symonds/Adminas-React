@@ -1,0 +1,43 @@
+/*  Comments page formatting.
+    Contents:
+        || Layout
+*/
+
+// || Layout
+.comment-types-container{
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 2rem;
+
+    .comment-type-section{
+        margin: 0;
+        padding: 0;
+        flex:1;
+
+        .subheading{
+            font-weight: normal;
+            margin-bottom: 1rem;
+            font-size: 0.95rem;
+        }
+    }
+
+    .jobcomment-add-pinned-comment-container{
+        margin-top: 0.25rem;
+    }
+
+    h3{
+        margin: 1.5rem 0 0 0;
+    }
+
+    @media screen and (min-width: 713px){
+        .filtered-comments{
+            order:2;
+        }
+        .all-comments{
+            order:1;
+        }
+    }
+}

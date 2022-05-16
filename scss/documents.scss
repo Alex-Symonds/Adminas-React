@@ -1,0 +1,414 @@
+@use "variables" as v;
+
+/* Document_Builder and Document_Main formatting
+    Contents:
+        || Text formatting
+        || Layout
+        || Custom adjustments to common CSS (.subsection and .panel)
+*/
+
+
+// || Text formatting
+.doc-version{
+    display: inline-block;
+    margin-left: 0.5rem;
+    padding: 0.125rem 0.5rem;
+
+    font-size: 0.75rem;
+    white-space: nowrap;
+
+    background: v.$c_tone_01;
+
+    border: 1px solid v.$c_tone_00;
+    border-left: 3px solid v.$c_accent_secondary;
+    border-top-right-radius: 0.5rem;
+    border-bottom-right-radius: 0.5rem;
+}
+
+
+// || Layout
+.status-controls{
+    display: block;
+    width: calc(100% - 1rem - 3px);
+    padding: 0;
+    margin: 1rem 0 0;
+    border-left: 3px solid v.$c_tone_03;
+
+    .system-message-box, .unsaved-changes{
+        clear: both;
+        display: block;
+        width: 100%;
+        padding: 0.5rem;
+        border-left: none;
+        margin-top: 3rem;
+    }
+
+    .system-message-box{
+        border: none;
+        border-bottom: 1px solid v.$c_accent_secondary_02;
+    }
+
+    .unsaved-changes{
+        border: 1px solid v.$c_warning;
+        border-left: none;
+    }
+
+    h3{
+        margin: 0;
+        padding: 0.5rem;
+        font-size: 1.1rem;
+        border: none;
+        background: v.$c_tone_02;
+    }
+
+    &.draft{
+        h3{
+            background: v.$c_accent_secondary_02;
+        }
+        border-color: v.$c_accent_secondary;
+    }
+
+    &.final{
+        h3{
+            background: v.$c_tone_03;
+        }
+        border-color: v.$c_tone_04;
+    }
+
+    .status-header{
+        position: relative;
+        width: 100%;
+    }
+
+    .edit-icon{
+        position: absolute;
+        top: 0.3rem;
+        right: -0.2rem;
+    }
+
+    a{
+        text-decoration: none;
+    }
+
+    .filled, button.revert-replace, .button-warning{
+        width: fit-content;
+        display: block;
+        padding: 0.3rem 1.5rem;
+    }
+
+    .filled, button.revert-replace, #document_delete_btn{
+        margin: 1rem 0 0;
+    }
+
+    .filled, button.revert-replace{
+        border: 1px solid v.$c_accent;
+        border-left: none;
+        border-top-right-radius: 0.5rem;
+        border-bottom-right-radius: 0.5rem;
+        font-weight: bold;
+
+        &:hover{
+            background: v.$c_accent_03;
+            background: v.$g_button_hover;
+            color: v.$c_txt_on_accent;
+        }
+    }
+
+    .filled{
+        background: v.$c_accent;
+        background: v.$g_button_main;
+        color: v.$c_txt_main;
+    }
+
+    button.revert-replace{
+        background: v.$c_tone_00;
+        color: v.$c_accent;
+        border-color: v.$c_accent;
+    }
+
+    #document_issue_btn{
+        float: left;
+    }
+
+    .button-warning{
+        float: right;
+    }
+
+    .panel{
+        max-width: 11.75rem;
+    }
+
+    .return-to-job{
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+        border-left: none;
+    }
+
+    .unsaved-changes{
+        width: 100%;
+        background: v.$c_warning;
+        background: v.$g_warning_hover;
+        color: v.$c_txt_on_accent;
+        font-size: 1.1rem;
+        font-weight: bold;
+        text-align: center;
+        padding: 0.5rem;
+        margin-top: 3.5rem;
+    }
+
+    .system-message-box{
+        width: 98.5%;
+        border: 1px solid v.$c_tone_00;
+        border-left: 3px solid v.$c_warning;
+        background: v.$c_tone_01;
+        margin: 0.5rem;
+    }
+
+}
+
+
+.edit-document{
+    .document-fields-container{
+        padding-bottom: 1rem;
+    }
+
+    .existing-items-container li:last-of-type{
+        border-bottom: 1px solid v.$c_tone_02;
+    }
+    .existing-items-container li{
+        border-top: 1px solid v.$c_tone_02;
+    }
+
+    .existing-items-container{
+        ul{
+            padding: 0;
+        }
+
+        li{
+            display: flex;
+            flex-flow: row wrap;
+            align-items: center;
+            position: relative;
+            padding-left: 1rem;
+            
+            .button-container{
+                flex-grow: 2;
+            }
+        }
+
+        .split-docitem-window{
+            width: fit-content;
+            position: absolute;
+            top: 0.5rem;
+            left: 0.5rem;
+            z-index: 3;
+            background: v.$c_tone_02;
+            display: flex;
+            flex-flow: column nowrap;
+            justify-content: center;
+
+            .panel-header{
+                padding: 0;
+                width: 100%;
+            }
+
+            h5{
+                font-size: 1rem;
+                margin: 0;
+                padding: 0.5rem;
+            }
+
+            p{
+                margin: 0;
+                padding: 0.5rem;
+            }
+
+            #id_qty{
+                margin: 0.3rem auto 0;
+                font-size: 1.3rem;
+                height: 2rem;
+            }
+
+            .split-direction-setter{
+                display: flex;
+                flex-flow: column nowrap;
+                justify-content: center;
+                background: v.$c_tone_01;
+                padding-bottom: 0.5rem;
+
+                .split-direction-strip{
+                    display: flex;
+                    width: 100%;
+                    background: v.$c_tone_01;
+                    border-top: 1px solid v.$c_tone_00;
+    
+                    div{
+                        display: block;
+                        text-align: center;
+                        width: 33%;
+                        background: v.$c_tone_01;
+                    }
+                }
+            }
+
+            .docitem-split-status-container{
+                display: flex;
+                justify-content: center;
+
+                .container{
+                    border: 1px solid v.$c_tone_00;
+                    width: 50%;
+                    max-width: 8rem;
+                    text-align: center;
+
+                    h5{
+                        background: v.$c_tone_02;
+                        border-bottom: 1px solid v.$c_tone_01;
+                        padding: 0.3rem 0 0.2rem;
+                    }
+
+                    span{
+                        font-size: 2rem;
+                    }
+                }
+
+                &:first-child{
+                    border-left: none;
+                }
+                &:last-child{
+                    border-right: none;
+                }
+            }
+        }
+    }
+
+    .split-docitem-btn, .toggle-docitem-btn{
+        margin: 0.2rem 1rem;
+        width: 5rem;
+        border-radius: 0.3rem;
+        float: right;
+    }
+
+    .subsection{
+        max-width: v.$MAX_WIDTH;
+    }
+
+    .editing-special-instruction{
+        width: 90%;
+
+        textarea{
+            margin: 0.3rem;
+            width: calc(100% - 2 * 0.3rem - 1rem);
+            min-height: 3rem;
+        }
+    
+        .controls{
+            margin: 0.3rem;
+        }
+    }
+}
+
+
+// || Custom adjustments to common CSS
+.subsection.special-instructions{
+    // Set this to something bigger than the expanded "add instruction" button, but small enough to fit on narrow screens
+    min-width: 270px;
+
+    .read_row{
+        position: relative;
+        flex-flow: column nowrap;
+        align-items: stretch;
+        width: 100%;
+    }
+    
+    .contents{
+        padding: 0.3rem 0.3rem 0;
+        min-width: 100%;
+    }
+    .who-and-when{
+        color: v.$c_tone_04;
+        font-style: italic;
+        font-size: 0.9rem;
+        min-width: 100%;
+        padding: 0.1rem 0.3rem;
+    }
+
+    .edit-icon{
+        position: absolute;
+        top: 2px;
+        right: 0;
+
+        &:hover{
+            background-position: 5px 4px;
+        }
+    }
+
+    p{
+        padding: 0 0.5rem;
+    }
+
+    .add-button{
+        margin: 0.3rem;
+    }
+
+    // Bit hacky: the add-button expands to 12rem wide on hover. While visually this 
+    // fits inside the parent element ok, it somehow gives the flexbox new ideas about 
+    // the ideal width of the parent element, so the width "twitches" when you 
+    // hover over the button, which looks stupid.
+    // This container is used to set the width wider than the button needs to begin with.
+    .add-button-container{
+        width: 15rem;
+    }
+
+    .add-new{
+        border: 1px solid v.$c_tone_03;
+        background: v.$c_tone_02;
+        border-radius: 0.6rem;
+        margin: 1rem 0.3rem 0.8rem;
+
+        label{
+            font-size: 1.1rem;
+            font-weight: bold;
+            padding: 0;
+            margin: 0.3rem 0.5rem 0;
+            border: none;
+        }
+
+        textarea{
+            width: calc(100% - 2rem);
+            margin: 0.3rem 0.5rem 0;
+        }
+
+        .full-width-button{
+            margin-top: 0.3rem;
+        }
+
+    }
+}
+
+
+.panel{
+    &.excluded-container ul{
+        .display,
+        .none{
+            color: v.$c_tone_03;
+            font-style: italic;
+        }
+    }
+
+    &.status-controls{
+        .status-strip{
+            display: block;
+            text-align: center;
+            padding: 0.5rem;
+            width: calc(100% - 2 * 0.5rem);
+
+            &.final{
+                background: v.$c_tone_05;
+            }
+            &.draft{
+                background: v.$c_accent_secondary_02;
+            }
+        }
+    }
+}

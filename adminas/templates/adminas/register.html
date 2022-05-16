@@ -1,0 +1,42 @@
+{% extends "adminas/layout.html" %}
+
+{% block title %}
+    - Register
+{% endblock %}
+
+{% block page_specific_css %}
+    <link href="{% static 'adminas/styles/log_register.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block body %}
+    <h2>Register</h2>
+
+    {% if message %}
+        <div class="temp-warning-msg user-management">{{ message|safe }}</div>
+    {% endif %}
+
+    <form action="{% url 'register' %}" method="post" id="id_registration" class="form-like">
+        {% csrf_token %}
+        <div>
+            <label for="id_username">Username</label>
+            <input autofocus type="text" name="username" id="id_username" placeholder="username">
+        </div>
+        <div>
+            <label for="id_email">Email</label>
+            <input  type="email" name="email" placeholder="email" id="id_email">
+        </div>
+        <div>
+            <label for="id_password">Password</label>
+            <input type="password" name="password" placeholder="password" id="id_password">
+        </div>
+        <div>
+            <label for="id_confirm_password">Confirm Password</label>
+            <input type="password" name="confirmation" placeholder="confirm password" id="id_confirm_password">
+        </div>
+        <input class="button-primary" type="submit" value="Register">
+    </form>
+
+    <div class="helpful-suggestion">
+        Already have an account? <a href="{% url 'login' %}">Log in here.</a>
+    </div>
+{% endblock %}

@@ -1,0 +1,30 @@
+{% extends 'adminas/pdf/pdf_doc_1_body.html' %}
+
+{% block document_body %}
+    <div class="spacer"></div>
+
+    <section id="item_list">
+        <table>
+            <thead>
+                <tr>
+                    <th>Qty</th>
+                    <th>Part #</th>
+                    <th>Description</th>
+                    <th>Pack</th>
+                    <th>Extra?</th>
+                </tr>
+            </thead>
+    {% for item in line_items %}
+            <tbody>
+                <tr>
+                    <td>{{ item.quantity }}</td>
+                    <td>{{ item.part_number }}</td>
+                    <td>{{ item.product_description }}</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+            </tbody>
+    {% endfor %}
+        </table>
+    </section>
+{% endblock %}

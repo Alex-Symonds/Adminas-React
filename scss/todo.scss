@@ -1,0 +1,144 @@
+@use "variables" as v;
+
+/*  To-Do list formatting.
+    Contents:
+        || Layout
+        || Pinned comments section
+        || Common CSS adjustments (panel)
+*/
+
+// || Layout
+#id_todo_list_container{
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    flex-wrap: wrap;
+}
+
+// || Pinned comments section
+.comments{
+    h5{
+        margin: 3px 4px;
+        padding: 3px 8px;
+        font-size: 0.75rem;
+
+        border-radius: 6px;
+        border: 1px solid v.$c_tone_04;
+        color: v.$c_tone_06;
+
+        width: -moz-fit-content;
+        width: fit-content;
+    }
+
+    .add-job-comment-simplified{
+        margin: 5px;
+        padding: 0.5rem;
+    }
+}
+
+p.empty-section-notice{
+    padding: 0.2rem 0.5rem;
+}
+
+.todo-list-add-pinned-comment-container{
+    display: block;
+    width: 100%;
+}
+
+.jobcomment-add-pinned-comment-container{
+    display: block;
+    width: 100%;
+    margin: 0 0 0 0;
+
+    .job-comment-cu-container{
+        margin: 0 0 1rem 0;
+    }
+}
+
+.job-comment-cu-container{
+    background: v.$c_tone_02;
+    padding: 2px 5px 0;
+
+    h4{
+        margin: 5px 0 0;
+        background: transparent;
+        padding: 5px;
+    }
+
+    textarea{
+        padding: 8px;
+        width: calc(100% - 18px);
+    }
+
+    .checkbox-container{
+        background: v.$c_tone_01;
+        border: 1px solid v.$c_tone_00;
+        border-radius: 3px;
+        
+        padding: 3px 0 0;
+        width: calc(100% - 3px);
+        height: 1.5rem;
+
+        display: flex;
+        flex: row;
+        align-content: flex-start;
+
+        label{
+            margin: 0.15rem 0 0.25rem 0.4rem;
+            padding: 0;
+            font-size: 0.85rem;
+            font-weight: normal;
+            border: none;
+        }
+        input{
+            margin: 1px 0 0 7px;
+        }
+        #id_private_checkbox,
+        #id_pinned_checkbox{
+            margin-right: 1.9rem;
+        }
+
+    }
+}
+
+
+// || Common CSS adjustments
+.panel.job{
+    max-width: 400px;
+    box-shadow: v.$panel_shadow;
+
+    .panel-header{
+        border-bottom: none;
+    }
+
+    &:hover{
+        border: 1px solid v.$c_tone_06;
+        box-shadow: v.$panel_shadow_highlight;
+    }
+
+    p{
+        color: v.$c_txt_main;
+        margin: 0;
+        padding: 12px 10px;
+        background: v.$c_tone_02;
+        
+    }
+
+    ul{
+        margin-top: 0;
+        margin-bottom: 0;
+        background: v.$c_accent_01;
+        color: v.$c_txt_main;
+        padding: 8px 24px;
+        border-top: 1px solid v.$c_accent;
+        border-bottom: 1px solid v.$c_accent;
+    }
+
+    .comments{
+        margin: 0;
+    }
+
+    .add-button.comment{
+        margin: 3px 5px;
+    }
+}

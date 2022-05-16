@@ -1,0 +1,92 @@
+{% extends 'adminas/layout.html' %}
+{% load static %}
+
+{% block title %}
+    - Comments on Job {{ job.name }}
+{% endblock %}
+
+{% block page_specific_css %}
+    <link href="{% static 'adminas/styles/comments.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block javascript %}
+    <script>
+        const JOB_ID = '{{ job.id }}';
+        const URL_JOB_COMMENTS = '{% url "job_comments" job.id %}';
+        const URL_COMMENT_STATUS = '{% url "comment_status" %}';
+    </script>
+    <script src="{% static 'adminas/scripts/job_comments.js' %}" type="text/javascript"></script>
+{% endblock %}
+
+
+{% block body %}
+    <h2>Comments</h2>
+    <div class="subheading">Job {{ job.name }} 
+        <img src="{{ job.flag_url }}" alt="{{ job.flag_alt }}">
+    {% if job.customer != None %}
+            {{ job.customer }} 
+        {% if job.agent != None %}
+            (via 
+        {% endif %}
+    {% endif %}
+    {% if job.agent != None %}
+        {{ job.agent }}
+    {% endif %}
+    {% if job.agent != None and job.customer != None %}
+    )
+    {% endif %}
+        @ {{ job.currency }}&nbsp;{{ job.value }}
+    </div>
+
+    <a class="return-to-job" href="{% url 'job' job.id %}">&laquo; return to Job</a>
+
+    <div class="comment-types-container">
+
+        <div class="comment-type-section filtered-comments">
+            
+            <section>
+                <h3>Pinned by {{ user.username }}</h3>
+                <div class="comment-container pinned streamlined empty-paragraph">
+    {% for p in pinned %}
+                    {% include "adminas/components/comment_collapse.html" with comment=p %}
+    {% empty %}
+                    <p class="empty-section-notice">No comments have been pinned.</p>
+    {% endfor %}
+                </div>
+            </section>
+
+            <section>
+                <h3>Highlighted by {{ user.username }}</h3>
+                <div class="comment-container highlighted empty-paragraph">
+    {% for h in highlighted %}
+                    {% include "adminas/components/comment_full.html" with comment=h %}
+    {% empty %}
+                    <p class="empty-section-notice">No comments have been highlighted.</p>
+    {% endfor %}
+                </div>
+            </section>
+
+        </div>
+
+        <section class="comment-type-section all-comments">
+            <h3>All</h3>
+    {% if page_data.has_other_pages %}
+            <div class="subheading">page {{ page_data.number }} of {{ page_data.paginator.num_pages }}</div>
+    {% endif %}
+            <div class="jobcomment-add-pinned-comment-container">
+                <button class="add-button comment" data-form_type="full">comment</button>
+            </div>
+            <div class="comment-container all-comments empty-paragraph">
+    {% for comment in all_comments %}
+                {% include "adminas/components/comment_full.html" with comment=comment %}
+    {% empty %}
+                <p class="empty-section-notice">No comments have been added.</p>
+    {% endfor %}
+            </div>
+
+    {% include "adminas/components/pagination_nav.html" with page_data=page_data %}
+
+        </section> 
+    </div>
+
+{% endblock %}

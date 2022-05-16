@@ -1,0 +1,140 @@
+{% extends "adminas/layout.html" %}
+{% load static %}
+
+
+{% block title %}
+    - Document
+{% endblock %}
+
+{% block page_specific_css %}
+    <link href="{% static 'adminas/styles/documents.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block javascript %}
+    <script>
+        const URL_DOC_MAIN = "{% url 'doc_main' doc_version.id %}"
+    </script>
+    <script src="{% static 'adminas/scripts/document_main.js' %}" type="text/javascript"></script>
+{% endblock %}
+
+{% block body %}
+
+    <h2>Document</h2>
+    <div class="subheading">{{ doc_title }}</div>
+    <a class="return-to-job" href="{% url 'job' doc_version.document.job.id %}">&laquo; return to Job</a>
+   
+    
+<div class="document-sections-wrapper">  
+
+    <section class="status-controls 
+    {% if doc_version.issue_date %} final">
+        <h3>Issued on {{ doc_version.issue_date }} (v{{ doc_version.version_number }})</h3>
+        <a class="filled" href="{% url 'doc_display' doc_version.id %}">view PDF</a>
+        <button id="replace_document_btn" class="revert-replace">replace with new version</button>
+
+    {% elif doc_version.active %} draft">
+        <div class="status-header">
+            <h3>Draft (v{{ doc_version.version_number }})</h3>
+            <a class="edit-icon" href="{% url 'doc_builder' %}?id={{ doc_version.id }}"><span>edit</span></a>
+        </div>
+        
+        <a class="filled" href="{% url 'doc_display' doc_version.id %}">preview PDF</a>
+
+        {% if doc_version.version_number > 1 %}
+        <button id="revert_document_btn" class="revert-replace">revert to previous version</button>
+        {% endif %}
+    {% else %} deleted">
+        <h3>Deleted</h3>
+        <p>To restore, contact an administrator.</p>
+    {% endif %}
+    </section>
+
+
+    
+    <section class="document-fields-container subsection">
+        <h4>General</h4>
+        <div class="read_row">
+            <label class="row-label" for="id_doc_reference">Reference</label>
+            <div id="id_doc_reference">{{ doc_version.document.reference }}</div>
+            <div class="doc-version">version {{ doc_version.version_number }}</div>
+        </div>
+
+
+    {% if doc_version.document.doc_type == 'WO' %}
+        <div class="read_row">
+            <label class="row-label" for="id_req_prod_date">Requested Completion Date</label>
+            <div id="id_req_prod_date">{{ doc_specific.date_requested }}</div>
+        </div>
+    {% endif %}
+    </section>
+
+    <section class="special-instructions subsection">
+        <h4>Special Instructions</h4>
+        <div class="existing">
+    {% for sp_inst in special_instructions %}
+            <div class="read_row">
+                <div class="contents">{{ sp_inst.instruction }}</div>
+                <div class="who-and-when"><span class="username">{{ sp_inst.created_by }}</span> on <span class="when">{{ sp_inst.created_on }}</span></div>
+            </div>
+    {% empty %}
+            <p class="no_special_instructions">No special instructions on this document.</p>
+    {% endfor %}
+        </div>
+    </section>
+
+
+    <section class="existing-items-container">
+        <h3>Items</h3>
+        <div class="included-container panel">
+            <h5 class="panel-header">Include</h5>
+            <ul class="included">
+    {% for inc in doc_version.get_included_items %}
+                <li>
+                    <span class="display">{{ inc.display }}</span><span class="id-number">{{ inc.jiid }}</span>
+                </li>
+    {% empty %}
+                <li class="none">None</li>
+    {% endfor %}
+            </ul>
+        </div>
+    {% if doc_version.active %}
+        <div class="excluded-container panel">
+            <h5 class="panel-header">Exclude</h5>
+            <ul class="excluded">
+        {% for excl in doc_version.get_excluded_items %}
+                <li {% if excl.is_available == False %}class="unavailable"{% endif %}>
+                    <span class="display">
+                        {{ excl.display }}
+            {% if excl.is_available %}
+                    </span>
+                    <span class="id-number">{{ excl.jiid }}</span>
+            {% else %}
+                        <span><a href="{% url 'doc_main' excl.doc_id %}">
+                            (on  
+                {% if excl.used_by %}
+                                {{ excl.used_by }})
+                {% else %}
+                            unnamed)
+                {% endif %}
+                        </a></span>
+                        <span class="id-number">{{ excl.jiid }}</span>
+                    </span>
+            {% endif %}
+                </li>
+        {% empty %}
+                <li class="none">None</li>
+        {% endfor %}                
+            </ul>
+        </div>
+    {% endif %}
+    </div>
+
+
+
+
+
+
+
+
+
+{% endblock %}

@@ -1,0 +1,38 @@
+/*  Comments page formatting.
+    Contents:
+        || Layout
+*/
+.comment-types-container {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 2rem;
+}
+.comment-types-container .comment-type-section {
+  margin: 0;
+  padding: 0;
+  flex: 1;
+}
+.comment-types-container .comment-type-section .subheading {
+  font-weight: normal;
+  margin-bottom: 1rem;
+  font-size: 0.95rem;
+}
+.comment-types-container .jobcomment-add-pinned-comment-container {
+  margin-top: 0.25rem;
+}
+.comment-types-container h3 {
+  margin: 1.5rem 0 0 0;
+}
+@media screen and (min-width: 713px) {
+  .comment-types-container .filtered-comments {
+    order: 2;
+  }
+  .comment-types-container .all-comments {
+    order: 1;
+  }
+}
+
+/*# sourceMappingURL=comments.css.map */

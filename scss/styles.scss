@@ -1,0 +1,1215 @@
+@use 'variables' as v;
+
+/* Common CSS for Adminas-React
+    Contents:
+        || HTML tag adjustments
+        || Heading classes
+        || Page layout
+        || Nav bar
+        || Footer
+        || Buttons
+        || Panels and Form-Likes
+        || Text formatting (errors, database IDs)
+        || Pagination
+        || Responsive tables
+        || Comments
+        || Visibility functionality
+*/
+
+
+// REPLACE THIS: one class for "price list" on job page; one for "pinned" on todo list (assuming you keep that)
+.secondary-icon{
+    margin: 3px 4px;
+    padding: 3px 8px;
+    font-size: 0.75rem;
+
+    border-radius: 6px;
+    border: 1px solid v.$c_tone_04;
+    color: v.$c_tone_06;
+
+    white-space: nowrap;
+
+    width: -moz-fit-content;
+    width: fit-content;
+}
+
+
+// #id_qty{
+//     height: 1rem;
+//     max-width: 5rem;
+// }
+
+
+
+
+// || HTML tag adjustments
+html,
+body{
+    min-height: 100vh;
+}
+
+body {
+    font-family: v.$f_contents;
+    background: v.$c_bg_main;
+    background: v.$g_bg_main;
+    color: v.$c_txt_main;
+}
+
+button{
+    font-size: 1rem;
+    font-family: v.$f_contents;
+}
+
+a{
+    color: v.$c_accent;
+    &:hover{
+        color: v.$c_accent_04;
+    }
+}
+
+h1{
+    font-family: v.$f_adminas;
+    margin: 0;
+    padding: 0;
+    font-size: 1.3rem;
+    color: v.$c_tone_05;
+
+    border-left: 3px solid v.$c_tone_03;
+    padding: 0.1rem 0.5rem 0.3rem;
+    margin-top: 0.1rem;
+}
+
+h2,
+h3,
+h4,
+h5,
+h6{
+    font-family: v.$f_heading;
+}
+
+h2 {
+    color: v.$c_txt_main;
+    margin-top: 2rem;
+    margin-bottom: 0;
+    width: 100%;
+    padding-bottom: 0.2rem;
+    border-bottom: 1px solid v.$c_txt_main;
+}
+
+h3{
+    margin-top: 1.7rem;
+    margin-bottom: 0;
+    width: 100%;
+    padding: 0.4rem 0 0.3rem 0;
+    border-bottom: 1px solid v.$c_tone_03;
+}
+
+input,
+select,
+textarea{
+    max-width: 92%;
+    margin-top: 3px;
+    background: v.$c_tone_00;
+    border: 1px solid v.$c_accent_02;
+    border-radius: 3px;
+    color: v.$c_txt_main;
+
+    &:active,
+    &:focus{
+        outline: thin dotted;
+        background: v.$c_tone_01;
+    }        
+}
+
+input{
+    height: 1.3rem;
+    padding: 0.2rem 0.5rem;
+}
+
+select{
+    height: 1.7rem;
+    padding: 0.2rem 0.3rem;
+}
+
+textarea{
+    font-family: v.$f_contents;
+    font-size: 0.9rem;
+    padding: 3px 5px;
+}
+
+// On Chrome, the calendar icon on calendar picker inputs blends in with the background. This makes it light enough to stand out.
+::-webkit-calendar-picker-indicator {
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="15" viewBox="0 0 24 24"><path fill="%23ffffff" d="M20 3h-1V1h-2v2H7V1H5v2H4c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 18H4V8h16v13z"/></svg>');
+}
+
+article{
+    padding: 0;
+    margin: 0;
+}
+
+
+
+
+// || Heading classes
+.adminas-name{
+    font-family: v.$f_adminas;
+}
+
+.subheading{
+    margin-top: 0px;
+    font-size: 1.1rem;
+    font-weight: bold;
+}
+
+.extended-subheading{
+    display: block;
+    position: relative;
+    width: 100%;
+
+    a{
+        color: v.$c_txt_main;
+    }
+
+    .edit-icon{
+        position: absolute;
+        height: 1.5rem;
+        bottom: 0;
+        right: 0.8rem;
+        text-decoration: none;
+
+        &:hover{
+            background-position: 5px 4px;
+        }
+    }
+}
+
+
+
+// || Page layout
+.page_container{
+    margin: 0;
+    width: 100%;
+}
+@media screen and (min-width: 500px){
+    .page_container{
+        width: 90%;
+        margin: 0 auto 0;
+    } 
+}
+
+
+
+
+
+
+
+
+// || Nav bar
+nav{
+    ul{
+        display: flex;
+        flex-direction: row;
+
+        margin: 0;
+        padding: 0;
+
+        border: 1px solid v.$c_tone_03;
+        border-left-width: 0;
+        border-right-width: 0;
+        list-style: none;
+
+        background: v.$c_bg_main;
+        background: v.$g_bg_main;
+
+        // This bit applies a box shadow, while also preventing it from going over the top of the Adminas heading
+        position: relative;
+        &:before{
+            position: absolute;
+            content: '';
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            z-index: -1;
+            box-shadow: 0px 0px 15px 8px rgb(15,15,15);
+        }
+    }
+    li,
+    li a{
+        font-size: 0.95rem;
+        height: 1.2rem;
+        padding: 0.5rem;
+
+        text-decoration: none;
+        color: v.$c_txt_main;
+    }
+    li a{
+        border-bottom: 3px solid transparent;
+        &:hover{
+            color: v.$c_txt_main_highlight;
+            background: v.$c_tone_02;
+            border-bottom: 3px solid v.$c_accent;
+        }
+    }
+}
+
+// || Footer
+.credits{
+    border: 1px solid v.$c_tone_02;
+    border-radius: 0.3rem;
+    font-size: 0.8rem;
+    margin-top: 5rem;
+    padding: 4px 8px;
+
+    h6{
+        padding: 0;
+        margin: 0;
+        color: v.$c_tone_05;
+    }
+
+    ul{
+        list-style-type: none;
+        margin: 0;
+        padding: 0.1rem 0.3rem;
+    }
+
+    a{
+        color: v.$c_tone_03;
+        text-decoration: none;
+        &:hover{
+            color: v.$c_tone_05;
+            text-decoration: underline;
+        }
+    }
+}
+
+// || Buttons
+.button-primary{
+    font-weight: bold;
+    border-radius: 0.6rem;
+
+    background: v.$c_accent;
+    background: v.$g_button_main;
+    color: v.$c_txt_main;
+    border: 1px solid v.$c_accent_02;
+
+    &:hover{
+        color: v.$c_txt_alt;
+        background: v.$c_accent_03;
+        background: v.$g_button_hover;
+        box-shadow: 0 0 3px 1px v.$c_tone_02;
+    }
+}
+.button-primary-hollow{
+    font-weight: bold;
+    border-radius: 0.6rem;
+
+    background: transparent;
+    color: v.$c_accent;
+    border: 1px solid v.$c_accent_02;
+
+    &:hover{
+        color: v.$c_txt_alt;
+        background: v.$c_accent_03;
+        box-shadow: 0 0 3px 1px v.$c_tone_02;
+    }
+}
+
+.button-warning{
+    font-weight: bold;
+    border-radius: 0.6rem;
+
+    background: v.$c_tone_02;
+    background: v.$g_secondary_btn;
+    border: 1px solid v.$c_warning;
+    color: v.$c_warning;
+
+    &:hover{
+        background: v.$g_warning_hover;
+        color: v.$c_txt_warning_g;
+    }
+}
+
+.add-button{
+    border: 0;
+    border-radius: 13px;
+    border: 1px solid transparent;
+
+    height: 30px;
+    width: 30px;
+
+    &.comment{
+        margin: 0;
+    }
+
+    background-image: url(../images/i-plus-empty.svg);
+    background-color: transparent;
+    background-repeat: no-repeat;
+    background-position: 5px 2px;
+    background-size: 24px 24px;
+    text-indent: -9999px;
+
+    &:hover{
+        border: 1px solid v.$c_tone_05;
+
+        color: v.$c_txt_main;
+        font-weight: bold;
+
+        background-image: url(../images/i-plus-filled.svg);
+        background-color: v.$c_tone_02;
+        animation-duration: 0.2s;
+        animation-fill-mode: forwards;
+        animation-name: expand_add_default;
+
+        &.module,
+        &.special-instruction{
+            animation-name: expand_add_wide;
+        }
+    }   
+}
+
+@keyframes expand_add_default {
+    from {
+        width: 30px;
+        text-indent: -9999px;
+    }
+
+    95%{
+        text-indent: -9999px;
+    }
+    
+    to {
+        width: 7.5rem;
+        text-indent: 18px;
+    }
+}
+
+@keyframes expand_add_wide{
+    from {
+        width: 30px;
+        text-indent: -9999px;
+    }
+
+    95%{
+        text-indent: -9999px;
+    }
+    
+    to {
+        width: 12rem;
+        text-indent: 20px;
+    }
+}
+
+.edit-icon{
+    float: right;
+    position: relative;
+
+    border: 0;
+    border-bottom: 2px solid transparent;
+
+    height: 26px;
+    width: 26px;
+
+    background-image: url(../images/i-edit.svg);
+    background-color: transparent;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 16px 16px;
+
+    margin-left: 3px;
+    margin-right: 3px;
+    max-width: 26px;
+
+    span{
+        color: transparent;
+        text-align: center;
+    }
+
+    &:hover{
+        background-position: 5px 5px;
+        background-color: transparent;
+        border-bottom: 2px solid white;
+
+        span{
+            transition-delay: 0.05s;
+            color: white;
+            border-radius: 5px;
+            background: rgba(v.$c_tone_00, 80%);
+            border: 1px solid v.$c_tone_00;
+
+            display: block;
+            width: 3rem;
+
+            position: absolute;
+            top:0;
+            right:26px;
+        }
+    }
+}
+
+.return-to-job{
+    display: block;
+    border: 1px solid v.$c_accent_02;
+    border-radius: 8px;
+    padding: 6px 8px;
+    width: fit-content;
+    margin: 0.5rem 0 0 0;
+    text-decoration: none;
+    
+    &:hover{
+        border: 1px solid v.$c_accent_02;
+        background: v.$g_button_main;
+        font-weight: bold;
+        color: v.$c_txt_on_accent;
+    }
+}
+
+// || Panels and Form-Likes
+.panel{
+    display: inline-block;
+    position: relative;
+    box-sizing: border-box;
+
+    border: 1px solid v.$c_tone_03;
+    border-radius: 8px;
+
+    max-width: v.$MAX_WIDTH;
+    width: 93%;
+
+    margin: 1rem 0.5rem 0 0.5rem;
+
+    &.popout{
+        box-shadow: 0 0 15px 15px rgba(black, 33%);
+    }
+
+    a{
+        text-decoration: none;
+    }
+
+    .panel-header{
+        font-size: 1rem;
+
+        width: calc(100% - 16px);
+
+        border-top-left-radius: 8px;
+        border-top-right-radius: 8px;
+        margin: 0;
+        padding: 12px 8px;
+
+        color: v.$c_txt_main;
+        background: v.$c_tone_02;
+        background: linear-gradient(0deg, v.$c_tone_01 0%, v.$c_tone_02 100%);
+        border-bottom: 1px solid v.$c_tone_03;
+
+        h3{
+            margin: 0;
+        }
+
+        .desc{
+            &:before,
+            &:after{
+                content: '"';
+            }
+
+            font-style: italic;
+            font-weight: normal;
+            font-size: 0.95rem;
+            color: v.$c_tone_06;
+        }
+    }
+
+    .close,
+    .delete-panel{
+        position: relative;
+        float: right;
+        color: v.$c_tone_07;
+        margin-right: 3px;
+    
+        width: 30px;
+        height: 30px;
+        background-repeat: no-repeat;
+        background-position: right;
+        border: transparent;
+    
+        background-color: transparent;
+        padding: 3px 5px;
+        z-index: 2;
+    
+        span{
+            display: block;
+            position: absolute;
+            top:0;
+            right:26px;
+            z-index: 5;
+
+            font-size: 1rem;
+            width: 4rem;
+
+            color: transparent;
+            text-align: center;
+        }
+    
+        &:hover{
+            span{
+                color: v.$c_txt_main;
+                border-radius: 5px;
+                background: rgba(v.$c_tone_00, 80%);
+                border: 1px solid v.$c_tone_00;
+            }
+        }    
+    }
+
+    .close{
+        background-image: url(../images/i-x-hollow.svg);
+
+        &:hover{
+            background-image: url(../images/i-x-filled.svg);
+        }
+    }
+
+    .delete-panel{
+        color: v.$c_tone_07;
+        background-image: url(../images/i-minus-empty.svg);
+ 
+         &:hover{
+            background-image: url(../images/i-minus-filled.svg);
+        }
+    }
+}
+
+// Panel subsections
+.subsection{
+    margin: 0.5rem 0 0 3px;
+    border-bottom: 1px solid v.$c_tone_03;
+    border-left: 3px solid v.$c_tone_04;
+
+    h4,
+    .subsection-heading{
+        padding: 0.4rem 0 0.4rem 0.4rem;
+        background: v.$c_tone_02; 
+        margin: 0;
+        border-bottom: 0;
+    }
+
+    .read_row{
+        border-bottom: 1px solid v.$c_tone_02;
+        padding: 0.2rem 0;
+
+        display: flex;
+        flex-flow: row nowrap;
+        align-items: center;
+
+        .row-label{
+            display: inline-block;
+            min-width: 8rem;
+            max-width: 8rem;
+
+            margin-left: calc(0.3rem + 6px);
+        }
+    }
+
+    &.warning{
+        border-left: 3px solid v.$c_warning;
+
+        .intro-line, h4{
+            background: v.$c_warning;
+        }
+
+        p{
+            margin: 0;
+            padding: 0.5rem;
+        }
+    }
+
+    input{
+        height: 1rem;
+        font-size: 0.9rem;
+    }
+
+    .one-comment:last-of-type details{
+        border-bottom: none;
+    }
+}
+
+
+.form-like{
+
+    label,
+    input,
+    select,
+    span,
+    .button-container{
+        margin: 0;
+        margin-left: 0.7rem;
+    }
+    span.product_desc{
+        margin-left: 0;
+    }
+
+    label{
+        display: block;
+        margin-top: 1rem;
+        margin-bottom: 6px;
+        margin-right: 0.7rem;
+        padding-top:0.3rem;
+        font-size: 1.1rem;
+        font-weight: bold;
+        border-top: 1px solid v.$c_tone_02;
+    }
+
+    #id_edit_item_selling_price{
+        // This has a span in front indicating the currency, so it doesn't want the full margin
+        margin-left: 0.5rem;
+    }
+
+    .issue-date{
+        margin-top: 1rem;
+    }
+
+    .form-row{
+        display: block;
+        position: relative;
+        padding: 0.3rem 0.4rem;
+        border-radius: 5px;
+        background: v.$c_tone_02;
+        margin: 1rem auto 0;
+        width: calc(97% - 1.8rem);
+
+        :first-child{
+            border-top: none;
+            margin-top: 0;
+        }
+
+        input,
+        select{
+            max-width: 80%;
+        }
+
+        &.panel{
+            width: 260px;
+        }
+    }
+
+    .controls{
+        margin: 1.2rem 0.5rem 1rem 0.5rem;
+
+        width: calc(100% - 1rem);
+        height: 100%;
+        overflow-x: auto;
+        white-space: nowrap;
+
+        button,
+        input[type=submit]{
+            float: left;
+            margin: 5px;
+            border-radius: 5px;
+            padding: 5px 10px;
+            width: 20%;
+            min-width: 4.5rem;
+        }
+
+        input[type=submit]{
+            height: auto;
+            padding: 5px 0.5rem;
+            font-size: 1rem;
+            width: 20%;
+        }
+
+        .delete-btn,
+        .delete-comment-btn{
+            float: right;
+        }
+    }
+
+    .full-width-button{
+        width: 100%;
+        margin: 1rem 0 0;
+        padding: 0.4rem 0;
+        height: 2.3rem;
+        font-size: 1.2rem;
+        border-radius: 0.5rem;
+        border-top-left-radius: 0;
+        border-top-right-radius: 0;        
+    }
+
+    div:last-child{
+        border-bottom: none;
+    }
+
+    &.hide{
+        display:none;
+    }
+
+    span.desc{
+        display: block;
+        font-size: 0.9rem;
+        font-style: italic;
+        margin: 0.2rem 0 0 1.2rem;
+        border-left: 3px solid v.$c_accent_secondary;
+        padding: 5px;
+    
+        &.hide{
+            display: none;
+        }
+    }
+
+}
+
+.form-row{
+    margin-left: 0.5rem;
+
+    label{
+        display: block;
+        margin: 1rem 0 0 1px;
+    }
+
+    .display-address{
+        margin: 0.5rem 0 0 1rem;
+        padding-left: 8px;
+        border-left: 2px solid v.$c_accent_secondary;
+        color: v.$c_tone_07;
+    }
+}
+
+@media screen and (min-width: 445px){
+    // NOTE TO SELF: this can probably be better fixed via box-sizing: border-box;
+    // Something about the proliferation of %-based widths results in width issues (on narrow screens)
+    // on the Job page whenever the form to add multiple items is visible.
+    // Setting a pixel-based width above solved the problem for narrow screens, but causes a problem
+    // on wide screens (= weirdly skinny form sections). This widens them again.
+
+    .form-like{
+        .form-row.panel{
+            width: 95%;
+        }
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+// || Text formatting (errors, database IDs)
+.temp-warning-msg{
+    margin-left: 0.6rem;
+    color: v.$c_txt_warning_g;
+    background: v.$g_warning_hover;
+    font-size: 0.9rem;
+    padding: 0 0.3rem;
+    border-radius: 0.45rem;
+    border: 1px solid v.$c_txt_warning_g;
+    width: fit-content;
+    max-width: 65%;
+    min-height: 1.2rem;
+    word-wrap: wrap;
+
+    &.user-management{
+        margin-top: 1rem;
+        padding: 0.5rem;
+    }
+}
+
+.error-message{
+    clear: both;
+    float: right;
+    border: 1px solid v.$c_tone_00;
+    border-right: 3px solid v.$c_warning;
+    background: v.$c_tone_01;
+    margin: 0.5rem;
+    padding: 4px 8px;
+}
+
+.id-number{
+    &:before{
+        content: 'id ';
+    }
+
+    margin: 0 0 0 5px;
+    padding: 1px 5px;
+    font-size: 0.75rem;
+    font-style: normal;
+
+    border-top-right-radius: 3px;
+    border-bottom-right-radius: 3px;
+    background: v.$c_tone_01;
+    border: 1px solid v.$c_tone_00;
+    color: v.$c_txt_main;
+
+    white-space: nowrap;
+
+    width: -moz-fit-content;
+    width: fit-content;
+}
+
+
+
+
+
+
+
+// || Pagination
+.pagination_controls{
+    margin: 1.5rem 0;
+    height: 2rem;
+
+    display: flex;
+    max-width: v.$MAX_WIDTH;
+
+    a{
+        text-decoration: none;
+    }
+
+    a,
+    span{
+        flex: 1;
+        text-align: center;
+        border: 1px solid v.$c_tone_03;
+        padding: 0.4rem;
+    }
+
+    .disabled-link{
+        font-style: italic;
+        color: v.$c_tone_02;
+    }
+
+    a:hover{
+        border: 1px solid v.$c_accent_02;
+        background: v.$g_button_main;
+        color: v.$c_txt_on_accent;
+        font-weight: bold;
+    }
+
+    :first-child{
+        border-top-left-radius: 1rem;
+        border-bottom-left-radius: 1rem;
+    }
+    :last-child{
+        border-top-right-radius: 1rem;
+        border-bottom-right-radius: 1rem;
+    }
+}
+
+
+// || Responsive table (i.e. switches from a table to formatted rows when the screen is too narrow)
+.responsive-table{
+    margin: 0.3rem;
+    border-collapse: collapse;
+    
+    tr:nth-of-type(even){ 
+        background: v.$c_tone_02;
+    }
+
+    th,
+    td{
+        padding: 0.1rem 0.5rem;
+    }
+    th{
+        border: 1px solid v.$c_tone_02;
+        background: v.$c_tone_03;
+    }
+    td{
+        border: 1px solid v.$c_tone_03;
+        height: 2rem;
+    }
+
+    .edit-icon{
+        margin: 0 0 0 0.3rem;
+    }
+    .edit-icon:hover{
+        background-position: 5px 4px;
+    }
+}
+@media only screen and (max-width: v.$breakpoint_table_to_rows) {
+    // https://css-tricks.com/responsive-data-tables/
+    .responsive-table{
+        display: block; 
+
+        /* Force table to not be like tables anymore */
+        thead,
+        tbody,
+        th,
+        td,
+        tr { 
+            display: block; 
+        }
+        
+        /* Hide table headers (but not display: none;, for accessibility) */
+        thead tr { 
+            position: absolute;
+            top: -9999px;
+            left: -9999px;
+        }
+        
+        tr { 
+            margin-top: 0.3rem;
+            border: 1px solid v.$c_tone_04; 
+        }
+        
+        td { 
+            /* Behave  like a "row" */
+            border: none;
+            border-bottom: 1px solid v.$c_tone_03; 
+            position: relative;
+            padding-left: 50%; 
+            padding-top: 10px;
+
+            height: 1.75rem;
+        }
+       
+        td:before { 
+            /* Now like a table header */
+            position: absolute;
+            /* Top/left values mimic padding */
+            top: 10px;
+            left: 6px;
+            width: 47%; 
+            padding-right: 10px; 
+            white-space: nowrap;
+        }
+    }
+}
+
+
+// || Comments
+.one-comment{
+    width: calc(100% - 10px);
+    min-width: 250px;
+    max-width: v.$MAX_WIDTH;
+
+    padding: 2px 5px 0;
+
+    details {
+        padding: 0;
+        border: 1px solid transparent;
+        border-bottom: 1px solid v.$c_tone_03;
+    }
+
+    details,
+    .full-comment-container{
+        border-left: 2px solid transparent;
+    }
+
+    summary,
+    .comment-body{
+        padding: 0 5px 5px 5px;
+        min-height: calc(24px + 8px);
+    }
+
+    &.highlighted{
+        details,
+        .full-comment-container{
+            border-left: 2px solid yellow;
+            background: rgba(white, 6%);
+        }
+
+        .full-comment-container{
+            background: v.$c_tone_03;
+            box-shadow: v.$panel_shadow;
+
+            .comment-body{
+                background: transparent;
+            }
+            .footer{
+                color: v.$c_tone_06;
+            }
+        }
+    }
+
+    details[open]{
+        background: v.$c_tone_03;
+        border: 1px solid v.$c_tone_04;
+        border-left: 1px solid v.$c_tone_04;
+    }
+    details[open] summary {
+        background: v.$c_tone_02;
+        border-bottom: 1px solid transparent;
+        padding-bottom: 5px;
+    }
+
+    /* --- full version ---- */
+    .full-comment-container{
+        margin: 1rem 0 0 0;
+
+        background: transparent;
+        border: 1px solid v.$c_tone_02;
+
+        border-top-right-radius: 0.5rem;
+        border-bottom-right-radius: 0.5rem;
+
+        .comment-body{
+            padding: 0.3rem;
+            border-bottom: 1px solid v.$c_tone_02;
+
+            background: v.$g_bg_main;
+            border-top-right-radius: 0.4rem;
+
+            .main{
+                .contents{
+                    display: block;
+                    margin: 0;
+                    padding: 0.3rem;
+                }
+            }
+        }  
+        
+        .footer{
+            margin: 0;
+            padding: 3px;
+            font-size: 0.9rem;
+            color: v.$c_tone_05;
+        }
+
+    }
+
+    .main{
+        .contents{
+            margin: 0;
+            padding: 5px;
+        }
+
+        .privacy-status{
+            float: right;
+            margin: 4px 6px;
+
+            width: 24px;
+            height: 24px;
+            text-indent: -9999px;
+
+            background-image: url(../images/i-private-comment.svg);
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: 24px 24px;
+            text-indent: -9999px;
+        }
+    }
+
+    .footer{
+        margin: 3px;
+
+        .ownership{
+            display: inline-block;
+            margin: 0;
+            margin-left: 3px;
+            padding-bottom: 3px;
+        }
+    }
+
+    .controls{
+
+        .edit-comment{
+            background-image: url(../images/i-edit.svg);
+        }
+
+        .highlighted-toggle{
+            background-image: url(../images/i-highlight.svg);        
+        }
+
+        .pinned-status-on{
+            background-image: url(../images/i-pin-filled.svg);
+        }
+    
+        .pinned-status-off{
+            background-image: url(../images/i-pin-unfilled.svg);
+        }
+
+
+        .edit-comment,
+        .highlighted-toggle,
+        .pinned-status-on,
+        .pinned-status-off{
+            border: 0;
+            border-radius: 13px;
+            border: 1px solid transparent;
+
+            height: 26px;
+            width: 26px;
+
+            background-color: transparent;
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: 16px 16px;
+            text-indent: -9999px;
+
+            &:hover{
+                background-color: v.$c_tone_04;
+                border: 1px solid v.$c_tone_05;
+
+                color: v.$c_txt_main;
+                font-weight: bold;
+
+                animation-duration: 0.2s;
+                animation-fill-mode: forwards;
+                animation-name: expand_comment_controls;
+            }
+
+        }
+        .edit-comment:hover{
+            background-position: 7px 4px;
+        }
+
+        .highlighted-toggle,
+        .pinned-status-on,
+        .pinned-status-off{
+            &:hover{
+                background-position: 4px 4px;
+            }
+        }
+    }
+}
+@keyframes expand_comment_controls{
+    from {
+        width: 26px;
+        text-indent: -9999px;
+    }
+
+    95%{
+        text-indent: -9999px;
+    }
+    
+    to {
+        width: 8rem;
+        text-indent: 0;
+    }
+}
+
+
+// || Visibility functionality
+.hide{
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    top: -9999px;
+    left: -9999px;
+
+    display: none;
+}
+
+.hover-parent{
+    display: inline-block;
+    position: relative;
+
+    .hover-child{
+        display: none;
+        position: absolute;
+        top: -0.75rem;
+        left: 1rem;
+        width: 18rem;
+        font-size: 0.8rem;
+        padding: 3px 5px 3px 3px;
+        color: v.$c_txt_alt;
+        background: v.$c_tone_05;
+        border: 1px solid v.$c_tone_06;
+        border-radius: 2px;
+    }
+
+    &:hover .hover-child{
+        display: block;
+    }
+}
+
