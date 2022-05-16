@@ -1,5 +1,5 @@
 """
-WSGI config for project5 project.
+WSGI config for adminas-project project.
 
 It exposes the WSGI callable as a module-level variable named ``application``.
 

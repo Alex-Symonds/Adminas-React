@@ -88,7 +88,6 @@ h3 {
 input,
 select,
 textarea {
-  max-width: 92%;
   margin-top: 3px;
   background: #141414;
   border: 1px solid #00c2e0;
@@ -110,11 +109,13 @@ input {
 }
 
 select {
+  max-width: 92%;
   height: 1.7rem;
   padding: 0.2rem 0.3rem;
 }
 
 textarea {
+  max-width: 92%;
   font-family: "Calibri", sans-serif;
   font-size: 0.9rem;
   padding: 3px 5px;

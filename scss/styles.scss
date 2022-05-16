@@ -107,7 +107,6 @@ h3{
 input,
 select,
 textarea{
-    max-width: 92%;
     margin-top: 3px;
     background: v.$c_tone_00;
     border: 1px solid v.$c_accent_02;
@@ -127,11 +126,13 @@ input{
 }
 
 select{
+    max-width: 92%;
     height: 1.7rem;
     padding: 0.2rem 0.3rem;
 }
 
 textarea{
+    max-width: 92%;
     font-family: v.$f_contents;
     font-size: 0.9rem;
     padding: 3px 5px;

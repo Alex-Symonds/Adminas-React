@@ -159,6 +159,7 @@
                 <h3>Documents</h3>
                 <div class="subsection">
                     <h4>Works Order</h4>
+                    <a href="{% url 'doc_builder' %}?job={{job.id}}&type=WO" class="add-button">New WO</a>
                     <ul>
             {% for doc_version in job.related_documents %}
                 {% if doc_version.document.doc_type == 'WO' %}
@@ -176,11 +177,11 @@
                 {% endif %}
             {% endfor %}
                     </ul>
-                    <a href="{% url 'doc_builder' %}?job={{job.id}}&type=WO" class="add-button">New WO</a>
                 </div>
 
                 <div class="subsection">
                     <h4>Order Confirmation</h4>
+                    <a href="{% url 'doc_builder' %}?job={{job.id}}&type=OC" class="add-button">New OC</a>
                     <ul>
             {% for doc_version in job.related_documents %}
                 {% if doc_version.document.doc_type == 'OC' %}
@@ -198,7 +199,6 @@
                 {% endif %}
             {% endfor %}
                     </ul>
-                    <a href="{% url 'doc_builder' %}?job={{job.id}}&type=OC" class="add-button">New OC</a>
                 </div>
             </section>
         </section>
@@ -207,6 +207,34 @@
         <section id="job_items_section" class="job-section">
             <h3>Items</h3>
             <div class="job-items-container">
+                <button id="open_item_form_btn" class="add-button {% if job.main_item_list == None %}hide{% endif %}">Add Items</button>
+                <div id="new_items_container" class="form-like panel {% if job.main_item_list != None %}hide{% endif %}">
+                    <button id="close_item_form_btn" class="close"><span>close</span></button>
+                    <h5 class="panel-header">Add New Items</h5>
+                    <form method="POST" action="{% url 'items' %}" id="items_form">
+                        {% csrf_token %}
+                        {{ item_formset.management_form }}
+        {% for form in item_formset %}
+                        <div class="form-row panel">
+                            <button class="remove-item-btn delete-panel"><span>remove</span></button>
+                            <label for="{{ form.quantity.auto_id }}">{{ form.quantity.label }}</label>
+                            {{ form.quantity }}
+                            <label for="{{ form.product.auto_id }}">{{ form.product.label }}</label>
+                            {{ form.product }}
+                            <label for="{{ form.selling_price.auto_id }}">{{ form.selling_price.label }}</label>
+                            {{ form.selling_price }}
+                            <label for="{{ form.price_list.auto_id }}">{{ form.price_list.label }}</label>
+                            {{ form.price_list }}
+                            {{ form.job }}
+                        </div>
+        {% endfor %}
+                        <button id="add_item_btn" class="add-button"><span>add 1 more</span></button>
+                        <div class="add-multiple">
+                            add <input type="number" id="add_multi_items"> more <button id="add_multi_items_btn" class="button-primary">ok</button>
+                        </div>
+                        <input type="submit" action="submit" id="items_submit_button" class="button-primary full-width-button" value="submit">
+                    </form>
+                </div>
 
         {% if job.main_item_list != None %}
                 <div class="existing-items-container">
@@ -288,66 +316,46 @@
                 {% endif %}
                     </div>
             {% endfor %}
-                </div>
-
-                <button id="open_item_form_btn" class="add-button">Add Items</button>
-                <div id="new_items_container" class="form-like panel hide">
-        {% else %}
-
-                <button id="open_item_form_btn" class="add-button hide">Add Items</button>
-                <div id="new_items_container" class="form-like panel">
+                </div>                
         {% endif %}
-                    <button id="close_item_form_btn" class="close"><span>close</span></button>
-                    <h5 class="panel-header">Add New Items</h5>
-                    <form method="POST" action="{% url 'items' %}" id="items_form">
-                        {% csrf_token %}
-                        {{ item_formset.management_form }}
-        {% for form in item_formset %}
-                        <div class="form-row panel">
-                            <button class="remove-item-btn delete-panel"><span>remove</span></button>
-                            <label for="{{ form.quantity.auto_id }}">{{ form.quantity.label }}</label>
-                            {{ form.quantity }}
-                            <label for="{{ form.product.auto_id }}">{{ form.product.label }}</label>
-                            {{ form.product }}
-                            <label for="{{ form.selling_price.auto_id }}">{{ form.selling_price.label }}</label>
-                            {{ form.selling_price }}
-                            <label for="{{ form.price_list.auto_id }}">{{ form.price_list.label }}</label>
-                            {{ form.price_list }}
-                            {{ form.job }}
-                        </div>
-        {% endfor %}
-                        <button id="add_item_btn" class="add-button"><span>add 1 more</span></button>
-                        <div class="add-multiple">
-                            add <input type="number" id="add_multi_items"> more <button id="add_multi_items_btn" class="button-primary">ok</button>
-                        </div>
-                        <input type="submit" action="submit" id="items_submit_button" class="button-primary full-width-button" value="submit">
-                    </form>
-                </div>
             </div>
         </section>
 
 
         <section class="job-section pair-related">
 
-        <section id="job_po_section" class="item">
-            <h3>Purchase Orders</h3>
-            {% if job.total_difference_value_po_vs_line != 0 %}
-            <div class="po-discrepancy warning subsection">
-                <h4>Discrepancy</h4>
-                <p>Sum of PO values does not match sum of line item selling prices.</p>
-                <div class="subsection">
-                    <h5 class="subsection-heading">Comparison to PO</h5>
-                    <table id="po-discrepancy" class="price-comparison">
-                        <tr><th>PO Sum</th><td>{{ job.currency }}</td><td class="po-total-price-f number">{{ job.total_po_value_f }}</td><td></td></tr>
-                        <tr><th>Line Items Sum</th><td>{{ job.currency }}</td><td class="selling-price number">{{ job.total_line_value_f }}</td><td></td></tr>
-                        <tr class="conclusion"><th>Difference</th><td>{{ job.currency }}</td><td class="diff-val number">{{ job.total_po_difference_value_f }}</td><td><span class="diff-perc">{{ job.total_po_difference_perc }}</span></td></tr>
-                    </table>
+            <section id="job_po_section" class="item">
+                <h3>Purchase Orders</h3>
+                <div class="job-po-form-container">
+                    <button id="toggle_po_form_btn" class="add-button">New PO</button>
+                    <form method="POST" action="{% url 'purchase_order' %}" class="form-like panel hide" id="po_form">
+                        <button type="button" class="cancel-po-form close"><span>cancel</span></button>
+                        <h5 class="panel-header">Add PO</h5>
+                        {% csrf_token %}
+                        {{ po_form }}
+                        <div class="controls">
+                            <input type='submit' action='submit' id='po_submit_button' value='submit' class='button-primary'>
+                        </div>
+                    </form>
                 </div>
-            </div>
+
+        {% if job.total_difference_value_po_vs_line != 0 %}
+                <div class="po-discrepancy warning subsection">
+                    <h4>Discrepancy</h4>
+                    <p>Sum of PO values does not match sum of line item selling prices.</p>
+                    <div class="subsection">
+                        <h5 class="subsection-heading">Comparison to PO</h5>
+                        <table id="po-discrepancy" class="price-comparison">
+                            <tr><th>PO Sum</th><td>{{ job.currency }}</td><td class="po-total-price-f number">{{ job.total_po_value_f }}</td><td></td></tr>
+                            <tr><th>Line Items Sum</th><td>{{ job.currency }}</td><td class="selling-price number">{{ job.total_line_value_f }}</td><td></td></tr>
+                            <tr class="conclusion"><th>Difference</th><td>{{ job.currency }}</td><td class="diff-val number">{{ job.total_po_difference_value_f }}</td><td><span class="diff-perc">{{ job.total_po_difference_perc }}</span></td></tr>
+                        </table>
+                    </div>
+                </div>
         {% endif %}
 
 
-            <div class="job-po-container">
+                <div class="job-po-container">
         {% for po in job.related_po %}
                     <div class="po-row">
                         <div class="details">
@@ -356,124 +364,105 @@
                         </div>
                     </div>
         {% endfor %}
-            </div>
-            <div class="job-po-form-container">
-
-                <button id="toggle_po_form_btn" class="add-button">New PO</button>
-                <form method="POST" action="{% url 'purchase_order' %}" class="form-like panel hide" id="po_form">
-                    <button type="button" class="cancel-po-form close"><span>cancel</span></button>
-                    <h5 class="panel-header">Add PO</h5>
-                    {% csrf_token %}
-                    {{ po_form }}
-                    <div class="controls">
-                        <input type='submit' action='submit' id='po_submit_button' value='submit' class='button-primary'>
-                    </div>
-                </form>
-            </div>
-
-
-        </section>
+                </div>
+            </section>
 
 
 
-        <section id="price_check_section" class="item">
-            <h3>Prices</h3>
+            <section id="price_check_section" class="item">
+                <h3>Prices</h3>
 
         {% if job.main_item_list == None %}
-            <p>Activates upon entering items.</p>
+                <p>Activates upon entering items.</p>
 
         {% else %}
-            <div id="price_confirmation_status">
-                <div class="status-indicator {% if job.price_is_ok %}on{% else %}off{% endif %}">
-                    <span class="status-name">
-                        selling price is
-                    </span>
-                    <button id="price_confirmation_button" data-current_status=
+                <div id="price_confirmation_status">
+                    <div class="status-indicator {% if job.price_is_ok %}on{% else %}off{% endif %}">
+                        <span class="status-name">
+                            selling price is
+                        </span>
+                        <button id="price_confirmation_button" data-current_status=
             {% if job.price_is_ok %}
-                    "true">
-                    confirmed
+                        "true">
+                        confirmed
             {% else %}
-                    "false">
-                    NOT CONFIRMED
+                        "false">
+                        NOT CONFIRMED
             {% endif %}   
-                    </button>
+                        </button>
+                    </div>
                 </div>
-            </div>
 
-            <div id="price_summary" class="subsection">
-                <h4>Comparison to List Price</h4>
-                <table class="price-comparison">
-                    <tr>
-                        <th>Items Sum</th>
-                        <td>{{ job.currency }}</td>
-                        <td class="selling-price">{{ job.total_line_value_f }}</td>
-                        <td></td>
-                    </tr>
-                    <tr>
-                        <th>List Prices Sum</th>
-                        <td>{{ job.currency }}</td>
-                        <td class="list-price">{{ job.total_list_price_f }}</td>
-                        <td></td>
-                    </tr>
-                    <tr class="conclusion">
-                        <th>Difference</th>
-                        <td>{{ job.currency }}</td>
-                        <td class="diff-val">{{ job.total_list_difference_value_f }}</td>
-                        <td>
-                            <span class="diff-perc">{{ job.total_list_difference_perc }}</span>
-                        </td>
-                    </tr>
-                </table>
-            </div>
+                <div id="price_summary" class="subsection">
+                    <h4>Comparison to List Price</h4>
+                    <table class="price-comparison">
+                        <tr>
+                            <th>Items Sum</th>
+                            <td>{{ job.currency }}</td>
+                            <td class="selling-price">{{ job.total_line_value_f }}</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <th>List Prices Sum</th>
+                            <td>{{ job.currency }}</td>
+                            <td class="list-price">{{ job.total_list_price_f }}</td>
+                            <td></td>
+                        </tr>
+                        <tr class="conclusion">
+                            <th>Difference</th>
+                            <td>{{ job.currency }}</td>
+                            <td class="diff-val">{{ job.total_list_difference_value_f }}</td>
+                            <td>
+                                <span class="diff-perc">{{ job.total_list_difference_perc }}</span>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
 
-            <div class="subsection">
-                <h4>Details</h4>
-                <table id="price_check_table" class="responsive-table">
-                    <thead>
-                        <tr class="upper-h-row">
-                            <th colspan=3></th>
-                            <th colspan=4>vs. Price List</th>
-                            <th colspan=4>vs. Resale</th>
-                        </tr>
-                        <tr class="lower-h-row">
-                            <th>part #</th>
-                            <th>qty</th>
-                            <th>sold @</th>
-                            <th>version</th>
-                            <th>value</th>
-                            <th colspan=2>difference</th>
-                            <th>perc</th>
-                            <th>value</th>
-                            <th colspan=2>difference</th>
-                        </tr>
-                    </thead>
-                    <tbody>
+                <div class="subsection">
+                    <h4>Details</h4>
+                    <table id="price_check_table" class="responsive-table">
+                        <thead>
+                            <tr class="upper-h-row">
+                                <th colspan=3></th>
+                                <th colspan=4>vs. Price List</th>
+                                <th colspan=4>vs. Resale</th>
+                            </tr>
+                            <tr class="lower-h-row">
+                                <th>part #</th>
+                                <th>qty</th>
+                                <th>sold @</th>
+                                <th>version</th>
+                                <th>value</th>
+                                <th colspan=2>difference</th>
+                                <th>perc</th>
+                                <th>value</th>
+                                <th colspan=2>difference</th>
+                            </tr>
+                        </thead>
+                        <tbody>
             {% for item in job.main_item_list %}
                 {% if item.included_with == None %}
-                        <tr id="price_check_row_{{ item.id }}">
-                            <td class="description"><span class="details-toggle">{{ item.product.part_number }}</span> <span class="details hide">{{ item.product.name }}</span></td>
-                            <td class="qty">{{ item.quantity }}</td>
-                            <td class="selling-price-container"><span class="selling-price">{{ item.selling_price_f }}</span><button class="edit-btn edit-icon" data-jiid="{{ item.id }}"><span>edit</span></button></td>
-                            <td class="version">{{ item.price_list }}</td>
-                            <td class="list-price">{{ item.list_price_f }}</td>
-                            <td class="list-diff-val">{{ item.list_difference_value_f }}</td>
-                            <td class="list-diff-perc">{{ item.list_difference_perc_f }}%</td>
-                            <td class="resale-percentage">{{ item.resale_percentage }}%</td>
-                            <td class="resale-price">{{ item.resale_price_f }}</td>
-                            <td class="resale-diff-val">{{ item.resale_difference_value_f }}</td>
-                            <td class="resale-diff-perc">{{ item.resale_difference_perc_f }}%</td>
-                        </tr>
+                            <tr id="price_check_row_{{ item.id }}">
+                                <td class="description"><span class="details-toggle">{{ item.product.part_number }}</span> <span class="details hide">{{ item.product.name }}</span></td>
+                                <td class="qty">{{ item.quantity }}</td>
+                                <td class="selling-price-container"><span class="selling-price">{{ item.selling_price_f }}</span><button class="edit-btn edit-icon" data-jiid="{{ item.id }}"><span>edit</span></button></td>
+                                <td class="version">{{ item.price_list }}</td>
+                                <td class="list-price">{{ item.list_price_f }}</td>
+                                <td class="list-diff-val">{{ item.list_difference_value_f }}</td>
+                                <td class="list-diff-perc">{{ item.list_difference_perc_f }}%</td>
+                                <td class="resale-percentage">{{ item.resale_percentage }}%</td>
+                                <td class="resale-price">{{ item.resale_price_f }}</td>
+                                <td class="resale-diff-val">{{ item.resale_difference_value_f }}</td>
+                                <td class="resale-diff-perc">{{ item.resale_difference_perc_f }}%</td>
+                            </tr>
                 {% endif %}
             {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+                        </tbody>
+                    </table>
+                </div>
         {% endif %}
-        </section>
+            </section>
         </section>
     </div>
-
-
 {% endblock %}
-
-

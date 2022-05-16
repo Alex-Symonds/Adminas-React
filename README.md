@@ -1,4 +1,4 @@
-# Harvard's CS50w: Capstone Project, Adminas, by Alex Symonds
+# Adminas by Alex Symonds
 
 ## Introduction
 Adminas is an internal tool for office employees to enter purchase orders; check the order against prices and product specifications; then produce one or more order confirmation PDFs (for the customer) and one or more work order PDFs (for whoever prepares the orders).
@@ -19,29 +19,6 @@ Expected workflow is: New > Add Items => Complete Modular Items => Add PO > Chec
 [^3]: Exceeding the quantity is permitted -- with a warning -- because assigning "too many" of a slot filler could be reasonable if the customer also wants some extras "on the side" (e.g. spare parts, or perhaps the product is designed for users to be able to swap out slot fillers themselves) and the user wants to assign on-the-side child items to their parent item for clarity. The warning is there to remind the user to check the customer understands that some of the items will be on the side.
 
     Entering invalid items is not permitted for two reasons. First, the most common reason for an invalid item is an error on the PO, so it's a defence against users entering nonsense by mistake. Second, if it isn't an error on the PO, the absence of a valid item from the choice list could reflect an oversight in the system data: preventing users from entering the "invalid" item will hopefully encourage them to seek out the system admin and prompt them to consider if an update to the system data is required.
-
-
-## Distinctiveness and Complexity
-### General
-Adminas includes the ability to generate a PDF document (via third-party modules) from information entered into the database and it stores the requirements of modular items to enable users to "build" a complete product and/or check the validity of one built by the customer: none of the other projects included anything of that nature.
-
-### Project 0, Search
-The Search project only entailed use of HTML and CSS, with the goal being to copy an existing site appearance and borrow its processing. Adminas is not copying the appearance of another website and it involves a fair amount of JavaScript and Python in addition to the HTML/CSS.
-
-### Project 1, Wiki
-Beyond the differences in purpose, the Wiki project was concerned with utilising markdown files to generate webpages, CRUD and searching/filtering the articles. While Adminas is also CRUD-heavy and utilises a degree of search and filtering on the Records page, this is not the sole focus of the program.
-
-### Project 2, Commerce
-Commerce is the closest of the previous projects to Adminas, but there's still a lot separating the two. Both projects involve items on sale, but with a different focus: Commerce was managing auctions with independent users ading items for sale, while Adminas assumes it's utilised in-house by a company offering a set catalogue of products with set prices and a set discount structure, plus a stable of agents and previous customers. While both projects check a price against something and display the outcome, Adminas performs more comparisons and displays more information.
-
-### Project 3, Mail
-Adminas is not a SPA, as Mail was, nor does Adminas allow the transmission of messages between users. That said, Adminas could perhaps benefit from adding elements of Mail if it were to be expanded (e.g. sending users notifications when certain tasks are complete or allowing users to request actions by others).
-
-### Project 4, Network
-While Adminas utilises comments and pagination, as did Network, the comments on Jobs are a small feature rather than the primary focus. Adminas is not intended to be a social media site.
-
-### Complexity
-As per the project specification: Adminas utilises Django on the backend, using several models; uses Javascript on the frontend; and it's mobile responsive, allowing hypothetical office workers to process orders wherever they may be.
 
 
 ## How to run the application
@@ -242,7 +219,7 @@ Contains the HTML files used for generating PDFs. wkhtmltopdf paginates the main
 #### CSS
 ##### styles.css
 Used by: all webpages.
-"Main" CSS file containing all CSS except for that used on/by the PDFs.
+"Main" CSS file containing all common CSS
 
 ##### doc_preview.css
 Used by: PDFs
@@ -258,6 +235,8 @@ Used by: PDFs.
 Formatting for user-specific page content, i.e. the company header and footer. In principle, a user could also use this to override the colours on the documents in order to better reflect their corporate branding (though I haven't utilised this in the example).
 Note: wkhtmltopdf doesn't support some CSS features (e.g. flexbox and grid).
 
+##### Others
+Page-specific CSS named accordingly.
 
 
 #### Javascript
