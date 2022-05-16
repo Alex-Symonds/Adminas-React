@@ -28,6 +28,9 @@ REGION_NAME_LENGTH = 100
 PO_NAME_LENGTH = 50
 PERSON_NAME_LENGTH = 100
 
+STATUS_CODE_OK = 'status_ok'
+STATUS_CODE_BAD = 'status_bad'
+STATUS_CODE_ATTN = 'status_attn'
 
 
 
@@ -497,6 +500,73 @@ class Job(AdminAuditTrail):
             To-do list. Check if this Job is on the todo list for the specified User
         """
         return self in user.todo_list_jobs.all()
+
+
+    # -----------------------------------------------------------------------------
+    # ADMINAS-REACT: revamp this to a nicer notifications section
+    def job_status(self):
+        """
+            Status strip on Job page. Get a dict of X/!/ok and a brief message.
+        """
+        result = []
+        result.append(self.status_price())
+        result.append(self.status_po())
+        result.append(self.status_items())
+
+        for loop_tuple in DOCUMENT_TYPES:
+            doc_type = loop_tuple[0]
+            result.append(self.status_doc(doc_type))
+
+        return result
+
+
+    def status_price(self):
+        if not self.price_is_ok:
+            return (STATUS_CODE_BAD, 'price not accepted')
+        return (STATUS_CODE_OK, 'price accepted')
+
+
+    def status_po(self):
+        qs = self.related_po()       
+        if qs.count() == 0:
+            return (STATUS_CODE_BAD, 'PO missing')
+        elif self.total_difference_value_po_vs_line() != 0:
+            return (STATUS_CODE_BAD, 'PO discrepancy')
+        return (STATUS_CODE_OK, 'PO ok')
+
+
+    def status_items(self):
+        if self.items.count() == 0:
+            return (STATUS_CODE_BAD, 'items missing')
+        elif self.modular_items_incomplete():
+            return (STATUS_CODE_BAD, 'modular items incomplete')
+        elif self.has_special_modular():
+           return (STATUS_CODE_ATTN, 'bespoke modular item')
+        return (STATUS_CODE_OK, 'items ok')
+
+
+    def status_doc(self, doc_type):
+        unassigned_main_items = self.get_items_unassigned_to_doc(doc_type)
+        num_unassigned = len(unassigned_main_items) if unassigned_main_items != None else None
+
+        # If the number of unassigned items = total number of main items, nothing has been assigned to anything
+        if num_unassigned != None and num_unassigned == self.main_item_list().count():
+            return (STATUS_CODE_BAD, f'{doc_type} missing')
+
+        # If the number of unassigned documents is 0 and there are no unissued documents, we're done
+        elif num_unassigned != None and not self.unissued_documents_exist(doc_type) and num_unassigned == 0:
+            return (STATUS_CODE_OK, f'{doc_type} finalised')
+
+        # Otherwise we're at some sort of middling point
+        return (STATUS_CODE_BAD, f'{doc_type} pending')
+
+
+    def has_special_modular(self):
+        for ji in self.main_item_list():
+            if ji.excess_modules_assigned():
+                return True
+        return False
+    # -----------------------------------------------------------------------------
 
 
     def num_admin_warnings(self):
@@ -1079,18 +1149,6 @@ class JobItem(AdminAuditTrail):
                 if self.num_slot_children(slot) < slot.quantity_required:
                     return False
         return True
-
-
-    # def all_optional_modules_assigned(self):
-    #     """
-    #         Modular: Parent. Are the optional slots all filled as well?
-    #     """
-    #     if self.product.is_modular():
-    #         for slot in self.product.slots.all():
-    #             if self.num_assigned(slot) < slot.quantity_required + slot.quantity_optional:
-    #                 return False                
-    #     return True
-
 
     def excess_modules_assigned(self):
         """

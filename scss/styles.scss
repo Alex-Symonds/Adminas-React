@@ -592,23 +592,6 @@ nav{
         border-bottom: 0;
     }
 
-    .read_row{
-        border-bottom: 1px solid v.$c_tone_02;
-        padding: 0.2rem 0;
-
-        display: flex;
-        flex-flow: row nowrap;
-        align-items: center;
-
-        .row-label{
-            display: inline-block;
-            min-width: 8rem;
-            max-width: 8rem;
-
-            margin-left: calc(0.3rem + 6px);
-        }
-    }
-
     &.warning{
         border-left: 3px solid v.$c_warning;
 
@@ -629,6 +612,23 @@ nav{
 
     .one-comment:last-of-type details{
         border-bottom: none;
+    }
+}
+
+.read_row{
+    border-bottom: 1px solid v.$c_tone_02;
+    padding: 0.2rem 0;
+
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+
+    .row-label{
+        display: inline-block;
+        min-width: 8rem;
+        max-width: 8rem;
+
+        margin-left: calc(0.3rem + 6px);
     }
 }
 
@@ -1006,7 +1006,8 @@ nav{
         details,
         .full-comment-container{
             border-left: 2px solid yellow;
-            background: rgba(white, 6%);
+            border-right: none;
+            background: linear-gradient(90deg, rgba(white, 12%) 0%, transparent 100%);
         }
 
         .full-comment-container{

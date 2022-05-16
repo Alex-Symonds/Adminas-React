@@ -720,3 +720,49 @@ table.price-comparison{
         }
     }
 }
+
+
+// Status strip
+#job_status_strip{
+    display: flex;
+    gap: 0.7rem;
+    margin-top: 1rem;
+}
+.job-status-ele{
+    display: block;
+    border: 1px solid v.$c_tone_04;
+    
+    .icon{
+        display: inline-block;
+        background: v.$c_tone_04;
+        width: 1rem;
+        padding: 0.2rem 0.4rem;
+        text-align: center;
+        font-weight: bold;
+    }
+
+    .message{
+        padding: 0.2rem 1rem;
+    }
+
+    &.status_ok{
+        border-color: v.$c_accent;
+        .icon{
+            color: v.$c_tone_01;
+            background: v.$c_accent;
+        }
+    }
+    &.status_bad{
+        border-color: v.$c_tone_03;
+        .icon{
+            background: v.$c_tone_03;
+        }
+    }
+    &.status_attn{
+        border-color: v.$c_warning;
+        .icon{
+            color: v.$c_txt_warning_g;
+            background: v.$c_warning;
+        }
+    }
+}

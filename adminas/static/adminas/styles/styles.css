@@ -487,19 +487,6 @@ nav li a:hover {
   margin: 0;
   border-bottom: 0;
 }
-.subsection .read_row {
-  border-bottom: 1px solid #444;
-  padding: 0.2rem 0;
-  display: flex;
-  flex-flow: row nowrap;
-  align-items: center;
-}
-.subsection .read_row .row-label {
-  display: inline-block;
-  min-width: 8rem;
-  max-width: 8rem;
-  margin-left: calc(0.3rem + 6px);
-}
 .subsection.warning {
   border-left: 3px solid #cf0000;
 }
@@ -516,6 +503,20 @@ nav li a:hover {
 }
 .subsection .one-comment:last-of-type details {
   border-bottom: none;
+}
+
+.read_row {
+  border-bottom: 1px solid #444;
+  padding: 0.2rem 0;
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+}
+.read_row .row-label {
+  display: inline-block;
+  min-width: 8rem;
+  max-width: 8rem;
+  margin-left: calc(0.3rem + 6px);
 }
 
 .form-like label,
@@ -811,7 +812,8 @@ nav li a:hover {
 .one-comment.highlighted details,
 .one-comment.highlighted .full-comment-container {
   border-left: 2px solid yellow;
-  background: rgba(255, 255, 255, 0.06);
+  border-right: none;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.12) 0%, transparent 100%);
 }
 .one-comment.highlighted .full-comment-container {
   background: #666;

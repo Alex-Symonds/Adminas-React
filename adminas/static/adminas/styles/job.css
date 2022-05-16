@@ -621,5 +621,46 @@ table.price-comparison .conclusion th, table.price-comparison .conclusion td {
     border-bottom-left-radius: 0.5rem;
   }
 }
+#job_status_strip {
+  display: flex;
+  gap: 0.7rem;
+  margin-top: 1rem;
+}
+
+.job-status-ele {
+  display: block;
+  border: 1px solid #888;
+}
+.job-status-ele .icon {
+  display: inline-block;
+  background: #888;
+  width: 1rem;
+  padding: 0.2rem 0.4rem;
+  text-align: center;
+  font-weight: bold;
+}
+.job-status-ele .message {
+  padding: 0.2rem 1rem;
+}
+.job-status-ele.status_ok {
+  border-color: #00D4F5;
+}
+.job-status-ele.status_ok .icon {
+  color: #222;
+  background: #00D4F5;
+}
+.job-status-ele.status_bad {
+  border-color: #666;
+}
+.job-status-ele.status_bad .icon {
+  background: #666;
+}
+.job-status-ele.status_attn {
+  border-color: #cf0000;
+}
+.job-status-ele.status_attn .icon {
+  color: white;
+  background: #cf0000;
+}
 
 /*# sourceMappingURL=job.css.map */

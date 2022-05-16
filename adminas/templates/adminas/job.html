@@ -49,7 +49,7 @@
             {% endif %}
             </button>
         </div>
-
+<!-- 
     {% if job.num_admin_warnings > 0 %}
     <section id="admin_info">
         <button class="admin-info-btn button-primary-hollow">
@@ -70,9 +70,29 @@
 
     </section>
 
-    {% endif %}
-    </div>
+    {% endif %} -->
 
+        <section id="job_status_strip">
+            {% for ele in job.job_status %}
+                <div class="job-status-ele {{ ele.0 }}">
+                    <span class="icon">
+                        {% if ele.0 == 'status_ok' %}
+                            ok
+                        {% elif ele.0 == 'status_bad' %}
+                            X
+                        {% elif ele.0 == 'status_attn' %}
+                            !
+                        {% else %}
+                            ?
+                        {% endif %}
+                    </span>
+                    <span class="message">
+                        {{ ele.1 }}
+                    </span>
+                </div>
+            {% endfor %}
+        </section>
+    </div>
 
 
 
