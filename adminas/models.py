@@ -506,7 +506,7 @@ class Job(AdminAuditTrail):
     # ADMINAS-REACT: revamp this to a nicer notifications section
     def job_status(self):
         """
-            Status strip on Job page. Get a dict of X/!/ok and a brief message.
+            Status strip on Job page. Get a dict of status codes and brief messages.
         """
         result = []
         result.append(self.status_price())
@@ -522,8 +522,8 @@ class Job(AdminAuditTrail):
 
     def status_price(self):
         if not self.price_is_ok:
-            return (STATUS_CODE_BAD, 'price not accepted')
-        return (STATUS_CODE_OK, 'price accepted')
+            return (STATUS_CODE_BAD, 'Price not accepted')
+        return (STATUS_CODE_OK, 'Price accepted')
 
 
     def status_po(self):
@@ -537,12 +537,12 @@ class Job(AdminAuditTrail):
 
     def status_items(self):
         if self.items.count() == 0:
-            return (STATUS_CODE_BAD, 'items missing')
+            return (STATUS_CODE_BAD, 'No items')
         elif self.modular_items_incomplete():
-            return (STATUS_CODE_BAD, 'modular items incomplete')
+            return (STATUS_CODE_BAD, 'Incomplete modular')
         elif self.has_special_modular():
-           return (STATUS_CODE_ATTN, 'bespoke modular item')
-        return (STATUS_CODE_OK, 'items ok')
+           return (STATUS_CODE_ATTN, 'Special modular')
+        return (STATUS_CODE_OK, 'Items ok')
 
 
     def status_doc(self, doc_type):
@@ -636,7 +636,6 @@ class Job(AdminAuditTrail):
         """
             Make any necessary adjustments when something just happened that could impact the overall price of the Job.
         """
-
         if self.price_is_ok:
             self.price_is_ok = False
             self.save()
@@ -790,7 +789,7 @@ class Job(AdminAuditTrail):
 
     def get_items_unassigned_to_doc(self, doc_type):
         """
-            Get a list of JobItems which have not yet been assigned to a document of this type.
+            Get a list of JobItems on this Job which have not yet been assigned to a document of the given type.
             
             On a new document, this is used to pre-populate "Included" <ul>.
             On existing documents, used to get "excluded, but available" to populate the top of the "Excluded" <ul>.
@@ -801,10 +800,10 @@ class Job(AdminAuditTrail):
 
     def get_items_assigned_to_doc(self, doc_type):
         """
-            Get a list of JobItems which have already been assigned to a document of this type.
+            Get a list of JobItems on this Job which have already been assigned to a document of the given type.
 
             On a new document, this is used to pre-populate "Excluded" <ul>.
-            On existing documents, (ab)used to populate the bottom of the "Excluded" <ul>.
+            On existing documents, used to get "unavailable, even if you wanted it" to populate the bottom of the "Excluded" <ul>.
         """        
         assigned_elsewhere = DocAssignment.objects\
                             .filter(version__document__job=self)\

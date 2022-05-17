@@ -724,12 +724,28 @@ table.price-comparison{
 
 // Status strip
 #job_status_strip{
-    display: flex;
-    gap: 0.7rem;
-    margin-top: 1rem;
+    margin-top: 2rem;
+    border-bottom-color: v.$c_tone_04;
+    border-left-color: v.$c_tone_05;
+
+    h4{
+        margin: 0;
+        font-size: 1rem;
+        background: v.$c_tone_03;
+        width: 100%;
+    }
 }
+
+.job-status-ele-container{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 0.7rem;
+    padding: 0.7rem;
+}
+
 .job-status-ele{
     display: block;
+    background: v.$c_tone_01;
     border: 1px solid v.$c_tone_04;
     
     .icon{
@@ -743,6 +759,8 @@ table.price-comparison{
 
     .message{
         padding: 0.2rem 1rem;
+        margin-right: 3px;
+        display: inline-block;
     }
 
     &.status_ok{
@@ -753,16 +771,16 @@ table.price-comparison{
         }
     }
     &.status_bad{
-        border-color: v.$c_tone_03;
         .icon{
-            background: v.$c_tone_03;
+            background: transparent;
+            border-right: 1px solid v.$c_tone_03;
         }
     }
     &.status_attn{
-        border-color: v.$c_warning;
+        border-color: v.$c_accent_secondary;
         .icon{
-            color: v.$c_txt_warning_g;
-            background: v.$c_warning;
+            color: v.$c_tone_01;
+            background: v.$c_accent_secondary;
         }
     }
 }

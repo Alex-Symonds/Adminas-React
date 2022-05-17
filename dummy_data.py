@@ -1,5 +1,5 @@
 import os
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "project5.settings")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "adminas-project.settings")
 import django
 django.setup()
 
@@ -76,6 +76,7 @@ def populate_jobs():
     )
     job.save()
 
+
     ji = JobItem(
         created_by = ADMIN,
         job = job,
@@ -85,11 +86,13 @@ def populate_jobs():
         selling_price = 50000.00
     )
     ji.save()
+    ji.add_standard_accessories()
 
     ji.pk = None
     ji.product = Product.objects.get(name='Treasure tester')
     ji.selling_price = 75000
     ji.save()
+    ji.add_standard_accessories()
 
 
 

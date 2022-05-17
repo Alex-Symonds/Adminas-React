@@ -622,13 +622,27 @@ table.price-comparison .conclusion th, table.price-comparison .conclusion td {
   }
 }
 #job_status_strip {
+  margin-top: 2rem;
+  border-bottom-color: #888;
+  border-left-color: #AAA;
+}
+#job_status_strip h4 {
+  margin: 0;
+  font-size: 1rem;
+  background: #666;
+  width: 100%;
+}
+
+.job-status-ele-container {
   display: flex;
-  gap: 0.7rem;
-  margin-top: 1rem;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.7rem;
+  padding: 0.7rem;
 }
 
 .job-status-ele {
   display: block;
+  background: #222;
   border: 1px solid #888;
 }
 .job-status-ele .icon {
@@ -641,6 +655,8 @@ table.price-comparison .conclusion th, table.price-comparison .conclusion td {
 }
 .job-status-ele .message {
   padding: 0.2rem 1rem;
+  margin-right: 3px;
+  display: inline-block;
 }
 .job-status-ele.status_ok {
   border-color: #00D4F5;
@@ -649,18 +665,16 @@ table.price-comparison .conclusion th, table.price-comparison .conclusion td {
   color: #222;
   background: #00D4F5;
 }
-.job-status-ele.status_bad {
-  border-color: #666;
-}
 .job-status-ele.status_bad .icon {
-  background: #666;
+  background: transparent;
+  border-right: 1px solid #666;
 }
 .job-status-ele.status_attn {
-  border-color: #cf0000;
+  border-color: #0DFA96;
 }
 .job-status-ele.status_attn .icon {
-  color: white;
-  background: #cf0000;
+  color: #222;
+  background: #0DFA96;
 }
 
 /*# sourceMappingURL=job.css.map */

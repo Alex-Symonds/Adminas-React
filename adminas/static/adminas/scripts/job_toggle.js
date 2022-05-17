@@ -17,26 +17,26 @@ document.addEventListener('DOMContentLoaded', function() {
         })
     });
 
-    let admin_notifications_btn = document.querySelector('.admin-info-btn');
-    if(admin_notifications_btn != null){
-        admin_notifications_btn.addEventListener('click', () => {
-            show_ele(document.getElementById('admin_info_container'));
-        });  
-    }
+    // let admin_notifications_btn = document.querySelector('.admin-info-btn');
+    // if(admin_notifications_btn != null){
+    //     admin_notifications_btn.addEventListener('click', () => {
+    //         show_ele(document.getElementById('admin_info_container'));
+    //     });  
+    // }
 
-    let admin_notifications_close = document.getElementById('admin_info_container').querySelector('.' + 'close');
-    if(admin_notifications_close != null){
-        admin_notifications_close.addEventListener('click', () => {
-            hide_ele(document.getElementById('admin_info_container'));
-        });
-    }
+    // let admin_notifications_close = document.getElementById('admin_info_container').querySelector('.' + 'close');
+    // if(admin_notifications_close != null){
+    //     admin_notifications_close.addEventListener('click', () => {
+    //         hide_ele(document.getElementById('admin_info_container'));
+    //     });
+    // }
 
     document.getElementById('open_item_form_btn').addEventListener('click', () => {
         show_ele(document.getElementById('new_items_container'));
         hide_ele(document.getElementById('open_item_form_btn'));
     });
 
-    document.querySelector('#close_item_form_btn').addEventListener('click', () => {
+    document.getElementById('close_item_form_btn').addEventListener('click', () => {
         hide_ele(document.getElementById('new_items_container'));
         show_ele(document.getElementById('open_item_form_btn'));
     });

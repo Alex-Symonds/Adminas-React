@@ -34,12 +34,15 @@
 
 {% block body %}
 
-    <h2>Job {{ job.name }}</h2>
+    <h2>Job {{ job.name }}</h2>        
+    
+
     <div class="extended-subheading">
         {% if job.customer %}<div class="subheading">for {{ job.customer.name }}</div>{% endif %}
+
         <div class="status-indicator {% if watching %}on{% else %}off{% endif %}">
             <span class="status-name">
-                to-do list
+                to-do
             </span>
             <button class="todo-list-toggle" data-job_id="{{ job.id }}" data-on_todo_list="{{ watching|lower }}">
             {% if watching %}
@@ -49,37 +52,18 @@
             {% endif %}
             </button>
         </div>
-<!-- 
-    {% if job.num_admin_warnings > 0 %}
-    <section id="admin_info">
-        <button class="admin-info-btn button-primary-hollow">
-            view {{ job.num_admin_warnings }} notifications
-        </button>
-        <div id="admin_info_container" class="panel hide popout">
-            <button class="close"><span>close</span></button>
-            <h3 class="panel-header">Notifications</h3>
-            <ul>        
-        {% for str_warning in job.admin_warnings.strings %}
-                <li>{{ str_warning }}</li>
-        {% endfor %}    
-        {% for tuple_warning in job.admin_warnings.tuples %}
-                <li>{{ tuple_warning.0 }}: {{ tuple_warning.1 }}</li>
-        {% endfor %} 
-            </ul>
-        </div>
 
-    </section>
 
-    {% endif %} -->
-
-        <section id="job_status_strip">
+        <section id="job_status_strip" class="subsection">
+                <h4>Status</h4>
+                <div class="job-status-ele-container">
             {% for ele in job.job_status %}
                 <div class="job-status-ele {{ ele.0 }}">
                     <span class="icon">
                         {% if ele.0 == 'status_ok' %}
                             ok
                         {% elif ele.0 == 'status_bad' %}
-                            X
+                            -
                         {% elif ele.0 == 'status_attn' %}
                             !
                         {% else %}
@@ -91,6 +75,7 @@
                     </span>
                 </div>
             {% endfor %}
+                </div>
         </section>
     </div>
 
@@ -404,10 +389,10 @@
                         <button id="price_confirmation_button" data-current_status=
             {% if job.price_is_ok %}
                         "true">
-                        confirmed
+                        accepted
             {% else %}
                         "false">
-                        NOT CONFIRMED
+                        NOT ACCEPTED
             {% endif %}   
                         </button>
                     </div>
