@@ -152,18 +152,75 @@
 .job-doc-section ul {
   list-style-type: none;
   margin: 5px 3px 0;
-  padding: 0 0 0 0.2rem;
-  border-bottom: 1px solid #444;
+  padding: 0 0 0.7rem 0.2rem;
 }
 .job-doc-section li {
-  border-top: 1px solid #444;
+  margin-top: 0.3rem;
 }
 .job-doc-section li a {
-  padding: 0.2rem 0.2rem;
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
   margin: 0;
+  padding: 0;
+  border-radius: 1rem;
+  border-top-left-radius: 0.2rem;
+  border-bottom-left-radius: 0.2rem;
+  border: 1px solid #888;
+  background: #222;
 }
 .job-doc-section li a:hover {
   background: #444;
+}
+.job-doc-section li .icon {
+  display: block;
+  width: 1rem;
+  padding: 0.35rem 0.3rem;
+  font-weight: bold;
+  font-size: 0.9rem;
+  text-align: center;
+  color: white;
+  border-top-left-radius: 0.2rem;
+  border-bottom-left-radius: 0.2rem;
+  border-right: 3px solid #666;
+  background: #222;
+}
+.job-doc-section li.issued a {
+  border-color: #067A4A;
+}
+.job-doc-section li.issued a .icon {
+  border-color: #09BA70;
+}
+.job-doc-section li.issued a:hover {
+  border-color: #09BA70;
+}
+.job-doc-section li.issued a:hover .icon {
+  background: #067A4A;
+  color: white;
+  border-color: #0DFA96;
+}
+.job-doc-section li.draft a {
+  border-color: #00D4F5;
+}
+.job-doc-section li.draft a .icon {
+  border-color: #4ADFF7;
+}
+.job-doc-section li.draft a:hover {
+  border-color: #4ADFF7;
+}
+.job-doc-section li.draft a:hover .icon {
+  color: #141414;
+  background: #00D4F5;
+  border-color: #6bfaff;
+}
+.job-doc-section li .name {
+  padding: 0.3rem 0.7rem;
+  flex-grow: 2;
+}
+.job-doc-section li .num-items {
+  color: white;
+  padding: 0.35rem 1rem 0.3rem 0.35rem;
+  font-size: 0.9rem;
 }
 .job-doc-section .add-button {
   color: #F6F6F6;
@@ -175,26 +232,24 @@
 .job-doc-section .add-button:hover {
   animation-name: expand_add_document;
 }
+.job-doc-section .icon,
 .job-doc-section .issued-icon,
 .job-doc-section .saved-icon {
   display: block;
   width: 1rem;
   text-align: center;
-  padding: 0.04rem 0 0.02rem;
-  border-radius: 2px;
+  padding: 0.3rem 0.3rem;
   font-weight: bold;
-  font-family: "Times New Roman", serif;
-  margin: 3px 0.5rem 0 0;
   font-size: 0.9rem;
-  border: 1px solid #141414;
-}
-.job-doc-section .issued-icon {
+  border-right: 3px solid white;
   color: white;
   background: #222;
 }
+.job-doc-section .issued-icon {
+  border-color: #067A4A;
+}
 .job-doc-section .saved-icon {
-  color: black;
-  background: white;
+  border-color: #00D4F5;
 }
 
 @keyframes expand_add_document {

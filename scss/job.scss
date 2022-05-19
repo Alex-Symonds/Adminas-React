@@ -252,20 +252,95 @@
     ul{
         list-style-type: none;
         margin: 5px 3px 0;
-        padding: 0 0 0 0.2rem;
-        border-bottom: 1px solid v.$c_tone_02;
+        padding: 0 0 0.7rem 0.2rem;
     }
 
     li{
-        border-top: 1px solid v.$c_tone_02;
-
+        margin-top: 0.3rem;
 
         a{
-            padding: 0.2rem 0.2rem;
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+
             margin: 0;
+            padding: 0;
+
+            border-radius: 1rem;
+            border-top-left-radius: 0.2rem;
+            border-bottom-left-radius: 0.2rem;
+            border: 1px solid v.$c_tone_04;
+            
+            background: v.$c_tone_01;
+
             &:hover{
                 background: v.$c_tone_02;
             }
+        }
+
+        .icon{
+            display: block;
+            width: 1rem;
+            
+            padding: 0.35rem 0.3rem;
+
+            font-weight: bold;
+            font-size: 0.9rem;
+            text-align: center;
+
+            color: white;
+
+            border-top-left-radius: 0.2rem;
+            border-bottom-left-radius: 0.2rem;
+            border-right: 3px solid v.$c_tone_03;
+
+            background: v.$c_tone_01;
+        }
+
+        &.issued a{
+            border-color: v.$c_accent_secondary_02;
+
+            .icon{
+                border-color: v.$c_accent_secondary_03;
+            }
+            
+            &:hover{
+                border-color: v.$c_accent_secondary_03;
+
+                .icon{
+                    background: v.$c_accent_secondary_02;
+                    color: white;
+                    border-color: v.$c_accent_secondary;
+                }
+            }
+        }
+
+        &.draft a{
+            border-color: v.$c_accent;
+
+            .icon{
+                border-color: v.$c_accent_03;
+            }
+
+            &:hover{
+                border-color: v.$c_accent_03;
+
+                .icon{
+                    color: v.$c_tone_00;
+                    background: v.$c_accent;
+                    border-color: v.$c_accent_04;
+                }
+            }
+        }
+
+        .name{
+            padding: 0.3rem 0.7rem;
+            flex-grow: 2;
+        }
+        .num-items{
+            color: white;
+            padding: 0.35rem 1rem 0.3rem 0.35rem;
+            font-size: 0.9rem;
         }
 
     }
@@ -282,26 +357,25 @@
         }
     }
 
+    .icon,
     .issued-icon,
     .saved-icon{
         display: block;
         width: 1rem;
         text-align: center;
-        padding: 0.04rem 0 0.02rem;
-        border-radius: 2px;
+        padding: 0.3rem 0.3rem;
         font-weight: bold;
-        font-family: 'Times New Roman', serif;
-        margin: 3px 0.5rem 0 0;
         font-size: 0.9rem;
-        border: 1px solid v.$c_tone_00;
-    }
-    .issued-icon{
+        border-right: 3px solid white;
+
         color: white;
         background: v.$c_tone_01;
     }
+    .issued-icon{
+        border-color: v.$c_accent_secondary_02;
+    }
     .saved-icon{
-        color: black;
-        background:white;
+        border-color: v.$c_accent;
     }
 }
 

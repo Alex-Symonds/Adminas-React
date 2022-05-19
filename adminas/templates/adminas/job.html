@@ -167,18 +167,7 @@
                     <ul>
             {% for doc_version in job.related_documents %}
                 {% if doc_version.document.doc_type == 'WO' %}
-                        <li>
-                            <a href="{% url 'doc_main' doc_version.id %}"
-                                {% if doc_version.issue_date != None %}
-                                    class="issued-document">
-                                    <span class="issued-icon">I</span>
-                                {% else %}
-                                    class="saved-document">
-                                    <span class="saved-icon">D</span>
-                                {% endif %}{{ doc_version.document.doc_type }} {{ doc_version.document.reference }} dtd {% if doc_version.issue_date != None %} {{ doc_version.issue_date|date:'Y-m-d' }} {% else %} {{ doc_version.created_on|date:'Y-m-d' }} {% endif %}
-                                <span class="num-items">{{ doc_version.num_items }} item{% if doc_version.num_items > 1 %}s{% endif %}</span>
-                            </a>
-                        </li>
+                    {% include "adminas/components/document_link_li.html" with doc_version=doc_version %}
                 {% endif %}
             {% endfor %}
                     </ul>
