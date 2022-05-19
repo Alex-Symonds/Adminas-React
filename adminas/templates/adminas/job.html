@@ -34,40 +34,39 @@
 
 {% block body %}
 
-    <h2>Job {{ job.name }}</h2>        
-    
-
-    <div class="extended-subheading">
-        {% if job.customer %}<div class="subheading">for {{ job.customer.name }}</div>{% endif %}
-
-        <div class="status-indicator {% if watching %}on{% else %}off{% endif %}">
-            <span class="status-name">
-                to-do
-            </span>
-            <button class="todo-list-toggle" data-job_id="{{ job.id }}" data-on_todo_list="{{ watching|lower }}">
-            {% if watching %}
-                on
-            {% else %}
-                off
-            {% endif %}
-            </button>
-        </div>
-
-
-        <section id="job_status_strip" class="subsection">
-                <h4>Status</h4>
-                <div class="job-status-ele-container">
+    <section class="job-heading-with-status">
+        <div id="job_status_strip" class="subsection">
+            <div class="job-heading-with-extra">
+                <h2>Job {{ job.name }}</h2>
+                <div class="indicator-wrapper">
+                    <div class="status-indicator {% if watching %}on{% else %}off{% endif %}">
+                        <span class="status-name">
+                            to-do
+                        </span>
+                        <button class="todo-list-toggle" data-job_id="{{ job.id }}" data-on_todo_list="{{ watching|lower }}">
+                        {% if watching %}
+                            on
+                        {% else %}
+                            off
+                        {% endif %}
+                        </button>
+                    </div>
+                </div>
+                {% if job.customer %}<div class="subheading">for {{ job.customer.name }}</div>{% endif %}
+            </div>
+            
+            <div class="job-status-ele-container">
             {% for ele in job.job_status %}
                 <div class="job-status-ele {{ ele.0 }}">
                     <span class="icon">
                         {% if ele.0 == 'status_ok' %}
                             ok
-                        {% elif ele.0 == 'status_bad' %}
-                            -
+                        {% elif ele.0 == 'status_action' %}
+                            ?
                         {% elif ele.0 == 'status_attn' %}
                             !
                         {% else %}
-                            ?
+                            -
                         {% endif %}
                     </span>
                     <span class="message">
@@ -75,9 +74,9 @@
                     </span>
                 </div>
             {% endfor %}
-                </div>
-        </section>
-    </div>
+            </div>
+        </div>
+    </section>
 
 
 
@@ -301,7 +300,7 @@
                         <div class="module-status-section assignments">
                             <div class="intro-line">
                                 <span class="display-text">
-                                    &laquo; Assignments
+                                    &laquo; Assignment
                                 </span>
                                 <div class="assignment-icon">
                                     <span class="label">used</span>

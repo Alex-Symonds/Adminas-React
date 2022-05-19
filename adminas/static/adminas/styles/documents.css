@@ -21,10 +21,11 @@
   display: block;
   width: calc(100% - 1rem - 3px);
   padding: 0;
-  margin: 1rem 0 0;
+  margin: 1rem 0 2rem;
   border-left: 3px solid #666;
 }
-.status-controls .system-message-box, .status-controls .unsaved-changes {
+.status-controls .system-message-box,
+.status-controls .unsaved-changes {
   clear: both;
   display: block;
   width: 100%;
@@ -32,13 +33,32 @@
   border-left: none;
   margin-top: 3rem;
 }
+.status-controls::after {
+  content: "";
+  clear: both;
+  display: block;
+  width: 100%;
+}
 .status-controls .system-message-box {
-  border: none;
+  width: 98.5%;
+  margin: 0.5rem;
+  border: 1px solid #141414;
+  border-left: 3px solid #cf0000;
   border-bottom: 1px solid #067A4A;
+  background: #222;
 }
 .status-controls .unsaved-changes {
+  width: 100%;
+  margin-top: 3.5rem;
+  padding: 0.5rem;
+  font-size: 1.1rem;
+  font-weight: bold;
+  text-align: center;
   border: 1px solid #cf0000;
   border-left: none;
+  background: #cf0000;
+  background: linear-gradient(0deg, #ac0000 0%, #e60000 100%);
+  color: black;
 }
 .status-controls h3 {
   margin: 0;
@@ -71,22 +91,28 @@
 .status-controls a {
   text-decoration: none;
 }
-.status-controls .filled, .status-controls button.revert-replace, .status-controls .button-warning {
+.status-controls .filled,
+.status-controls button.revert-replace,
+.status-controls .button-warning {
   width: fit-content;
   display: block;
   padding: 0.3rem 1.5rem;
 }
-.status-controls .filled, .status-controls button.revert-replace, .status-controls #document_delete_btn {
+.status-controls .filled,
+.status-controls button.revert-replace,
+.status-controls #document_delete_btn {
   margin: 1rem 0 0;
 }
-.status-controls .filled, .status-controls button.revert-replace {
+.status-controls .filled,
+.status-controls button.revert-replace {
   border: 1px solid #00D4F5;
   border-left: none;
   border-top-right-radius: 0.5rem;
   border-bottom-right-radius: 0.5rem;
   font-weight: bold;
 }
-.status-controls .filled:hover, .status-controls button.revert-replace:hover {
+.status-controls .filled:hover,
+.status-controls button.revert-replace:hover {
   background: #4ADFF7;
   background: linear-gradient(135deg, #6bfaff, #4ADFF7 66%, #00D4F5 100%);
   color: black;
@@ -115,48 +141,35 @@
   border-bottom-left-radius: 0;
   border-left: none;
 }
-.status-controls .unsaved-changes {
-  width: 100%;
-  background: #cf0000;
-  background: linear-gradient(0deg, #ac0000 0%, #e60000 100%);
-  color: black;
-  font-size: 1.1rem;
-  font-weight: bold;
-  text-align: center;
-  padding: 0.5rem;
-  margin-top: 3.5rem;
-}
-.status-controls .system-message-box {
-  width: 98.5%;
-  border: 1px solid #141414;
-  border-left: 3px solid #cf0000;
-  background: #222;
-  margin: 0.5rem;
+
+.document-item-lists-container {
+  display: flex;
+  flex-wrap: wrap;
 }
 
 .edit-document .document-fields-container {
   padding-bottom: 1rem;
 }
-.edit-document .existing-items-container li:last-of-type {
+.edit-document .document-item-lists li:last-of-type {
   border-bottom: 1px solid #444;
 }
-.edit-document .existing-items-container li {
+.edit-document .document-item-lists li {
   border-top: 1px solid #444;
 }
-.edit-document .existing-items-container ul {
+.edit-document .document-item-lists ul {
   padding: 0;
 }
-.edit-document .existing-items-container li {
+.edit-document .document-item-lists li {
   display: flex;
   flex-flow: row wrap;
   align-items: center;
   position: relative;
   padding-left: 1rem;
 }
-.edit-document .existing-items-container li .button-container {
+.edit-document .document-item-lists li .button-container {
   flex-grow: 2;
 }
-.edit-document .existing-items-container .split-docitem-window {
+.edit-document .document-item-lists .split-docitem-window {
   width: fit-content;
   position: absolute;
   top: 0.5rem;
@@ -167,65 +180,65 @@
   flex-flow: column nowrap;
   justify-content: center;
 }
-.edit-document .existing-items-container .split-docitem-window .panel-header {
+.edit-document .document-item-lists .split-docitem-window .panel-header {
   padding: 0;
   width: 100%;
 }
-.edit-document .existing-items-container .split-docitem-window h5 {
+.edit-document .document-item-lists .split-docitem-window h5 {
   font-size: 1rem;
   margin: 0;
   padding: 0.5rem;
 }
-.edit-document .existing-items-container .split-docitem-window p {
+.edit-document .document-item-lists .split-docitem-window p {
   margin: 0;
   padding: 0.5rem;
 }
-.edit-document .existing-items-container .split-docitem-window #id_qty {
+.edit-document .document-item-lists .split-docitem-window #id_qty {
   margin: 0.3rem auto 0;
   font-size: 1.3rem;
   height: 2rem;
 }
-.edit-document .existing-items-container .split-docitem-window .split-direction-setter {
+.edit-document .document-item-lists .split-docitem-window .split-direction-setter {
   display: flex;
   flex-flow: column nowrap;
   justify-content: center;
   background: #222;
   padding-bottom: 0.5rem;
 }
-.edit-document .existing-items-container .split-docitem-window .split-direction-setter .split-direction-strip {
+.edit-document .document-item-lists .split-docitem-window .split-direction-setter .split-direction-strip {
   display: flex;
   width: 100%;
   background: #222;
   border-top: 1px solid #141414;
 }
-.edit-document .existing-items-container .split-docitem-window .split-direction-setter .split-direction-strip div {
+.edit-document .document-item-lists .split-docitem-window .split-direction-setter .split-direction-strip div {
   display: block;
   text-align: center;
   width: 33%;
   background: #222;
 }
-.edit-document .existing-items-container .split-docitem-window .docitem-split-status-container {
+.edit-document .document-item-lists .split-docitem-window .docitem-split-status-container {
   display: flex;
   justify-content: center;
 }
-.edit-document .existing-items-container .split-docitem-window .docitem-split-status-container .container {
+.edit-document .document-item-lists .split-docitem-window .docitem-split-status-container .container {
   border: 1px solid #141414;
   width: 50%;
   max-width: 8rem;
   text-align: center;
 }
-.edit-document .existing-items-container .split-docitem-window .docitem-split-status-container .container h5 {
+.edit-document .document-item-lists .split-docitem-window .docitem-split-status-container .container h5 {
   background: #444;
   border-bottom: 1px solid #222;
   padding: 0.3rem 0 0.2rem;
 }
-.edit-document .existing-items-container .split-docitem-window .docitem-split-status-container .container span {
+.edit-document .document-item-lists .split-docitem-window .docitem-split-status-container .container span {
   font-size: 2rem;
 }
-.edit-document .existing-items-container .split-docitem-window .docitem-split-status-container:first-child {
+.edit-document .document-item-lists .split-docitem-window .docitem-split-status-container:first-child {
   border-left: none;
 }
-.edit-document .existing-items-container .split-docitem-window .docitem-split-status-container:last-child {
+.edit-document .document-item-lists .split-docitem-window .docitem-split-status-container:last-child {
   border-right: none;
 }
 .edit-document .split-docitem-btn, .edit-document .toggle-docitem-btn {
@@ -247,6 +260,10 @@
 }
 .edit-document .editing-special-instruction .controls {
   margin: 0.3rem;
+}
+
+.document-sections-wrapper .subsection {
+  margin-left: 0;
 }
 
 .subsection.special-instructions {

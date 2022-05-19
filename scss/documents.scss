@@ -31,10 +31,11 @@
     display: block;
     width: calc(100% - 1rem - 3px);
     padding: 0;
-    margin: 1rem 0 0;
+    margin: 1rem 0 2rem;
     border-left: 3px solid v.$c_tone_03;
 
-    .system-message-box, .unsaved-changes{
+    .system-message-box,
+    .unsaved-changes{
         clear: both;
         display: block;
         width: 100%;
@@ -43,15 +44,42 @@
         margin-top: 3rem;
     }
 
+    &::after{
+        content: "";
+        clear: both;
+        display: block;
+        width: 100%;
+    }
+
     .system-message-box{
-        border: none;
+        width: 98.5%;
+        margin: 0.5rem;
+
+        border: 1px solid v.$c_tone_00;
+        border-left: 3px solid v.$c_warning;
         border-bottom: 1px solid v.$c_accent_secondary_02;
+
+        background: v.$c_tone_01;
     }
 
     .unsaved-changes{
+        width: 100%;
+
+        margin-top: 3.5rem;
+        padding: 0.5rem;
+
+        font-size: 1.1rem;
+        font-weight: bold;
+        text-align: center;
+
         border: 1px solid v.$c_warning;
         border-left: none;
+
+        background: v.$c_warning;
+        background: v.$g_warning_hover;
+        color: v.$c_txt_on_accent; 
     }
+
 
     h3{
         margin: 0;
@@ -90,17 +118,22 @@
         text-decoration: none;
     }
 
-    .filled, button.revert-replace, .button-warning{
+    .filled,
+    button.revert-replace,
+    .button-warning{
         width: fit-content;
         display: block;
         padding: 0.3rem 1.5rem;
     }
 
-    .filled, button.revert-replace, #document_delete_btn{
+    .filled,
+    button.revert-replace,
+    #document_delete_btn{
         margin: 1rem 0 0;
     }
 
-    .filled, button.revert-replace{
+    .filled,
+    button.revert-replace{
         border: 1px solid v.$c_accent;
         border-left: none;
         border-top-right-radius: 0.5rem;
@@ -144,42 +177,29 @@
         border-left: none;
     }
 
-    .unsaved-changes{
-        width: 100%;
-        background: v.$c_warning;
-        background: v.$g_warning_hover;
-        color: v.$c_txt_on_accent;
-        font-size: 1.1rem;
-        font-weight: bold;
-        text-align: center;
-        padding: 0.5rem;
-        margin-top: 3.5rem;
-    }
 
-    .system-message-box{
-        width: 98.5%;
-        border: 1px solid v.$c_tone_00;
-        border-left: 3px solid v.$c_warning;
-        background: v.$c_tone_01;
-        margin: 0.5rem;
-    }
 
 }
 
+
+.document-item-lists-container{
+    display: flex;
+    flex-wrap: wrap;
+}
 
 .edit-document{
     .document-fields-container{
         padding-bottom: 1rem;
     }
 
-    .existing-items-container li:last-of-type{
+    .document-item-lists li:last-of-type{
         border-bottom: 1px solid v.$c_tone_02;
     }
-    .existing-items-container li{
+    .document-item-lists li{
         border-top: 1px solid v.$c_tone_02;
     }
 
-    .existing-items-container{
+    .document-item-lists{
         ul{
             padding: 0;
         }
@@ -310,6 +330,10 @@
 
 
 // || Custom adjustments to common CSS
+.document-sections-wrapper .subsection{
+    margin-left: 0;
+}
+
 .subsection.special-instructions{
     // Set this to something bigger than the expanded "add instruction" button, but small enough to fit on narrow screens
     min-width: 270px;
@@ -412,3 +436,4 @@
         }
     }
 }
+

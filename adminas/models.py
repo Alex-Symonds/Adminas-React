@@ -29,7 +29,7 @@ PO_NAME_LENGTH = 50
 PERSON_NAME_LENGTH = 100
 
 STATUS_CODE_OK = 'status_ok'
-STATUS_CODE_BAD = 'status_bad'
+STATUS_CODE_ACTION = 'status_action'
 STATUS_CODE_ATTN = 'status_attn'
 
 
@@ -522,26 +522,26 @@ class Job(AdminAuditTrail):
 
     def status_price(self):
         if not self.price_is_ok:
-            return (STATUS_CODE_BAD, 'Price not accepted')
+            return (STATUS_CODE_ACTION, 'Price not accepted')
         return (STATUS_CODE_OK, 'Price accepted')
 
 
     def status_po(self):
         qs = self.related_po()       
         if qs.count() == 0:
-            return (STATUS_CODE_BAD, 'PO missing')
+            return (STATUS_CODE_ACTION, 'PO missing')
         elif self.total_difference_value_po_vs_line() != 0:
-            return (STATUS_CODE_BAD, 'PO discrepancy')
+            return (STATUS_CODE_ACTION, 'PO discrepancy')
         return (STATUS_CODE_OK, 'PO ok')
 
 
     def status_items(self):
         if self.items.count() == 0:
-            return (STATUS_CODE_BAD, 'No items')
+            return (STATUS_CODE_ACTION, 'No items')
         elif self.modular_items_incomplete():
-            return (STATUS_CODE_BAD, 'Incomplete modular')
+            return (STATUS_CODE_ACTION, 'Incomplete modular')
         elif self.has_special_modular():
-           return (STATUS_CODE_ATTN, 'Special modular')
+           return (STATUS_CODE_ATTN, 'Special item')
         return (STATUS_CODE_OK, 'Items ok')
 
 
@@ -551,14 +551,14 @@ class Job(AdminAuditTrail):
 
         # If the number of unassigned items = total number of main items, nothing has been assigned to anything
         if num_unassigned != None and num_unassigned == self.main_item_list().count():
-            return (STATUS_CODE_BAD, f'{doc_type} missing')
+            return (STATUS_CODE_ACTION, f'{doc_type} missing')
 
         # If the number of unassigned documents is 0 and there are no unissued documents, we're done
         elif num_unassigned != None and not self.unissued_documents_exist(doc_type) and num_unassigned == 0:
             return (STATUS_CODE_OK, f'{doc_type} finalised')
 
         # Otherwise we're at some sort of middling point
-        return (STATUS_CODE_BAD, f'{doc_type} pending')
+        return (STATUS_CODE_ACTION, f'{doc_type} pending')
 
 
     def has_special_modular(self):

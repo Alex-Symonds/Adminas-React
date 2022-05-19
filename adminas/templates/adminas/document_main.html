@@ -1,7 +1,6 @@
 {% extends "adminas/layout.html" %}
 {% load static %}
 
-
 {% block title %}
     - Document
 {% endblock %}
@@ -83,58 +82,55 @@
     </section>
 
 
-    <section class="existing-items-container">
+    <section class="document-item-lists">
         <h3>Items</h3>
-        <div class="included-container panel">
-            <h5 class="panel-header">Include</h5>
-            <ul class="included">
+
+        <div class="document-item-lists-container">
+
+            <div class="included-container panel">
+                <h5 class="panel-header">Include</h5>
+                <ul class="included">
     {% for inc in doc_version.get_included_items %}
-                <li>
-                    <span class="display">{{ inc.display }}</span><span class="id-number">{{ inc.jiid }}</span>
-                </li>
+                    <li>
+                        <span class="display">{{ inc.display }}</span><span class="id-number">{{ inc.jiid }}</span>
+                    </li>
     {% empty %}
-                <li class="none">None</li>
+                    <li class="none">None</li>
     {% endfor %}
-            </ul>
-        </div>
+                </ul>
+            </div>
+
     {% if doc_version.active %}
-        <div class="excluded-container panel">
-            <h5 class="panel-header">Exclude</h5>
-            <ul class="excluded">
+            <div class="excluded-container panel">
+                <h5 class="panel-header">Exclude</h5>
+                <ul class="excluded">
         {% for excl in doc_version.get_excluded_items %}
-                <li {% if excl.is_available == False %}class="unavailable"{% endif %}>
-                    <span class="display">
-                        {{ excl.display }}
+                    <li {% if excl.is_available == False %}class="unavailable"{% endif %}>
+                        <span class="display">
+                            {{ excl.display }}
             {% if excl.is_available %}
-                    </span>
-                    <span class="id-number">{{ excl.jiid }}</span>
+                        </span>
+                        <span class="id-number">{{ excl.jiid }}</span>
             {% else %}
-                        <span><a href="{% url 'doc_main' excl.doc_id %}">
-                            (on  
+                            <span><a href="{% url 'doc_main' excl.doc_id %}">
+                                (on  
                 {% if excl.used_by %}
                                 {{ excl.used_by }})
                 {% else %}
-                            unnamed)
+                                unnamed)
                 {% endif %}
-                        </a></span>
-                        <span class="id-number">{{ excl.jiid }}</span>
-                    </span>
+                            </a></span>
+                            <span class="id-number">{{ excl.jiid }}</span>
+                        </span>
             {% endif %}
-                </li>
+                    </li>
         {% empty %}
-                <li class="none">None</li>
+                    <li class="none">None</li>
         {% endfor %}                
-            </ul>
-        </div>
+                </ul>
+            </div>
     {% endif %}
-    </div>
 
-
-
-
-
-
-
-
-
+        </div>
+    </section>
 {% endblock %}

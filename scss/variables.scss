@@ -34,19 +34,27 @@ $g_accent_main_background: linear-gradient(135deg, rgb(48, 48, 48) 75%,  $c_acce
 $g_button_main: linear-gradient(45deg, $c_accent_03 0%, $c_accent 50%, $c_accent_02 100%);
 $g_button_hover: linear-gradient(135deg, $c_accent_04, $c_accent_03 66%, $c_accent 100%);
 
+$c_accent_secondary: #0DFA96;
+$c_accent_secondary_02: #067A4A;
+$c_accent_secondary_03: #09BA70;
+
+$g_button_secondary: linear-gradient(335deg, #0AC778 0%,  #0DFA96 100%);
+
+$c_flag_special: #cc00ff;
+$c_flag_special_dark: #9600ec;
+$c_flag_special_bright: #eb9dff;
+
+
 $c_warning: rgb(207, 0, 0);
 $c_warning_bright: rgb(255, 0, 0);
+$c_warning_dark: #450000;
 $g_warning_hover: linear-gradient(0deg, rgb(172, 0, 0) 0%, rgb(230, 0, 0) 100%);
 $c_txt_warning_g: white;
 $warning_shadow: 0 0 2px 2px rgba(white, 80%);
 
 $g_secondary_btn: linear-gradient(335deg, rgb(48, 48, 48) 0%,  rgb(60, 60, 60) 100%);
 
-$c_accent_secondary: #0DFA96;
-$c_accent_secondary_02: #067A4A;
-$c_accent_secondary_03: #09BA70;
 
-$g_button_secondary: linear-gradient(335deg, #0AC778 0%,  #0DFA96 100%);
 
 $panel_shadow: 0 0 10px 1px rgba(black, 85%);
 $panel_shadow_highlight: 0 0 10px 1px rgba($c_accent, 50%);

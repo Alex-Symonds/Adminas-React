@@ -222,7 +222,7 @@ nav{
         background: v.$c_bg_main;
         background: v.$g_bg_main;
 
-        // This bit applies a box shadow, while also preventing it from going over the top of the Adminas heading
+        // This bit applies a box shadow, but prevents the shadow from going over the top of the Adminas heading
         position: relative;
         &:before{
             position: absolute;
@@ -239,7 +239,7 @@ nav{
     li a{
         font-size: 0.95rem;
         height: 1.2rem;
-        padding: 0.5rem;
+        padding: 0.5rem 0.4rem;
 
         text-decoration: none;
         color: v.$c_txt_main;

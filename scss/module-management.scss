@@ -9,7 +9,7 @@
 
 // || Panel formatting
 .excess-modules{
-    border: 2px solid red;
+    border: 2px solid v.$c_flag_special;
 }
 
 // || Modular item layout and formatting
@@ -25,7 +25,7 @@
         border-right: 1px solid v.$c_tone_03;
 
         &.excess-modules{
-            border: 2px solid red;
+            border: 2px solid v.$c_flag_special;
         }
     }
 
@@ -110,14 +110,14 @@
 
                 .excess{
                     background: white;
-                    color: v.$c_warning;
-                    border: 1px solid v.$c_warning_bright;
+                    color: v.$c_tone_01;//v.$c_warning;
+                    border: 1px solid v.$c_flag_special;//v.$c_warning_bright;
                     font-weight: bold;
 
                     .head{
-                        background: v.$c_warning_bright;
-                        color: white;
-                        border-right: 1px solid v.$c_warning_bright;
+                        background: v.$c_flag_special_bright;//v.$c_warning_bright;
+                        color: v.$c_tone_00;
+                        border-right: 1px solid v.$c_flag_special;//v.$c_warning_bright;
                     }
                 }
             }

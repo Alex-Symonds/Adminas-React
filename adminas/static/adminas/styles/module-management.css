@@ -5,7 +5,7 @@
         || Pop-up "bucket" menu
 */
 .excess-modules {
-  border: 2px solid red;
+  border: 2px solid #cc00ff;
 }
 
 .modular-item-container {
@@ -20,7 +20,7 @@
   border-right: 1px solid #666;
 }
 .modular-item-container .subsection.excess-modules {
-  border: 2px solid red;
+  border: 2px solid #cc00ff;
 }
 .modular-item-container .modular-slot-container {
   display: grid;
@@ -91,14 +91,14 @@
 }
 .modular-item-container .modular-slot-container .spine .slot-info .excess {
   background: white;
-  color: #cf0000;
-  border: 1px solid red;
+  color: #222;
+  border: 1px solid #cc00ff;
   font-weight: bold;
 }
 .modular-item-container .modular-slot-container .spine .slot-info .excess .head {
-  background: red;
-  color: white;
-  border-right: 1px solid red;
+  background: #eb9dff;
+  color: #141414;
+  border-right: 1px solid #cc00ff;
 }
 .modular-item-container .modular-slot-container .contents {
   flex-grow: 2;
