@@ -175,7 +175,8 @@
 .job-doc-section .add-button:hover {
   animation-name: expand_add_document;
 }
-.job-doc-section .issued-icon, .job-doc-section .saved-icon {
+.job-doc-section .issued-icon,
+.job-doc-section .saved-icon {
   display: block;
   width: 1rem;
   text-align: center;
@@ -461,7 +462,7 @@
   background: #9600ec;
 }
 .job-item-container .modules-excess li {
-  color: #F6F6F6;
+  color: #BBB;
 }
 
 #toggle_item_form_btn {

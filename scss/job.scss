@@ -258,6 +258,8 @@
 
     li{
         border-top: 1px solid v.$c_tone_02;
+
+
         a{
             padding: 0.2rem 0.2rem;
             margin: 0;
@@ -280,7 +282,8 @@
         }
     }
 
-    .issued-icon, .saved-icon{
+    .issued-icon,
+    .saved-icon{
         display: block;
         width: 1rem;
         text-align: center;
@@ -620,7 +623,7 @@
             background: v.$c_flag_special_dark;
         }
         li{
-            color: v.$c_txt_main;
+            color: v.$c_tone_06;
         }
     }  
 }

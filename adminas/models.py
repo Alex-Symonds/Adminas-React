@@ -632,6 +632,10 @@ class Job(AdminAuditTrail):
 
 
 
+
+
+
+
     def price_changed(self):
         """
             Make any necessary adjustments when something just happened that could impact the overall price of the Job.
@@ -1608,6 +1612,10 @@ class DocumentVersion(AdminAuditTrail):
             return result
 
 
+    def num_items(self):
+        return len(self.get_included_items())
+
+
     def get_excluded_items(self):
         """
             List of JobItems excluded from this document version.
@@ -1866,6 +1874,9 @@ class DocumentVersion(AdminAuditTrail):
             Get the total sum of values of all line items on this specific document (formatted string)
         """
         return format_money(self.total_value())
+
+    
+
 
     def __str__(self):
         return f'{self.document.doc_type} {self.document.reference} v{self.version_number} dated {self.issue_date}'

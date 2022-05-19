@@ -23,6 +23,7 @@
   padding: 0;
   margin: 1rem 0 2rem;
   border-left: 3px solid #666;
+  position: relative;
 }
 .status-controls .system-message-box,
 .status-controls .unsaved-changes {
@@ -31,7 +32,7 @@
   width: 100%;
   padding: 0.5rem;
   border-left: none;
-  margin-top: 3rem;
+  margin-top: 0;
 }
 .status-controls::after {
   content: "";
@@ -46,6 +47,9 @@
   border-left: 3px solid #cf0000;
   border-bottom: 1px solid #067A4A;
   background: #222;
+}
+.status-controls.draft .system-message-box {
+  border-bottom: 1px solid #141414;
 }
 .status-controls .unsaved-changes {
   width: 100%;
@@ -127,11 +131,9 @@
   color: #00D4F5;
   border-color: #00D4F5;
 }
-.status-controls #document_issue_btn {
-  float: left;
-}
 .status-controls .button-warning {
-  float: right;
+  position: absolute;
+  right: 0;
 }
 .status-controls .panel {
   max-width: 11.75rem;

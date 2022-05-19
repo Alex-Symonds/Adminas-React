@@ -174,8 +174,9 @@
                                     <span class="issued-icon">I</span>
                                 {% else %}
                                     class="saved-document">
-                                    <span class="saved-icon">S</span>
+                                    <span class="saved-icon">D</span>
                                 {% endif %}{{ doc_version.document.doc_type }} {{ doc_version.document.reference }} dtd {% if doc_version.issue_date != None %} {{ doc_version.issue_date|date:'Y-m-d' }} {% else %} {{ doc_version.created_on|date:'Y-m-d' }} {% endif %}
+                                <span class="num-items">{{ doc_version.num_items }} item{% if doc_version.num_items > 1 %}s{% endif %}</span>
                             </a>
                         </li>
                 {% endif %}
@@ -196,8 +197,9 @@
                                     <span class="issued-icon">I</span>
                             {% else %}
                                     class="saved-document">
-                                    <span class="saved-icon">S</span>
+                                    <span class="saved-icon">D</span>
                             {% endif %}{{ doc_version.document.doc_type }} {{ doc_version.document.reference }} dtd {% if doc_version.issue_date != None %} {{ doc_version.issue_date|date:'Y-m-d' }} {% else %} {{ doc_version.created_on|date:'Y-m-d' }} {% endif %}
+                                <span class="num-items">{{ doc_version.num_items }} item{% if doc_version.num_items > 1 %}s{% endif %}</span>
                             </a>
                         </li>
                 {% endif %}
@@ -277,7 +279,7 @@
                         <div class="module-status-section subsection modules-{% if it.excess_modules_assigned %}excess{% elif it.item_is_complete == True %}ok{% else %}incomplete{% endif %}">
                             <div class="intro-line">
                                 <span class="display-text">&raquo; 
-                                {% if it.excess_modules_assigned %}Custom {% endif %}
+                                {% if it.excess_modules_assigned %}Special {% endif %}
                                 Specification
                     {% if it.quantity > 1 %} 
                                 (per item)

@@ -34,6 +34,8 @@
     margin: 1rem 0 2rem;
     border-left: 3px solid v.$c_tone_03;
 
+    position: relative;
+
     .system-message-box,
     .unsaved-changes{
         clear: both;
@@ -41,7 +43,7 @@
         width: 100%;
         padding: 0.5rem;
         border-left: none;
-        margin-top: 3rem;
+        margin-top: 0;
     }
 
     &::after{
@@ -60,6 +62,10 @@
         border-bottom: 1px solid v.$c_accent_secondary_02;
 
         background: v.$c_tone_01;
+    }
+
+    &.draft .system-message-box{
+        border-bottom: 1px solid v.$c_tone_00;
     }
 
     .unsaved-changes{
@@ -159,12 +165,9 @@
         border-color: v.$c_accent;
     }
 
-    #document_issue_btn{
-        float: left;
-    }
-
     .button-warning{
-        float: right;
+        position: absolute;
+        right: 0;
     }
 
     .panel{
