@@ -72,11 +72,15 @@ h1{
     margin: 0;
     padding: 0;
     font-size: 1.3rem;
-    color: v.$c_tone_05;
+    color: v.$c_tone_06;
 
     border-left: 3px solid v.$c_tone_03;
     padding: 0.1rem 0.5rem 0.3rem;
     margin-top: 0.1rem;
+
+    span{
+        color: v.$c_accent;
+    }
 }
 
 h2,

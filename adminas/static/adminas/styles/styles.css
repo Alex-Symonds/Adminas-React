@@ -50,14 +50,17 @@ a:hover {
 }
 
 h1 {
-  font-family: "Varela Round", sans-serif;
+  font-family: "Roboto", sans-serif;
   margin: 0;
   padding: 0;
   font-size: 1.3rem;
-  color: #AAA;
+  color: #BBB;
   border-left: 3px solid #666;
   padding: 0.1rem 0.5rem 0.3rem;
   margin-top: 0.1rem;
+}
+h1 span {
+  color: #00D4F5;
 }
 
 h2,
@@ -131,7 +134,7 @@ article {
 }
 
 .adminas-name {
-  font-family: "Varela Round", sans-serif;
+  font-family: "Roboto", sans-serif;
 }
 
 .subheading {
