@@ -26,7 +26,7 @@
 <div class="document-sections-wrapper">  
 
     <section class="status-controls 
-    {% if doc_version.issue_date %} final">
+    {% if doc_version.issue_date %} issued">
         <h3>Issued on {{ doc_version.issue_date }} (v{{ doc_version.version_number }})</h3>
         <a class="filled" href="{% url 'doc_display' doc_version.id %}">view PDF</a>
         <button id="replace_document_btn" class="revert-replace">replace with new version</button>

@@ -11,6 +11,10 @@
         || Responsive table
 */
 
+.add-button{
+    margin: 0.3rem 0 0.3rem 0.3rem;
+}
+
 // || Status indicator (todo, price confirmation)
 .status-indicator{
     display: flex;
@@ -190,10 +194,6 @@
     width: 100%;
 }
 
-#open_item_form_btn{
-    margin-top: 3px;
-}
-
 .document-sections-wrapper{
     align-items: flex-start;
 
@@ -243,15 +243,16 @@
 
 .job-doc-section{
     min-width: 280px;
-    a{
-        display: flex;
-        align-items: center;
-        text-decoration: none;
+
+    .status-ele{
+        margin-left: calc(0.2rem + 3px);    // Line up with <li>s. <ul> left padding = 0.2rem; <ul> left margin = 3px; 
+        width: max-content;
+        margin-top: 0.5rem;
     }
 
     ul{
         list-style-type: none;
-        margin: 5px 3px 0;
+        margin: 1rem 3px 0;
         padding: 0 0 0.7rem 0.2rem;
     }
 
@@ -265,13 +266,14 @@
 
             margin: 0;
             padding: 0;
+            text-decoration: none;
 
             border-radius: 1rem;
             border-top-left-radius: 0.2rem;
             border-bottom-left-radius: 0.2rem;
             border: 1px solid v.$c_tone_04;
             
-            background: v.$c_tone_01;
+            background: transparent;//v.$c_tone_01;
 
             &:hover{
                 background: v.$c_tone_02;
@@ -288,17 +290,14 @@
             font-size: 0.9rem;
             text-align: center;
 
-            color: white;
-
             border-top-left-radius: 0.2rem;
             border-bottom-left-radius: 0.2rem;
             border-right: 3px solid v.$c_tone_03;
-
-            background: v.$c_tone_01;
         }
 
         &.issued a{
             border-color: v.$c_accent_secondary_02;
+            color: v.$c_accent_secondary;
 
             .icon{
                 border-color: v.$c_accent_secondary_03;
@@ -317,6 +316,7 @@
 
         &.draft a{
             border-color: v.$c_accent;
+            color: v.$c_accent;
 
             .icon{
                 border-color: v.$c_accent_03;
@@ -346,8 +346,10 @@
     }
 
     .add-button{
+        display: flex;
+        align-items: center;
         color: v.$c_txt_main;
-        margin: 3px 5px;
+        //margin: 3px 5px;
         padding: 0;
         text-decoration: none;
         font-size: 1rem;
@@ -357,7 +359,6 @@
         }
     }
 
-    .icon,
     .issued-icon,
     .saved-icon{
         display: block;
@@ -917,7 +918,7 @@ table.price-comparison{
     padding: 0.7rem;
 }
 
-.job-status-ele{
+.status-ele{
     display: block;
     background: v.$c_tone_01;
     border: 1px solid v.$c_tone_04;
@@ -958,5 +959,12 @@ table.price-comparison{
             color: v.$c_tone_01;
             background: v.$c_flag_special;
         }
+    }
+    &.status_warning{
+        border-color: v.$c_warning;
+        .icon{
+            color: v.$c_tone_01;
+            background: v.$c_warning;
+        }        
     }
 }

@@ -509,10 +509,10 @@ class Job(AdminAuditTrail):
             Status strip on Job page. Get a dict of status codes and brief messages.
         """
         result = []
-        result.append(self.status_price())
-        result.append(self.status_po())
         result.append(self.status_items())
-
+        result.append(self.status_po())
+        result.append(self.status_price())
+        
         for loop_tuple in DOCUMENT_TYPES:
             doc_type = loop_tuple[0]
             result.append(self.status_doc(doc_type))
@@ -567,7 +567,6 @@ class Job(AdminAuditTrail):
                 return True
         return False
     # -----------------------------------------------------------------------------
-
 
     def num_admin_warnings(self):
         return len(self.admin_warnings()['strings']) + len(self.admin_warnings()['tuples'])
@@ -629,11 +628,20 @@ class Job(AdminAuditTrail):
 
         return dvs.filter(issue_date = None).count() > 0
 
+    def num_items_unassigned_to_doc(self, doc_type):
+        """
+            How many JobItems on this Job have not yet been assigned to a particular document type.
+        """
+        if self.items.count() == 0:
+            return 0
+        unassigned_items = self.get_items_unassigned_to_doc(doc_type)
+        return len(unassigned_items) if unassigned_items != None else self.items.count()
 
+    def num_items_unassigned_to_wo(self):
+        return self.num_items_unassigned_to_doc('WO')
 
-
-
-
+    def num_items_unassigned_to_oc(self):
+        return self.num_items_unassigned_to_doc('OC')
 
 
     def price_changed(self):

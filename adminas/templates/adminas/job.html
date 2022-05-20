@@ -57,7 +57,7 @@
             
             <div class="job-status-ele-container">
             {% for ele in job.job_status %}
-                <div class="job-status-ele {{ ele.0 }}">
+                <div class="status-ele {{ ele.0 }}">
                     <span class="icon">
                         {% if ele.0 == 'status_ok' %}
                             ok
@@ -164,6 +164,17 @@
                 <div class="subsection">
                     <h4>Works Order</h4>
                     <a href="{% url 'doc_builder' %}?job={{job.id}}&type=WO" class="add-button">New WO</a>
+
+                    {% if job.num_items_unassigned_to_wo > 0 %}
+                    <div class="status-ele status_warning">
+                        <span class="icon">
+                            ?
+                        </span>
+                        <span class="message">
+                            {{ job.num_items_unassigned_to_wo }} items unassigned
+                        </span>
+                    </div>
+                    {% endif %}
                     <ul>
             {% for doc_version in job.related_documents %}
                 {% if doc_version.document.doc_type == 'WO' %}
@@ -176,21 +187,21 @@
                 <div class="subsection">
                     <h4>Order Confirmation</h4>
                     <a href="{% url 'doc_builder' %}?job={{job.id}}&type=OC" class="add-button">New OC</a>
+            {% if job.num_items_unassigned_to_oc > 0 %}
+                    <div class="status-ele status_warning">
+                        <span class="icon">
+                            ?
+                        </span>
+                        <span class="message">
+                            {{ job.num_items_unassigned_to_oc }} items unassigned
+                        </span>
+                    </div>
+            {% endif %}
+         
                     <ul>
             {% for doc_version in job.related_documents %}
                 {% if doc_version.document.doc_type == 'OC' %}
-                        <li>
-                            <a href="{% url 'doc_main' doc_version.id %}"
-                            {% if doc_version.issue_date != None %}
-                                    class="issued-document">
-                                    <span class="issued-icon">I</span>
-                            {% else %}
-                                    class="saved-document">
-                                    <span class="saved-icon">D</span>
-                            {% endif %}{{ doc_version.document.doc_type }} {{ doc_version.document.reference }} dtd {% if doc_version.issue_date != None %} {{ doc_version.issue_date|date:'Y-m-d' }} {% else %} {{ doc_version.created_on|date:'Y-m-d' }} {% endif %}
-                                <span class="num-items">{{ doc_version.num_items }} item{% if doc_version.num_items > 1 %}s{% endif %}</span>
-                            </a>
-                        </li>
+                    {% include "adminas/components/document_link_li.html" with doc_version=doc_version %}
                 {% endif %}
             {% endfor %}
                     </ul>

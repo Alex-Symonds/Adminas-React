@@ -7,6 +7,10 @@
 
         || Responsive table
 */
+.add-button {
+  margin: 0.3rem 0 0.3rem 0.3rem;
+}
+
 .status-indicator {
   display: flex;
   width: 100%;
@@ -98,10 +102,6 @@
   width: 100%;
 }
 
-#open_item_form_btn {
-  margin-top: 3px;
-}
-
 .document-sections-wrapper {
   align-items: flex-start;
 }
@@ -144,14 +144,14 @@
 .job-doc-section {
   min-width: 280px;
 }
-.job-doc-section a {
-  display: flex;
-  align-items: center;
-  text-decoration: none;
+.job-doc-section .status-ele {
+  margin-left: calc(0.2rem + 3px);
+  width: max-content;
+  margin-top: 0.5rem;
 }
 .job-doc-section ul {
   list-style-type: none;
-  margin: 5px 3px 0;
+  margin: 1rem 3px 0;
   padding: 0 0 0.7rem 0.2rem;
 }
 .job-doc-section li {
@@ -163,11 +163,12 @@
   width: 100%;
   margin: 0;
   padding: 0;
+  text-decoration: none;
   border-radius: 1rem;
   border-top-left-radius: 0.2rem;
   border-bottom-left-radius: 0.2rem;
   border: 1px solid #888;
-  background: #222;
+  background: transparent;
 }
 .job-doc-section li a:hover {
   background: #444;
@@ -179,14 +180,13 @@
   font-weight: bold;
   font-size: 0.9rem;
   text-align: center;
-  color: white;
   border-top-left-radius: 0.2rem;
   border-bottom-left-radius: 0.2rem;
   border-right: 3px solid #666;
-  background: #222;
 }
 .job-doc-section li.issued a {
   border-color: #067A4A;
+  color: #0DFA96;
 }
 .job-doc-section li.issued a .icon {
   border-color: #09BA70;
@@ -201,6 +201,7 @@
 }
 .job-doc-section li.draft a {
   border-color: #00D4F5;
+  color: #00D4F5;
 }
 .job-doc-section li.draft a .icon {
   border-color: #4ADFF7;
@@ -223,8 +224,9 @@
   font-size: 0.9rem;
 }
 .job-doc-section .add-button {
+  display: flex;
+  align-items: center;
   color: #F6F6F6;
-  margin: 3px 5px;
   padding: 0;
   text-decoration: none;
   font-size: 1rem;
@@ -232,7 +234,6 @@
 .job-doc-section .add-button:hover {
   animation-name: expand_add_document;
 }
-.job-doc-section .icon,
 .job-doc-section .issued-icon,
 .job-doc-section .saved-icon {
   display: block;
@@ -714,12 +715,12 @@ table.price-comparison .conclusion th, table.price-comparison .conclusion td {
   padding: 0.7rem;
 }
 
-.job-status-ele {
+.status-ele {
   display: block;
   background: #222;
   border: 1px solid #888;
 }
-.job-status-ele .icon {
+.status-ele .icon {
   display: inline-block;
   background: #888;
   border-right: 1px solid transparent;
@@ -728,31 +729,38 @@ table.price-comparison .conclusion th, table.price-comparison .conclusion td {
   text-align: center;
   font-weight: bold;
 }
-.job-status-ele .message {
+.status-ele .message {
   padding: 0.2rem 1rem;
   margin-right: 3px;
   display: inline-block;
 }
-.job-status-ele.status_action {
+.status-ele.status_action {
   border-color: #00D4F5;
 }
-.job-status-ele.status_action .icon {
+.status-ele.status_action .icon {
   color: #222;
   background: #00D4F5;
 }
-.job-status-ele.status_ok {
+.status-ele.status_ok {
   border-color: #067A4A;
 }
-.job-status-ele.status_ok .icon {
+.status-ele.status_ok .icon {
   background: #067A4A;
   border-right: 1px solid #067A4A;
 }
-.job-status-ele.status_attn {
+.status-ele.status_attn {
   border-color: #cc00ff;
 }
-.job-status-ele.status_attn .icon {
+.status-ele.status_attn .icon {
   color: #222;
   background: #cc00ff;
+}
+.status-ele.status_warning {
+  border-color: #cf0000;
+}
+.status-ele.status_warning .icon {
+  color: #222;
+  background: #cf0000;
 }
 
 /*# sourceMappingURL=job.css.map */

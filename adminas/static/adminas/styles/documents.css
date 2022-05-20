@@ -72,16 +72,16 @@
   background: #444;
 }
 .status-controls.draft {
-  border-color: #0DFA96;
+  border-color: #00D4F5;
 }
 .status-controls.draft h3 {
+  background: #006675;
+}
+.status-controls.issued {
+  border-color: #0DFA96;
+}
+.status-controls.issued h3 {
   background: #067A4A;
-}
-.status-controls.final {
-  border-color: #888;
-}
-.status-controls.final h3 {
-  background: #666;
 }
 .status-controls .status-header {
   position: relative;
@@ -337,11 +337,11 @@
   padding: 0.5rem;
   width: calc(100% - 2 * 0.5rem);
 }
-.panel.status-controls .status-strip.final {
-  background: #AAA;
+.panel.status-controls .status-strip.issued {
+  background: #067A4A;
 }
 .panel.status-controls .status-strip.draft {
-  background: #067A4A;
+  background: #00c2e0;
 }
 
 /*# sourceMappingURL=documents.css.map */
