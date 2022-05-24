@@ -42,104 +42,11 @@
 </div>
 
 
-<section class="job-heading-with-status">
-    <div id="job_status_strip" class="subsection">
-        <div class="job-heading-with-extra">
-            <h2>Job {{ job.name }}</h2>
-            <div class="indicator-wrapper">
-                <div class="status-indicator {% if watching %}on{% else %}off{% endif %}">
-                    <span class="status-name">
-                        to-do
-                    </span>
-                    <button class="todo-list-toggle" data-job_id="{{ job.id }}" data-on_todo_list="{{ watching|lower }}">
-                    {% if watching %}
-                        on
-                    {% else %}
-                        off
-                    {% endif %}
-                    </button>
-                </div>
-            </div>
-            {% if job.customer %}<div class="subheading">for {{ job.customer.name }}</div>{% endif %}
-        </div>
-        
-        <div class="job-status-ele-container">
-        {% for ele in job.job_status %}
-            <div class="status-ele {{ ele.0 }}">
-                <span class="icon">
-                    {% if ele.0 == 'status_ok' %}
-                        ok
-                    {% elif ele.0 == 'status_action' %}
-                        ?
-                    {% elif ele.0 == 'status_attn' %}
-                        !
-                    {% else %}
-                        -
-                    {% endif %}
-                </span>
-                <span class="message">
-                    {{ ele.1 }}
-                </span>
-            </div>
-        {% endfor %}
-        </div>
-    </div>
-</section>
+
 
 <div class="job-page-sections-wrapper">
 
-    <section id="job_details" class="job-section">
-        <h3>General Details</h3>
-        <div class="extended-subheading">
-            <a href="{% url 'edit_job' %}?job={{job.id}}" class="edit-icon"><span>edit</span></a>
-        </div>
 
-        <section class="subsection">
-            <h4>Identification</h4>
-            <div class="read_row">
-                <span class="row-label">Name: </span>{{ job.name }}
-            </div>
-            <div class="read_row">
-                <span class="row-label">Agent: </span>{{ job.agent.name }}
-            </div>
-            <div class="read_row">
-                <span class="row-label">Customer: </span>{{ job.customer.name }}
-            </div>
-            <div class="read_row">
-                <span class="row-label">Quote ref: </span>{{ job.quote_ref }}
-            </div>
-            <div class="read_row">
-                <span class="row-label">Country: </span>{{ job.country.name }}
-            </div>
-            <div class="read_row">
-                <span class="row-label">Language: </span>{{ job.language }}
-            </div>
-        </section>
-
-        <section id="job_payment_section" class="subsection">
-            <h4>Payment</h4>
-            <div class="read_row">
-                <span class="row-label">Invoice address: </span>{{ job.invoice_to.address }}, {{ job.invoice_to.region }}, {{ job.invoice_to.postcode }}, {{ job.invoice_to.country.name }}
-            </div>
-            <div class="read_row">
-                <span class="row-label">Currency: </span>{{ job.currency }}
-            </div>
-            <div class="read_row">
-                <span class="row-label">Payment terms: </span>{{ job.payment_terms }}
-            </div>
-        </section>
-
-        <section id="job_delivery_section" class="subsection">
-            <h4>Delivery</h4>
-            <div class="read_row">
-                <span class="row-label">Delivery address: </span>{{ job.delivery_to.address }}, {{ job.delivery_to.region }}, {{ job.delivery_to.postcode }}, {{ job.delivery_to.country.name }}
-            </div>
-            <div class="read_row">
-                <span class="row-label">Incoterm: </span>{{ job.incoterm_code }} {{ job.incoterm_location }}
-            </div>
-        </section>
-
-    </section>
 
 
 

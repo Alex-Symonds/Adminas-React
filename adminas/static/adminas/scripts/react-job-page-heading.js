@@ -28,6 +28,7 @@ function job_status_symbol(status_code){
     }
 }
 
+
 // Main component
 function JobHeadingSubsection(props){
     return [
