@@ -177,7 +177,7 @@
   display: block;
   width: 1rem;
   padding: 0.35rem 0.3rem;
-  font-weight: bold;
+  font-family: "Noto Sans", sans-serif;
   font-size: 0.9rem;
   text-align: center;
   border-top-left-radius: 0.2rem;
