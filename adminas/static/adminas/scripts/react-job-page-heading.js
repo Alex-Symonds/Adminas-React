@@ -3,7 +3,7 @@
 //      Heading
 //      ToDo List toggle
 //      Status strip
-//      fetch for statuses that can't be altered from this page
+
 
 
 // Status Code constants and associated "icon" texts.
@@ -37,7 +37,8 @@ function JobHeadingSubsection(props){
                 <JobHeading     job_id = {props.job_id}
                                 job_name = {props.job_name}
                                 customer_name = {props.customer_name} />
-                <JobStatusStrip root_statuses={props.root_statuses} />
+                <JobStatusStrip root_statuses={props.root_statuses}
+                                status_data = {props.status_data} />
             </div>
         </section>
         ]
@@ -96,16 +97,10 @@ function JobSubHeading(props){
 }
 
 
+
 // First-level child: status strip
 function JobStatusStrip(props){
-    // PLACEHOLDER: fetch this from server
-    var static_statuses = [
-        [STATUS_CODE_ACTION, 'WO pending'],
-        [STATUS_CODE_ACTION, 'OC missing']
-    ]
-
-    const status_list = props.root_statuses.concat(static_statuses);
-
+    var status_list = list_of_job_statuses(props.status_data);
     return [
         <div class="job-status-ele-container">
             {status_list.map((tuple, index) => 
@@ -127,4 +122,83 @@ function JobStatusElement(props){
             <span class="message">{props.message}</span>
         </div>
     ]
+}
+
+
+// Determine statuses to go in the strip, based on status_data object.
+function list_of_job_statuses(status_data){
+    // Set the order of appearance here.
+    var result = [];
+    result = result.concat(get_status_price_acceptance(status_data));
+    result = result.concat(get_status_items(status_data));
+    result = result.concat(get_status_po(status_data));
+    result = result.concat(get_status_documents(status_data));
+    return result;
+}
+
+function get_status_price_acceptance(data){
+    // Note: returning an array within an array because some other statuses
+    // can return more than one result and would need concat: so concat for ALL.
+    if(data.price_is_accepted){
+        return [[STATUS_CODE_OK, 'Price accepted']];
+    }
+    return [[STATUS_CODE_ACTION, 'Price not accepted']];
+}
+
+function get_status_items(data){
+    var result = [];
+
+    // If there are no items, we can skip the rest
+    if(data.total_qty_all_items == 0){
+        result.push([STATUS_CODE_ACTION, 'No items']);
+        return result;
+    }
+
+    // Display an extra notification if there's >0 special items (i.e. with more modules than "allowed")
+    if(data.special_item_exists){
+        result.push([STATUS_CODE_ATTN, 'Special item/s']);
+    }
+
+    // "Normal" item statuses
+    if(data.incomplete_item_exists){
+        result.push([STATUS_CODE_ACTION, 'Incomplete item/s']);
+    }
+    else {
+        result.push([STATUS_CODE_OK, 'Items ok']);
+    }
+
+    return result
+}
+
+function get_status_po(data){
+    // Note: returning an array within an array because some other statuses
+    // can return more than one result and would need concat: so concat for ALL.
+    if(data.po_count == 0){
+        return [[STATUS_CODE_ACTION, 'PO missing']];
+    }
+    else if (data.price_difference_po_and_items != 0){
+        return [[STATUS_CODE_ACTION, 'PO vs. items discrepancy']];
+    }
+    return [[STATUS_CODE_OK, 'PO ok']];  
+}
+
+function get_status_documents(data){
+    var result = [];
+
+    for(var idx in data.doc_quantities){
+        var doc = data.doc_quantities[idx];
+        var prefix = doc.doc_type + ' ';
+
+        if(data.total_qty_all_items == doc.issued_qty){
+            result.push([STATUS_CODE_OK, prefix + "ok"]);
+        }
+        else if(data.total_qty_all_items == doc.issued_qty + doc.draft_qty){
+            result.push([STATUS_CODE_ACTION, prefix + "pending"]);
+        }
+        else{
+            result.push([STATUS_CODE_ACTION, prefix + "missing"]);
+        }
+    }
+
+    return result;
 }
