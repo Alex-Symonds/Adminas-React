@@ -16,11 +16,36 @@ function JobPage(){
     //  po_list[]
     //  price_accepted (boolean)
     var price_accepted = false;
-
+    var items_list = [
+        {
+            ji_id: 1,
+            product_id: 7,
+            part_number: '123456',
+            product_name: 'Name of this product',
+            description: 'One liner waffle about product',
+            standard_accessories: [
+                {quantity: 1, product_name: "First standard accessory"},
+                {quantity: 2, product_name: "Second standard accessory"}
+            ],
+            is_complete: false,
+            is_modular: true,
+            excess_modules: false,
+            module_list: [
+                {module_id: 1, product_id: 42, quantity: 1, name: '[AB18885] Small Kerflobbity'}
+            ],    
+            quantity: 1,
+            selling_price: 500.00,
+            price_list: {
+                name: '2022-01',
+                id: 2
+            },
+            list_price: 500.00,
+            resale_perc: 25
+        }
+    ];
 
     // These are to be derived from states
     var total_qty_all_items = 12;
-    var items_count = 11;
     var special_item_exists = true;
     var incomplete_item_exists = false;
     var po_count = 1;
@@ -39,7 +64,6 @@ function JobPage(){
         return result;
     }
 
-    
 
     var status_data = compile_job_status_data(price_accepted, special_item_exists, incomplete_item_exists, po_count, value_difference_po_vs_items, doc_quantities, total_qty_all_items);
     return [
@@ -54,7 +78,7 @@ function JobPage(){
                             job_name={job_name}
                             job_total_qty={total_qty_all_items}
                             doc_quantities={doc_quantities}
-                            items_count = {items_count} />
+                            items_list = {items_list} />
         </div>
     ]
 }
@@ -73,32 +97,13 @@ function JobContents(props){
                                 job_total_qty={props.job_total_qty}
                                 doc_quantities={props.doc_quantities}/>
             </section>
-            <JobItems   items_count = {props.items_count}
-                        job_id = {props.job_id}/>
+            <JobItems   job_id = {props.job_id}
+                        items_list = {props.items_list}
+                        currency = {props.currency}/>
         </div>
     ];
 
-
-    //     <JobItems />
-    //     <JobPurchaseOrders />
-    //     <JobPriceChecker />
-
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

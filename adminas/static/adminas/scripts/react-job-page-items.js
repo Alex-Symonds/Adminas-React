@@ -2,7 +2,7 @@
 
 function JobItems(props){
     // Make these states
-    const form_visible = true; // initialise this to {props.items_count == 0}
+    const form_visible = true; // initialise this to {props.items_list.length == 0}
 
     return [
         <section id="job_items_section" class="job-section">
@@ -11,6 +11,8 @@ function JobItems(props){
                 <JobItemsAddButton form_visible = {form_visible} />
                 <JobItemsAddForm    form_visible = {form_visible}
                                     job_id = {props.job_id}/>
+                <JobItemsExisting   items_list = {props.items_list}
+                                    currency={props.currency}/>
             </div>
         </section>
     ]
@@ -32,7 +34,7 @@ function JobItemsAddForm(props){
     // states --------------------------
     var total_forms = 1;
     var input_fields = [
-        {quantity: '', product_id: 0, selling_price: '', price_list_id: 0}
+        {quantity: '', product_id: '', selling_price: '', price_list_id: ''}
     ];
     // ---------------------------------
 
@@ -103,8 +105,6 @@ function JobItemsAddFormRow(props){
 }
 
 
-
-
 function SelectBackendOptions(props){
     
     // TODO: add a fetch that uses props.get_param to request a list of ID numbers and display text from Django
@@ -119,11 +119,11 @@ function SelectBackendOptions(props){
             {
                 option_list.map((option) => {
                     var is_selected =   option.id == props.selected_opt_id
-                                    ||
-                                    (   props.selected_opt_id == 0
-                                        &&
-                                        option.id == props.default_id
-                                    );
+                                        ||
+                                        (   props.selected_opt_id == ''
+                                            &&
+                                            option.id == props.default_id
+                                        );
 
                     return <OptionIdAndName         key = {option.id.toString()}
                                                     id = {option.id}
@@ -154,3 +154,146 @@ function OptionIdAndName(props){
     }
     return <option value={props.id}>{props.name}</option>
 }
+
+
+
+function JobItemsExisting(props){
+    if(props.items_list.length == 0){
+        return null;
+    }
+
+    return [
+        <div class="existing-items-container">
+            {
+                props.items_list.map((data) =>
+                <JobItemEle key = {data.ji_id.toString()}
+                            data = {data}
+                            currency = {props.currency}/>
+                )
+            }
+        </div>
+    ]
+}
+
+function JobItemEle(props){
+    return [
+        <div id={'jobitem_' + props.data.ji_id} class="panel job-item-container">
+            <JobItemHeading data = {props.data}/>
+            <JobItemMoney   data = {props.data}
+                            currency = {props.currency}/>
+            <JobItemAccessories data = {props.data} />
+            <JobItemChildModules    data = {props.data} />
+        </div>
+    ]
+}
+
+function JobItemHeading(props){
+    return [
+        <h5 class="panel-header what">
+            <span class="quantity">{ props.data.quantity }</span> x <span class="product">{ props.data.part_number }: { props.data.product_name }</span><span class="id-number">{ props.data.ji_id }</span>
+            <div class="desc">{props.data.description}</div>  
+        </h5>
+    ]
+}
+
+function JobItemMoney(props){
+    return [
+        <div class="money">
+            <span class="currency">{ props.currency }</span><span class="selling_price">{props.data.selling_price.toFixed(2)}</span>
+            <span class="price_list secondary-icon">{props.data.price_list.name}</span>
+            <button class="ji-edit edit-icon" data-jiid={props.data.jiid} ><span>edit</span></button>
+        </div>
+    ]
+}
+
+function JobItemAccessories(props){
+    if(props.data.standard_accessories.length == 0){
+        return null;
+    }
+
+    var clarify_each = props.data.quantity > 1 ? '(in total)' : '';
+
+    return [
+        <div class="std-accs-container">
+            <div class="std-accs">
+                <p>Included accessories {clarify_each}</p>
+                <ul>
+                    {
+                        props.data.standard_accessories.map((std_acc, index) =>
+                            <QuantityNameLi         key = {index}
+                                                    quantity = {std_acc.quantity}
+                                                    name = {std_acc.product_name} />
+                        )
+                    }
+                </ul>
+            </div>
+        </div>
+    ]
+}
+
+function QuantityNameLi(props){
+    return [
+        <li>{ props.quantity } x {props.name}</li>
+    ]
+}
+
+function JobItemChildModules(props){
+    if(!props.data.is_modular){
+        return null;
+    }
+
+    // get this somehow
+    var url_module_management = '/job/2/manage_modules';
+
+    var css_module_status = job_item_module_status_css(props.data);
+    var heading_display_str = job_item_module_title_str(props.data);
+    return [
+        <div class={'module-status-section subsection modules-' + css_module_status}>
+            <div class="intro-line">
+                <span class="display-text">&raquo;&nbsp;{heading_display_str}</span>
+                <a href={url_module_management + '#modular_jobitem_' + props.data.ji_id} class="edit-icon"><span>edit</span></a>
+            </div>
+            <ul class="details">
+                {
+                    props.data.module_list.map((mod) => 
+                        <QuantityNameLi     key = {mod.module_id.toString()}
+                                            quantity = {mod.quantity}
+                                            name = {mod.name} />
+                    )
+                }
+            </ul>
+        </div>
+    ]
+}
+
+function job_item_module_status_css(data){
+    if(data.excess_modules){
+        return 'excess';
+    }
+    else if(data.is_complete){
+        return 'ok';
+    }
+    return 'incomplete';
+}
+
+function job_item_module_title_str(data){
+    var result = 'Specification';
+    if(data.excess_modules){
+        result = 'Special ' + result;
+    }
+    if(data.quantity > 0){
+        result += ' (per' + nbsp() + 'item)';
+    }
+    if(!data.is_complete){
+        result += ' ---' + nbsp() + 'WARNING:' + nbsp() + 'INCOMPLETE' + nbsp() + '---';
+    }
+    return result;
+}
+
+function nbsp(){
+    return '\u00A0';
+}
+
+
+
+
