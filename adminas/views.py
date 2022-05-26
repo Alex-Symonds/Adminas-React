@@ -731,23 +731,47 @@ def items(request):
             product_has_changed = previous_product != ji.product
             quantity_has_changed = previous_qty != ji.quantity
 
-            # Check that the proposed edit wouldn't leave any other items with empty slots
+            proposed_new_qty = form.cleaned_data['quantity']
             if product_has_changed:
-                proposed_new_qty_for_previous_product = 0
-            else:
-                proposed_new_qty_for_previous_product = form.cleaned_data['quantity']
+                proposed_new_qty = 0
             
-            if not ji.quantity_is_ok_for_modular_as_child(proposed_new_qty_for_previous_product):
+            # Modular items check: Check that the proposed edit wouldn't leave any other items with empty slots
+            if not ji.quantity_is_ok_for_modular_as_child(proposed_new_qty):
                 return JsonResponse({
                     'message': f"Update failed: conflicts with modular item assignments."
                 }, status=400)                             
 
-            # Check that the proposed edit wouldn't leave itself with empty slots
+            # Modular items check: Check that the proposed edit wouldn't leave itself with empty slots
             if ji.product.is_modular() and not product_has_changed and ji.quantity > previous_qty:
                 if not ji.quantity_is_ok_for_modular_as_parent(ji.quantity):
                     return JsonResponse({
                         'message': f"Update failed: insufficient items to fill specification."
                     }, status=400)
+
+            # Document checks
+            if previous_qty > ji.quantity:
+                num_on_issued = ji.num_on_issued_documents()
+                num_on_draft = ji.num_on_draft_documents()
+
+                # Issued documents are final, so the edit can't proceed if there wouldn't be enough left for the issued docs.
+                if proposed_new_qty < num_on_issued:
+                    return JsonResponse({
+                        'message': f"Update failed: insufficient items to fill issued documents."
+                    }, status=400)
+
+                # Draft documents are negotiable, but Adminas allows users to split JobItems across multiple documents. This could
+                # result in a single JobItem having multiple assignments to multiple draft documents and Adminas wouldn't know
+                # which to preserve and which to delete, so the user must make the adjustments manually.
+                # Help them out by sending a list of IDs for the draft doc versions containing this JobItem so the frontend can offer links.
+                elif proposed_new_qty < num_on_issued + num_on_draft:
+                    return JsonResponse({
+                        'message': f"Update failed: insufficient items to fill draft documents.",
+                        'doc_id_list': ji.draft_document_id_list()
+                    }, status=400)               
+
+
+
+
 
             # The modules are happy (from a backend perspective), so save the changes and perform knock-on updates
             ji.save()
@@ -1030,6 +1054,15 @@ def get_data(request):
                 response_data['data'].append(company_dict)
 
             return JsonResponse(response_data, status=200)
+        
+        elif info_requested == 'item_formset':
+            job_id = request.GET.get('job_id')
+            item_formset = JobItemFormSet(queryset=JobItem.objects.none(), initial=[{'job':job_id}])
+            form_str = item_formset.as_table()
+            return JsonResponse(
+                {'form': form_str},
+                status=200
+            )
 
 
 def records(request):

@@ -37,6 +37,7 @@
     <script src="{% static 'adminas/scripts/react-job-page-details.js' %}" type="text/babel"></script>
     <script src="{% static 'adminas/scripts/react-job-page-comments.js' %}" type="text/babel"></script>
     <script src="{% static 'adminas/scripts/react-job-page-documents.js' %}" type="text/babel"></script>
+    <script src="{% static 'adminas/scripts/react-job-page-items.js' %}" type="text/babel"></script>
 {% endblock %}
 
 {% block body %}
@@ -48,60 +49,6 @@
 
 
 <div class="job-page-sections-wrapper">
-
-    <section class="job-section pair-related">
-
-
-        <section class="job-doc-section item">
-            <h3>Documents</h3>
-            <div class="subsection">
-                <h4>Works Order</h4>
-                <a href="{% url 'doc_builder' %}?job={{job.id}}&type=WO" class="add-button">New WO</a>
-
-                {% if job.num_items_unassigned_to_wo > 0 %}
-                <div class="status-ele status_warning">
-                    <span class="icon">
-                        ?
-                    </span>
-                    <span class="message">
-                        {{ job.num_items_unassigned_to_wo }} items unassigned
-                    </span>
-                </div>
-                {% endif %}
-                <ul>
-        {% for doc_version in job.related_documents %}
-            {% if doc_version.document.doc_type == 'WO' %}
-                {% include "adminas/components/document_link_li.html" with doc_version=doc_version %}
-            {% endif %}
-        {% endfor %}
-                </ul>
-            </div>
-
-            <div class="subsection">
-                <h4>Order Confirmation</h4>
-                <a href="{% url 'doc_builder' %}?job={{job.id}}&type=OC" class="add-button">New OC</a>
-        {% if job.num_items_unassigned_to_oc > 0 %}
-                <div class="status-ele status_warning">
-                    <span class="icon">
-                        ?
-                    </span>
-                    <span class="message">
-                        {{ job.num_items_unassigned_to_oc }} items unassigned
-                    </span>
-                </div>
-        {% endif %}
-     
-                <ul>
-        {% for doc_version in job.related_documents %}
-            {% if doc_version.document.doc_type == 'OC' %}
-                {% include "adminas/components/document_link_li.html" with doc_version=doc_version %}
-            {% endif %}
-        {% endfor %}
-                </ul>
-            </div>
-        </section>
-    </section>
-
 
     <section id="job_items_section" class="job-section">
         <h3>Items</h3>

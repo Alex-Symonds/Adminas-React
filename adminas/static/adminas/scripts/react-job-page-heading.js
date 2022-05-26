@@ -7,7 +7,7 @@
 
 
 // Status Code constants and associated "icon" texts.
-// Notes: matching declarations exist in models.py; these are directly used as CSS classes.
+// Notes: matching declarations exist in models.py; also, these are directly used as CSS classes.
 const STATUS_CODE_OK = 'status_ok';
 const STATUS_CODE_ACTION = 'status_action';
 const STATUS_CODE_ATTN = 'status_attn';
@@ -139,7 +139,7 @@ function list_of_job_statuses(status_data){
 function get_status_price_acceptance(data){
     // Note: returning an array within an array because some other statuses
     // can return more than one result and would need concat: so concat for ALL.
-    if(data.price_is_accepted){
+    if(data.price_accepted){
         return [[STATUS_CODE_OK, 'Price accepted']];
     }
     return [[STATUS_CODE_ACTION, 'Price not accepted']];
@@ -176,8 +176,8 @@ function get_status_po(data){
     if(data.po_count == 0){
         return [[STATUS_CODE_ACTION, 'PO missing']];
     }
-    else if (data.price_difference_po_and_items != 0){
-        return [[STATUS_CODE_ACTION, 'PO vs. items discrepancy']];
+    else if (data.value_difference_po_vs_items != 0){
+        return [[STATUS_CODE_ACTION, 'PO discrepancy']];
     }
     return [[STATUS_CODE_OK, 'PO ok']];  
 }
@@ -186,6 +186,7 @@ function get_status_documents(data){
     var result = [];
 
     for(var idx in data.doc_quantities){
+
         var doc = data.doc_quantities[idx];
         var prefix = doc.doc_type + ' ';
 

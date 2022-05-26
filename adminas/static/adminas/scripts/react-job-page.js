@@ -10,31 +10,26 @@ function JobPage(){
         {doc_type: 'OC', issued_qty: 0, draft_qty: 1}
     ];
 
+
     // State plan:
     //  item_list[]
     //  po_list[]
     //  price_accepted (boolean)
+    var price_accepted = false;
 
 
     // These are to be derived from states
     var total_qty_all_items = 12;
-    var price_is_accepted = false;
+    var items_count = 11;
     var special_item_exists = true;
     var incomplete_item_exists = false;
-    var po_count = 3;
+    var po_count = 1;
     var value_difference_po_vs_items = 0;
 
-    var root_statuses = [
-        [STATUS_CODE_ATTN, 'Special item'],
-        [STATUS_CODE_ACTION, 'PO missing'],
-        [STATUS_CODE_ACTION, 'Price not accepted'],
-        [STATUS_CODE_OK, 'testing OK status']
-    ];
 
-
-    function compile_job_status_data(price_is_accepted, special_item_exists, incomplete_item_exists, po_count, value_difference_po_vs_items, doc_quantities, total_qty_all_items){
+    function compile_job_status_data(price_accepted, special_item_exists, incomplete_item_exists, po_count, value_difference_po_vs_items, doc_quantities, total_qty_all_items){
         var result = {};
-        result['price_is_accepted'] = price_is_accepted;
+        result['price_accepted'] = price_accepted;
         result['special_item_exists'] = special_item_exists;
         result['incomplete_item_exists'] = incomplete_item_exists;
         result['po_count'] = po_count;
@@ -46,7 +41,7 @@ function JobPage(){
 
     
 
-    var status_data = compile_job_status_data(price_is_accepted, special_item_exists, incomplete_item_exists, po_count, value_difference_po_vs_items, doc_quantities, total_qty_all_items);
+    var status_data = compile_job_status_data(price_accepted, special_item_exists, incomplete_item_exists, po_count, value_difference_po_vs_items, doc_quantities, total_qty_all_items);
     return [
         <div>
             <JobHeadingSubsection   job_id={job_id}
@@ -58,7 +53,8 @@ function JobPage(){
                             customer_name={customer_name}
                             job_name={job_name}
                             job_total_qty={total_qty_all_items}
-                            doc_quantities={doc_quantities} />
+                            doc_quantities={doc_quantities}
+                            items_count = {items_count} />
         </div>
     ]
 }
@@ -77,7 +73,8 @@ function JobContents(props){
                                 job_total_qty={props.job_total_qty}
                                 doc_quantities={props.doc_quantities}/>
             </section>
-            
+            <JobItems   items_count = {props.items_count}
+                        job_id = {props.job_id}/>
         </div>
     ];
 
@@ -99,17 +96,6 @@ function JobContents(props){
 
 
 
-
-
-function JobItems(props){
-
-}
-function JobPurchaseOrders(props){
-
-}
-function JobPriceChecker(props){
-
-}
 
 
 
