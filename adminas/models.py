@@ -32,6 +32,36 @@ STATUS_CODE_OK = 'status_ok'
 STATUS_CODE_ACTION = 'status_action'
 STATUS_CODE_ATTN = 'status_attn'
 
+class DocAssignment(models.Model):
+    """
+        Through MTM for line item assignments to documents. 
+    """
+    version = models.ForeignKey('DocumentVersion', on_delete=models.CASCADE)
+    item = models.ForeignKey('JobItem', on_delete=models.CASCADE)
+    quantity = models.IntegerField()
+
+    def max_quantity_excl_self(self):
+        """
+            Get the maximum quantity that could be assigned to self.
+        """
+        assignment_qs = DocAssignment.objects\
+                    .filter(item=self.item)\
+                    .filter(version__document__doc_type=self.version.document.doc_type)\
+                    .filter(version__active=True)\
+                    .exclude(id=self.id)
+
+        if assignment_qs.count() == 0:
+            qty_assigned = 0
+        else:
+            qty_assigned_dict = assignment_qs.aggregate(Sum('quantity'))
+            qty_assigned = qty_assigned_dict['quantity__sum']
+
+        return self.item.quantity - qty_assigned
+
+
+    def __str__(self):
+        return f'{self.quantity} x {self.item.product.name} assigned to {self.version.document.doc_type} {self.version.document.reference}'
+
 
 
 class User(AbstractUser):
@@ -549,12 +579,13 @@ class Job(AdminAuditTrail):
         unassigned_main_items = self.get_items_unassigned_to_doc(doc_type)
         num_unassigned = len(unassigned_main_items) if unassigned_main_items != None else None
 
-        # If the number of unassigned items = total number of main items, nothing has been assigned to anything
-        if num_unassigned != None and num_unassigned == self.main_item_list().count():
+        # No items on the Job means there can't be any assigned to a doc, so the doc must be missing.
+        # Number of unassigned items = total number of main items, it means nothing has been assigned to anything == doc is missing.
+        if self.main_item_list().count() == 0 or (num_unassigned != None and num_unassigned == self.main_item_list().count()):
             return (STATUS_CODE_ACTION, f'{doc_type} missing')
 
         # If the number of unassigned documents is 0 and there are no unissued documents, we're done
-        elif num_unassigned != None and not self.unissued_documents_exist(doc_type) and num_unassigned == 0:
+        elif num_unassigned != None and num_unassigned == 0 and not self.unissued_documents_exist(doc_type):
             return (STATUS_CODE_OK, f'{doc_type} finalised')
 
         # Otherwise we're at some sort of middling point
@@ -628,20 +659,84 @@ class Job(AdminAuditTrail):
 
         return dvs.filter(issue_date = None).count() > 0
 
+    # ----------- Documents to support upgrades prior to beginning Adminas-React
     def num_items_unassigned_to_doc(self, doc_type):
         """
             How many JobItems on this Job have not yet been assigned to a particular document type.
         """
         if self.items.count() == 0:
             return 0
-        unassigned_items = self.get_items_unassigned_to_doc(doc_type)
-        return len(unassigned_items) if unassigned_items != None else self.items.count()
 
+        unassigned_items = self.get_items_unassigned_to_doc(doc_type)
+        if unassigned_items == None:
+            return 0
+
+        result = 0
+        for item in unassigned_items:
+            result += item.total_quantity
+
+        return result
+    
     def num_items_unassigned_to_wo(self):
         return self.num_items_unassigned_to_doc('WO')
 
     def num_items_unassigned_to_oc(self):
         return self.num_items_unassigned_to_doc('OC')
+
+# ----------- Documents to support Adminas-React, but the actual React bit
+    def all_documents_item_quantities(self):
+        """
+            Dict with an entry for each doc_type, reporting the quantity of items on issued and draft documents of that type.
+            e.g. {
+                    WO: {qty_on_issued: 1, qty_on_draft: 4},
+                    OC: {qty_on_issued: 0, qty_on_draft: 1}
+                }
+            Note: a single line item with quantity=100 would show up as 100.
+        """
+        # This was added to enable the Job status for documents (i.e. "ok", "pending", "missing").
+        # Some of these statuses are defined by a comparison between the quantity of items appearing on issued/draft documents
+        # versus the quantity existing on the Job as a whole.
+        # We need to consider quantity rather than count() because JobItems have a quantity field which can be >1 and Adminas
+        # supports splitting JobItems across multiple documents.
+        # If a Job has a single JobItem with qty=100 and a user assigns qty=1 to an issued document, we want that to come up as
+        # "99 more to go", not "1 x JobItem on the Job; 1 x JobItem on an issued document: we're done".
+
+        result = {}
+        
+        for loop_tuple in DOCUMENT_TYPES:
+            doc_type = loop_tuple[0]
+            doc_quantities = {}
+            doc_quantities['qty_on_issued'] = self.document_item_quantities(doc_type, True)
+            doc_quantities['qty_on_draft'] = self.document_item_quantities(doc_type, False)
+            result[doc_type] = doc_quantities
+
+        return result
+
+
+    def document_item_quantities(self, doc_type, want_issued):
+        """
+            Sum the quantity of items appearing on documents related to this Job, specifying:
+                doc_type        (e.g. WO, OC)
+                want_issued     (True = only sum issued documents; False = only sum draft)
+        """
+        doc_versions = self.related_documents().filter(document__doc_type=doc_type)
+        if doc_versions == None or doc_versions.count() == 0:
+            return 0
+
+        result = 0
+        for docv in doc_versions:
+            # Draft document counter
+            if docv.issue_date == None and not want_issued:
+                result += 1
+
+            # Issued document counter
+            elif not docv.issue_date == None and want_issued:
+                result += 1
+
+        return result
+# -----------
+
+
 
 
     def price_changed(self):
@@ -941,6 +1036,59 @@ class JobItem(AdminAuditTrail):
         """
         return f'{self.display_str()} @ {self.job.currency}&nbsp;{self.selling_price_f()}'
  
+
+    def on_issued_document(self):
+        """
+            Check if this JobItem appears on a document which has been issued.
+        """
+        return self.num_on_issued_documents() > 0
+
+
+    def num_on_issued_documents(self):
+        """
+            Count how many of this JobItem appear on a document which has been issued.
+        """
+        doc_assignments = DocAssignment.objects.filter(item=self).filter(version__active=True)
+        if doc_assignments == None:
+            return 0
+
+        total = 0
+        for doca in doc_assignments:
+            if not doca.version.issue_date == None:
+                total += doca.quantity
+        return total
+
+
+    def num_on_draft_documents(self):
+        """
+            Count how many of this JobItem appear on a draft document.
+        """
+        doc_assignments = DocAssignment.objects.filter(item=self).filter(version__active=True)
+        if doc_assignments == None:
+            return 0
+
+        total = 0
+        for doca in doc_assignments:
+            if doca.version.issue_date == None:
+                total += doca.quantity
+        return total
+
+
+    def draft_document_id_list(self):
+        """
+            Get a list of IDs for any draft documents including this JobItem.
+        """
+        doc_assignments = DocAssignment.objects.filter(item=self)
+        if doc_assignments == None:
+            return None
+
+        id_list = []
+        for doca in doc_assignments:
+            if doca.version.issue_date == None:
+                id_list.append(doca.version.id)
+
+        return id_list
+
 
     def selling_price_f(self):
         """
@@ -1890,35 +2038,7 @@ class DocumentVersion(AdminAuditTrail):
         return f'{self.document.doc_type} {self.document.reference} v{self.version_number} dated {self.issue_date}'
 
 
-class DocAssignment(models.Model):
-    """
-        Through MTM for line item assignments to documents. 
-    """
-    version = models.ForeignKey(DocumentVersion, on_delete=models.CASCADE)
-    item = models.ForeignKey(JobItem, on_delete=models.CASCADE)
-    quantity = models.IntegerField()
 
-    def max_quantity_excl_self(self):
-        """
-            Get the maximum quantity that could be assigned to self.
-        """
-        assignment_qs = DocAssignment.objects\
-                    .filter(item=self.item)\
-                    .filter(version__document__doc_type=self.version.document.doc_type)\
-                    .filter(version__active=True)\
-                    .exclude(id=self.id)
-
-        if assignment_qs.count() == 0:
-            qty_assigned = 0
-        else:
-            qty_assigned_dict = assignment_qs.aggregate(Sum('quantity'))
-            qty_assigned = qty_assigned_dict['quantity__sum']
-
-        return self.item.quantity - qty_assigned
-
-
-    def __str__(self):
-        return f'{self.quantity} x {self.item.product.name} assigned to {self.version.document.doc_type} {self.version.document.reference}'
 
 
 class ProductionData(models.Model):

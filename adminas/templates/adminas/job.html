@@ -34,6 +34,9 @@
     <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
 
     <script src="{% static 'adminas/scripts/react-job-page-heading.js' %}" type="text/babel"></script>
+    <script src="{% static 'adminas/scripts/react-job-page-details.js' %}" type="text/babel"></script>
+    <script src="{% static 'adminas/scripts/react-job-page-comments.js' %}" type="text/babel"></script>
+    <script src="{% static 'adminas/scripts/react-job-page-documents.js' %}" type="text/babel"></script>
 {% endblock %}
 
 {% block body %}
@@ -46,30 +49,7 @@
 
 <div class="job-page-sections-wrapper">
 
-
-
-
-
     <section class="job-section pair-related">
-
-        <section id="job_comments" class="item">
-            <h3>Comments</h3>
-            <a href="{% url 'job_comments' job.id %}?page=1">See all {{ num_comments }} comments</a>
-            {% for section in comment_data %}
-            <section class="subsection">
-                <h4>{{ section.title }} by {{ user.username }}</h3>
-                <div class="comment-container {{ section.class_suffix }} empty-paragraph">
-                {% for comment in section.comments %}
-                    {% include "adminas/components/comment_collapse.html" with comment=comment %}
-                {% empty %}
-                    <p class="empty-section-notice">No comments have been {{ section.class_suffix }}</p>
-                {% endfor %}
-                </div>
-            </section>
-            {% endfor %}
-        </section>
-
-
 
 
         <section class="job-doc-section item">

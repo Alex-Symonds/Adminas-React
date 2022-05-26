@@ -630,6 +630,11 @@ def items(request):
                 'message': "Delete failed: conflicts with modular item assignments."
             }, status=400)
 
+        if ji.on_issued_document():
+            return JsonResponse({
+                'message': "Delete failed: conflicts with issued documents."
+            }, status=400) 
+
         ji.job.price_changed()
         ji.delete()
         return JsonResponse({
