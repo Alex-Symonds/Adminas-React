@@ -1,17 +1,18 @@
-
+// JobItems section, plus functions to build a <select> based on id/name data from the server, plus a generic <li>qty x name</li>
 
 function JobItems(props){
     // Make these states
-    const form_visible = true; // initialise this to {props.items_list.length == 0}
+    const form_visible = true; // initialise this to {props.items_data.length == 0}
+    // -----------------------------
 
     return [
         <section id="job_items_section" class="job-section">
             <h3>Items</h3>
             <div class="job-items-container">
-                <JobItemsAddButton form_visible = {form_visible} />
+                <JobItemsAddButton  form_visible = {form_visible} />
                 <JobItemsAddForm    form_visible = {form_visible}
                                     job_id = {props.job_id}/>
-                <JobItemsExisting   items_list = {props.items_list}
+                <JobItemsExisting   items_data = {props.items_data}
                                     currency={props.currency}/>
             </div>
         </section>
@@ -71,6 +72,7 @@ function JobItemsAddForm(props){
     ]
 }
 
+// JobItems Add form: one "row" (i.e. if the user is adding multiple items at once, this would have fields for one new item)
 function JobItemsAddFormRow(props){
     var prefix = 'form-' + props.form_index + '-';
     var id_prefix = 'id_' + prefix;
@@ -107,11 +109,12 @@ function JobItemsAddFormRow(props){
 
 function SelectBackendOptions(props){
     
-    // TODO: add a fetch that uses props.get_param to request a list of ID numbers and display text from Django
+    // TODO: add a fetch that uses props.get_param to request a specific list of ID numbers and display text from Django
     var option_list = [
         {id: 1, name: "Test thingy"},
         {id: 2, name: "Another test thingy"}
     ];
+    //--------------------------------------------
 
     return [
         <select name={props.select_name} id={props.select_id}>
@@ -136,18 +139,20 @@ function SelectBackendOptions(props){
     ]
 }
 
+// Part of <select>. This is a "none" option to add above the "real" options.
 function OptionEmptyDefault(props){
     if(props.default_id != null){
         return null;
     }
 
-    if(props.selected_opt_id != 0){
+    if(props.selected_opt_id != null){
         return <option value="" disabled>---------</option>
     }
 
     return <option value="" selected disabled>---------</option>
 }
 
+// Part of <select>. Add an option using a single id / name pair.
 function OptionIdAndName(props){
     if(props.is_selected){
         return <option value={props.id} selected>{props.name}</option>
@@ -157,15 +162,16 @@ function OptionIdAndName(props){
 
 
 
+// Section containing all the existing JobItems. The "main bit".
 function JobItemsExisting(props){
-    if(props.items_list.length == 0){
+    if(props.items_data.length == 0){
         return null;
     }
 
     return [
         <div class="existing-items-container">
             {
-                props.items_list.map((data) =>
+                props.items_data.map((data) =>
                 <JobItemEle key = {data.ji_id.toString()}
                             data = {data}
                             currency = {props.currency}/>
@@ -181,8 +187,9 @@ function JobItemEle(props){
             <JobItemHeading data = {props.data}/>
             <JobItemMoney   data = {props.data}
                             currency = {props.currency}/>
-            <JobItemAccessories data = {props.data} />
+            <JobItemAccessories     data = {props.data} />
             <JobItemChildModules    data = {props.data} />
+            <JobItemAssignments     data = {props.data} />
         </div>
     ]
 }
@@ -242,8 +249,9 @@ function JobItemChildModules(props){
         return null;
     }
 
-    // get this somehow
+    // get this somehow ----------------
     var url_module_management = '/job/2/manage_modules';
+    // ---------------------------------
 
     var css_module_status = job_item_module_status_css(props.data);
     var heading_display_str = job_item_module_title_str(props.data);
@@ -281,7 +289,7 @@ function job_item_module_title_str(data){
     if(data.excess_modules){
         result = 'Special ' + result;
     }
-    if(data.quantity > 0){
+    if(data.quantity > 1){
         result += ' (per' + nbsp() + 'item)';
     }
     if(!data.is_complete){
@@ -292,6 +300,51 @@ function job_item_module_title_str(data){
 
 function nbsp(){
     return '\u00A0';
+}
+
+function JobItemAssignments(props){
+    if(props.data.assignments.length == 0){
+        return null;
+    }
+    return [
+        <div class="module-status-section assignments">
+            <div class="intro-line">
+                <span class="display-text">
+                    &laquo; Assignment
+                </span>
+                <JobItemAssignmentsCounter  display_str='used'
+                                            num = {props.data.num_assigned}
+                                            total = {props.data.total_product_quantity} />
+                <JobItemAssignmentsCounter  display_str='unused'
+                                            num = {props.data.total_product_quantity - props.data.num_assigned}
+                                            total = {props.data.total_product_quantity} />
+            </div>
+            <ul>
+                {
+                    props.data.assignments.map((a, index) => 
+                        <JobItemAssignmentLi    key = {index}
+                                                data = {a}/>
+                    )
+                }
+            </ul>
+        </div>
+    ]
+}
+
+function JobItemAssignmentsCounter(props){
+    return [
+        <div class="assignment-icon">
+            <span class="label">{props.display_str}</span>
+            <span class="status">{props.num}/{props.total}</span>
+        </div>
+    ]
+}
+
+function JobItemAssignmentLi(props){
+    var each = props.data.parent_qty > 1 ? 'each ' : '';
+    return [
+        <li>{props.data.quantity } {each}to {props.data.parent_qty} x [{props.data.part_num}] {props.data.product_name} <span class="id-number">{props.data.parent_id}</span></li>
+    ]
 }
 
 

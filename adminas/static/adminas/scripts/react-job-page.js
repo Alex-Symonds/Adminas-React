@@ -41,18 +41,106 @@ function JobPage(){
             },
             list_price: 500.00,
             resale_perc: 25
+        },
+        {
+            ji_id: 1,
+            product_id: 42,
+            part_number: 'AB18885',
+            product_name: 'Small Kerflobbity',
+            description: 'A kerblobbity which is, get this, kinda small.',
+            standard_accessories: [],
+            is_complete: true,
+            is_modular: false,
+            excess_modules: false,
+            module_list: [],    
+            quantity: 1,
+            selling_price: 5.00,
+            price_list: {
+                name: '2022-01',
+                id: 2
+            },
+            list_price: 5.00,
+            resale_perc: 25
         }
     ];
 
     // These are to be derived from states
-    var total_qty_all_items = 12;
+    var total_qty_all_items = items_list.reduce((prev_total_qty, item) => {
+        return item.quantity + prev_total_qty;
+    });
+
     var special_item_exists = true;
     var incomplete_item_exists = false;
     var po_count = 1;
     var value_difference_po_vs_items = 0;
 
+    var products_list = ((items_list) => {
+        var products = get_products_list(items_list);
+        return populate_products_list_with_assignments(products, items_list);
+    })(items_list);
 
-    function compile_job_status_data(price_accepted, special_item_exists, incomplete_item_exists, po_count, value_difference_po_vs_items, doc_quantities, total_qty_all_items){
+    // Create object with a nested object for each product on the Job, with product_id as the key.
+    function get_products_list(items_list){
+        var result = {};
+
+        for(var idx in items_list){
+            var this_item = items_list[idx];
+            var prod_id_as_str = this_item.product_id.toString();
+
+            // If the product doesn't exist yet, add it now
+            if(!(prod_id_as_str in result)){
+                result[prod_id_as_str] = {
+                    num_assigned: 0,
+                    num_total: 0,
+                    assignments: []
+                };
+            }
+
+            // Update the total to take this_item into account
+            result[prod_id_as_str].num_total += this_item.quantity;
+        }
+        return result;
+    }
+
+    function populate_products_list_with_assignments(result, items_list){
+        // Set "used_by" and "num_assigned" by checking all the module_lists
+        for(var pidx in items_list){
+            var parent = items_list[pidx];
+            if(parent.module_list != null && parent.module_list.length > 0){
+
+                for(var midx in parent.module_list){
+                    var child_prod_id_as_str = parent.module_list[midx].product_id.toString();
+                    
+                    // If there is no field in result for the child at this stage, something went wrong
+                    if(!(child_prod_id_as_str in result)){
+                        console.log('ERR: Products[] creation, missing product');
+                        break;
+                    }
+                    // Update the child product's "num_assigned" and "assignments".
+                    else{
+                        // Modules store quantities on a "per parent item" basis, so multiply by parent.quantity to get the total
+                        var total_used = parent.module_list[midx].quantity * parent.quantity;
+                        result[child_prod_id_as_str].num_assigned += total_used;
+
+                        // Setup an object with all the data needed to display this assignment under the child item
+                        var assignment = {
+                            quantity: total_used,
+                            parent_qty: parent.quantity,
+                            part_num: parent.part_number,
+                            product_name: parent.product_name,
+                            parent_id: parent.ji_id
+                        };
+
+                        result[child_prod_id_as_str].assignments.push(assignment);
+                    }
+                }
+            }
+        }
+        return result;
+    }
+
+
+    var status_data = ((price_accepted, special_item_exists, incomplete_item_exists, po_count, value_difference_po_vs_items, doc_quantities, total_qty_all_items) => {
         var result = {};
         result['price_accepted'] = price_accepted;
         result['special_item_exists'] = special_item_exists;
@@ -62,10 +150,25 @@ function JobPage(){
         result['doc_quantities'] = doc_quantities;
         result['total_qty_all_items'] = total_qty_all_items;
         return result;
-    }
+    })(price_accepted, special_item_exists, incomplete_item_exists, po_count, value_difference_po_vs_items, doc_quantities, total_qty_all_items);
 
 
-    var status_data = compile_job_status_data(price_accepted, special_item_exists, incomplete_item_exists, po_count, value_difference_po_vs_items, doc_quantities, total_qty_all_items);
+    var items_data = ((items_list, products_list) => {
+        var results = items_list;
+        for(var idx in results){
+            var target_prod_id_as_str = results[idx].product_id.toString();
+            var product = products_list[target_prod_id_as_str];
+
+            results[idx]['num_assigned'] = product.num_assigned;
+            results[idx]['total_product_quantity'] = product.num_total;
+            results[idx]['assignments'] = product.assignments;
+        }
+        return results;
+    })(items_list, products_list);
+
+
+
+
     return [
         <div>
             <JobHeadingSubsection   job_id={job_id}
@@ -78,7 +181,7 @@ function JobPage(){
                             job_name={job_name}
                             job_total_qty={total_qty_all_items}
                             doc_quantities={doc_quantities}
-                            items_list = {items_list} />
+                            items_data = {items_data} />
         </div>
     ]
 }
@@ -98,13 +201,12 @@ function JobContents(props){
                                 doc_quantities={props.doc_quantities}/>
             </section>
             <JobItems   job_id = {props.job_id}
-                        items_list = {props.items_list}
+                        items_data = {props.items_data}
                         currency = {props.currency}/>
         </div>
     ];
 
 }
-
 
 
 // Render it to the page
