@@ -61,27 +61,12 @@ function JobToDoIndicator(props){
         active: true
     };
 
-    let css_classes = get_css_classes(todo.active);
-    let display_text = get_display_text(todo.active);
-
-    function get_css_classes(is_on_todo){
-        css_classes = "status-indicator ";
-        if(is_on_todo){
-            return css_classes + "on";
-        }
-        return css_classes + "off";
-    }
-
-    function get_display_text(is_on_todo){
-        if(is_on_todo){
-            return "on";
-        }
-        return "off";
-    }
+    let css_class = todo.active ? 'on' : 'off';
+    let display_text = todo.active ? 'on' : 'off';
 
     return [
         <div class="indicator-wrapper">
-            <div class={css_classes}>
+            <div class={'status-indicator ' + css_class}>
                 <span class="status-name">to-do</span>
                 <button class="todo-list-toggle" data-job_id={props.job_id} data-on_todo_list={todo.active}>{display_text}</button>
             </div>

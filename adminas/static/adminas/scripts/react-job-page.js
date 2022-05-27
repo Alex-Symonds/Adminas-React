@@ -16,6 +16,7 @@ function JobPage(){
     //  po_list[]
     //  price_accepted (boolean)
     var price_accepted = false;
+
     var items_list = [
         {
             ji_id: 1,
@@ -64,15 +65,31 @@ function JobPage(){
         }
     ];
 
+    var po_list = [
+        {
+            reference: 'abc',
+            date_on_po: '01/01/1900',
+            value: 500,
+            date_received: '01/01/1900',
+            po_id: 1
+        }
+    ];
+
     // These are to be derived from states
     var total_qty_all_items = items_list.reduce((prev_total_qty, item) => {
         return item.quantity + prev_total_qty;
     });
 
+    var total_po_value = po_list.reduce((prev_total_val, po) => {return po.value + prev_total_val}, 0);
+    var total_items_value = items_list.reduce((prev_total_val, item) => {return item.selling_price + prev_total_val}, 0);
+    var total_items_list_price = items_list.reduce((prev_total_val, item) => {return item.list_price + prev_total_val}, 0);
+    var value_difference_po_vs_items = total_po_value - total_items_value;
+
+    var po_count = po_list.length;
+
     var special_item_exists = true;
     var incomplete_item_exists = false;
-    var po_count = 1;
-    var value_difference_po_vs_items = 0;
+    
 
     var products_list = ((items_list) => {
         var products = get_products_list(items_list);
@@ -167,6 +184,18 @@ function JobPage(){
     })(items_list, products_list);
 
 
+    var po_data = ((value_difference_po_vs_items, total_items_value, total_po_value, po_list) => {
+        var result = {
+            difference: value_difference_po_vs_items,
+            total_items_value: total_items_value,
+            total_po_value: total_po_value,
+            po_list: po_list
+        };
+        return result;
+    })(value_difference_po_vs_items, total_items_value, total_po_value, po_list);
+
+
+
 
 
     return [
@@ -181,7 +210,11 @@ function JobPage(){
                             job_name={job_name}
                             job_total_qty={total_qty_all_items}
                             doc_quantities={doc_quantities}
-                            items_data = {items_data} />
+                            items_data = {items_data}
+                            po_data = {po_data}
+                            price_accepted = {price_accepted}
+                            total_list = {total_items_list_price}
+                            total_selling = {total_items_value} />
         </div>
     ]
 }
@@ -203,6 +236,16 @@ function JobContents(props){
             <JobItems   job_id = {props.job_id}
                         items_data = {props.items_data}
                         currency = {props.currency}/>
+            <section class="job-section pair-related">
+                <JobPo  job_id = {props.job_id}
+                        currency = {props.currency}
+                        po_data = {props.po_data} />
+                <JobPriceCheck      currency = {props.currency}
+                                    price_accepted = {props.price_accepted}
+                                    total_list = {props.total_list}
+                                    total_selling = {props.total_selling}
+                                    items_data = {props.items_data}/>
+            </section>  
         </div>
     ];
 

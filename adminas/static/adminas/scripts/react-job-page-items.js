@@ -87,6 +87,7 @@ function JobItemsAddFormRow(props){
             <label for={id_prefix + 'product'}>Item</label>
             <SelectBackendOptions   select_id = {id_prefix + 'product'}
                                     select_name = {prefix + 'product'}
+                                    is_required = {false}
                                     get_param = 'products_all'
                                     selected_opt_id = {props.data.product_id}
                                     default_opt_id = {null} />
@@ -97,6 +98,7 @@ function JobItemsAddFormRow(props){
             <label for={id_prefix + 'price_list'}>Price List</label>
             <SelectBackendOptions   select_id = {id_prefix + 'price_list'}
                                     select_name = {prefix + 'price_list'}
+                                    is_required = {false}
                                     get_param = 'price_lists'
                                     selected_opt_id = {props.data.price_list_id}
                                     default_opt_id = {null} />
@@ -117,7 +119,7 @@ function SelectBackendOptions(props){
     //--------------------------------------------
 
     return [
-        <select name={props.select_name} id={props.select_id}>
+        <select name={props.select_name} id={props.select_id} required={props.is_required}>
             <OptionEmptyDefault default_id = {props.default_id} selected_opt_id = {props.selected_opt_id}/>
             {
                 option_list.map((option) => {
