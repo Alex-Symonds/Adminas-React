@@ -493,6 +493,7 @@ class Job(AdminAuditTrail):
 
         return result
 
+
     def get_pinned_comments(self, user, setting_for_order_by):
         """
             Comment support. Get all comments "pinned" by this User

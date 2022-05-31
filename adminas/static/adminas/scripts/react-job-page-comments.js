@@ -1,49 +1,48 @@
 // || JobComments
 function JobComments(props){
-    // dummy data: fetch from server in real life
-    const URL_JOB_COMMENTS = '/job/2/comments';
-    const username = 'AliceBob';
+    const [error, setError] = React.useState(null);
+    const [isLoaded, setLoaded] = React.useState(false);
+    const [urlCommentsPage, setUrl] = React.useState('');
+    const [username, setUsername] = React.useState('');
+    const [comments, setComments] = React.useState([]);
 
-    var comments = [];      // state
-    // Note to self: consider whether you want the backend to have a single "give me ALL the comments" thing, or also have a "give me all comments that are pinned or highlighted"
-    comments[0] = {
-        comment_id: 1,
-        private: true,
-        highlighted: false,
-        pinned: false,
-        user_is_owner: true,
-        contents: 'Contents of pretend post #1',
-        created_by: 'You',
-        created_on: '2022-05-24 15:26'
-    };
-    comments[1] = {
-        comment_id: 2,
-        private: false,
-        highlighted: false,
-        pinned: true,
-        user_is_owner: true,
-        contents: 'Contents of pretend post #2 ajhgd asjdfg HAH',
-        created_by: 'You',
-        created_on: '2022-05-24 15:27'
-    };
-    comments[2] = {
-        comment_id: 3,
-        private: false,
-        highlighted: true,
-        pinned: true,
-        user_is_owner: false,
-        contents: "Contents of someone else's pretend post #3, which is someone else's",
-        created_by: 'ChloeDave',
-        created_on: '2022-05-24 15:27'
-    };
-    // ------------------------------
+    React.useEffect(() => {
+        const fetchData = async () => {
+            const result = await fetch(`${props.URL_GET_DATA}?job_id=${props.job_id}&type=page_load&name=comments`)
+            .then(response => {
+                if(response.status == 200){
+                    return response.json();
+                } else {
+                    throw new Error('Page data failed to load');
+                }
+            })
+            .then(data => {
+                setUrl(data.url + '?page=1');
+                setUsername(data.username);
+                setComments(data.comments);
+                setLoaded(true);
+            })
+            .catch(error => {
+                setError(error);
+                setLoaded(true);
+                console.log('Error: ', error);
+            });
+        };
 
-    const URL_JOB_COMMENTS_P1 = URL_JOB_COMMENTS + '?page=1';
+        fetchData();
 
+    }, [isLoaded]);
+
+    if(error){
+        return <div>Error loading comments.</div>
+    }
+    else if (!isLoaded){
+        return <div>Loading...</div>
+    }
     return [
         <section id="job_comments" class="item">
             <h3>Comments</h3>
-            <a href={URL_JOB_COMMENTS_P1}>See all {comments.length} comments</a>
+            <a href={urlCommentsPage}>See all {comments.length} comments</a>
             <JobCommentsSubsection title='Pinned'       css_class='pinned'       username={username} comments={comments} />
             <JobCommentsSubsection title='Highlighted'  css_class='highlighted'  username={username} comments={comments} />
         </section>
@@ -86,7 +85,7 @@ function CommentsBlock(props){
     return [
         <div>
             {props.comments.map((comment) => {
-                return <Comment key={comment.comment_id.toString()}
+                return <Comment key={comment.id.toString()}
                                 c={comment}
                 />
             })}
@@ -100,7 +99,7 @@ function Comment(props){
     // The current plan is to only use React on the Job page, so this only accommodates the
     // "collapse" style of comment.
 
-    var css_class_list = "one-comment id-" + props.c.comment_id;
+    var css_class_list = "one-comment id-" + props.c.id;
     props.c.private ? css_class_list += ' private' : css_class_list += ' public';
     if(props.c.highlighted){
         css_class_list += ' highlighted';

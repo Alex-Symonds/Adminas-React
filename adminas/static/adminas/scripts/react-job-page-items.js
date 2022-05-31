@@ -91,7 +91,7 @@ function JobItemsAddFormRow(props){
                                     select_name = {prefix + 'product'}
                                     is_required = {false}
                                     api_url = {props.URL_GET_DATA}
-                                    get_param = 'products_all'
+                                    get_param = 'products'
                                     selected_opt_id = {props.data.product_id}
                                     default_opt_id = {null} />
 

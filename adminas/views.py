@@ -1073,7 +1073,7 @@ def get_data(request):
                     cur_dict['display_str'] = currency[1]
                     response_data['data'].append(cur_dict)
 
-            elif name == 'products_all':
+            elif name == 'products':
                 products = Product.objects.filter(available=True).order_by('part_number')
                 for product in products:
                     prod_dict = {}
@@ -1081,9 +1081,21 @@ def get_data(request):
                     prod_dict['display_str'] = f'[{product.part_number}] {product.name}'
                     response_data['data'].append(prod_dict)
 
-
             return JsonResponse(response_data, status=200)
 
+        elif type_requested == 'page_load':
+            name = request.GET.get('name')
+            job_id = request.GET.get('job_id')
+            my_job = Job.objects.get(id=job_id)
+
+            response_data = {}
+            if name == 'comments':
+                setting_for_order_by = '-created_on'
+                response_data['url'] = reverse('job_comments', kwargs={'job_id': job_id})
+                response_data['username'] = request.user.username
+                response_data['comments'] = my_job.get_all_comments(request.user, setting_for_order_by)
+
+            return JsonResponse(response_data, status=200)
 
         
 

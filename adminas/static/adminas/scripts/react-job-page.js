@@ -2,8 +2,6 @@ function JobPage(){
     // Stuff to be fetched from the backend or something
     const job_id = window.JOB_ID;
 
-  
-
     const URL_GET_DATA = '/get_data';
     const job_name = '2108-001';
     const customer_name = 'Aardvark';
@@ -19,7 +17,6 @@ function JobPage(){
     //  item_list[]
     //  po_list[]
     //  price_accepted (boolean)
-    //const [priceAccepted, setPriceAccept] = useState(false);
     var priceAccepted = false;
 
     var items_list = [
@@ -233,7 +230,8 @@ function JobContents(props){
                             customer_name={props.customer_name}
                             job_name={props.job_name} />
             <section class="job-section pair-related">
-                <JobComments />
+                <JobComments    job_id = {props.job_id}
+                                URL_GET_DATA = {props.URL_GET_DATA}/>
                 <JobDocuments   job_id = {props.job_id}
                                 job_total_qty={props.job_total_qty}
                                 doc_quantities={props.doc_quantities}/>
