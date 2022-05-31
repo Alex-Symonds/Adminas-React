@@ -29,10 +29,10 @@ function JobDetails(props){
             <div class="extended-subheading">
                 <a href={URL_EDIT_THIS_JOB} class="edit-icon"><span>edit</span></a>
             </div>
-            <JobDetailsIdSection info={info} />
-            <JobDetailsPaymentSection   info={info}
+            <JobDetailsIdSection        data={info} />
+            <JobDetailsPaymentSection   data={info}
                                         currency={props.currency}/>
-            <JobDetailsDeliverySection info={info} />
+            <JobDetailsDeliverySection  data={info} />
         </section>
     ]
 }
@@ -41,12 +41,12 @@ function JobDetailsIdSection(props){
     return [
         <section class="subsection">
             <h4>Identification</h4>
-            <JobDetailsReadRow heading="Name" value={props.info.name} />
-            <JobDetailsReadRow heading="Agent" value={props.info.agent} />
-            <JobDetailsReadRow heading="Customer" value={props.info.customer} />
-            <JobDetailsReadRow heading="Quote ref" value={props.info.quote_ref} />
-            <JobDetailsReadRow heading="Country" value={props.info.country_name} />
-            <JobDetailsReadRow heading="Language" value={props.info.language} />
+            <JobDetailsReadRow heading="Name" value={props.data.name} />
+            <JobDetailsReadRow heading="Agent" value={props.data.agent} />
+            <JobDetailsReadRow heading="Customer" value={props.data.customer} />
+            <JobDetailsReadRow heading="Quote ref" value={props.data.quote_ref} />
+            <JobDetailsReadRow heading="Country" value={props.data.country_name} />
+            <JobDetailsReadRow heading="Language" value={props.data.language} />
         </section>
     ]
 }
@@ -55,9 +55,9 @@ function JobDetailsPaymentSection(props){
     return [
         <section id="job_payment_section" class="subsection">
             <h4>Payment</h4>
-            <JobDetailsReadRow heading="Invoice address" value={props.info.invoice_to.join(', ')} />
+            <JobDetailsReadRow heading="Invoice address" value={props.data.invoice_to.join(', ')} />
             <JobDetailsReadRow heading="Currency" value={props.currency} />
-            <JobDetailsReadRow heading="Payment terms" value={props.info.payment_terms} />
+            <JobDetailsReadRow heading="Payment terms" value={props.data.payment_terms} />
         </section>
     ]
 }
@@ -66,8 +66,8 @@ function JobDetailsDeliverySection(props){
     return [
         <section id="job_delivery_section" class="subsection">
             <h4>Delivery</h4>
-            <JobDetailsReadRow heading="Delivery address" value={props.info.delivery_to.join(', ')} />
-            <JobDetailsReadRow heading="Incoterm" value={props.info.incoterm_code + ' ' + props.info.incoterm_location} />
+            <JobDetailsReadRow heading="Delivery address" value={props.data.delivery_to.join(', ')} />
+            <JobDetailsReadRow heading="Incoterm" value={props.data.incoterm_code + ' ' + props.data.incoterm_location} />
         </section>
     ] 
 }

@@ -11,6 +11,7 @@ function JobItems(props){
             <div class="job-items-container">
                 <JobItemsAddButton  form_visible = {form_visible} />
                 <JobItemsAddForm    form_visible = {form_visible}
+                                    URL_GET_DATA = {props.URL_GET_DATA}
                                     job_id = {props.job_id}/>
                 <JobItemsExisting   items_data = {props.items_data}
                                     currency={props.currency}/>
@@ -57,6 +58,7 @@ function JobItemsAddForm(props){
                 {input_fields.map((data, index) =>
                     <JobItemsAddFormRow     key = {index}
                                             form_index = {index}
+                                            URL_GET_DATA = {props.URL_GET_DATA}
                                             data = {data}
                                             job_id = {props.job_id} />
                 )}
@@ -88,6 +90,7 @@ function JobItemsAddFormRow(props){
             <SelectBackendOptions   select_id = {id_prefix + 'product'}
                                     select_name = {prefix + 'product'}
                                     is_required = {false}
+                                    api_url = {props.URL_GET_DATA}
                                     get_param = 'products_all'
                                     selected_opt_id = {props.data.product_id}
                                     default_opt_id = {null} />
@@ -99,6 +102,7 @@ function JobItemsAddFormRow(props){
             <SelectBackendOptions   select_id = {id_prefix + 'price_list'}
                                     select_name = {prefix + 'price_list'}
                                     is_required = {false}
+                                    api_url = {props.URL_GET_DATA}
                                     get_param = 'price_lists'
                                     selected_opt_id = {props.data.price_list_id}
                                     default_opt_id = {null} />
@@ -107,61 +111,6 @@ function JobItemsAddFormRow(props){
         </div>
     ]
 }
-
-
-function SelectBackendOptions(props){
-    
-    // TODO: add a fetch that uses props.get_param to request a specific list of ID numbers and display text from Django
-    var option_list = [
-        {id: 1, name: "Test thingy"},
-        {id: 2, name: "Another test thingy"}
-    ];
-    //--------------------------------------------
-
-    return [
-        <select name={props.select_name} id={props.select_id} required={props.is_required}>
-            <OptionEmptyDefault default_id = {props.default_id} selected_opt_id = {props.selected_opt_id}/>
-            {
-                option_list.map((option) => {
-                    var is_selected =   option.id == props.selected_opt_id
-                                        ||
-                                        (   props.selected_opt_id == ''
-                                            &&
-                                            option.id == props.default_id
-                                        );
-
-                    return <OptionIdAndName         key = {option.id.toString()}
-                                                    id = {option.id}
-                                                    name = {option.name}
-                                                    is_selected = {is_selected}
-                                                    />
-                })
-            }
-        </select>
-    ]
-}
-
-// Part of <select>. This is a "none" option to add above the "real" options.
-function OptionEmptyDefault(props){
-    if(props.default_id != null){
-        return null;
-    }
-
-    if(props.selected_opt_id != null){
-        return <option value="" disabled>---------</option>
-    }
-
-    return <option value="" selected disabled>---------</option>
-}
-
-// Part of <select>. Add an option using a single id / name pair.
-function OptionIdAndName(props){
-    if(props.is_selected){
-        return <option value={props.id} selected>{props.name}</option>
-    }
-    return <option value={props.id}>{props.name}</option>
-}
-
 
 
 // Section containing all the existing JobItems. The "main bit".
@@ -240,12 +189,6 @@ function JobItemAccessories(props){
     ]
 }
 
-function QuantityNameLi(props){
-    return [
-        <li>{ props.quantity } x {props.name}</li>
-    ]
-}
-
 function JobItemChildModules(props){
     if(!props.data.is_modular){
         return null;
@@ -298,10 +241,6 @@ function job_item_module_title_str(data){
         result += ' ---' + nbsp() + 'WARNING:' + nbsp() + 'INCOMPLETE' + nbsp() + '---';
     }
     return result;
-}
-
-function nbsp(){
-    return '\u00A0';
 }
 
 function JobItemAssignments(props){

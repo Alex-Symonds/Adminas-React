@@ -6,7 +6,7 @@ function JobPriceCheck(props){
             <h3>Prices</h3>
             <JobPriceCheckEmpty   is_empty = {props.items_data.length == 0}/>
             <PriceAcceptanceToggle  price_accepted = {props.price_accepted}/>
-            <JobPriceCheckSummary     currency = {props.currency}
+            <JobPriceCheckSummary       currency = {props.currency}
                                         total_selling = {props.total_selling}
                                         total_list = {props.total_list}/>
             <JobPriceCheckDetails     data = {props.items_data}/>
@@ -79,7 +79,7 @@ function JobPriceCheckDetails(props){
                 <tbody>
                     {
                         props.data.map((item) => 
-                            <JobPriceCheckerDetailsRow  key={item.ji_id.toString()}
+                            <JobPriceCheckDetailsRow  key={item.ji_id.toString()}
                                                         data={item}/>
                         )
                     }
@@ -89,13 +89,14 @@ function JobPriceCheckDetails(props){
     ]
 }
 
-function JobPriceCheckerDetailsRow(props){
+function JobPriceCheckDetailsRow(props){
     var difference_list = props.data.selling_price - props.data.list_price;
 
     var resale_price = ((resale_perc) => {
         var multiplier = 1 - (resale_perc / 100);
         return props.data.list_price * multiplier;
     })(props.data.resale_perc);
+    
     var difference_resale = props.data.selling_price - resale_price;
 
     return[

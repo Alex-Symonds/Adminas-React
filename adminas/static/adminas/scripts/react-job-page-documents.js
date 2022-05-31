@@ -36,18 +36,18 @@ function JobDocuments(props){
     return [
         <section class="job-doc-section item">
             <h3>Documents</h3>
-            <JobDocumentsSubsection     title='Works Order'
-                                        doc_type='WO'
-                                        job_id={props.job_id}
-                                        job_total_qty={props.job_total_qty}
-                                        doc_quantities={props.doc_quantities} 
-                                        doc_list={doc_list} />
-            <JobDocumentsSubsection     title='Order Confirmation'
-                                        doc_type='OC'
-                                        job_id={props.job_id}
-                                        job_total_qty={props.job_total_qty}
-                                        doc_quantities={props.doc_quantities} 
-                                        doc_list={doc_list} />
+            <JobDocumentsSubsection     title = 'Works Order'
+                                        doc_type = 'WO'
+                                        job_id = {props.job_id}
+                                        job_total_qty = {props.job_total_qty}
+                                        doc_quantities = {props.doc_quantities} 
+                                        doc_list = {doc_list} />
+            <JobDocumentsSubsection     title ='Order Confirmation'
+                                        doc_type ='OC'
+                                        job_id = {props.job_id}
+                                        job_total_qty = {props.job_total_qty}
+                                        doc_quantities = {props.doc_quantities} 
+                                        doc_list = {doc_list} />
         </section>
     ]
 }

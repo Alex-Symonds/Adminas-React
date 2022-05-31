@@ -2,16 +2,17 @@
 
 function JobPo(props){
     // --- state
-        var form_create_visibility = true;
+        var show_form_add_po = true;    // Start of as "false" when setting up interactivity
     // -----
 
     return [
         <section id="job_po_section" class="item">
             <h3>Purchase Orders</h3>
             <div class="job-po-form-container">
-                <JobPoAddButton     form_vis = {form_create_visibility} />
-                <JobPoAddNew        form_vis = {form_create_visibility}
-                                    job_id =  {props.job_id} />
+                <JobPoAddButton     form_vis = {show_form_add_po} />
+                <JobPoAddNew        form_vis = {show_form_add_po}
+                                    job_id =  {props.job_id}
+                                    URL_GET_DATA = {props.URL_GET_DATA} />
             </div>
             <JobPoDiscrepancy   currency = {props.currency}
                                 data = {props.po_data}/>
@@ -48,6 +49,7 @@ function JobPoAddNew(props){
             <SelectBackendOptions   select_id = {'id_currency'}
                                     select_name = {'currency'}
                                     is_required = {true}
+                                    api_url = {props.URL_GET_DATA}
                                     get_param = 'currencies'
                                     selected_opt_id = {null}
                                     default_opt_id = {null} />
@@ -66,7 +68,6 @@ function JobPoDiscrepancy(props){
         return null;
     }
 
-    var difference_as_perc = props.data.difference / props.data.total_items_value * 100;
     return [
         <div class="po-discrepancy warning subsection">
             <h4>Discrepancy</h4>
@@ -85,16 +86,7 @@ function JobPoDiscrepancy(props){
     ]
 }
 
-function PriceComparisonTable(props){
-    var difference_as_perc = props.difference / props.second_value * 100;
-    return [
-        <table id="po-discrepancy" class="price-comparison">
-            <tr><th>{props.first_title}</th><td>{props.currency}</td><td class="po-total-price-f number">{props.first_value.toFixed(2)}</td><td></td></tr>
-            <tr><th>{props.second_title}</th><td>{props.currency }</td><td class="selling-price number">{props.second_value.toFixed(2)}</td><td></td></tr>
-            <tr class="conclusion"><th>Difference</th><td>{props.currency}</td><td class="diff-val number">{props.difference.toFixed(2)}</td><td><span class="diff-perc">{difference_as_perc.toFixed(2)}</span></td></tr>
-        </table>
-    ]
-}
+
 
 
 // Actual list of POs

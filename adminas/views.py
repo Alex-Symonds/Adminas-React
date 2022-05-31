@@ -14,11 +14,11 @@ import datetime
 from wkhtmltopdf.views import PDFTemplateResponse
 # --------------------------------------------------------
 
-from adminas.models import  User, Job, Address, PurchaseOrder, JobItem, Product, Slot, Price, \
+from adminas.models import  PriceList, User, Job, Address, PurchaseOrder, JobItem, Product, Slot, Price, \
                             JobModule, DocumentData, ProductionData, DocumentVersion, JobComment, Company
 from adminas.forms import   DocumentDataForm, JobForm, POForm, JobItemForm, JobItemFormSet, JobItemEditForm, \
                             JobModuleForm, JobItemPriceForm, ProductionReqForm, DocumentVersionForm, JobCommentFullForm
-from adminas.constants import DOCUMENT_TYPES, CSS_FORMATTING_FILENAME, HTML_HEADER_FILENAME, HTML_FOOTER_FILENAME, WO_CARD_CODE
+from adminas.constants import DOCUMENT_TYPES, CSS_FORMATTING_FILENAME, HTML_HEADER_FILENAME, HTML_FOOTER_FILENAME, SUPPORTED_CURRENCIES, WO_CARD_CODE
 from adminas.util import anonymous_user, error_page, add_jobitem, debug, format_money, get_dict_document_builder, create_document_assignments, create_document_instructions
 
 
@@ -1016,15 +1016,17 @@ def module_assignments(request):
 
 def get_data(request):
     """
-        On the Edit Job page, responds to requests to update the automatic address displayed under the address selection dropdowns.
+        On the Edit Job page, responds to requests to update the automatic address displayed under the address selection dropdowns;
+        also populates select dropdowns with options.
+
     """
     if not request.user.is_authenticated:
         return anonymous_user(request)
 
     if request.method == 'GET':
-        info_requested = request.GET.get('info')
+        type_requested = request.GET.get('type')
 
-        if info_requested == 'site_address':
+        if type_requested == 'site_address':
             addr_id = request.GET.get('id')
 
             try:
@@ -1036,33 +1038,55 @@ def get_data(request):
             
             return JsonResponse(req_addr.as_dict(), status=200)
 
-        elif info_requested == 'customer_list' or info_requested == 'agent_list':
+        elif type_requested == 'select_options_list':
+            name = request.GET.get('name')
 
-            if info_requested == 'customer_list':
-                jobs = Job.objects.values('customer').distinct()
-
-            elif info_requested == 'agent_list':
-                jobs = Job.objects.values('agent').distinct()
-
-            relevant_companies = Company.objects.filter(id__in=jobs).order_by('name')
             response_data = {}
             response_data['data'] = []
-            for c in relevant_companies:
-                company_dict = {}
-                company_dict['id'] = c.id
-                company_dict['display_str'] = c.name
-                response_data['data'].append(company_dict)
+
+            if name == 'customers' or name == 'agents':
+                if name == 'customers':
+                    jobs = Job.objects.values('customer').distinct()
+
+                elif name == 'agents':
+                    jobs = Job.objects.values('agent').distinct()
+
+                relevant_companies = Company.objects.filter(id__in=jobs).order_by('name')
+                for c in relevant_companies:
+                    company_dict = {}
+                    company_dict['id'] = c.id
+                    company_dict['display_str'] = c.name
+                    response_data['data'].append(company_dict)
+
+            elif name == 'price_lists':
+                price_lists = PriceList.objects.all().order_by('-valid_from')
+                for prl in price_lists:
+                    prl_dict = {}
+                    prl_dict['id'] = prl.id
+                    prl_dict['display_str'] = prl.name
+                    response_data['data'].append(prl_dict)
+
+            elif name == 'currencies':
+                for currency in SUPPORTED_CURRENCIES:
+                    cur_dict = {}
+                    cur_dict['id'] = currency[0]
+                    cur_dict['display_str'] = currency[1]
+                    response_data['data'].append(cur_dict)
+
+            elif name == 'products_all':
+                products = Product.objects.filter(available=True).order_by('part_number')
+                for product in products:
+                    prod_dict = {}
+                    prod_dict['id'] = product.id
+                    prod_dict['display_str'] = f'[{product.part_number}] {product.name}'
+                    response_data['data'].append(prod_dict)
+
 
             return JsonResponse(response_data, status=200)
+
+
         
-        elif info_requested == 'item_formset':
-            job_id = request.GET.get('job_id')
-            item_formset = JobItemFormSet(queryset=JobItem.objects.none(), initial=[{'job':job_id}])
-            form_str = item_formset.as_table()
-            return JsonResponse(
-                {'form': form_str},
-                status=200
-            )
+
 
 
 def records(request):

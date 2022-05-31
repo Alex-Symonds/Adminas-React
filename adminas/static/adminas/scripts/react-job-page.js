@@ -1,6 +1,10 @@
 function JobPage(){
     // Stuff to be fetched from the backend or something
-    const job_id = 2;
+    const job_id = window.JOB_ID;
+
+  
+
+    const URL_GET_DATA = '/get_data';
     const job_name = '2108-001';
     const customer_name = 'Aardvark';
     const currency = 'GBP';
@@ -15,7 +19,8 @@ function JobPage(){
     //  item_list[]
     //  po_list[]
     //  price_accepted (boolean)
-    var price_accepted = false;
+    //const [priceAccepted, setPriceAccept] = useState(false);
+    var priceAccepted = false;
 
     var items_list = [
         {
@@ -87,10 +92,9 @@ function JobPage(){
 
     var po_count = po_list.length;
 
-    var special_item_exists = true;
-    var incomplete_item_exists = false;
+    var special_item_exists = items_list.some(item => item.excess_modules === true);
+    var incomplete_item_exists = items_list.some(item => item.is_modular === true && item.is_complete === false);
     
-
     var products_list = ((items_list) => {
         var products = get_products_list(items_list);
         return populate_products_list_with_assignments(products, items_list);
@@ -167,7 +171,7 @@ function JobPage(){
         result['doc_quantities'] = doc_quantities;
         result['total_qty_all_items'] = total_qty_all_items;
         return result;
-    })(price_accepted, special_item_exists, incomplete_item_exists, po_count, value_difference_po_vs_items, doc_quantities, total_qty_all_items);
+    })(priceAccepted, special_item_exists, incomplete_item_exists, po_count, value_difference_po_vs_items, doc_quantities, total_qty_all_items);
 
 
     var items_data = ((items_list, products_list) => {
@@ -200,19 +204,20 @@ function JobPage(){
 
     return [
         <div>
-            <JobHeadingSubsection   job_id={job_id}
-                                    job_name={job_name}
-                                    customer_name={customer_name}
+            <JobHeadingSubsection   job_id = {job_id}
+                                    job_name = {job_name}
+                                    customer_name = {customer_name}
                                     status_data = {status_data} />
-            <JobContents    job_id={job_id}
-                            currency={currency}
-                            customer_name={customer_name}
-                            job_name={job_name}
-                            job_total_qty={total_qty_all_items}
-                            doc_quantities={doc_quantities}
+            <JobContents    job_id = {job_id}
+                            URL_GET_DATA = {URL_GET_DATA}
+                            currency = {currency}
+                            customer_name = {customer_name}
+                            job_name = {job_name}
+                            job_total_qty = {total_qty_all_items}
+                            doc_quantities = {doc_quantities}
                             items_data = {items_data}
                             po_data = {po_data}
-                            price_accepted = {price_accepted}
+                            price_accepted = {priceAccepted}
                             total_list = {total_items_list_price}
                             total_selling = {total_items_value} />
         </div>
@@ -234,12 +239,14 @@ function JobContents(props){
                                 doc_quantities={props.doc_quantities}/>
             </section>
             <JobItems   job_id = {props.job_id}
+                        URL_GET_DATA = {props.URL_GET_DATA}
                         items_data = {props.items_data}
                         currency = {props.currency}/>
             <section class="job-section pair-related">
                 <JobPo  job_id = {props.job_id}
                         currency = {props.currency}
-                        po_data = {props.po_data} />
+                        po_data = {props.po_data}
+                        URL_GET_DATA = {props.URL_GET_DATA} />
                 <JobPriceCheck      currency = {props.currency}
                                     price_accepted = {props.price_accepted}
                                     total_list = {props.total_list}

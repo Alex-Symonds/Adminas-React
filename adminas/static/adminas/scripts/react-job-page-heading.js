@@ -37,8 +37,7 @@ function JobHeadingSubsection(props){
                 <JobHeading     job_id = {props.job_id}
                                 job_name = {props.job_name}
                                 customer_name = {props.customer_name} />
-                <JobStatusStrip root_statuses={props.root_statuses}
-                                status_data = {props.status_data} />
+                <JobStatusStrip status_data = {props.status_data} />
             </div>
         </section>
         ]
@@ -122,8 +121,8 @@ function list_of_job_statuses(status_data){
 }
 
 function get_status_price_acceptance(data){
-    // Note: returning an array within an array because some other statuses
-    // can return more than one result and would need concat: so concat for ALL.
+    // Note: returning an array within an array so that all statuses -- including
+    // those that can return more than one result -- can be treated the same.
     if(data.price_accepted){
         return [[STATUS_CODE_OK, 'Price accepted']];
     }
@@ -156,8 +155,8 @@ function get_status_items(data){
 }
 
 function get_status_po(data){
-    // Note: returning an array within an array because some other statuses
-    // can return more than one result and would need concat: so concat for ALL.
+    // Note: returning an array within an array so that all statuses -- including
+    // those that can return more than one result -- can be treated the same.
     if(data.po_count == 0){
         return [[STATUS_CODE_ACTION, 'PO missing']];
     }

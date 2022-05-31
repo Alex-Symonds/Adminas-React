@@ -34,7 +34,7 @@ async function update_address(ele){
 
 // Address Lookup: Request the address from the server
 async function get_address_from_server(address_id){
-    let response = await fetch(`${URL_SITE_ADDRESS}?info=site_address&id=${address_id}`)
+    let response = await fetch(`${URL_SITE_ADDRESS}?type=site_address&id=${address_id}`)
     .catch(error => {
         console.log('Error: ', error);
     })

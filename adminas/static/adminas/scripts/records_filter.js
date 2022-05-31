@@ -231,7 +231,7 @@ async function create_filter_option_select(FILTER_SETTINGS){
 
 // Open Filter Options: Query server for the list of valid options for each select
 async function get_options_from_server(field_id){
-    let response = await fetch(`${URL_SELECT_OPTIONS}?info=${field_id}_list`)
+    let response = await fetch(`${URL_SELECT_OPTIONS}?type=select_options_list&name=${field_id}s`)
                     .catch(error => {
                         console.log('Error: ', error)
                     });
