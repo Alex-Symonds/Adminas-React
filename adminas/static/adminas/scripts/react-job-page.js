@@ -226,6 +226,7 @@ function JobContents(props){
     return [
         <div class="job-page-sections-wrapper">
             <JobDetails     job_id = {props.job_id}
+                            URL_GET_DATA = {props.URL_GET_DATA}
                             currency={props.currency}
                             customer_name={props.customer_name}
                             job_name={props.job_name} />
@@ -233,6 +234,7 @@ function JobContents(props){
                 <JobComments    job_id = {props.job_id}
                                 URL_GET_DATA = {props.URL_GET_DATA}/>
                 <JobDocuments   job_id = {props.job_id}
+                                URL_GET_DATA = {props.URL_GET_DATA}
                                 job_total_qty={props.job_total_qty}
                                 doc_quantities={props.doc_quantities}/>
             </section>

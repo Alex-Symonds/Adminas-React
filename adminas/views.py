@@ -1095,6 +1095,21 @@ def get_data(request):
                 response_data['username'] = request.user.username
                 response_data['comments'] = my_job.get_all_comments(request.user, setting_for_order_by)
 
+            elif name == 'details':
+                response_data['url'] = reverse('edit_job') + '?job=' + job_id
+                response_data['name'] = my_job.name
+                response_data['agent'] = my_job.agent.name
+                response_data['customer'] = my_job.customer.name
+                response_data['quote_ref'] = my_job.quote_ref
+                response_data['country_name'] = my_job.country.name
+                response_data['language'] = my_job.language
+                response_data['invoice_to'] = my_job.invoice_to.display_str_newlines()
+                response_data['payment_terms'] = my_job.payment_terms
+                response_data['delivery_to'] = my_job.delivery_to.display_str_newlines()
+                response_data['incoterm_code'] = my_job.incoterm_code
+                response_data['incoterm_location'] = my_job.incoterm_location
+
+
             return JsonResponse(response_data, status=200)
 
         

@@ -398,7 +398,7 @@ class PurchaseOrder(AdminAuditTrail):
 #Job stuff
 class Job(AdminAuditTrail):
     """
-        Reflects the concept of "one work thing we must enter into the system".
+     Reflects the concept of "one work thing we must enter into the system".
     """
     name = models.CharField(max_length=JOB_NAME_LENGTH)
     agent = models.ForeignKey(Company, on_delete=models.PROTECT, related_name='jobs_sold',  blank=True, null=True)
