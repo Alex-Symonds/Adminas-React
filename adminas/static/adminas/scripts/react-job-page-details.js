@@ -3,24 +3,6 @@
 
 // || JobDetails
 function JobDetails(props){
-    //  ----------------------------------------
-    // Things to fetch from the server
-    // const URL_EDIT_JOB = '/edit_job';
-    // var info = {
-    //     name: '2108-001',
-    //     agent: 'Baracudax',
-    //     customer: 'Aardvark',
-    //     quote_ref: 'Q210712KP-1',
-    //     country_name: 'United Kingdom',
-    //     language: 'EN',
-    //     invoice_to: 'Address multiple lines, or multiple commas at least, blah de blah, Region, P05 TC0DE, United Kingdom',
-    //     payment_terms: '30 days from blah blah',
-    //     delivery_to: 'Address multiple lines, but this time different, because delivery, Regionyjjd, P05 TC0DE, United Kingdom',
-    //     incoterm_code: 'EXW',
-    //     incoterm_location: 'UK'
-    // };
-    //  ----------------------------------------
-
     const [isLoaded, setLoaded] = React.useState(false);
     const [error, setError] = React.useState(null);
     const [pageData, setData] = React.useState({});
@@ -37,7 +19,7 @@ function JobDetails(props){
             })
             .then(data => {
                 setData({
-                    url: data.url + '?job=' + props.job_id,
+                    url: data.url,
                     name: data.name,
                     agent: data.agent,
                     customer: data.customer,
@@ -62,9 +44,6 @@ function JobDetails(props){
         fetchData();
 
     }, [isLoaded]);
-
-
-    // const URL_EDIT_THIS_JOB = URL_EDIT_JOB + "?job=" + props.job_id;
 
     if(error){
         return <div>Error loading details.</div>
