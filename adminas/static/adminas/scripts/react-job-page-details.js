@@ -3,47 +3,7 @@
 
 // || JobDetails
 function JobDetails(props){
-    const [isLoaded, setLoaded] = React.useState(false);
-    const [error, setError] = React.useState(null);
-    const [pageData, setData] = React.useState({});
-
-    React.useEffect(() => {
-        const fetchData = async () => {
-            const result = await fetch(`${props.URL_GET_DATA}?job_id=${props.job_id}&type=page_load&name=details`)
-            .then(response => {
-                if(response.status == 200){
-                    return response.json();
-                } else {
-                    throw new Error('Page data failed to load');
-                }
-            })
-            .then(data => {
-                setData({
-                    url: data.url,
-                    name: data.name,
-                    agent: data.agent,
-                    customer: data.customer,
-                    quote_ref: data.quote_ref,
-                    country_name: data.country_name,
-                    language: data.language,
-                    invoice_to: data.invoice_to,
-                    payment_terms: data.payment_terms,
-                    delivery_to: data.delivery_to,
-                    incoterm_code: data.incoterm_code,
-                    incoterm_location: data.incoterm_location  
-                });
-                setLoaded(true);
-            })
-            .catch(error => {
-                setError(error);
-                setLoaded(true);
-                console.log('Error: ', error);
-            });
-        };
-
-        fetchData();
-
-    }, [isLoaded]);
+    const { data, error, isLoaded } = useFetch(`${props.URL_GET_DATA}?job_id=${props.job_id}&type=page_load&name=details`);
 
     if(error){
         return <div>Error loading details.</div>
@@ -55,12 +15,12 @@ function JobDetails(props){
         <section id="job_details" class="job-section">
             <h3>General Details</h3>
             <div class="extended-subheading">
-                <a href={pageData.url} class="edit-icon"><span>edit</span></a>
+                <a href={data.url} class="edit-icon"><span>edit</span></a>
             </div>
-            <JobDetailsIdSection        data={pageData} />
-            <JobDetailsPaymentSection   data={pageData}
+            <JobDetailsIdSection        data={data} />
+            <JobDetailsPaymentSection   data={data}
                                         currency={props.currency}/>
-            <JobDetailsDeliverySection  data={pageData} />
+            <JobDetailsDeliverySection  data={data} />
         </section>
     ]
 }

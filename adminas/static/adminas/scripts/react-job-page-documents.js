@@ -2,37 +2,23 @@
 
 
 function JobDocuments(props){
-    // fetch these from the server onload: they can't change
-    var doc_list = [];
-    doc_list[0] = {
-        doc_version_id: 1,
-        doc_type: 'WO',
-        issue_date: '25/05/2022',
-        created_on: '24/05/2022',
-        reference: '00001',
-        num_items: 1,
-        url: '/document/1'
-    };
-    doc_list[1] = {
-        doc_version_id: 2,
-        doc_type: 'WO',
-        issue_date: null,
-        created_on: '25/05/2022',
-        reference: '00002',
-        num_items: 1,
-        url: '/document/2'
-    };
-    doc_list[2] = {
-        doc_version_id: 3,
-        doc_type: 'WO',
-        issue_date: null,
-        created_on: '26/05/2022',
-        reference: '00003',
-        num_items: 3,
-        url: '/document/3'
-    };
+    
+    const [docList, setDocs] = React.useState([]);
+    const { data, error, isLoaded } = useFetch(`${props.URL_GET_DATA}?job_id=${props.job_id}&type=page_load&name=documents`);
 
+    React.useEffect(() => {
+        if(typeof data.doc_list !== 'undefined'){
+            setDocs(data.doc_list);
+        }
+    }, [data]);
 
+    if(error){
+        return <div>Error loading documents.</div>
+    }
+    else if (!isLoaded){
+        return <div>Loading...</div>
+    }
+    
     return [
         <section class="job-doc-section item">
             <h3>Documents</h3>
@@ -41,20 +27,21 @@ function JobDocuments(props){
                                         job_id = {props.job_id}
                                         job_total_qty = {props.job_total_qty}
                                         doc_quantities = {props.doc_quantities} 
-                                        doc_list = {doc_list} />
+                                        doc_list = {docList}
+                                        URL_DOC_BUILDER = {data.url_builder} />
             <JobDocumentsSubsection     title ='Order Confirmation'
                                         doc_type ='OC'
                                         job_id = {props.job_id}
                                         job_total_qty = {props.job_total_qty}
                                         doc_quantities = {props.doc_quantities} 
-                                        doc_list = {doc_list} />
+                                        doc_list = {docList}
+                                        URL_DOC_BUILDER = {data.url_builder} />
         </section>
     ]
 }
 
 function JobDocumentsSubsection(props){
-    const URL_DOC_BUILDER = '/document/builder';
-    const url_builder = URL_DOC_BUILDER + '?job=' + props.job_id + '&type=' + props.doc_type;
+    const url_builder = props.URL_DOC_BUILDER + '&type=' + props.doc_type;
 
     var unassigned_qty = props.job_total_qty;
     for (var idx in props.doc_quantities){

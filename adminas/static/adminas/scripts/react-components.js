@@ -1,6 +1,3 @@
-
-// import React, { useState, useEffect } from 'react';
-
 function nbsp(){
     return '\u00A0';
 }
@@ -30,67 +27,39 @@ function get_placeholder_options(){
 }
 
 function SelectBackendOptions(props){
-    
-    // TODO: add a fetch that uses props.get_param to request a specific list of ID numbers and display text from Django
     const url = props.api_url + '?type=select_options_list&name=' + props.get_param;
-
-    const [error, setError] = React.useState(null);
-    const [isLoaded, setLoaded] = React.useState(false);
-    const [optionList, setOptions] = React.useState([]);
-
-    React.useEffect(() => {
-        const fetchOptions = async () => {
-            const result = await fetch(url)
-            .then(response => {
-                if(response.status == 200){
-                    return response.json();
-                } else {
-                    throw new Error('Select options failed to load');
-                }
-            })
-            .then(data => {
-                setLoaded(true);
-                setOptions(data.data);
-            })
-            .catch(error => {
-                setError(error);
-                setLoaded(true);
-                console.log('Error: ', error);
-            });
-        };
-
-        fetchOptions();
-
-    }, [isLoaded]);
-
-
+    const { data, error, isLoaded } = useFetch(url);
     if(error){
         return <div>Error loading dropdown.</div>
     }
-    else if (!isLoaded){
+    
+    else if (typeof data.opt_list === 'undefined'){
         return <div>Loading...</div>
     }
-    return [
-        <select name={props.select_name} id={props.select_id} required={props.is_required}>
-            <OptionEmptyDefault default_id = {props.default_id} selected_opt_id = {props.selected_opt_id}/>
-            {
-                optionList.map((option) => {
-                    var is_selected =   option.id == props.selected_opt_id
-                                        ||
-                                        (   props.selected_opt_id == ''
-                                            &&
-                                            option.id == props.default_id
-                                        );
 
-                    return <OptionIdAndName key = {option.id.toString()}
-                                            id = {option.id}
-                                            name = {option.display_str}
-                                            is_selected = {is_selected}
-                                            />
-                })
-            }
-        </select>
-    ]
+    else{
+        return [
+            <select name={props.select_name} id={props.select_id} required={props.is_required}>
+                <OptionEmptyDefault default_id = {props.default_id} selected_opt_id = {props.selected_opt_id}/>
+                {
+                    data.opt_list.map((option) => {
+                        var is_selected =   option.id == props.selected_opt_id
+                                            ||
+                                            (   props.selected_opt_id == ''
+                                                &&
+                                                option.id == props.default_id
+                                            );
+
+                        return <OptionIdAndName key = {option.id.toString()}
+                                                id = {option.id}
+                                                name = {option.display_str}
+                                                is_selected = {is_selected}
+                                                />
+                    })
+                }
+            </select>
+        ]
+    }
 }
 
 // Part of <select>. This is a "none" option to add above the "real" options.
@@ -113,6 +82,32 @@ function OptionIdAndName(props){
     }
     return <option value={props.id}>{props.name}</option>
 }
+
+
+
+const useFetch = url => {
+    const [data, setData] = React.useState([]);
+    const [error, setError] = React.useState(null);
+    const [isLoaded, setLoaded] = React.useState(false);
+
+    React.useEffect(() => {
+        const fetchData = async () => {
+            const my_fetch = await fetch(url)
+            .then(response => response.json())
+            .then(resp_json => {
+                setData(resp_json);
+                setLoaded(true);
+            })
+            .catch(error => {
+                setError(error);
+                setLoaded(true);
+            });
+        };
+        fetchData();
+    }, [url]);
+
+    return { data, error, isLoaded };
+};
 
 
 

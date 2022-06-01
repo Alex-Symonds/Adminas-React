@@ -1042,7 +1042,7 @@ def get_data(request):
             name = request.GET.get('name')
 
             response_data = {}
-            response_data['data'] = []
+            response_data['opt_list'] = []
 
             if name == 'customers' or name == 'agents':
                 if name == 'customers':
@@ -1056,7 +1056,7 @@ def get_data(request):
                     company_dict = {}
                     company_dict['id'] = c.id
                     company_dict['display_str'] = c.name
-                    response_data['data'].append(company_dict)
+                    response_data['opt_list'].append(company_dict)
 
             elif name == 'price_lists':
                 price_lists = PriceList.objects.all().order_by('-valid_from')
@@ -1064,14 +1064,14 @@ def get_data(request):
                     prl_dict = {}
                     prl_dict['id'] = prl.id
                     prl_dict['display_str'] = prl.name
-                    response_data['data'].append(prl_dict)
+                    response_data['opt_list'].append(prl_dict)
 
             elif name == 'currencies':
                 for currency in SUPPORTED_CURRENCIES:
                     cur_dict = {}
                     cur_dict['id'] = currency[0]
                     cur_dict['display_str'] = currency[1]
-                    response_data['data'].append(cur_dict)
+                    response_data['opt_list'].append(cur_dict)
 
             elif name == 'products':
                 products = Product.objects.filter(available=True).order_by('part_number')
@@ -1079,7 +1079,7 @@ def get_data(request):
                     prod_dict = {}
                     prod_dict['id'] = product.id
                     prod_dict['display_str'] = f'[{product.part_number}] {product.name}'
-                    response_data['data'].append(prod_dict)
+                    response_data['opt_list'].append(prod_dict)
 
             return JsonResponse(response_data, status=200)
 
@@ -1109,6 +1109,20 @@ def get_data(request):
                 response_data['incoterm_code'] = my_job.incoterm_code
                 response_data['incoterm_location'] = my_job.incoterm_location
 
+            elif name == 'documents': 
+                doc_list = []
+                for doc_version in my_job.related_documents():
+                    doc_dict = {}
+                    doc_dict['doc_version_id'] = doc_version.id
+                    doc_dict['doc_type'] = doc_version.document.doc_type
+                    doc_dict['issue_date'] = doc_version.issue_date
+                    doc_dict['created_on'] = doc_version.created_on.strftime('%Y-%m-%d')
+                    doc_dict['reference'] = doc_version.document.reference
+                    doc_dict['url'] = reverse('doc_main', kwargs={'doc_id': doc_version.id})
+                    doc_list.append(doc_dict)
+
+                response_data['doc_list'] = doc_list
+                response_data['url_builder'] = reverse('doc_builder') + '?job=' + job_id;
 
             return JsonResponse(response_data, status=200)
 
