@@ -48,6 +48,8 @@ def add_jobitem(admin_user, form):
     return ji
 
 
+
+
 def debug(print_this):
     print("------------- here comes something you're checking on! --------------------")
     print(print_this)
@@ -93,6 +95,9 @@ def serialise_job_item(ji):
         result['module_list'].append(jm_dict)
 
     return result
+
+
+
 
 
 def get_document_available_items(jobitems, doc_type):

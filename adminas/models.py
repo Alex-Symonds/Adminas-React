@@ -391,6 +391,15 @@ class PurchaseOrder(AdminAuditTrail):
     def value_f(self):
         return format_money(self.value)
 
+    def serialise(self):
+        result = {}
+        result['reference'] = self.reference
+        result['date_on_po'] = self.date_on_po
+        result['value'] = self.value
+        result['date_received'] = self.date_received
+        result['po_id'] = self.id
+        return result
+
     def __str__(self):
         return f'{self.reference} from {self.job.invoice_to.site.company.name}'
 

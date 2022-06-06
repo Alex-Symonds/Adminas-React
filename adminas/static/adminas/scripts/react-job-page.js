@@ -16,7 +16,7 @@ function JobPage(){
 
 
     const [itemList, setItemList] = React.useState([]);
-    // const [poList, setPoList] = React.useState([]);
+    const [poList, setPoList] = React.useState([]);
     const [priceAccepted, setPriceAccepted] = React.useState(false);
 
     const { data, error, isLoaded } = useFetch(url_for_page_load(URL_GET_DATA, job_id, 'job_page_root'));
@@ -25,9 +25,9 @@ function JobPage(){
             setItemList(data.item_list);
         }
 
-        // if(typeof data.po_list !== 'undefined'){
-        //     setPoList(data.po_list);
-        // }
+        if(typeof data.po_list !== 'undefined'){
+            setPoList(data.po_list);
+        }
 
         if(typeof data.price_accepted !== 'undefined'){
             setPriceAccepted(data.price_accepted);
@@ -35,67 +35,17 @@ function JobPage(){
 
     }, [data]);
     // State plan:
-    //  item_list[]
     //  po_list[]
-    //  price_accepted (boolean)
-    
-    var itemList_PH = [
-        {
-            ji_id: 1,
-            product_id: 7,
-            part_number: '123456',
-            product_name: 'Name of this product',
-            description: 'One liner waffle about product',
-            standard_accessories: [
-                {quantity: 1, product_name: "First standard accessory"},
-                {quantity: 2, product_name: "Second standard accessory"}
-            ],
-            is_complete: false,
-            is_modular: true,
-            excess_modules: false,
-            module_list: [
-                {module_id: 1, product_id: 42, quantity: 1, name: '[AB18885] Small Kerflobbity'}
-            ],    
-            quantity: 1,
-            selling_price: 500.00,
-            price_list: {
-                name: '2022-01',
-                id: 2
-            },
-            list_price: 500.00,
-            resale_perc: 25
-        },
-        {
-            ji_id: 1,
-            product_id: 42,
-            part_number: 'AB18885',
-            product_name: 'Small Kerflobbity',
-            description: 'A kerblobbity which is, get this, kinda small.',
-            standard_accessories: [],
-            is_complete: true,
-            is_modular: false,
-            excess_modules: false,
-            module_list: [],    
-            quantity: 1,
-            selling_price: 5.00,
-            price_list: {
-                name: '2022-01',
-                id: 2
-            },
-            list_price: 5.00,
-            resale_perc: 25
-        }
-    ];
 
-    var poList = [
-        {
-            reference: 'abc',
-            date_on_po: '01/01/1900',
-            value: 500,
-            date_received: '01/01/1900',
-            po_id: 1
-        }
-    ];
+    // var poList = [
+    //     {
+    //         reference: 'abc',
+    //         date_on_po: '01/01/1900',
+    //         value: 500,
+    //         date_received: '01/01/1900',
+    //         po_id: 1
+    //     }
+    // ];
 
     // These are to be derived from states
     var total_qty_all_items = () => {

@@ -1149,6 +1149,11 @@ def get_data(request):
                 for item in this_job.main_item_list():
                     response_data['item_list'].append(serialise_job_item(item))
 
+                response_data['po_list'] = []
+                for po in this_job.po.all():
+                    response_data['po_list'].append(po.serialise)
+
+
 
 
 
