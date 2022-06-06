@@ -1,40 +1,26 @@
 // || JobComments
 function JobComments(props){
-    const [error, setError] = React.useState(null);
-    const [isLoaded, setLoaded] = React.useState(false);
     const [urlCommentsPage, setUrl] = React.useState('');
     const [username, setUsername] = React.useState('');
     const [comments, setComments] = React.useState([]);
 
+    const { data, error, isLoaded } = useFetch(url_for_page_load(props.URL_GET_DATA, props.job_id, 'comments'));
+
     React.useEffect(() => {
-        const fetchData = async () => {
-            const result = await fetch(`${props.URL_GET_DATA}?job_id=${props.job_id}&type=page_load&name=comments`)
-            .then(response => {
-                if(response.status == 200){
-                    return response.json();
-                } else {
-                    throw new Error('Page data failed to load');
-                }
-            })
-            .then(data => {
-                setUrl(data.url + '?page=1');
-                setUsername(data.username);
-                setComments(data.comments);
-                setLoaded(true);
-            })
-            .catch(error => {
-                setError(error);
-                setLoaded(true);
-                console.log('Error: ', error);
-            });
-        };
+        if(typeof data.url !== 'undefined'){
+            setUrl(data.url + '?page=1');
+        }
 
-        fetchData();
+        if(typeof data.username !== 'undefined'){
+            setUsername(data.username);
+        }
 
-    }, [isLoaded]);
+        if(typeof data.comments !== 'undefined'){
+            setComments(data.comments);
+        }
+    }, [data]);
 
-
-
+    
     if(error){
         return <div>Error loading comments.</div>
     }

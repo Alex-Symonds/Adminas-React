@@ -1,16 +1,14 @@
 // PO section on the Job page
 
 function JobPo(props){
-    // --- state
-        var show_form_add_po = true;    // Start of as "false" when setting up interactivity
-    // -----
+    const [formVisible, setFormVisible] = React.useState(true);
 
     return [
         <section id="job_po_section" class="item">
             <h3>Purchase Orders</h3>
             <div class="job-po-form-container">
-                <JobPoAddButton     form_vis = {show_form_add_po} />
-                <JobPoAddNew        form_vis = {show_form_add_po}
+                <JobPoAddButton     form_vis = {formVisible} />
+                <JobPoAddNew        form_vis = {formVisible}
                                     job_id =  {props.job_id}
                                     URL_GET_DATA = {props.URL_GET_DATA} />
             </div>
@@ -31,14 +29,29 @@ function JobPoAddButton(props){
     ]
 }
 function JobPoAddNew(props){
+    // Exit early if it's not wanted
     if(!props.form_vis){
         return null;
     }
 
-    var url_po = '/purchase_order';
+    // Fetch the action URL for Purchase Order form from server
+    const [actionUrl, setActionUrl] = React.useState('');
+    const { data, error, isLoaded } = useFetch(url_for_url_list(props.URL_GET_DATA, props.job_id));
+    React.useEffect(() => {
+        if(typeof data.po_url !== 'undefined'){
+            setActionUrl(data.po_url);
+        }
+    }, [data]);
 
+    // Display
+    if(error){
+        return <div>Error loading form.</div>;
+    }
+    else if(!isLoaded){
+        return <div>Loading...</div>
+    }
     return [
-        <form method="POST" action={url_po} class="form-like panel" id="po_form">
+        <form method="POST" action={actionUrl} class="form-like panel" id="po_form">
             <button type="button" class="cancel-po-form close"><span>cancel</span></button>
             <h5 class="panel-header">Add PO</h5>
 

@@ -53,6 +53,47 @@ def debug(print_this):
     print(print_this)
     print('---------------------------------------------------------------------------')
 
+def serialise_job_item(ji):
+    result = {}
+    result['ji_id'] = ji.id
+    result['product_id'] = ji.product.id
+    result['part_number'] = ji.product.part_number
+    result['product_name'] = ji.product.name
+    result['description'] = ji.product.get_description(ji.job.language)
+
+    result['quantity'] = ji.quantity
+    result['selling_price'] = ji.selling_price
+    result['list_price'] = ji.list_price()
+    result['resale_perc'] = ji.resale_percentage()
+
+    prl_dict = {}
+    prl_dict['id'] = ji.price_list.id
+    prl_dict['name'] = ji.price_list.name
+    result['price_list'] = prl_dict
+
+    result['standard_accessories'] = []
+    for std_acc in ji.includes.all():
+        sa_dict = {}
+        sa_dict['quantity'] = std_acc.quantity
+        sa_dict['part_number'] = std_acc.product.part_number
+        sa_dict['product_name'] = std_acc.product.name
+        result['standard_accessories'].append(sa_dict)
+
+    result['is_modular'] = ji.product.is_modular()
+    result['is_complete'] = ji.item_is_complete()
+    result['excess_modules'] = ji.excess_modules_assigned()
+
+    result['module_list'] = []
+    for jm in ji.modules.all():
+        jm_dict = {}
+        jm_dict['module_id'] = jm.id
+        jm_dict['product_id'] = jm.child.id
+        jm_dict['quantity'] = jm.quantity
+        jm_dict['name'] = jm.child.name
+        result['module_list'].append(jm_dict)
+
+    return result
+
 
 def get_document_available_items(jobitems, doc_type):
     """

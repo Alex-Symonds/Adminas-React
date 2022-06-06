@@ -2,9 +2,11 @@ function JobPage(){
     // Stuff to be fetched from the backend or something
     const job_id = window.JOB_ID;
 
-    const URL_GET_DATA = '/get_data';
     const job_name = '2108-001';
     const customer_name = 'Aardvark';
+
+    // the rest
+    const URL_GET_DATA = '/get_data';
     const currency = 'GBP';
 
     const doc_quantities = [
@@ -13,13 +15,31 @@ function JobPage(){
     ];
 
 
+    const [itemList, setItemList] = React.useState([]);
+    // const [poList, setPoList] = React.useState([]);
+    const [priceAccepted, setPriceAccepted] = React.useState(false);
+
+    const { data, error, isLoaded } = useFetch(url_for_page_load(URL_GET_DATA, job_id, 'job_page_root'));
+    React.useEffect(() => {
+        if(typeof data.item_list !== 'undefined'){
+            setItemList(data.item_list);
+        }
+
+        // if(typeof data.po_list !== 'undefined'){
+        //     setPoList(data.po_list);
+        // }
+
+        if(typeof data.price_accepted !== 'undefined'){
+            setPriceAccepted(data.price_accepted);
+        }
+
+    }, [data]);
     // State plan:
     //  item_list[]
     //  po_list[]
     //  price_accepted (boolean)
-    var priceAccepted = false;
-
-    var items_list = [
+    
+    var itemList_PH = [
         {
             ji_id: 1,
             product_id: 7,
@@ -67,7 +87,7 @@ function JobPage(){
         }
     ];
 
-    var po_list = [
+    var poList = [
         {
             reference: 'abc',
             date_on_po: '01/01/1900',
@@ -78,24 +98,29 @@ function JobPage(){
     ];
 
     // These are to be derived from states
-    var total_qty_all_items = items_list.reduce((prev_total_qty, item) => {
-        return item.quantity + prev_total_qty;
-    });
+    var total_qty_all_items = () => {
+        if(itemList.length === 0){
+            return 0;
+        }
+        itemList.reduce((prev_total_qty, item) => {
+            return parseInt(item.quantity) + prev_total_qty;
+        })
+    };
 
-    var total_po_value = po_list.reduce((prev_total_val, po) => {return po.value + prev_total_val}, 0);
-    var total_items_value = items_list.reduce((prev_total_val, item) => {return item.selling_price + prev_total_val}, 0);
-    var total_items_list_price = items_list.reduce((prev_total_val, item) => {return item.list_price + prev_total_val}, 0);
+    var total_po_value = poList.reduce((prev_total_val, po) => {return parseFloat(po.value) + prev_total_val}, 0);
+    var total_items_value = itemList.reduce((prev_total_val, item) => {return parseFloat(item.selling_price) + prev_total_val}, 0);
+    var total_items_list_price = itemList.reduce((prev_total_val, item) => {return parseFloat(item.list_price) + prev_total_val}, 0);
     var value_difference_po_vs_items = total_po_value - total_items_value;
 
-    var po_count = po_list.length;
+    var po_count = poList.length;
 
-    var special_item_exists = items_list.some(item => item.excess_modules === true);
-    var incomplete_item_exists = items_list.some(item => item.is_modular === true && item.is_complete === false);
+    var special_item_exists = itemList.some(item => item.excess_modules === true);
+    var incomplete_item_exists = itemList.some(item => item.is_modular === true && item.is_complete === false);
     
     var products_list = ((items_list) => {
         var products = get_products_list(items_list);
         return populate_products_list_with_assignments(products, items_list);
-    })(items_list);
+    })(itemList);
 
     // Create object with a nested object for each product on the Job, with product_id as the key.
     function get_products_list(items_list){
@@ -182,7 +207,7 @@ function JobPage(){
             results[idx]['assignments'] = product.assignments;
         }
         return results;
-    })(items_list, products_list);
+    })(itemList, products_list);
 
 
     var po_data = ((value_difference_po_vs_items, total_items_value, total_po_value, po_list) => {
@@ -193,7 +218,7 @@ function JobPage(){
             po_list: po_list
         };
         return result;
-    })(value_difference_po_vs_items, total_items_value, total_po_value, po_list);
+    })(value_difference_po_vs_items, total_items_value, total_po_value, poList);
 
 
 
@@ -204,7 +229,8 @@ function JobPage(){
             <JobHeadingSubsection   job_id = {job_id}
                                     job_name = {job_name}
                                     customer_name = {customer_name}
-                                    status_data = {status_data} />
+                                    status_data = {status_data}
+                                    URL_GET_DATA = {URL_GET_DATA} />
             <JobContents    job_id = {job_id}
                             URL_GET_DATA = {URL_GET_DATA}
                             currency = {currency}
@@ -227,9 +253,7 @@ function JobContents(props){
         <div class="job-page-sections-wrapper">
             <JobDetails     job_id = {props.job_id}
                             URL_GET_DATA = {props.URL_GET_DATA}
-                            currency={props.currency}
-                            customer_name={props.customer_name}
-                            job_name={props.job_name} />
+                            currency={props.currency} />
             <section class="job-section pair-related">
                 <JobComments    job_id = {props.job_id}
                                 URL_GET_DATA = {props.URL_GET_DATA}/>

@@ -6,9 +6,9 @@ function PriceComparisonTable(props){
     var difference_as_perc = props.difference / props.second_value * 100;
     return [
         <table id="po-discrepancy" class="price-comparison">
-            <tr><th>{props.first_title}</th><td>{props.currency}</td><td class="po-total-price-f number">{props.first_value.toFixed(2)}</td><td></td></tr>
-            <tr><th>{props.second_title}</th><td>{props.currency }</td><td class="selling-price number">{props.second_value.toFixed(2)}</td><td></td></tr>
-            <tr class="conclusion"><th>Difference</th><td>{props.currency}</td><td class="diff-val number">{props.difference.toFixed(2)}</td><td><span class="diff-perc">{difference_as_perc.toFixed(2)}</span></td></tr>
+            <tr><th>{props.first_title}</th><td>{props.currency}</td><td class="po-total-price-f number">{format_money(props.first_value)}</td><td></td></tr>
+            <tr><th>{props.second_title}</th><td>{props.currency }</td><td class="selling-price number">{format_money(props.second_value)}</td><td></td></tr>
+            <tr class="conclusion"><th>Difference</th><td>{props.currency}</td><td class="diff-val number">{format_money(props.difference)}</td><td><span class="diff-perc">{format_percentage(difference_as_perc)}</span></td></tr>
         </table>
     ]
 }
@@ -110,4 +110,19 @@ const useFetch = url => {
 };
 
 
+function url_for_page_load(main_url, job_id, name){
+    return `${main_url}?job_id=${job_id}&type=page_load&name=${name}`;
+}
+
+function url_for_url_list(main_url, job_id){
+    return `${main_url}?job_id=${job_id}&type=urls`;
+}
+
+function format_money(float_value){
+    return float_value.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})
+}
+
+function format_percentage(perc){
+    return perc.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) + '%';
+}
 

@@ -548,7 +548,7 @@ table.price-comparison .diff-perc:before {
   content: "(";
 }
 table.price-comparison .diff-perc:after {
-  content: "%)";
+  content: ")";
 }
 table.price-comparison .number {
   text-align: right;

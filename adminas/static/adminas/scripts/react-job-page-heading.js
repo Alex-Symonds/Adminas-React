@@ -36,7 +36,8 @@ function JobHeadingSubsection(props){
             <div id="job_status_strip" class="subsection">
                 <JobHeading     job_id = {props.job_id}
                                 job_name = {props.job_name}
-                                customer_name = {props.customer_name} />
+                                customer_name = {props.customer_name}
+                                URL_GET_DATA = {props.URL_GET_DATA} />
                 <JobStatusStrip status_data = {props.status_data} />
             </div>
         </section>
@@ -48,7 +49,8 @@ function JobHeading(props){
     return [
             <div class="job-heading-with-extra">
                 <h2>Job {props.job_name}</h2>
-                <JobToDoIndicator   job_id = {props.job_id}/>
+                <JobToDoIndicator   job_id = {props.job_id}
+                                    URL_GET_DATA = {props.URL_GET_DATA}/>
                 <JobSubHeading      customer_name = {props.customer_name} />
             </div>
         ]
@@ -56,18 +58,35 @@ function JobHeading(props){
 
 // Todo toggle
 function JobToDoIndicator(props){
-    const todo = {      // this will be a state later
-        active: true
-    };
+    const [todo, setTodo] = React.useState(false);
+    const [url, setUrl] = React.useState('');
 
-    let css_class = todo.active ? 'on' : 'off';
-    let display_text = todo.active ? 'on' : 'off';
+    const { data, error, isLoaded } = useFetch(`${props.URL_GET_DATA}?job_id=${props.job_id}&type=page_load&name=todo`);
+    React.useEffect(() => {
+        if(typeof data.on_todo !== 'undefined'){
+            setTodo(data.on_todo);
+        }
+        if(typeof data.url !== 'undefined'){
+            setUrl(data.url);
+        }
+    }, [data]);
+
+
+    let css_class = todo ? 'on' : 'off';
+    let display_text = todo ? 'on' : 'off';
+
+    if(error){
+        return <div>Error loading todo.</div>
+    }
+    else if (!isLoaded){
+        return <div>Loading...</div>
+    }
 
     return [
         <div class="indicator-wrapper">
             <div class={'status-indicator ' + css_class}>
                 <span class="status-name">to-do</span>
-                <button class="todo-list-toggle" data-job_id={props.job_id} data-on_todo_list={todo.active}>{display_text}</button>
+                <button class="todo-list-toggle" data-job_id={props.job_id} data-on_todo_list={todo}>{display_text}</button>
             </div>
         </div>
     ]

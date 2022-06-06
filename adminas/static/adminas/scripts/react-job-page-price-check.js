@@ -90,28 +90,32 @@ function JobPriceCheckDetails(props){
 }
 
 function JobPriceCheckDetailsRow(props){
-    var difference_list = props.data.selling_price - props.data.list_price;
+
+    var selling_price = parseFloat(props.data.selling_price);
+    var list_price = parseFloat(props.data.list_price);
+
+    var difference_list = selling_price - list_price;
 
     var resale_price = ((resale_perc) => {
-        var multiplier = 1 - (resale_perc / 100);
-        return props.data.list_price * multiplier;
+        var multiplier = 1 - (parseFloat(resale_perc) / 100);
+        return list_price * multiplier;
     })(props.data.resale_perc);
     
-    var difference_resale = props.data.selling_price - resale_price;
+    var difference_resale = selling_price - resale_price;
 
     return[
         <tr id={'price_check_row_' + props.data.ji_id }>
             <td class="description"><span class="details-toggle">{props.data.part_number}</span><span class="details hide">{props.data.product_name}</span></td>
             <td class="qty">{props.data.quantity}</td>
-            <td class="selling-price-container"><span class="selling-price">{props.data.selling_price.toFixed(2)}</span><button class="edit-btn edit-icon" data-jiid={props.data.ji_id}><span>edit</span></button></td>
+            <td class="selling-price-container"><span class="selling-price">{format_money(selling_price)}</span><button class="edit-btn edit-icon" data-jiid={props.data.ji_id}><span>edit</span></button></td>
             <td class="version">{props.data.price_list.name}</td>
-            <td class="list-price">{props.data.list_price.toFixed(2)}</td>
-            <td class="list-diff-val">{difference_list.toFixed(2)}</td>
-            <td class="list-diff-perc">{(difference_list / props.data.list_price * 100).toFixed(2)}%</td>
-            <td class="resale-percentage">{props.data.resale_perc}%</td>
-            <td class="resale-price">{resale_price.toFixed(2)}</td>
-            <td class="resale-diff-val">{difference_resale.toFixed(2)}</td>
-            <td class="resale-diff-perc">{(difference_resale / props.data.selling_price * 100).toFixed(2)}%</td>
+            <td class="list-price">{format_money(list_price)}</td>
+            <td class="list-diff-val">{format_money(difference_list)}</td>
+            <td class="list-diff-perc">{format_percentage(difference_list / list_price * 100)}</td>
+            <td class="resale-percentage">{format_percentage(parseFloat(props.data.resale_perc))}</td>
+            <td class="resale-price">{format_money(resale_price)}</td>
+            <td class="resale-diff-val">{format_money(difference_resale)}</td>
+            <td class="resale-diff-perc">{format_percentage(difference_resale / selling_price * 100)}</td>
         </tr>
     ]
 }

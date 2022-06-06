@@ -19,7 +19,7 @@ from adminas.models import  PriceList, User, Job, Address, PurchaseOrder, JobIte
 from adminas.forms import   DocumentDataForm, JobForm, POForm, JobItemForm, JobItemFormSet, JobItemEditForm, \
                             JobModuleForm, JobItemPriceForm, ProductionReqForm, DocumentVersionForm, JobCommentFullForm
 from adminas.constants import DOCUMENT_TYPES, CSS_FORMATTING_FILENAME, HTML_HEADER_FILENAME, HTML_FOOTER_FILENAME, SUPPORTED_CURRENCIES, WO_CARD_CODE
-from adminas.util import anonymous_user, error_page, add_jobitem, debug, format_money, get_dict_document_builder, create_document_assignments, create_document_instructions
+from adminas.util import anonymous_user, error_page, add_jobitem, debug, format_money, get_dict_document_builder, create_document_assignments, create_document_instructions, serialise_job_item
 
 
 def login_view(request):
@@ -1083,35 +1083,47 @@ def get_data(request):
 
             return JsonResponse(response_data, status=200)
 
+        elif type_requested == 'urls':
+            job_id = request.GET.get('job_id')
+
+            this_job = Job.objects.get(id=job_id)
+            response_data = {}
+            response_data['items_url'] = reverse('items')
+            response_data['module_management_url'] = reverse('manage_modules', kwargs={'job_id': this_job.id})
+            response_data['po_url'] = reverse('purchase_order')
+
+            return JsonResponse(response_data, status=200)
+
         elif type_requested == 'page_load':
             name = request.GET.get('name')
             job_id = request.GET.get('job_id')
-            my_job = Job.objects.get(id=job_id)
 
+            this_job = Job.objects.get(id=job_id)
             response_data = {}
+
             if name == 'comments':
                 setting_for_order_by = '-created_on'
                 response_data['url'] = reverse('job_comments', kwargs={'job_id': job_id})
                 response_data['username'] = request.user.username
-                response_data['comments'] = my_job.get_all_comments(request.user, setting_for_order_by)
+                response_data['comments'] = this_job.get_all_comments(request.user, setting_for_order_by)
 
             elif name == 'details':
                 response_data['url'] = reverse('edit_job') + '?job=' + job_id
-                response_data['name'] = my_job.name
-                response_data['agent'] = my_job.agent.name
-                response_data['customer'] = my_job.customer.name
-                response_data['quote_ref'] = my_job.quote_ref
-                response_data['country_name'] = my_job.country.name
-                response_data['language'] = my_job.language
-                response_data['invoice_to'] = my_job.invoice_to.display_str_newlines()
-                response_data['payment_terms'] = my_job.payment_terms
-                response_data['delivery_to'] = my_job.delivery_to.display_str_newlines()
-                response_data['incoterm_code'] = my_job.incoterm_code
-                response_data['incoterm_location'] = my_job.incoterm_location
+                response_data['name'] = this_job.name
+                response_data['agent'] = this_job.agent.name
+                response_data['customer'] = this_job.customer.name
+                response_data['quote_ref'] = this_job.quote_ref
+                response_data['country_name'] = this_job.country.name
+                response_data['language'] = this_job.language
+                response_data['invoice_to'] = this_job.invoice_to.display_str_newlines()
+                response_data['payment_terms'] = this_job.payment_terms
+                response_data['delivery_to'] = this_job.delivery_to.display_str_newlines()
+                response_data['incoterm_code'] = this_job.incoterm_code
+                response_data['incoterm_location'] = this_job.incoterm_location
 
             elif name == 'documents': 
                 doc_list = []
-                for doc_version in my_job.related_documents():
+                for doc_version in this_job.related_documents():
                     doc_dict = {}
                     doc_dict['doc_version_id'] = doc_version.id
                     doc_dict['doc_type'] = doc_version.document.doc_type
@@ -1122,7 +1134,25 @@ def get_data(request):
                     doc_list.append(doc_dict)
 
                 response_data['doc_list'] = doc_list
-                response_data['url_builder'] = reverse('doc_builder') + '?job=' + job_id;
+                response_data['url_builder'] = reverse('doc_builder') + '?job=' + job_id
+            
+            elif name == 'todo':
+                response_data['url'] = reverse('todo_list_management')
+                response_data['on_todo'] = this_job.on_todo_list(request.user)
+
+            elif name == 'job_page_root':
+                response_data['api_url'] = reverse('get_data')
+                response_data['currency'] = this_job.currency
+                response_data['price_accepted'] = this_job.price_is_ok
+                
+                response_data['item_list'] = []
+                for item in this_job.main_item_list():
+                    response_data['item_list'].append(serialise_job_item(item))
+
+
+
+
+        
 
             return JsonResponse(response_data, status=200)
 

@@ -3,7 +3,7 @@
 
 // || JobDetails
 function JobDetails(props){
-    const { data, error, isLoaded } = useFetch(`${props.URL_GET_DATA}?job_id=${props.job_id}&type=page_load&name=details`);
+    const { data, error, isLoaded } = useFetch(url_for_page_load(props.URL_GET_DATA, props.job_id, 'details'));
 
     if(error){
         return <div>Error loading details.</div>

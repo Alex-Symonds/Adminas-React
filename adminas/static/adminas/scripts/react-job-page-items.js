@@ -1,20 +1,21 @@
 // JobItems section, plus functions to build a <select> based on id/name data from the server, plus a generic <li>qty x name</li>
 
 function JobItems(props){
-    // Make these states
-    const form_visible = true; // initialise this to {props.items_data.length == 0}
-    // -----------------------------
+    const [formVisible, setFormVisible] = React.useState(props.items_data.length == 0);
+
 
     return [
         <section id="job_items_section" class="job-section">
             <h3>Items</h3>
             <div class="job-items-container">
-                <JobItemsAddButton  form_visible = {form_visible} />
-                <JobItemsAddForm    form_visible = {form_visible}
+                <JobItemsAddButton  form_visible = {formVisible} />
+                <JobItemsAddForm    form_visible = {formVisible}
+                                    URL_GET_DATA = {props.URL_GET_DATA}
+                                    job_id = {props.job_id} />
+                <JobItemsExisting   items_data = {props.items_data}
+                                    currency={props.currency}
                                     URL_GET_DATA = {props.URL_GET_DATA}
                                     job_id = {props.job_id}/>
-                <JobItemsExisting   items_data = {props.items_data}
-                                    currency={props.currency}/>
             </div>
         </section>
     ]
@@ -28,34 +29,47 @@ function JobItemsAddButton(props){
 }
 
 function JobItemsAddForm(props){
-    const URL_ITEMS = '/items';
-
-    const MIN_FORMS = 0;    // use these to check whether to add another form if the user indicates they want one more
-    const MAX_FORMS = 1000;
-
-    // states --------------------------
-    var total_forms = 1;
-    var input_fields = [
-        {quantity: '', product_id: '', selling_price: '', price_list_id: ''}
-    ];
-    // ---------------------------------
-
-
+    // Exit early if the form isn't needed at present
     if(!props.form_visible){
         return null;
     }
 
+    // Setup states for the CRUD URL and the initial formset.
+    const [urlAction, setUrlAction] = React.useState('');
+    const [inputFields, setFields] = React.useState([
+        {quantity: '', product_id: '', selling_price: '', price_list_id: ''}
+    ]);
+
+    // Fetch the URL for CRUD operations from the server
+    const { data, error, isLoaded } = useFetch(url_for_url_list(props.URL_GET_DATA, props.job_id));
+    React.useEffect(() => {
+        if(typeof data.items_url !== 'undefined'){
+            setUrlAction(data.items_url);
+        }
+    }, [data]);
+
+    // Form-related constants. These will be used later to make sure the user doesn't go crazy adding/removing forms.
+    const MIN_FORMS = 0;
+    const MAX_FORMS = 1000;
+
+
+    if(error){
+        return <div>Error loading documents.</div>
+    }
+    else if (!isLoaded){
+        return <div>Loading...</div>
+    }
     return [
         <div id="new_items_container" class="form-like panel">
             <button id="close_item_form_btn" class="close"><span>close</span></button>
             <h5 class="panel-header">Add New Items</h5>
-            <form method="POST" action={URL_ITEMS} id="items_form">
-                <input type="hidden" name="form-TOTAL_FORMS" value={total_forms} id="id_form-TOTAL_FORMS" />
+            <form method="POST" action={urlAction} id="items_form">
+                <input type="hidden" name="form-TOTAL_FORMS" value={inputFields.length} id="id_form-TOTAL_FORMS" />
                 <input type="hidden" name="form-INITIAL_FORMS" value="0" id="id_form-INITIAL_FORMS" />
                 <input type="hidden" name="form-MIN_NUM_FORMS" value="0" id="id_form-MIN_NUM_FORMS" />
                 <input type="hidden" name="form-MAX_NUM_FORMS" value="1000" id="id_form-MAX_NUM_FORMS" />
         
-                {input_fields.map((data, index) =>
+                {inputFields.map((data, index) =>
                     <JobItemsAddFormRow     key = {index}
                                             form_index = {index}
                                             URL_GET_DATA = {props.URL_GET_DATA}
@@ -115,6 +129,7 @@ function JobItemsAddFormRow(props){
 
 // Section containing all the existing JobItems. The "main bit".
 function JobItemsExisting(props){
+    // Exit early if there are no items.
     if(props.items_data.length == 0){
         return null;
     }
@@ -125,7 +140,9 @@ function JobItemsExisting(props){
                 props.items_data.map((data) =>
                 <JobItemEle key = {data.ji_id.toString()}
                             data = {data}
-                            currency = {props.currency}/>
+                            currency = {props.currency}
+                            job_id = {props.job_id} 
+                            URL_GET_DATA = {props.URL_GET_DATA} />
                 )
             }
         </div>
@@ -139,7 +156,9 @@ function JobItemEle(props){
             <JobItemMoney   data = {props.data}
                             currency = {props.currency}/>
             <JobItemAccessories     data = {props.data} />
-            <JobItemChildModules    data = {props.data} />
+            <JobItemChildModules    data = {props.data}
+                                    job_id = {props.job_id}
+                                    URL_GET_DATA = {props.URL_GET_DATA} />
             <JobItemAssignments     data = {props.data} />
         </div>
     ]
@@ -149,15 +168,16 @@ function JobItemHeading(props){
     return [
         <h5 class="panel-header what">
             <span class="quantity">{ props.data.quantity }</span> x <span class="product">{ props.data.part_number }: { props.data.product_name }</span><span class="id-number">{ props.data.ji_id }</span>
-            <div class="desc">{props.data.description}</div>  
+            <div class="desc">{props.data.description}</div>
         </h5>
     ]
 }
 
 function JobItemMoney(props){
+    var selling_price = parseFloat(props.data.selling_price);
     return [
         <div class="money">
-            <span class="currency">{ props.currency }</span><span class="selling_price">{props.data.selling_price.toFixed(2)}</span>
+            <span class="currency">{ props.currency }</span><span class="selling_price">{format_money(selling_price)}</span>
             <span class="price_list secondary-icon">{props.data.price_list.name}</span>
             <button class="ji-edit edit-icon" data-jiid={props.data.jiid} ><span>edit</span></button>
         </div>
@@ -169,12 +189,12 @@ function JobItemAccessories(props){
         return null;
     }
 
-    var clarify_each = props.data.quantity > 1 ? '(in total)' : '';
+    var clarify_each_for_multiple = props.data.quantity > 1 ? '(in total)' : '';
 
     return [
         <div class="std-accs-container">
             <div class="std-accs">
-                <p>Included accessories {clarify_each}</p>
+                <p>Included accessories {clarify_each_for_multiple}</p>
                 <ul>
                     {
                         props.data.standard_accessories.map((std_acc, index) =>
@@ -194,17 +214,15 @@ function JobItemChildModules(props){
         return null;
     }
 
-    // get this somehow ----------------
-    var url_module_management = '/job/2/manage_modules';
-    // ---------------------------------
-
     var css_module_status = job_item_module_status_css(props.data);
     var heading_display_str = job_item_module_title_str(props.data);
     return [
         <div class={'module-status-section subsection modules-' + css_module_status}>
             <div class="intro-line">
                 <span class="display-text">&raquo;&nbsp;{heading_display_str}</span>
-                <a href={url_module_management + '#modular_jobitem_' + props.data.ji_id} class="edit-icon"><span>edit</span></a>
+                <LinkToModuleManagement     URL_GET_DATA = {props.URL_GET_DATA}
+                                            job_id = {props.job_id}
+                                            ji_id = {props.data.ji_id} />
             </div>
             <ul class="details">
                 {
@@ -217,6 +235,23 @@ function JobItemChildModules(props){
             </ul>
         </div>
     ]
+}
+
+function LinkToModuleManagement(props){
+    // Get the link to module management from the server
+    const [url, setUrl] = React.useState('');
+    const { data, error, isLoaded } = useFetch(url_for_url_list(props.URL_GET_DATA, props.job_id));
+    React.useEffect(() => {
+        if(typeof data.module_management_url !== 'undefined'){
+            setUrl(data.module_management_url);
+        }
+    }, [data]);
+
+
+    if(error || !isLoaded){
+        return null;
+    }
+    return <a href={url + '#modular_jobitem_' + props.ji_id} class="edit-icon"><span>edit</span></a>
 }
 
 function job_item_module_status_css(data){

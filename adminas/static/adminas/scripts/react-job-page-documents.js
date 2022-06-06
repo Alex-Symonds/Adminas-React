@@ -4,7 +4,7 @@
 function JobDocuments(props){
     
     const [docList, setDocs] = React.useState([]);
-    const { data, error, isLoaded } = useFetch(`${props.URL_GET_DATA}?job_id=${props.job_id}&type=page_load&name=documents`);
+    const { data, error, isLoaded } = useFetch(url_for_page_load(props.URL_GET_DATA, props.job_id, 'documents'));
 
     React.useEffect(() => {
         if(typeof data.doc_list !== 'undefined'){
