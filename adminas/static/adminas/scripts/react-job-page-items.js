@@ -1,4 +1,8 @@
-// JobItems section, plus functions to build a <select> based on id/name data from the server, plus a generic <li>qty x name</li>
+// JobItems section
+// Includes:
+//      JobItems formset for adding new items
+//      Standard display of JobItems
+//      
 
 function JobItems(props){
     const [formVisible, setFormVisible] = React.useState(props.items_data.length == 0);
@@ -74,7 +78,8 @@ function JobItemsAddForm(props){
                                             form_index = {index}
                                             URL_GET_DATA = {props.URL_GET_DATA}
                                             data = {data}
-                                            job_id = {props.job_id} />
+                                            job_id = {props.job_id}
+                                            num_forms = {inputFields.length} />
                 )}
 
                 <button id="add_item_btn" class="add-button"><span>add 1 more</span></button>
@@ -95,7 +100,7 @@ function JobItemsAddFormRow(props){
 
     return [
         <div class="form-row panel">
-            <button class="remove-item-btn delete-panel"><span>remove</span></button>
+            <JobItemsAddFormRowRemoveButton num_forms={props.num_forms} />
 
             <label for={id_prefix + 'quantity'}>Quantity</label>
             <input type="number" name={prefix + 'quantity'} id={id_prefix + 'quantity'} value={props.data.quantity}/>
@@ -124,6 +129,15 @@ function JobItemsAddFormRow(props){
             <input type="hidden" name={prefix + 'job'} value={props.job_id} id={id_prefix + 'job'} />
         </div>
     ]
+}
+
+function JobItemsAddFormRowRemoveButton(props){
+    // Ideally we don't want users to remove the last form from the formset, so if this is the last
+    // form, exclude the convenient "remove" button.
+    if(props.num_forms === 1){
+        return null;
+    }
+    return <button class="remove-item-btn delete-panel"><span>remove</span></button>
 }
 
 
@@ -247,7 +261,7 @@ function LinkToModuleManagement(props){
         }
     }, [data]);
 
-
+    // If we don't have the url for any reason, don't display anything
     if(error || !isLoaded){
         return null;
     }

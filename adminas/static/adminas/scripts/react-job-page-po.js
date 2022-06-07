@@ -13,7 +13,8 @@ function JobPo(props){
                                     URL_GET_DATA = {props.URL_GET_DATA} />
             </div>
             <JobPoDiscrepancy   currency = {props.currency}
-                                data = {props.po_data} />
+                                data = {props.po_data}
+                                num_po = {props.po_data.po_list.length} />
             <JobPoList          currency = {props.currency} 
                                 po_list = {props.po_data.po_list} />
         </section>
@@ -77,7 +78,7 @@ function JobPoAddNew(props){
 
 // Conditionally displayed when there's a mismatch with prices
 function JobPoDiscrepancy(props){
-    if(props.data.difference == 0){
+    if(props.data.difference === 0 || props.num_po === 0){
         return null;
     }
 
@@ -104,6 +105,10 @@ function JobPoDiscrepancy(props){
 
 // Actual list of POs
 function JobPoList(props){
+    if(props.po_list.length === 0){
+        return <p>No purchase orders have been entered against this job.</p>
+    }
+
     return [
         <div class="job-po-container">
             {props.po_list.map((po) =>
@@ -124,4 +129,6 @@ function JobPoElement(props){
         </div>
     ]
 }
+
+
 

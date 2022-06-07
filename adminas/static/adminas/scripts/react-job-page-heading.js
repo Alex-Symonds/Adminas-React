@@ -1,9 +1,8 @@
 // React code for the Job page's heading subsection, including:
-//      constants for status codes (also used react-job-page) and associated symbols
+//      constants for status codes (also used by react-job-page) and associated symbols
 //      Heading
 //      ToDo List toggle
 //      Status strip
-
 
 
 // Status Code constants and associated "icon" texts.
@@ -35,8 +34,6 @@ function JobHeadingSubsection(props){
         <section class="job-heading-with-status">
             <div id="job_status_strip" class="subsection">
                 <JobHeading     job_id = {props.job_id}
-                                job_name = {props.job_name}
-                                customer_name = {props.customer_name}
                                 URL_GET_DATA = {props.URL_GET_DATA} />
                 <JobStatusStrip status_data = {props.status_data} />
             </div>
@@ -46,12 +43,33 @@ function JobHeadingSubsection(props){
 
 // First-level child: heading and todo toggle
 function JobHeading(props){
+    // Fetch the names of the Job and the customer from the server
+    const [names, setNames] = React.useState({
+        job_name: '',
+        customer_name: ''
+    });
+    const { data, error, isLoaded } = useFetch(url_for_page_load(props.URL_GET_DATA, props.job_id, 'heading'));
+    React.useEffect(() => {
+        if(typeof data.names !== 'undefined'){
+            setNames(data.names);
+        }
+    }, [data]);
+
+    // Handle async stuff
+    if(error){
+        <LoadingErrorEle name='names' />
+    }
+    else if(!isLoaded){
+        <LoadingEle />
+    }
+
+    // The main event
     return [
             <div class="job-heading-with-extra">
-                <h2>Job {props.job_name}</h2>
+                <h2>Job {names.job_name}</h2>
                 <JobToDoIndicator   job_id = {props.job_id}
                                     URL_GET_DATA = {props.URL_GET_DATA}/>
-                <JobSubHeading      customer_name = {props.customer_name} />
+                <JobSubHeading      customer_name = {names.customer_name} />
             </div>
         ]
 }
@@ -93,7 +111,7 @@ function JobToDoIndicator(props){
 }
 
 function JobSubHeading(props){
-    if(props.customer_name != null){
+    if(props.customer_name != ''){
         return <div class="subheading">for {props.customer_name}</div>
     }
     return null;
@@ -157,7 +175,7 @@ function get_status_items(data){
         return result;
     }
 
-    // Display an extra notification if there's >0 special items (i.e. with more modules than "allowed")
+    // Display an extra notification if there's >0 special items (defined as modular items with more fillers than are normally allowed)
     if(data.special_item_exists){
         result.push([STATUS_CODE_ATTN, 'Special item/s']);
     }
@@ -170,7 +188,7 @@ function get_status_items(data){
         result.push([STATUS_CODE_OK, 'Items ok']);
     }
 
-    return result
+    return result;
 }
 
 function get_status_po(data){

@@ -2,16 +2,16 @@ function JobPage(){
     const job_id = window.JOB_ID;
     const URL_GET_DATA = window.URL_GET_DATA;
 
-    // how to get these
-    const job_name = '2108-001';
-    const customer_name = 'Aardvark';
-    const currency = 'GBP';
-
     // States fetched from server
+    // "jobMain" is for data which can't be altered on the Job page, so it will only change once (from "empty" to "loaded")
+    const [jobMain, setJobMain] = React.useState({
+                                        currency: '',
+                                        doc_quantities: []
+                                    });
+    // These states can be changed on the job page
     const [itemList, setItemList] = React.useState([]);
     const [poList, setPoList] = React.useState([]);
     const [priceAccepted, setPriceAccepted] = React.useState(false);
-    const [docQuantities, setDocQuantities] = React.useState([]);
 
     const { data, error, isLoaded } = useFetch(url_for_page_load(URL_GET_DATA, job_id, 'job_page_root'));
     React.useEffect(() => {
@@ -27,8 +27,8 @@ function JobPage(){
             setPriceAccepted(data.price_accepted);
         }
 
-        if(typeof data.doc_quantities !== 'undefined'){
-            setDocQuantities(data.doc_quantities);
+        if(typeof data.main !== 'undefined'){
+            setJobMain(data.main);
         }
     }, [data]);
 
@@ -129,7 +129,7 @@ function JobPage(){
         result['doc_quantities'] = doc_quantities;
         result['total_qty_all_items'] = total_qty_all_items;
         return result;
-    })(priceAccepted, special_item_exists, incomplete_item_exists, po_count, value_difference_po_vs_items, docQuantities, total_qty_all_items);
+    })(priceAccepted, special_item_exists, incomplete_item_exists, po_count, value_difference_po_vs_items, jobMain.doc_quantities, total_qty_all_items);
 
 
     var items_data = ((items_list, products_list) => {
@@ -167,17 +167,17 @@ function JobPage(){
     return [
         <div>
             <JobHeadingSubsection   job_id = {job_id}
-                                    job_name = {job_name}
-                                    customer_name = {customer_name}
+                                    job_name = {jobMain.job_name}
+                                    customer_name = {jobMain.customer_name}
                                     status_data = {status_data}
                                     URL_GET_DATA = {URL_GET_DATA} />
             <JobContents    job_id = {job_id}
                             URL_GET_DATA = {URL_GET_DATA}
-                            currency = {currency}
-                            customer_name = {customer_name}
-                            job_name = {job_name}
+                            currency = {jobMain.currency}
+                            customer_name = {jobMain.customer_name}
+                            job_name = {jobMain.job_name}
                             job_total_qty = {total_qty_all_items}
-                            doc_quantities = {docQuantities}
+                            doc_quantities = {jobMain.doc_quantities}
                             items_data = {items_data}
                             po_data = {po_data}
                             price_accepted = {priceAccepted}

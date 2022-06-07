@@ -1094,6 +1094,7 @@ def get_data(request):
 
             return JsonResponse(response_data, status=200)
 
+        # Packages of data for various React components on the Job page
         elif type_requested == 'page_load':
             name = request.GET.get('name')
             job_id = request.GET.get('job_id')
@@ -1101,7 +1102,13 @@ def get_data(request):
             this_job = Job.objects.get(id=job_id)
             response_data = {}
 
-            if name == 'comments':
+            if name == 'heading':
+                response_data['names'] = {
+                    'job_name': this_job.name,
+                    'customer_name': this_job.customer.name
+                }
+
+            elif name == 'comments':
                 setting_for_order_by = '-created_on'
                 response_data['url'] = reverse('job_comments', kwargs={'job_id': job_id})
                 response_data['username'] = request.user.username
@@ -1141,12 +1148,15 @@ def get_data(request):
                 response_data['on_todo'] = this_job.on_todo_list(request.user)
 
             elif name == 'job_page_root':
-                response_data['api_url'] = reverse('get_data')
-                response_data['currency'] = this_job.currency
+                # "Main" contains Job info which can't be altered on the Job page and is used in more than one component.
+                response_data['main'] = {
+                    'currency': this_job.currency,
+                    'doc_quantities': this_job.all_documents_item_quantities()
+                }
                 
+                # Remaining top-level dict fields correspond to a state, since they can be changed on the Job page
                 response_data['price_accepted'] = this_job.price_is_ok
-                response_data['doc_quantities'] = this_job.all_documents_item_quantities()
-                
+
                 response_data['item_list'] = []
                 for item in this_job.main_item_list():
                     response_data['item_list'].append(item.serialise())
@@ -1154,10 +1164,7 @@ def get_data(request):
                 response_data['po_list'] = []
                 for po in this_job.po.all():
                     response_data['po_list'].append(po.serialise())
-
-                debug(response_data['po_list'])
         
-
             return JsonResponse(response_data, status=200)
 
         
