@@ -3,6 +3,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.db.models.deletion import SET_NULL
 from django.db.models import Sum
+from django.utils import formats
 
 from django_countries.fields import CountryField
 
@@ -495,7 +496,9 @@ class Job(AdminAuditTrail):
         all_comments = JobComment.objects.filter(job=self).filter(Q(created_by=user) | Q(private=False)).order_by(setting_for_order_by)
         result = []
         for c in all_comments:
-            result.append(c.get_display_dict(user))
+            comm = c.serialise(user)
+            comm['created_on'] = formats.date_format(comm['created_on'], "DATETIME_FORMAT")
+            result.append(comm)
 
         if(len(result) == 0):
             return None
@@ -511,7 +514,7 @@ class Job(AdminAuditTrail):
         result = []
         for c in all_comments:
             if c.is_pinned_by(user):
-                result.append(c.get_display_dict(user))
+                result.append(c.serialise(user))
 
         if(len(result) == 0):
             return None
@@ -527,7 +530,7 @@ class Job(AdminAuditTrail):
         result = []
         for c in all_comments:
             if c.is_highlighted_by(user):
-                result.append(c.get_display_dict(user))
+                result.append(c.serialise(user))
 
         if(len(result) == 0):
             return None
@@ -960,16 +963,14 @@ class JobComment(AdminAuditTrail):
         
         "Private", as you'd expect, determines whether the comment can be seen by anyone or just the author.
         
-        "Pinned" and "highlighted" are used to emphasise chosen comments. In some ways they have similar effects:
-        the main Job page and the Job comments page have a special panel for each, listing all comments
-        with the relevant status.
-        
-        In addition to this:
+        "Pinned" and "highlighted" are used to emphasise chosen comments by displaying them on the Job page.
+
+        In addition:
             > "Pinned" comments also appear on the to-do list, at the bottom of the Job panel
             > "Highlighted" comments get special formatting (most noticably on the Job Comments page)
 
-        The purpose of "pinned" is to "pin" the comment to the to-do list panel. This allows Users to add 
-        reminders (e.g. "MUST ISSUE OC BY $DATE") and to add notes to help them distinguish between similar Jobs 
+        The purpose of "pinned" is to "pin" the comment to the to-do list panel. This is intended to allow Users to add 
+        reminders (e.g. "MUST ISSUE OC BY $DATE") and notes for distinguishing between similar Jobs 
         (e.g. "Alice is chasing this one"; "Bob is chasing this one"). Analogue folks might think of it as a post-it
         stuck to the front of a cardboard folder.
 
@@ -992,7 +993,7 @@ class JobComment(AdminAuditTrail):
     def is_pinned_by(self, user):
         return user in self.pinned_by.all()
 
-    def get_display_dict(self, user):
+    def serialise(self, user):
         result = {}
         result['id'] = self.id
         result['user_is_owner'] = self.created_by == user
@@ -1031,6 +1032,54 @@ class JobItem(AdminAuditTrail):
     # customer has ordered one dispenser and 3 spare packets. Result = two JobItem records for Pez packets: one to cover the packet included 
     # with the dispenser ("included_with" would refer to the JobItem for the dispenser) and one to cover the three spares ("included_with" would be blank).
     included_with = models.ForeignKey('self', on_delete=models.CASCADE, related_name='includes', null=True, blank=True)
+
+    def serialise(self):
+        result = {}
+
+        # What
+        result['ji_id'] = self.id
+        result['product_id'] = self.product.id
+        result['part_number'] = self.product.part_number
+        result['product_name'] = self.product.name
+        result['description'] = self.product.get_description(self.job.language)
+
+        # How much
+        result['quantity'] = self.quantity
+        result['selling_price'] = self.selling_price
+        result['list_price'] = self.list_price()
+        result['resale_perc'] = self.resale_percentage()
+
+        # Associated price list
+        prl_dict = {}
+        prl_dict['id'] = self.price_list.id
+        prl_dict['name'] = self.price_list.name
+        result['price_list'] = prl_dict
+
+        # Standard Accessories
+        result['standard_accessories'] = []
+        for std_acc in self.includes.all():
+            sa_dict = {}
+            sa_dict['quantity'] = std_acc.quantity
+            sa_dict['part_number'] = std_acc.product.part_number
+            sa_dict['product_name'] = std_acc.product.name
+            result['standard_accessories'].append(sa_dict)
+
+        # Modular support
+        result['is_modular'] = self.product.is_modular()
+        result['is_complete'] = self.item_is_complete()
+        result['excess_modules'] = self.excess_modules_assigned()
+
+        result['module_list'] = []
+        for jm in self.modules.all():
+            jm_dict = {}
+            jm_dict['module_id'] = jm.id
+            jm_dict['product_id'] = jm.child.id
+            jm_dict['quantity'] = jm.quantity
+            jm_dict['name'] = jm.child.name
+            result['module_list'].append(jm_dict)
+
+        return result
+
 
     def display_str(self):
         """

@@ -416,7 +416,7 @@ def job_comments(request, job_id):
                 comment.save()
 
         # Whether POST or PUT, respond with the current data.
-        data = comment.get_display_dict(request.user)
+        data = comment.serialise(request.user)
         data['job_id'] = job_id
         data['created_on'] = formats.date_format(comment.created_on, "DATETIME_FORMAT")
 
@@ -1149,16 +1149,13 @@ def get_data(request):
                 
                 response_data['item_list'] = []
                 for item in this_job.main_item_list():
-                    response_data['item_list'].append(serialise_job_item(item))
+                    response_data['item_list'].append(item.serialise())
 
                 response_data['po_list'] = []
                 for po in this_job.po.all():
-                    response_data['po_list'].append(po.serialise)
+                    response_data['po_list'].append(po.serialise())
 
-
-
-
-
+                debug(response_data['po_list'])
         
 
             return JsonResponse(response_data, status=200)

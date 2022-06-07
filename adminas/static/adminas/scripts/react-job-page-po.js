@@ -13,9 +13,9 @@ function JobPo(props){
                                     URL_GET_DATA = {props.URL_GET_DATA} />
             </div>
             <JobPoDiscrepancy   currency = {props.currency}
-                                data = {props.po_data}/>
+                                data = {props.po_data} />
             <JobPoList          currency = {props.currency} 
-                                po_list = {props.po_data.po_list}/>
+                                po_list = {props.po_data.po_list} />
         </section>
     ]
 }
@@ -118,7 +118,7 @@ function JobPoElement(props){
     return [
         <div class="po-row">
             <div class="details">
-                <span class="reference">{props.data.reference}</span> dated <span class="date_on_po">{props.data.date_on_po}</span> for <span class="currency">{props.currency}</span> <span class="value">{props.value}</span> (received <span class="date_received">{props.data.date_received}</span>)
+                <span class="reference">{props.data.reference}</span> dated <span class="date_on_po">{props.data.date_on_po}</span> for <span class="currency">{props.currency}</span> <span class="value">{props.data.value}</span> (received <span class="date_received">{format_money(props.data.date_received)}</span>)
                 <button type="button" class="po-edit edit-icon" data-po={props.data.po_id}><span>edit</span></button>
             </div>
         </div>

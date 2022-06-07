@@ -1,11 +1,10 @@
 function JobPage(){
-    // Stuff to be fetched from the backend or something
     const job_id = window.JOB_ID;
+    const URL_GET_DATA = window.URL_GET_DATA;
 
     // how to get these
     const job_name = '2108-001';
     const customer_name = 'Aardvark';
-    const URL_GET_DATA = '/get_data';
     const currency = 'GBP';
 
     // States fetched from server
