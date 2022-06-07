@@ -6,10 +6,10 @@ function JobDetails(props){
     const { data, error, isLoaded } = useFetch(url_for_page_load(props.URL_GET_DATA, props.job_id, 'details'));
 
     if(error){
-        return <div>Error loading details.</div>
+        return <LoadingErrorEle name='details' />
     }
     else if (!isLoaded){
-        return <div>Loading...</div>
+        return <LoadingEle />
     }
     return [
         <section id="job_details" class="job-section">

@@ -22,10 +22,10 @@ function JobComments(props){
 
     
     if(error){
-        return <div>Error loading comments.</div>
+        return <LoadingErrorEle name='comments' />
     }
     else if (!isLoaded){
-        return <div>Loading...</div>
+        return <LoadingEle />
     }
     return [
         <section id="job_comments" class="item">

@@ -45,10 +45,10 @@ function JobPoAddNew(props){
 
     // Display
     if(error){
-        return <div>Error loading form.</div>;
+        return <LoadingErrorEle name='form' />
     }
     else if(!isLoaded){
-        return <div>Loading...</div>
+        return <LoadingEle />
     }
     return [
         <form method="POST" action={actionUrl} class="form-like panel" id="po_form">

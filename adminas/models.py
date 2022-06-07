@@ -696,11 +696,11 @@ class Job(AdminAuditTrail):
 # ----------- Documents to support Adminas-React, but the actual React bit
     def all_documents_item_quantities(self):
         """
-            Dict with an entry for each doc_type, reporting the quantity of items on issued and draft documents of that type.
-            e.g. {
-                    WO: {qty_on_issued: 1, qty_on_draft: 4},
-                    OC: {qty_on_issued: 0, qty_on_draft: 1}
-                }
+            List with an entry for each doc_type, reporting the quantity of items on issued and draft documents of that type.
+            e.g. [
+                    {doc_type: WO, qty_on_issued: 1, qty_on_draft: 4},
+                    {doc_type: OC, qty_on_issued: 0, qty_on_draft: 1}
+                ]
             Note: a single line item with quantity=100 would show up as 100.
         """
         # This was added to enable the Job status for documents (i.e. "ok", "pending", "missing").
@@ -711,15 +711,15 @@ class Job(AdminAuditTrail):
         # If a Job has a single JobItem with qty=100 and a user assigns qty=1 to an issued document, we want that to come up as
         # "99 more to go", not "1 x JobItem on the Job; 1 x JobItem on an issued document: we're done".
 
-        result = {}
-        
+        result = []
         for loop_tuple in DOCUMENT_TYPES:
             doc_type = loop_tuple[0]
             doc_quantities = {}
+            doc_quantities['doc_type'] = doc_type
             doc_quantities['qty_on_issued'] = self.document_item_quantities(doc_type, True)
             doc_quantities['qty_on_draft'] = self.document_item_quantities(doc_type, False)
-            result[doc_type] = doc_quantities
-
+            result.append(doc_quantities)
+            
         return result
 
 

@@ -54,10 +54,10 @@ function JobItemsAddForm(props){
 
 
     if(error){
-        return <div>Error loading documents.</div>
+        return <LoadingErrorEle name='form' />
     }
     else if (!isLoaded){
-        return <div>Loading...</div>
+        return <LoadingEle />
     }
     return [
         <div id="new_items_container" class="form-like panel">

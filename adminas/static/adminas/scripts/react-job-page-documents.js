@@ -13,10 +13,10 @@ function JobDocuments(props){
     }, [data]);
 
     if(error){
-        return <div>Error loading documents.</div>
+        return <LoadingErrorEle name='documents' />
     }
     else if (!isLoaded){
-        return <div>Loading...</div>
+        return <LoadingEle />
     }
     
     return [

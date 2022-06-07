@@ -84,6 +84,14 @@ function OptionIdAndName(props){
 }
 
 
+function LoadingEle(props){
+    return <div class="loading">Loading...</div>
+}
+
+function LoadingErrorEle(props){
+    return <div class="loading error">Error loading { props.name }</div>
+}
+
 
 const useFetch = url => {
     const [data, setData] = React.useState([]);

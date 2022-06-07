@@ -76,10 +76,10 @@ function JobToDoIndicator(props){
     let display_text = todo ? 'on' : 'off';
 
     if(error){
-        return <div>Error loading todo.</div>
+        return <LoadingErrorEle name='todo status' />
     }
     else if (!isLoaded){
-        return <div>Loading...</div>
+        return <LoadingEle />
     }
 
     return [
@@ -192,11 +192,13 @@ function get_status_documents(data){
 
         var doc = data.doc_quantities[idx];
         var prefix = doc.doc_type + ' ';
+        var issued_qty = parseInt(doc.issued_qty);
+        var draft_qty = parseInt(doc.draft_qty);
 
-        if(data.total_qty_all_items == doc.issued_qty){
+        if(data.total_qty_all_items == issued_qty){
             result.push([STATUS_CODE_OK, prefix + "ok"]);
         }
-        else if(data.total_qty_all_items == doc.issued_qty + doc.draft_qty){
+        else if(data.total_qty_all_items == issued_qty + draft_qty){
             result.push([STATUS_CODE_ACTION, prefix + "pending"]);
         }
         else{

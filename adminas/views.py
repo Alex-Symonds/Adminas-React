@@ -1143,7 +1143,9 @@ def get_data(request):
             elif name == 'job_page_root':
                 response_data['api_url'] = reverse('get_data')
                 response_data['currency'] = this_job.currency
+                
                 response_data['price_accepted'] = this_job.price_is_ok
+                response_data['doc_quantities'] = this_job.all_documents_item_quantities()
                 
                 response_data['item_list'] = []
                 for item in this_job.main_item_list():

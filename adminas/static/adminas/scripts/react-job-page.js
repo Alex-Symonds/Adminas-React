@@ -2,22 +2,17 @@ function JobPage(){
     // Stuff to be fetched from the backend or something
     const job_id = window.JOB_ID;
 
+    // how to get these
     const job_name = '2108-001';
     const customer_name = 'Aardvark';
-
-    // the rest
     const URL_GET_DATA = '/get_data';
     const currency = 'GBP';
 
-    const doc_quantities = [
-        {doc_type: 'WO', issued_qty: 1, draft_qty: 4},
-        {doc_type: 'OC', issued_qty: 0, draft_qty: 1}
-    ];
-
-
+    // States fetched from server
     const [itemList, setItemList] = React.useState([]);
     const [poList, setPoList] = React.useState([]);
     const [priceAccepted, setPriceAccepted] = React.useState(false);
+    const [docQuantities, setDocQuantities] = React.useState([]);
 
     const { data, error, isLoaded } = useFetch(url_for_page_load(URL_GET_DATA, job_id, 'job_page_root'));
     React.useEffect(() => {
@@ -33,19 +28,11 @@ function JobPage(){
             setPriceAccepted(data.price_accepted);
         }
 
+        if(typeof data.doc_quantities !== 'undefined'){
+            setDocQuantities(data.doc_quantities);
+        }
     }, [data]);
-    // State plan:
-    //  po_list[]
 
-    // var poList = [
-    //     {
-    //         reference: 'abc',
-    //         date_on_po: '01/01/1900',
-    //         value: 500,
-    //         date_received: '01/01/1900',
-    //         po_id: 1
-    //     }
-    // ];
 
     // These are to be derived from states
     var total_qty_all_items = () => {
@@ -143,7 +130,7 @@ function JobPage(){
         result['doc_quantities'] = doc_quantities;
         result['total_qty_all_items'] = total_qty_all_items;
         return result;
-    })(priceAccepted, special_item_exists, incomplete_item_exists, po_count, value_difference_po_vs_items, doc_quantities, total_qty_all_items);
+    })(priceAccepted, special_item_exists, incomplete_item_exists, po_count, value_difference_po_vs_items, docQuantities, total_qty_all_items);
 
 
     var items_data = ((items_list, products_list) => {
@@ -171,8 +158,12 @@ function JobPage(){
     })(value_difference_po_vs_items, total_items_value, total_po_value, poList);
 
 
-
-
+    if(error){
+        <LoadingErrorEle name='page' />
+    }
+    else if(!isLoaded){
+        <LoadingEle />
+    }
 
     return [
         <div>
@@ -187,7 +178,7 @@ function JobPage(){
                             customer_name = {customer_name}
                             job_name = {job_name}
                             job_total_qty = {total_qty_all_items}
-                            doc_quantities = {doc_quantities}
+                            doc_quantities = {docQuantities}
                             items_data = {items_data}
                             po_data = {po_data}
                             price_accepted = {priceAccepted}
