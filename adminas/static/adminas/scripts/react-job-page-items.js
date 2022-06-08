@@ -37,7 +37,7 @@ function JobItemsAddButton(props){
 }
 
 function JobItemsAddForm(props){
-    // Exit early if the form isn't needed at present
+    // Form visibility handling
     if(props.form_visible === null || !props.form_visible){
         return null;
     }
@@ -45,10 +45,11 @@ function JobItemsAddForm(props){
         props.update_form_vis(false);
     };
 
-    // Setup states for the CRUD URL and the initial formset.
+    // Setup states for the CRUD URL and handling the formset.
     const [urlAction, setUrlAction] = React.useState('');
+    const [numToAdd, setNumToAdd] = React.useState(null);
     const [inputFields, setFields] = React.useState([
-        {quantity: '', product_id: '', selling_price: '', price_list_id: ''}
+        blank_field_set()
     ]);
 
     // Fetch the URL for CRUD operations from the server
@@ -59,11 +60,53 @@ function JobItemsAddForm(props){
         }
     }, [data]);
 
-    // Form-related constants. These will be used later to make sure the user doesn't go crazy adding/removing forms.
-    const MIN_FORMS = 0;
+    // Handling adding/removing extra items to the form
     const MAX_FORMS = 1000;
 
+    function add_field_set(e){
+        e.preventDefault();
+        if(inputFields.length >= MAX_FORMS){
+            return;
+        }
+        setFields([...inputFields, blank_field_set()]);
+    }
 
+    function add_n_field_sets(e){
+        e.preventDefault();
+        if(numToAdd === null){
+            return;
+        }
+        var new_fields = [];
+        var counter = 0;
+        while(counter < numToAdd){
+            new_fields.push(blank_field_set());
+            counter++;
+        }
+        
+        setFields(inputFields.concat(new_fields));
+        setNumToAdd(null);
+    }
+
+    function remove_field_set(e, index){
+        e.preventDefault();
+        setFields(inputFields.filter((o, i) => i !== index));
+    }
+
+    function blank_field_set(){
+        return {quantity: '', product_id: '', selling_price: '', price_list_id: ''};
+    }
+
+    function handle_num_add_change(e){
+        var num = e.target.value;
+        if(num < 0){
+            setNumToAdd(null);
+        }
+        setNumToAdd(num);
+    }
+
+
+
+    // Rendering
     if(error){
         return <LoadingErrorEle name='form' />
     }
@@ -86,13 +129,14 @@ function JobItemsAddForm(props){
                                             URL_GET_DATA = {props.URL_GET_DATA}
                                             data = {data}
                                             job_id = {props.job_id}
-                                            num_forms = {inputFields.length} />
+                                            num_forms = {inputFields.length}
+                                            remove_field_set = {remove_field_set} />
                 )}
 
-                <button id="add_item_btn" class="add-button"><span>add 1 more</span></button>
+                <button id="add_item_btn" class="add-button" onClick={(e) => add_field_set(e)}><span>add 1 more</span></button>
                 <div class="add-multiple">
-                    add <input type="number" id="add_multi_items" /> more
-                    <button id="add_multi_items_btn" class="button-primary">ok</button>
+                    add <input type="number" id="add_multi_items" value={numToAdd} onChange={handle_num_add_change}/> more
+                    <button id="add_multi_items_btn" class="button-primary" onClick={(e) => add_n_field_sets(e)}>ok</button>
                 </div>
                 <input type="submit" action="submit" id="items_submit_button" class="button-primary full-width-button" value="submit"></input>
             </form>
@@ -107,7 +151,9 @@ function JobItemsAddFormRow(props){
 
     return [
         <div class="form-row panel">
-            <JobItemsAddFormRowRemoveButton num_forms={props.num_forms} />
+            <JobItemsAddFormRowRemoveButton num_forms={props.num_forms}
+                                            form_index = {props.form_index}
+                                            remove_field_set = {props.remove_field_set} />
 
             <label for={id_prefix + 'quantity'}>Quantity</label>
             <input type="number" name={prefix + 'quantity'} id={id_prefix + 'quantity'} value={props.data.quantity}/>
@@ -144,7 +190,7 @@ function JobItemsAddFormRowRemoveButton(props){
     if(props.num_forms === 1){
         return null;
     }
-    return <button class="remove-item-btn delete-panel"><span>remove</span></button>
+    return <button class="remove-item-btn delete-panel" onClick={(e) => props.remove_field_set(e, props.form_index)}><span>remove</span></button>
 }
 
 
