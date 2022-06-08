@@ -1,14 +1,16 @@
 // PO section on the Job page
 
 function JobPo(props){
-    const [formVisible, setFormVisible] = React.useState(true);
+    const [formVisible, setFormVisible] = React.useState(null);
 
     return [
         <section id="job_po_section" class="item">
             <h3>Purchase Orders</h3>
             <div class="job-po-form-container">
-                <JobPoAddButton     form_vis = {formVisible} />
+                <JobPoAddButton     form_vis = {formVisible}
+                                    update_form_vis = {setFormVisible} />
                 <JobPoAddNew        form_vis = {formVisible}
+                                    update_form_vis = {setFormVisible}
                                     job_id =  {props.job_id}
                                     URL_GET_DATA = {props.URL_GET_DATA} />
             </div>
@@ -25,14 +27,20 @@ function JobPoAddButton(props){
     if(props.form_vis){
         return null;
     }
+    function show_form(){
+        props.update_form_vis(true);
+    }
     return [
-        <button id="toggle_po_form_btn" class="add-button">New PO</button>
+        <button id="toggle_po_form_btn" class="add-button" onClick={show_form}>New PO</button>
     ]
 }
 function JobPoAddNew(props){
     // Exit early if it's not wanted
-    if(!props.form_vis){
+    if(props.form_vis === null || !props.form_vis){
         return null;
+    }
+    function hide_form(){
+        props.update_form_vis(false);
     }
 
     // Fetch the action URL for Purchase Order form from server
@@ -53,7 +61,7 @@ function JobPoAddNew(props){
     }
     return [
         <form method="POST" action={actionUrl} class="form-like panel" id="po_form">
-            <button type="button" class="cancel-po-form close"><span>cancel</span></button>
+            <button type="button" class="cancel-po-form close" onClick={hide_form}><span>cancel</span></button>
             <h5 class="panel-header">Add PO</h5>
 
             <label for="id_reference">Customer PO Number:</label><input type="text" name="reference" maxlength="50" required="" id="id_reference" />

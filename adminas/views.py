@@ -19,7 +19,7 @@ from adminas.models import  PriceList, User, Job, Address, PurchaseOrder, JobIte
 from adminas.forms import   DocumentDataForm, JobForm, POForm, JobItemForm, JobItemFormSet, JobItemEditForm, \
                             JobModuleForm, JobItemPriceForm, ProductionReqForm, DocumentVersionForm, JobCommentFullForm
 from adminas.constants import DOCUMENT_TYPES, CSS_FORMATTING_FILENAME, HTML_HEADER_FILENAME, HTML_FOOTER_FILENAME, SUPPORTED_CURRENCIES, WO_CARD_CODE
-from adminas.util import anonymous_user, error_page, add_jobitem, debug, format_money, get_dict_document_builder, create_document_assignments, create_document_instructions, serialise_job_item
+from adminas.util import anonymous_user, error_page, add_jobitem, debug, format_money, get_dict_document_builder, create_document_assignments, create_document_instructions
 
 
 def login_view(request):
