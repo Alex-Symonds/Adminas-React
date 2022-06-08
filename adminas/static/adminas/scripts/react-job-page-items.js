@@ -5,21 +5,22 @@
 //      
 
 function JobItems(props){
-    const [formVisible, setFormVisible] = React.useState(props.items_data.length == 0);
-
+    const [formVisible, setFormVisible] = React.useState(null);
 
     return [
         <section id="job_items_section" class="job-section">
             <h3>Items</h3>
             <div class="job-items-container">
-                <JobItemsAddButton  form_visible = {formVisible} />
+                <JobItemsAddButton  form_visible = {formVisible}
+                                    update_form_vis = {setFormVisible} />
                 <JobItemsAddForm    form_visible = {formVisible}
+                                    update_form_vis = {setFormVisible}
                                     URL_GET_DATA = {props.URL_GET_DATA}
                                     job_id = {props.job_id} />
                 <JobItemsExisting   items_data = {props.items_data}
                                     currency={props.currency}
                                     URL_GET_DATA = {props.URL_GET_DATA}
-                                    job_id = {props.job_id}/>
+                                    job_id = {props.job_id} />
             </div>
         </section>
     ]
@@ -29,14 +30,20 @@ function JobItemsAddButton(props){
     if(props.form_visible){
         return null;
     }
-    return <button id="open_item_form_btn" class="add-button">Add Items</button>
+    function show_form(){
+        props.update_form_vis(true);
+    };
+    return <button id="open_item_form_btn" class="add-button" onClick={show_form}>Add Items</button>
 }
 
 function JobItemsAddForm(props){
     // Exit early if the form isn't needed at present
-    if(!props.form_visible){
+    if(props.form_visible === null || !props.form_visible){
         return null;
     }
+    function hide_form(){
+        props.update_form_vis(false);
+    };
 
     // Setup states for the CRUD URL and the initial formset.
     const [urlAction, setUrlAction] = React.useState('');
@@ -65,7 +72,7 @@ function JobItemsAddForm(props){
     }
     return [
         <div id="new_items_container" class="form-like panel">
-            <button id="close_item_form_btn" class="close"><span>close</span></button>
+            <button id="close_item_form_btn" class="close" onClick={hide_form}><span>close</span></button>
             <h5 class="panel-header">Add New Items</h5>
             <form method="POST" action={urlAction} id="items_form">
                 <input type="hidden" name="form-TOTAL_FORMS" value={inputFields.length} id="id_form-TOTAL_FORMS" />
@@ -148,6 +155,8 @@ function JobItemsExisting(props){
         return null;
     }
 
+    var product_slot_assignments = slot_assignment_data_by_product(props.items_data);
+
     return [
         <div class="existing-items-container">
             {
@@ -156,7 +165,8 @@ function JobItemsExisting(props){
                             data = {data}
                             currency = {props.currency}
                             job_id = {props.job_id} 
-                            URL_GET_DATA = {props.URL_GET_DATA} />
+                            URL_GET_DATA = {props.URL_GET_DATA}
+                            product_slot_data = {product_slot_assignments[data.product_id.toString()]} />
                 )
             }
         </div>
@@ -173,7 +183,8 @@ function JobItemEle(props){
             <JobItemChildModules    data = {props.data}
                                     job_id = {props.job_id}
                                     URL_GET_DATA = {props.URL_GET_DATA} />
-            <JobItemAssignments     data = {props.data} />
+            <JobItemAssignments     data = {props.data}
+                                    product_slot_data = {props.product_slot_data} />
         </div>
     ]
 }
@@ -227,7 +238,6 @@ function JobItemChildModules(props){
     if(!props.data.is_modular){
         return null;
     }
-
     var css_module_status = job_item_module_status_css(props.data);
     var heading_display_str = job_item_module_title_str(props.data);
     return [
@@ -293,9 +303,10 @@ function job_item_module_title_str(data){
 }
 
 function JobItemAssignments(props){
-    if(props.data.assignments.length == 0){
+    if(props.product_slot_data.assignments.length === 0){
         return null;
     }
+
     return [
         <div class="module-status-section assignments">
             <div class="intro-line">
@@ -303,15 +314,15 @@ function JobItemAssignments(props){
                     &laquo; Assignment
                 </span>
                 <JobItemAssignmentsCounter  display_str='used'
-                                            num = {props.data.num_assigned}
-                                            total = {props.data.total_product_quantity} />
+                                            num = {props.product_slot_data.num_assigned}
+                                            total = {props.product_slot_data.total_product_quantity} />
                 <JobItemAssignmentsCounter  display_str='unused'
-                                            num = {props.data.total_product_quantity - props.data.num_assigned}
-                                            total = {props.data.total_product_quantity} />
+                                            num = {props.product_slot_data.total_product_quantity - props.product_slot_data.num_assigned}
+                                            total = {props.product_slot_data.total_product_quantity} />
             </div>
             <ul>
                 {
-                    props.data.assignments.map((a, index) => 
+                    props.product_slot_data.assignments.map((a, index) => 
                         <JobItemAssignmentLi    key = {index}
                                                 data = {a}/>
                     )
@@ -325,7 +336,7 @@ function JobItemAssignmentsCounter(props){
     return [
         <div class="assignment-icon">
             <span class="label">{props.display_str}</span>
-            <span class="status">{props.num}/{props.total}</span>
+            <span class="status">{props.num}{props.display_str === 'used' ? "/" + props.total : ""}</span>
         </div>
     ]
 }
@@ -337,6 +348,74 @@ function JobItemAssignmentLi(props){
     ]
 }
 
+
+
+// Product-based slot assignments: rearrange "by JobItem" slot assignment information to be "by Product" instead
+function slot_assignment_data_by_product(item_list){
+    var products = get_products_list_no_assignments(item_list);
+    return populate_products_list_with_assignments(products, item_list);
+}
+
+// Product-based slot assignments, first pass: create an object containing multiple nested objects, one for each unique product.
+// Use product_id as the key for fast lookup and set total_product_quantity as you go.
+function get_products_list_no_assignments(item_list){
+    var result = {};
+
+    for(var idx in item_list){
+        var this_item = item_list[idx];
+        var prod_id_as_str = this_item.product_id.toString();
+
+        // If the product doesn't exist yet in result, add it now
+        if(!(prod_id_as_str in result)){
+            result[prod_id_as_str] = {
+                num_assigned: 0,
+                total_product_quantity: 0,
+                assignments: []
+            };
+        }
+
+        // Update num_total to take this_item into account
+        result[prod_id_as_str].total_product_quantity += parseInt(this_item.quantity);
+    }
+    return result;
+}
+
+// Products: set "assignments" and "num_assigned" by checking all the module_lists in item_list
+function populate_products_list_with_assignments(result, item_list){
+    for(var pidx in item_list){
+        var parent = item_list[pidx];
+        if(parent.module_list != null && parent.module_list.length > 0){
+
+            for(var midx in parent.module_list){
+                var child_prod_id_as_str = parent.module_list[midx].product_id.toString();
+                
+                // If there is no field in result for the child at this stage, something went wrong
+                if(!(child_prod_id_as_str in result)){
+                    console.log('ERR: Products[] creation, missing product');
+                    break;
+                }
+                // Update the child product's "num_assigned" and "assignments".
+                else{
+                    // Modules store quantities on a "per parent item" basis, so multiply by parent.quantity to get the total
+                    var total_used = parent.module_list[midx].quantity * parent.quantity;
+                    result[child_prod_id_as_str].num_assigned += total_used;
+
+                    // Setup an object with all the data needed to display this assignment under the child item
+                    var assignment = {
+                        quantity: total_used,
+                        parent_qty: parent.quantity,
+                        part_num: parent.part_number,
+                        product_name: parent.product_name,
+                        parent_id: parent.ji_id
+                    };
+
+                    result[child_prod_id_as_str].assignments.push(assignment);
+                }
+            }
+        }
+    }
+    return result;
+}
 
 
 

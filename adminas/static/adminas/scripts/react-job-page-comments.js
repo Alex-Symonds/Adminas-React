@@ -42,7 +42,7 @@ function JobCommentsSubsection(props){
     var filtered_comments = filter_comments(props.comments, props.css_class);
 
     if (filtered_comments.length == 0){
-        var content = <p class="empty-section-notice">No comments have been { props.css_class }</p>;
+        var content = <p class="empty-section-notice">No comments have been { props.css_class }.</p>;
     }
     else {
         var content = <CommentsBlock comments={filtered_comments} />

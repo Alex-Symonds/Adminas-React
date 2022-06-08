@@ -79,7 +79,7 @@ function JobPriceCheckDetails(props){
                 <tbody>
                     {
                         props.data.map((item) => 
-                            <JobPriceCheckDetailsRow  key={item.ji_id.toString()}
+                            <JobPriceCheckDetailsRow    key={item.ji_id.toString()}
                                                         data={item}/>
                         )
                     }

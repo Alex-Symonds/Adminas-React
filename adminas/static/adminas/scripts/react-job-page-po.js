@@ -14,9 +14,9 @@ function JobPo(props){
             </div>
             <JobPoDiscrepancy   currency = {props.currency}
                                 data = {props.po_data}
-                                num_po = {props.po_data.po_list.length} />
+                                num_po = {props.po_list.length} />
             <JobPoList          currency = {props.currency} 
-                                po_list = {props.po_data.po_list} />
+                                po_list = {props.po_list} />
         </section>
     ]
 }
@@ -106,7 +106,7 @@ function JobPoDiscrepancy(props){
 // Actual list of POs
 function JobPoList(props){
     if(props.po_list.length === 0){
-        return <p>No purchase orders have been entered against this job.</p>
+        return <p class="empty-section-notice">No purchase orders have been entered.</p>
     }
 
     return [
