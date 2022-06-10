@@ -134,3 +134,14 @@ function format_percentage(perc){
     return perc.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) + '%';
 }
 
+function SubmitButton(props){
+    return <button class="button-primary" onClick={ props.submit }>submit</button>
+
+}
+
+function DeleteButton(props){
+    if(!props.user_has_permission){
+        return null;
+    }
+    return <button class="button-warning delete-btn" onClick={ props.delete }>delete</button>
+}

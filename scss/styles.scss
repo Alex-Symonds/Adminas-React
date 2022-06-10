@@ -1168,6 +1168,52 @@ nav{
         }
     }
 }
+
+.job-comment-cu-container{
+    background: v.$c_tone_02;
+    padding: 2px 5px 0;
+
+    h4{
+        margin: 5px 0 0;
+        background: transparent;
+        padding: 5px;
+    }
+
+    textarea{
+        padding: 8px;
+        width: calc(100% - 18px);
+    }
+
+    .checkbox-container{
+        background: v.$c_tone_01;
+        border: 1px solid v.$c_tone_00;
+        border-radius: 3px;
+        
+        padding: 3px 0 0;
+        width: calc(100% - 3px);
+        height: 1.5rem;
+
+        display: flex;
+        flex: row;
+        align-content: flex-start;
+
+        label{
+            margin: 0.15rem 0 0.25rem 0.4rem;
+            padding: 0;
+            font-size: 0.85rem;
+            font-weight: normal;
+            border: none;
+        }
+        input{
+            margin: 1px 0 0 7px;
+        }
+        #id_private_checkbox, #id_pinned_checkbox{
+            margin-right: 1.9rem;
+        }
+
+    }
+}
+
 @keyframes expand_comment_controls{
     from {
         width: 26px;

@@ -935,6 +935,44 @@ nav li a:hover {
   background-position: 4px 4px;
 }
 
+.job-comment-cu-container {
+  background: #444;
+  padding: 2px 5px 0;
+}
+.job-comment-cu-container h4 {
+  margin: 5px 0 0;
+  background: transparent;
+  padding: 5px;
+}
+.job-comment-cu-container textarea {
+  padding: 8px;
+  width: calc(100% - 18px);
+}
+.job-comment-cu-container .checkbox-container {
+  background: #222;
+  border: 1px solid #141414;
+  border-radius: 3px;
+  padding: 3px 0 0;
+  width: calc(100% - 3px);
+  height: 1.5rem;
+  display: flex;
+  flex: row;
+  align-content: flex-start;
+}
+.job-comment-cu-container .checkbox-container label {
+  margin: 0.15rem 0 0.25rem 0.4rem;
+  padding: 0;
+  font-size: 0.85rem;
+  font-weight: normal;
+  border: none;
+}
+.job-comment-cu-container .checkbox-container input {
+  margin: 1px 0 0 7px;
+}
+.job-comment-cu-container .checkbox-container #id_private_checkbox, .job-comment-cu-container .checkbox-container #id_pinned_checkbox {
+  margin-right: 1.9rem;
+}
+
 @keyframes expand_comment_controls {
   from {
     width: 26px;

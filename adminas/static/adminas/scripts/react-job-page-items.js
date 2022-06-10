@@ -113,30 +113,45 @@ function JobItemsAddForm(props){
     else if (!isLoaded){
         return <LoadingEle />
     }
+    return <JobItemsAddFormRender   hide_form = { hide_form }
+                                    url_action = { urlAction }
+                                    input_fields = { inputFields }
+                                    URL_GET_DATA = {props.URL_GET_DATA}
+                                    job_id = {props.job_id}
+                                    remove_field_set = { remove_field_set }
+                                    add_field_set = { add_field_set }
+                                    add_n_field_sets = { add_n_field_sets }
+                                    num_to_add = { numToAdd }
+                                    handle_num_add_change = { handle_num_add_change }
+    />
+    
+}
+
+function JobItemsAddFormRender(props){
     return [
         <div id="new_items_container" class="form-like panel">
-            <button id="close_item_form_btn" class="close" onClick={hide_form}><span>close</span></button>
+            <button id="close_item_form_btn" class="close" onClick={props.hide_form}><span>close</span></button>
             <h5 class="panel-header">Add New Items</h5>
-            <form method="POST" action={urlAction} id="items_form">
-                <input type="hidden" name="form-TOTAL_FORMS" value={inputFields.length} id="id_form-TOTAL_FORMS" />
+            <form method="POST" action={props.url_action} id="items_form">
+                <input type="hidden" name="form-TOTAL_FORMS" value={props.input_fields.length} id="id_form-TOTAL_FORMS" />
                 <input type="hidden" name="form-INITIAL_FORMS" value="0" id="id_form-INITIAL_FORMS" />
                 <input type="hidden" name="form-MIN_NUM_FORMS" value="0" id="id_form-MIN_NUM_FORMS" />
                 <input type="hidden" name="form-MAX_NUM_FORMS" value="1000" id="id_form-MAX_NUM_FORMS" />
         
-                {inputFields.map((data, index) =>
+                {props.input_fields.map((data, index) =>
                     <JobItemsAddFormRow     key = {index}
                                             form_index = {index}
                                             URL_GET_DATA = {props.URL_GET_DATA}
                                             data = {data}
                                             job_id = {props.job_id}
-                                            num_forms = {inputFields.length}
-                                            remove_field_set = {remove_field_set} />
+                                            num_forms = {props.input_fields.length}
+                                            remove_field_set = {props.remove_field_set} />
                 )}
 
-                <button id="add_item_btn" class="add-button" onClick={(e) => add_field_set(e)}><span>add 1 more</span></button>
+                <button id="add_item_btn" class="add-button" onClick={props.add_field_set}><span>add 1 more</span></button>
                 <div class="add-multiple">
-                    add <input type="number" id="add_multi_items" value={numToAdd} onChange={handle_num_add_change}/> more
-                    <button id="add_multi_items_btn" class="button-primary" onClick={(e) => add_n_field_sets(e)}>ok</button>
+                    add <input type="number" id="add_multi_items" value={props.num_to_add} onChange={props.handle_num_add_change}/> more
+                    <button id="add_multi_items_btn" class="button-primary" onClick={props.add_n_field_sets}>ok</button>
                 </div>
                 <input type="submit" action="submit" id="items_submit_button" class="button-primary full-width-button" value="submit"></input>
             </form>
