@@ -295,13 +295,13 @@ function CommentEditor(props){
     function handle_content_change(e){
         setContents(e.target.value);
     }
-    function toggle_private(e){
+    function update_private(e){
         setPrivate(e.target.checked);
     }
-    function toggle_pinned(e){
+    function update_pinned(e){
         setPinned(e.target.checked);
     }
-    function toggle_highlighted(e){
+    function update_highlighted(e){
         setHighlighted(e.target.checked);
     }
 
@@ -330,16 +330,15 @@ function CommentEditor(props){
             <textarea id="id_comment_contents" name="contents" cols="30" rows="5" value={contents} onChange={handle_content_change}></textarea>
             <CommentEditorCheckboxes    c = {props.comment} 
                                         is_private = { isPrivate }
-                                        handle_private_change = { toggle_private }
+                                        handle_private_change = { update_private }
                                         is_pinned = { isPinned }
-                                        handle_pinned_change =  { toggle_pinned }
+                                        handle_pinned_change =  { update_pinned }
                                         is_highlighted = { isHighlighted }
-                                        handle_highlighted_change = { toggle_highlighted }
+                                        handle_highlighted_change = { update_highlighted }
                                          />
-            <CommentEditorControls      c = {props.comment} 
-                                        submit_edits = { submit_comment }
-                                        delete_comment = { delete_comment }
-                                        />
+            <EditorControls     submit = { submit_comment }
+                                delete = { delete_comment }
+                                />
         </div>
     ]
 }
@@ -361,13 +360,3 @@ function CommentEditorCheckboxes(props){
     ]
 }
 
-// Comment Editor: the submit and delete buttons
-function CommentEditorControls(props){
-    return [
-        <div class="controls">
-            <SubmitButton   submit = { props.submit_edits }/>
-            <DeleteButton   delete = { props.delete_comment } 
-                            user_has_permission = { true }  />
-        </div>
-    ]
-}

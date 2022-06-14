@@ -808,14 +808,28 @@ def items(request):
     # User is fiddling with the product dropdown, so send them the description of the current item
     # in the language chosen for this job.
     elif request.method == 'GET':
-        product_id = request.GET.get('product_id')
-        job_id = request.GET.get('job_id')
-        lang = Job.objects.get(id=job_id).language
-        description = Product.objects.get(id=product_id).get_description(lang)
+        if 'product_id' in  request.GET:
+            product_id = request.GET.get('product_id')
+            job_id = request.GET.get('job_id')
+            lang = Job.objects.get(id=job_id).language
+            description = Product.objects.get(id=product_id).get_description(lang)
 
-        return JsonResponse({
-            'desc': description
-        }, status=200)        
+            return JsonResponse({
+                'desc': description
+            }, status=200)
+
+        elif 'ji_id' in request.GET:
+            ji_id = request.GET.get('ji_id')
+
+            try:
+                ji = JobItem.objects.get(ji_id)
+            except:
+                return JsonResponse({
+                    'error': 'JobItem not found'
+                }, status=404)
+
+            return JsonResponse(ji.serialise(), status=200)
+
 
 
 def manage_modules(request, job_id):
@@ -1088,7 +1102,6 @@ def get_data(request):
 
             this_job = Job.objects.get(id=job_id)
             response_data = {}
-            response_data['items_url'] = reverse('items')
             response_data['module_management_url'] = reverse('manage_modules', kwargs={'job_id': this_job.id})
             response_data['po_url'] = reverse('purchase_order')
 
@@ -1153,6 +1166,9 @@ def get_data(request):
                     'currency': this_job.currency,
                     'doc_quantities': this_job.all_documents_item_quantities()
                 }
+
+                # "Main" needs this to update items state; JobItems section needs it for the form
+                response_data['items_url'] = reverse('items')
                 
                 # Remaining top-level dict fields correspond to a state, since they can be changed on the Job page
                 response_data['price_accepted'] = this_job.price_is_ok

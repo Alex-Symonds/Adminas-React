@@ -10,6 +10,7 @@ function JobPage(){
                                         currency: '',
                                         doc_quantities: []
                                     });
+    const [urlItems, setUrlItems] = React.useState('');
 
     // These states can be changed on the job page
     const [itemsList, setItemsList] = React.useState([]);
@@ -35,6 +36,10 @@ function JobPage(){
         if(typeof data.main !== 'undefined'){
             setJobMain(data.main);
         }
+
+        if(typeof data.items_url !== 'undefined'){
+            setUrlItems(data.items_url);
+        }
     }, [data]);
 
 
@@ -52,7 +57,7 @@ function JobPage(){
     // State-derived variables relating to money
     var total_po_value = poList.reduce((prev_total_val, po) => { return parseFloat(po.value) + prev_total_val }, 0);
     var total_items_value = itemsList.reduce((prev_total_val, item) => { return parseFloat(item.selling_price) + prev_total_val }, 0);
-    var total_items_list_price = itemsList.reduce((prev_total_val, item) => { return parseFloat(item.list_price) + prev_total_val }, 0);
+    var total_items_list_price = itemsList.reduce((prev_total_val, item) => { return (parseFloat(item.list_price_each) * parseInt(item.quantity) ) + prev_total_val }, 0);
     var value_difference_po_vs_items = total_po_value - total_items_value;
 
     // State-derived variables for modular item support
@@ -64,6 +69,84 @@ function JobPage(){
     // var items_data = get_items_data_object(itemList);
     var status_data = get_status_data_object(priceAccepted, special_item_exists, incomplete_item_exists,  poList.length, value_difference_po_vs_items, jobMain.doc_quantities, total_qty_all_items);
     var po_data = get_po_data_object(value_difference_po_vs_items, total_items_value, total_po_value, poList);
+
+
+    // || Updating states
+    function update_item(item_id, item_attributes){
+        console.log(`Updating item ID #${item_id} with this:`);
+        console.log(item_attributes);
+        var index = itemsList.findIndex(i => i.ji_id === parseInt(item_id));
+        if(index === -1){
+            return;
+        }
+
+        // If the user just changed the product ID or price list ID, this will have implications for multiple other fields,
+        // so grab a full set of fresh data from the server.
+        var target_item = itemsList[index];
+        if('product_id' in item_attributes || 'price_list_id' in item_attributes){
+            var product_changed = 'product_id' in item_attributes && target_item.product_id != item_attributes.product_id;
+            var price_list_changed = 'price_list_id' in item_attributes && target_item.price_list_id != item_attributes.price_list_id;
+
+            if(product_changed || price_list_changed){
+                // const { data, error, isLoaded } = useFetch(`${urlItems}?ji_id=${item_id}`;
+                // request full set of item info from BE
+                // item_attributes = the entire JSON string sent by the server
+                console.log(`PLACEHOLDER: FETCH DATA FOR ITEM ID#${item_id}`);
+                item_attributes.description = 'placeholder for a new desc from server';
+                item_attributes.price_list_name = 'PLC1234.05';
+            }
+
+        }
+
+        setItemsList([
+            ...itemsList.slice(0, index),
+            Object.assign(itemsList[index], item_attributes),
+            ...itemsList.slice(index + 1)
+        ]);
+    }
+
+    function delete_item(item_id){
+        var index = itemsList.findIndex(i => i.id === parseInt(item_id));
+        if(index === -1){
+            return;
+        }
+        setItemsList([
+            ...itemsList.slice(0, index),
+            ...itemsList.slice(index + 1)
+        ]);  
+    }
+
+    function update_po(po_id, po_attributes){
+        var index = poList.findIndex(po => po.po_id === parseInt(po_id));
+        if(index === -1){
+            return;
+        }
+
+        setPoList([
+            ...poList.slice(0, index),
+            Object.assign(poList[index], po_attributes),
+            ...poList.slice(index + 1)
+        ]);
+    }
+
+    function delete_po(po_id){
+        var index = poList.findIndex(i => i.po_id === parseInt(po_id));
+        if(index === -1){
+            return;
+        }
+        setPoList([
+            ...poList.slice(0, index),
+            ...poList.slice(index + 1)
+        ]);
+
+    }
+
+    function update_price_accepted(is_accepted){
+        setPriceAccepted(is_accepted);
+    }
+
+
+
 
     // || Display. Handle fetch states, then go for the main event.
     if(error){
@@ -88,7 +171,13 @@ function JobPage(){
                             po_list = {poList}
                             price_accepted = {priceAccepted}
                             total_list = {total_items_list_price}
-                            total_selling = {total_items_value} />
+                            total_selling = {total_items_value}
+                            update_item = { update_item }
+                            delete_item = { delete_item }
+                            URL_ITEMS = { urlItems }
+                            update_po = { update_po }
+                            delete_po = { delete_po }
+                            update_price_accepted = { update_price_accepted } />
         </div>
     ]
 }
@@ -110,18 +199,27 @@ function JobContents(props){
             <JobItems   job_id = {props.job_id}
                         URL_GET_DATA = {props.URL_GET_DATA}
                         items_data = {props.items_data}
-                        currency = {props.currency}/>
+                        currency = {props.currency}
+                        update_item = { props.update_item }
+                        delete_item = { props.delete_item }
+                        URL_ITEMS = { props.URL_ITEMS } />
             <section class="job-section pair-related">
                 <JobPo  job_id = {props.job_id}
                         currency = {props.currency}
                         po_data = {props.po_data}
                         po_list = {props.po_list}
-                        URL_GET_DATA = {props.URL_GET_DATA} />
+                        URL_GET_DATA = {props.URL_GET_DATA}
+                        update_po = { props.update_po }
+                        delete_po = { props.delete_po }
+                        />
                 <JobPriceCheck      currency = {props.currency}
                                     price_accepted = {props.price_accepted}
                                     total_list = {props.total_list}
                                     total_selling = {props.total_selling}
-                                    items_data = {props.items_data}/>
+                                    items_data = {props.items_data}
+                                    update_item = { props.update_item }
+                                    update_price_accepted = { props.update_price_accepted }
+                                    />
             </section>  
         </div>
     ];

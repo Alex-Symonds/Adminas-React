@@ -26,20 +26,22 @@ function get_placeholder_options(){
     ]
 }
 
+// Create a <select> element with a list of valid options obtained from the backend.
+// onChange it calls "props.handle_change(e.target)" so the parent can extract whatever info is needed from the <select> element.
 function SelectBackendOptions(props){
     const url = props.api_url + '?type=select_options_list&name=' + props.get_param;
     const { data, error, isLoaded } = useFetch(url);
     if(error){
-        return <div>Error loading dropdown.</div>
+        return <LoadingErrorEle />
     }
     
     else if (typeof data.opt_list === 'undefined'){
-        return <div>Loading...</div>
+        return <LoadingEle />
     }
 
     else{
         return [
-            <select name={props.select_name} id={props.select_id} required={props.is_required}>
+            <select name={props.select_name} id={props.select_id} required={props.is_required} onChange={(e) => props.handle_change(e.target)}>
                 <OptionEmptyDefault default_id = {props.default_id} selected_opt_id = {props.selected_opt_id}/>
                 {
                     data.opt_list.map((option) => {
@@ -135,13 +137,30 @@ function format_percentage(perc){
 }
 
 function SubmitButton(props){
+    // Needs submit()
     return <button class="button-primary" onClick={ props.submit }>submit</button>
-
 }
 
 function DeleteButton(props){
+    // Needs "user_has_permission" boolean (false = don't render) and delete()
     if(!props.user_has_permission){
         return null;
     }
     return <button class="button-warning delete-btn" onClick={ props.delete }>delete</button>
+}
+
+function CancelButton(props){
+    // Needs cancel() for onClick
+    return <button class="close" onClick = { props.cancel }><span>close</span></button>
+}
+
+function EditorControls(props){
+    // Needs sumbit() and delete()
+    return [
+        <div class="controls">
+            <SubmitButton   submit = { props.submit }/>
+            <DeleteButton   delete = { props.delete } 
+                            user_has_permission = { true }  />
+        </div>
+    ]
 }

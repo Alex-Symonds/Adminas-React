@@ -399,6 +399,7 @@ class PurchaseOrder(AdminAuditTrail):
         result['value'] = self.value
         result['date_received'] = self.date_received
         result['po_id'] = self.id
+        result['currency'] = self.currency
         return result
 
     def __str__(self):
@@ -1046,14 +1047,12 @@ class JobItem(AdminAuditTrail):
         # How much
         result['quantity'] = self.quantity
         result['selling_price'] = self.selling_price
-        result['list_price'] = self.list_price()
+        result['list_price_each'] = Price.objects.filter(currency=self.job.currency).filter(price_list=self.price_list).get(product=self.product).value
         result['resale_perc'] = self.resale_percentage()
 
         # Associated price list
-        prl_dict = {}
-        prl_dict['id'] = self.price_list.id
-        prl_dict['name'] = self.price_list.name
-        result['price_list'] = prl_dict
+        result['price_list_id'] = self.price_list.id
+        result['price_list_name'] = self.price_list.name
 
         # Standard Accessories
         result['standard_accessories'] = []
