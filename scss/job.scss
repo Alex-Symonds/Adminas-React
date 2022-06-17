@@ -265,7 +265,7 @@
             width: 100%;
 
             margin: 0;
-            padding: 0;
+            padding: 0 0.6rem 0 0;
             text-decoration: none;
 
             border-radius: 1rem;
@@ -277,6 +277,14 @@
 
             &:hover{
                 background: v.$c_tone_02;
+            }
+        }
+
+        &.invalid a{
+            background: v.$c_tone_02;
+
+            &:hover{
+                background: v.$c_tone_03;
             }
         }
 
@@ -330,6 +338,25 @@
                     color: v.$c_tone_00;
                     background: v.$c_accent;
                     border-color: v.$c_accent_04;
+                }
+            }
+        }
+
+        &.invalid a{
+            border-color: v.$c_warning;
+            color: v.$c_txt_warning_g;
+
+            .icon{
+                border-color: v.$c_warning;
+            }
+
+            &:hover{
+                border-color: v.$c_warning_bright;
+
+                .icon{
+                    color: v.$c_txt_warning_g;
+                    background: v.$c_warning;
+                    border-color: v.$c_warning_bright;
                 }
             }
         }

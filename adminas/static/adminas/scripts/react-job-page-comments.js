@@ -338,6 +338,7 @@ function CommentEditor(props){
                                          />
             <EditorControls     submit = { submit_comment }
                                 delete = { delete_comment }
+                                want_delete = { true }
                                 />
         </div>
     ]

@@ -81,6 +81,7 @@ function JobPoAddNew(props){
                         currency = {props.currency}
                         value = {null}
                         job_id = {props.job_id}
+                        po_id = { null }
                         />
 }
 
@@ -121,6 +122,10 @@ function JobPoEditor(props){
         props.cancel();
     }
 
+    function handle_delete(){
+        props.handle_delete();
+    }
+
     return [
         <form class="form-like panel" id={props.form_id} onSubmit={handle_submit}>
             <button type="button" class="cancel-po-form close" onClick={props.cancel}><span>cancel</span></button>
@@ -143,11 +148,12 @@ function JobPoEditor(props){
                                     handle_change = {update_currency} />
             <label for="id_value">Value:</label><input type="number" name="value" step="0.01" required="" id="id_value" value={poValue} onChange={update_po_value}/>
             <input type="hidden" name="job" value={props.job_id} id="id_job" />
-            <div class="controls">
-                <input type='submit' action='submit' id='po_submit_button' value='submit' class='button-primary' />
-            </div>
+            <EditorControls submit = { handle_submit }
+                            delete = { handle_delete }
+                            want_delete = { props.po_id !== null } />
         </form>
     ]
+
 }
 
 
@@ -214,13 +220,17 @@ function JobPoElement(props){
         props.update_po(props.data.po_id, po_attributes);
     }
 
+    function handle_delete(){
+        props.delete_po(props.data.po_id);
+    }
+
     // If edit mode is active, display the form (form has its own component, for easy sharing with Add PO)
     if(props.active_edit === props.data.po_id){
         return <JobPoEditor URL_ACTION = { null }
                             URL_GET_DATA = { props.URL_GET_DATA }
                             form_id = 'po_edit_form'
                             cancel = { hide_form }
-                            title = 'Edit PO'
+                            title = 'Edit PO asdf'
                             reference = { props.data.reference }
                             date_on_po = { props.data.date_on_po }
                             date_received = { props.data.date_received }
@@ -228,6 +238,8 @@ function JobPoElement(props){
                             value = { props.data.value }
                             job_id = { props.job_id }
                             handle_submit = { handle_edit }
+                            handle_delete = { handle_delete }
+                            po_id = { props.data.po_id }
                         />
     }
 

@@ -18,13 +18,15 @@ function JobItems(props){
                                     update_form_vis = {setFormVisible}
                                     URL_GET_DATA = {props.URL_GET_DATA}
                                     job_id = {props.job_id}
-                                    URL_ITEMS = { props.URL_ITEMS } />
+                                    URL_ITEMS = { props.URL_ITEMS }
+                                    add_new_items = { props.add_new_items } />
                 <JobItemsExisting   items_data = {props.items_data}
                                     currency={props.currency}
                                     URL_GET_DATA = {props.URL_GET_DATA}
                                     job_id = {props.job_id}
                                     update_item = { props.update_item }
-                                    delete_item = { props.delete_item } />
+                                    delete_item = { props.delete_item }
+                                    update_doc_state = { props.update_doc_state } />
             </div>
         </section>
     ]
@@ -103,15 +105,20 @@ function JobItemsAddForm(props){
         setNumToAdd(num);
     }
 
-
-
-    // Rendering
-    if(error){
-        return <LoadingErrorEle name='form' />
+    function update_fields(index, fld_attributes){
+        setFields([
+            ...inputFields.slice(0, index),
+            Object.assign(inputFields[index], fld_attributes),
+            ...inputFields.slice(index + 1)
+        ]);
     }
-    else if (!isLoaded){
-        return <LoadingEle />
+
+    function handle_submit(e){
+        e.preventDefault;
+        props.add_new_items(inputFields);
+        hide_form();
     }
+
     return <JobItemsAddFormRender   hide_form = { hide_form }
                                     URL_ITEMS = { props.URL_ITEMS }
                                     input_fields = { inputFields }
@@ -122,16 +129,19 @@ function JobItemsAddForm(props){
                                     add_n_field_sets = { add_n_field_sets }
                                     num_to_add = { numToAdd }
                                     handle_num_add_change = { handle_num_add_change }
+                                    update_form = {update_fields}
+                                    handle_submit = {handle_submit}
     />
     
 }
 
 function JobItemsAddFormRender(props){
+    //<form method="POST" action={props.URL_ITEMS} id="items_form">
     return [
         <div id="new_items_container" class="form-like panel">
             <button id="close_item_form_btn" class="close" onClick={props.hide_form}><span>close</span></button>
             <h5 class="panel-header">Add New Items</h5>
-            <form method="POST" action={props.URL_ITEMS} id="items_form">
+            <form id="items_form" onSubmit={e => props.handle_submit(e)}>
                 <input type="hidden" name="form-TOTAL_FORMS" value={props.input_fields.length} id="id_form-TOTAL_FORMS" />
                 <input type="hidden" name="form-INITIAL_FORMS" value="0" id="id_form-INITIAL_FORMS" />
                 <input type="hidden" name="form-MIN_NUM_FORMS" value="0" id="id_form-MIN_NUM_FORMS" />
@@ -144,7 +154,8 @@ function JobItemsAddFormRender(props){
                                             data = {data}
                                             job_id = {props.job_id}
                                             num_forms = {props.input_fields.length}
-                                            remove_field_set = {props.remove_field_set} />
+                                            remove_field_set = {props.remove_field_set}
+                                            update_form = {props.update_form} />
                 )}
 
                 <button id="add_item_btn" class="add-button" onClick={props.add_field_set}><span>add 1 more</span></button>
@@ -163,35 +174,45 @@ function JobItemsAddFormRow(props){
     var prefix = 'form-' + props.form_index + '-';
     var id_prefix = 'id_' + prefix;
 
+    function update_quantity(new_qty){
+        var attr = {quantity: new_qty};
+        update_form(attr);
+    }
+    function update_price(new_price){
+        var attr = {selling_price: new_price};
+        update_form(attr);
+    }
+    function update_product(new_product){
+        var attr = {product_id: new_product};
+        update_form(attr);
+    }
+    function update_price_list(new_price_list){
+        var attr = {price_list_id: new_price_list};
+        update_form(attr);
+    }
+
+    function update_form(new_attr){
+        props.update_form(props.form_index, new_attr);
+    }
+
     return [
         <div class="form-row panel">
             <JobItemsAddFormRowRemoveButton num_forms={props.num_forms}
                                             form_index = {props.form_index}
                                             remove_field_set = {props.remove_field_set} />
 
-            <label for={id_prefix + 'quantity'}>Quantity</label>
-            <input type="number" name={prefix + 'quantity'} id={id_prefix + 'quantity'} value={props.data.quantity}/>
-
-            <label for={id_prefix + 'product'}>Item</label>
-            <SelectBackendOptions   select_id = {id_prefix + 'product'}
-                                    select_name = {prefix + 'product'}
-                                    is_required = {false}
-                                    api_url = {props.URL_GET_DATA}
-                                    get_param = 'products'
-                                    selected_opt_id = {props.data.product_id}
-                                    default_opt_id = {null} />
-
-            <label for={id_prefix + 'selling_price'}>Selling Price</label>
-            <input type="number" name={prefix + 'selling_price'} step="0.01" id={id_prefix + 'selling_price'} value={props.data.selling_price}/>
-
-            <label for={id_prefix + 'price_list'}>Price List</label>
-            <SelectBackendOptions   select_id = {id_prefix + 'price_list'}
-                                    select_name = {prefix + 'price_list'}
-                                    is_required = {false}
-                                    api_url = {props.URL_GET_DATA}
-                                    get_param = 'price_lists'
-                                    selected_opt_id = {props.data.price_list_id}
-                                    default_opt_id = {null} />
+            <JobItemFormFields  id_prefix = ''
+                                prefix = ''
+                                URL_GET_DATA = { props.URL_GET_DATA }
+                                quantity = { props.data.quantity }
+                                selling_price = { props.data.selling_price }
+                                product_id = { props.data.product_id }
+                                price_list_id = { props.data.price_list_id }
+                                change_quantity = { update_quantity }
+                                change_price = { update_price }
+                                change_product = { update_product }
+                                change_price_list = { update_price_list }
+                                />
 
             <input type="hidden" name={prefix + 'job'} value={props.job_id} id={id_prefix + 'job'} />
         </div>
@@ -233,10 +254,11 @@ function JobItemsExisting(props){
                             job_id = {props.job_id} 
                             URL_GET_DATA = {props.URL_GET_DATA}
                             product_slot_data = {product_slot_assignments[data.product_id.toString()]}
-                            set_active_edit = { setActiveEdit }
+                            set_active_edit = { update_active_edit }
                             active_edit = { activeEdit }
                             update_item = { props.update_item }
                             delete_item = { props.delete_item }
+                            update_doc_state = { props.update_doc_state }
                             />
                 )
             }
@@ -256,12 +278,17 @@ function JobItemEle(props){
         }
     }
 
+    function delete_item(){
+        props.delete_item(props.data.ji_id);
+    }
+
     if(props.active_edit === props.data.ji_id){
         return <JobItemEditor   edit_mode = { edit_mode }
                                 data = {props.data}
                                 URL_GET_DATA = {props.URL_GET_DATA}
                                 update_item = { props.update_item }
-                                delete_item = { props.delete_item }
+                                delete_item = { delete_item }
+                                update_doc_state = { props.update_doc_state }
                                 />
     }
 
@@ -519,17 +546,16 @@ function JobItemEditor(props){
     const [productId, setProductId] = React.useState(props.data.product_id);
     const [priceListId, setPriceListId] = React.useState(props.data.price_list_id);
 
+    // const [prevQuantity, setPrevQuantity] = React.useState(null);
+
+    const [backendError, setBackendError] = React.useState(null);
+
     function update_quantity(new_qty){
-        if(new_qty === ''){
-            new_qty = 0;
-        }
+        // setPrevQuantity(quantity);
         setQuantity(new_qty);
     }
 
     function update_selling_price(new_price){
-        if(new_price === ''){
-            new_price = 0;
-        }
         setSellingPrice(new_price);
     }
 
@@ -541,25 +567,76 @@ function JobItemEditor(props){
         setPriceListId(new_price_list_id);
     }
 
-    function handle_submit(){
-        var state_as_object = {
+    const save_item = () => {
+        const url = `/items?id=${props.data.ji_id}`;
+        var headers = getFetchHeaders('PUT', state_to_object_be());
+
+        fetch(url, headers)
+        .then(response => response.json())
+        .then(resp_json => {
+            var message = null;
+            if('message' in resp_json){
+                message = resp_json.message;
+            }
+            setBackendError(message);
+
+            if('ok' in resp_json){
+                // The backend permits users to edit items such that it messes up documents,
+                // so long as only draft documents are affected.
+                // Draft documents are pretty flexible, so only edits to quantity can cause issues.
+                // To find out if the quantity changed obviously we need the previous state for
+                // comparison, so let's sort that out before updating the item's state.
+                if(quantity != props.data.quantity){
+                    props.update_doc_state();
+                }
+
+                // With that sorted, proceed with the main event and tidying up
+                props.update_item(props.data.ji_id, state_to_object_fe());
+                props.edit_mode(false);
+            }
+        })
+        .catch(error => console.log(error))
+    };
+
+
+    function state_to_object_be(){
+        return {
+            quantity: quantity,
+            selling_price: sellingPrice,
+            product: productId,
+            price_list: priceListId
+        }
+    }
+
+    function state_to_object_fe(){
+        return {
             quantity: quantity,
             selling_price: sellingPrice,
             product_id: productId,
             price_list_id: priceListId
         };
-        props.update_item(props.data.ji_id, state_as_object);
-        props.edit_mode(false);
+    }
+
+    function handle_submit(e){
+        e.preventDefault();
+        save_item();
     }
 
     function handle_delete(){
         props.delete_item(props.data.ji_id);
+        props.edit_mode(false);
+    }
+
+    function remove_error(){
+        setBackendError(null);
     }
 
     return [
         <div id="container_edit_item" class="panel form-like">
             <CancelButton cancel = { () => props.edit_mode(false) } />
             <h5 class="panel-header">Edit Item</h5>
+            <BackendError   message = {backendError}
+                            turn_off_error = { remove_error } />
             <JobItemFormFields  id_prefix = ''
                                 prefix = ''
                                 URL_GET_DATA = { props.URL_GET_DATA }
@@ -574,7 +651,7 @@ function JobItemEditor(props){
                                 />
             <EditorControls     submit = { handle_submit }
                                 delete = { handle_delete }
-                                user_has_permission = {true}
+                                want_delete = { true }
                                 />
         </div>
     ]

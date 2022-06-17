@@ -162,7 +162,7 @@
   justify-content: space-between;
   width: 100%;
   margin: 0;
-  padding: 0;
+  padding: 0 0.6rem 0 0;
   text-decoration: none;
   border-radius: 1rem;
   border-top-left-radius: 0.2rem;
@@ -172,6 +172,12 @@
 }
 .job-doc-section li a:hover {
   background: #444;
+}
+.job-doc-section li.invalid a {
+  background: #444;
+}
+.job-doc-section li.invalid a:hover {
+  background: #666;
 }
 .job-doc-section li .icon {
   display: block;
@@ -213,6 +219,21 @@
   color: #141414;
   background: #00D4F5;
   border-color: #6bfaff;
+}
+.job-doc-section li.invalid a {
+  border-color: #cf0000;
+  color: white;
+}
+.job-doc-section li.invalid a .icon {
+  border-color: #cf0000;
+}
+.job-doc-section li.invalid a:hover {
+  border-color: red;
+}
+.job-doc-section li.invalid a:hover .icon {
+  color: white;
+  background: #cf0000;
+  border-color: red;
 }
 .job-doc-section li .name {
   padding: 0.3rem 0.7rem;

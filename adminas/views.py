@@ -718,62 +718,73 @@ def items(request):
                 }, status=400)
         
             # Store the original values for the product and quantity so that we can check if they've changed
-            previous_product = ji.product
-            previous_qty = ji.quantity
+            # previous_product = ji.product
+            # previous_qty = ji.quantity
+            updated_product = form.cleaned_data['product']
+            updated_qty = form.cleaned_data['quantity']
+            updated_selling_price = form.cleaned_data['selling_price']
 
             # Prepare the updated JobItem in accordance with the proposed edit, but don't save it yet
-            ji.quantity = form.cleaned_data['quantity']
-            ji.product = form.cleaned_data['product']
-            ji.selling_price = form.cleaned_data['selling_price']
-            ji.price_list = form.cleaned_data['price_list']
+            # ji.quantity = form.cleaned_data['quantity']
+            # ji.product = form.cleaned_data['product']
+            # ji.selling_price = form.cleaned_data['selling_price']
+            # ji.price_list = form.cleaned_data['price_list']
 
             # Identify if the proposed edit touches on anything that requires a special response
-            product_has_changed = previous_product != ji.product
-            quantity_has_changed = previous_qty != ji.quantity
+            product_has_changed = updated_product != ji.product
+            quantity_has_changed = updated_qty != ji.quantity
+            price_has_changed = updated_selling_price != ji.selling_price
 
-            proposed_new_qty = form.cleaned_data['quantity']
+            # Module assignments relate to products rather than JobItems, so the product matters:
+            # if 1 x ProductA was updated to 1 x ProductB, we need to check if 0 x ProductA would be acceptable
+            # rather than just going "oh, it's still quantity = 1, so that's fine".
+            updated_product_quantity = updated_qty
             if product_has_changed:
-                proposed_new_qty = 0
+                updated_product_quantity = 0
             
             # Modular items check: Check that the proposed edit wouldn't leave any other items with empty slots
-            if not ji.quantity_is_ok_for_modular_as_child(proposed_new_qty):
+            if not ji.quantity_is_ok_for_modular_as_child(updated_product_quantity):
                 return JsonResponse({
                     'message': f"Update failed: conflicts with modular item assignments."
                 }, status=400)                             
 
             # Modular items check: Check that the proposed edit wouldn't leave itself with empty slots
-            if ji.product.is_modular() and not product_has_changed and ji.quantity > previous_qty:
-                if not ji.quantity_is_ok_for_modular_as_parent(ji.quantity):
+            if ji.product.is_modular() and not product_has_changed and updated_product_quantity > ji.quantity:
+                if not ji.quantity_is_ok_for_modular_as_parent(updated_product_quantity):
                     return JsonResponse({
                         'message': f"Update failed: insufficient items to fill specification."
                     }, status=400)
 
-            # Document checks
-            if previous_qty > ji.quantity:
-                num_on_issued = ji.num_on_issued_documents()
-                num_on_draft = ji.num_on_draft_documents()
+            # Issued documents check
+            # If this item appears on an issued document, nothing can be edited that would affect the issued document.
+            # The only things that DON'T affect the issued document are:
+            #   a) Price list changing (= doesn't appear on OC or WO, only used for admin price checks)
+            #   b) Quantity changes, so long as the new quantity is still >= the number assigned to issued documents
+            num_on_issued = ji.num_required_for_issued_documents()
+            if  num_on_issued > 0 and\
+                (
+                    product_has_changed or price_has_changed or\
+                    updated_qty < num_on_issued
+                ):
 
-                # Issued documents are final, so the edit can't proceed if there wouldn't be enough left for the issued docs.
-                if proposed_new_qty < num_on_issued:
-                    return JsonResponse({
-                        'message': f"Update failed: insufficient items to fill issued documents."
-                    }, status=400)
-
-                # Draft documents are negotiable, but Adminas allows users to split JobItems across multiple documents. This could
-                # result in a single JobItem having multiple assignments to multiple draft documents and Adminas wouldn't know
-                # which to preserve and which to delete, so the user must make the adjustments manually.
-                # Help them out by sending a list of IDs for the draft doc versions containing this JobItem so the frontend can offer links.
-                elif proposed_new_qty < num_on_issued + num_on_draft:
-                    return JsonResponse({
-                        'message': f"Update failed: insufficient items to fill draft documents.",
-                        'doc_id_list': ji.draft_document_id_list()
-                    }, status=400)               
+                return JsonResponse({
+                    'message': f"Update failed: issued documents would be altered."
+                }, status=400)
 
 
-
-
+            # Draft documents check
+            # num_on_draft = ji.num_required_for_draft_documents()
+            # if num_on_draft > 0 and updated_qty < num_on_issued + num_on_draft:
+            #     return JsonResponse({
+            #         'message': f"Update failed: insufficient items to fill draft documents.",
+            #         'doc_id_list': ji.draft_document_id_list()
+            #     }, status=400)               
 
             # The modules are happy (from a backend perspective), so save the changes and perform knock-on updates
+            ji.quantity = updated_qty
+            ji.product = updated_product
+            ji.selling_price = updated_selling_price
+            ji.price_list = form.cleaned_data['price_list']
             ji.save()
 
             if product_has_changed:
@@ -785,7 +796,7 @@ def items(request):
             ji.job.price_changed()
 
             return JsonResponse({
-                'reload': 'true'
+                'ok': 'true'
             }, status=200)                        
         
         # If the none selling_price field isn't there, assume we're only updating the price
@@ -1144,14 +1155,7 @@ def get_data(request):
             elif name == 'documents': 
                 doc_list = []
                 for doc_version in this_job.related_documents():
-                    doc_dict = {}
-                    doc_dict['doc_version_id'] = doc_version.id
-                    doc_dict['doc_type'] = doc_version.document.doc_type
-                    doc_dict['issue_date'] = doc_version.issue_date
-                    doc_dict['created_on'] = doc_version.created_on.strftime('%Y-%m-%d')
-                    doc_dict['reference'] = doc_version.document.reference
-                    doc_dict['url'] = reverse('doc_main', kwargs={'doc_id': doc_version.id})
-                    doc_list.append(doc_dict)
+                    doc_list.append(doc_version.summary())
 
                 response_data['doc_list'] = doc_list
                 response_data['url_builder'] = reverse('doc_builder') + '?job=' + job_id
@@ -1167,8 +1171,9 @@ def get_data(request):
                     'doc_quantities': this_job.all_documents_item_quantities()
                 }
 
-                # "Main" needs this to update items state; JobItems section needs it for the form
+                # "Main" needs this to update state; JobItems section needs it for the form
                 response_data['items_url'] = reverse('items')
+                response_data['docbuilder_url'] = reverse('doc_builder') + '?job=' + job_id
                 
                 # Remaining top-level dict fields correspond to a state, since they can be changed on the Job page
                 response_data['price_accepted'] = this_job.price_is_ok
@@ -1180,6 +1185,10 @@ def get_data(request):
                 response_data['po_list'] = []
                 for po in this_job.po.all():
                     response_data['po_list'].append(po.serialise())
+
+                response_data['doc_list'] = []
+                for doc_version in this_job.related_documents():
+                    response_data['doc_list'].append(doc_version.summary())
         
             return JsonResponse(response_data, status=200)
 

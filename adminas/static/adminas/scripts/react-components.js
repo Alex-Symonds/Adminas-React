@@ -155,12 +155,117 @@ function CancelButton(props){
 }
 
 function EditorControls(props){
-    // Needs sumbit() and delete()
+    // Needs sumbit(), delete(), want_delete
     return [
         <div class="controls">
             <SubmitButton   submit = { props.submit }/>
             <DeleteButton   delete = { props.delete } 
-                            user_has_permission = { true }  />
+                            user_has_permission = { props.want_delete }  />
         </div>
     ]
+}
+
+const OLDupdateBackend = (url, method, body_obj) => {
+    const [data, setData] = React.useState([]);
+    const [error, setError] = React.useState(null);
+    const [isLoaded, setLoaded] = React.useState(false);
+
+    React.useEffect(() => {
+        const fetchData = async () => {
+            const my_fetch = await fetch(url, {
+                method: method,
+                body: JSON.stringify(body_obj),
+                headers: getDjangoCsrfHeaders(),
+                credentals: 'include'
+            })
+            .then(response => response.json())
+            .then(resp_json => {
+                setData(resp_json);
+                setLoaded(true);
+            })
+            .catch(error => {
+                setError(error);
+                setLoaded(true);
+            });
+        };
+        fetchData();
+    }, [url]);
+
+    return { data, error, isLoaded };
+};
+
+
+const updateBackend = (url, method, body_obj) => {
+    let isLoaded = false;
+    let data = null;
+    fetch(url, {
+            method: method,
+            body: JSON.stringify(body_obj),
+            headers: getDjangoCsrfHeaders(),
+            credentals: 'include'
+        })
+        .then(response => response.json())
+        .then(resp_json => {
+            data = resp_json;
+            let error = null;
+            isLoaded = true;
+            return { data, error, isLoaded };
+        })
+        .catch(error => {
+            isLoaded = true;
+            return { data, error, isLoaded };
+        });
+};
+
+function getFetchHeaders(method, body_obj){
+    return {
+        method: method,
+        body: JSON.stringify(body_obj),
+        headers: getDjangoCsrfHeaders(),
+        credentals: 'include' 
+    }
+}
+
+    
+
+
+
+function BackendError(props){    
+    // Needs "message" -- which is null as a deafult -- and "turn_off_error()"
+    if(props.message === null){
+        return null;
+    }
+    return [
+        <div class="temp-warning-msg">
+            { props.message }
+            <CancelButton   cancel = { props.turn_off_error } />
+        </div>]
+}
+
+
+
+// Taken from Django documentation for CSRF handling.
+function getDjangoCsrfHeaders(){
+    // Prepare for CSRF authentication
+    var csrftoken = getCookie('csrftoken');
+    var headers = new Headers();
+    headers.append('X-CSRFToken', csrftoken);
+    return headers;
+}
+
+// Taken from Django documentation for CSRF handling.
+function getCookie(name) {
+    // Gets a cookie.
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
 }

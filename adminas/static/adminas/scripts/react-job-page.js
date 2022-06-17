@@ -11,10 +11,12 @@ function JobPage(){
                                         doc_quantities: []
                                     });
     const [urlItems, setUrlItems] = React.useState('');
+    const [urlDocs, setUrlDocs] = React.useState('');
 
     // These states can be changed on the job page
     const [itemsList, setItemsList] = React.useState([]);
     const [poList, setPoList] = React.useState([]);
+    const [docList, setDocs] = React.useState([]);
     const [priceAccepted, setPriceAccepted] = React.useState(false);
 
 
@@ -29,6 +31,10 @@ function JobPage(){
             setPoList(data.po_list);
         }
 
+        if(typeof data.doc_list !== 'undefined'){
+            setDocs(data.doc_list);
+        }
+
         if(typeof data.price_accepted !== 'undefined'){
             setPriceAccepted(data.price_accepted);
         }
@@ -39,6 +45,10 @@ function JobPage(){
 
         if(typeof data.items_url !== 'undefined'){
             setUrlItems(data.items_url);
+        }
+
+        if(typeof data.docbuilder_url !== 'undefined'){
+            setUrlDocs(data.docbuilder_url);
         }
     }, [data]);
 
@@ -66,7 +76,6 @@ function JobPage(){
     
     // || Objects
     // Package up related data (and sometimes derived data) for convenient passing around as props
-    // var items_data = get_items_data_object(itemList);
     var status_data = get_status_data_object(priceAccepted, special_item_exists, incomplete_item_exists,  poList.length, value_difference_po_vs_items, jobMain.doc_quantities, total_qty_all_items);
     var po_data = get_po_data_object(value_difference_po_vs_items, total_items_value, total_po_value, poList);
 
@@ -75,12 +84,13 @@ function JobPage(){
     function update_item(item_id, item_attributes){
         console.log(`Updating item ID #${item_id} with this:`);
         console.log(item_attributes);
+
         var index = itemsList.findIndex(i => i.ji_id === parseInt(item_id));
         if(index === -1){
             return;
         }
 
-        // If the user just changed the product ID or price list ID, this will have implications for multiple other fields,
+        // If the user just changed the product ID and/or price list ID, this will have implications for 2-6 other fields,
         // so grab a full set of fresh data from the server.
         var target_item = itemsList[index];
         if('product_id' in item_attributes || 'price_list_id' in item_attributes){
@@ -106,7 +116,7 @@ function JobPage(){
     }
 
     function delete_item(item_id){
-        var index = itemsList.findIndex(i => i.id === parseInt(item_id));
+        var index = itemsList.findIndex(i => i.ji_id === parseInt(item_id));
         if(index === -1){
             return;
         }
@@ -121,7 +131,6 @@ function JobPage(){
         if(index === -1){
             return;
         }
-
         setPoList([
             ...poList.slice(0, index),
             Object.assign(poList[index], po_attributes),
@@ -138,12 +147,36 @@ function JobPage(){
             ...poList.slice(0, index),
             ...poList.slice(index + 1)
         ]);
-
     }
 
     function update_price_accepted(is_accepted){
         setPriceAccepted(is_accepted);
     }
+
+
+    function add_new_items(new_items){
+        console.log(`Received command to add new items based on this:`);
+        console.log(new_items);
+    }
+
+    function update_doc_state_from_backend(){
+        console.log('Updating documents state');
+        fetch(url_for_page_load(URL_GET_DATA, job_id, 'documents'))
+        .then(response => response.json())
+        .then(resp_data => {
+            if(typeof resp_data.doc_list !== 'undefined'){
+                setDocs(resp_data.doc_list)
+            }
+            //     var data = docList;
+            // }
+            // else {
+            //     var data = resp_data.doc_list;
+            // }
+            // setDocs(data);
+        })
+        .catch(error => console.log(error));
+    }
+
 
 
 
@@ -177,7 +210,11 @@ function JobPage(){
                             URL_ITEMS = { urlItems }
                             update_po = { update_po }
                             delete_po = { delete_po }
-                            update_price_accepted = { update_price_accepted } />
+                            update_price_accepted = { update_price_accepted }
+                            add_new_items = { add_new_items }
+                            doc_list = { docList }
+                            URL_DOCS = { urlDocs }
+                            update_doc_state = { update_doc_state_from_backend }  />
         </div>
     ]
 }
@@ -194,7 +231,9 @@ function JobContents(props){
                 <JobDocuments   job_id = {props.job_id}
                                 URL_GET_DATA = {props.URL_GET_DATA}
                                 job_total_qty={props.job_total_qty}
-                                doc_quantities={props.doc_quantities}/>
+                                doc_quantities={props.doc_quantities}
+                                doc_list = {props.doc_list}
+                                URL_DOCS = { props.URL_DOCS } />
             </section>
             <JobItems   job_id = {props.job_id}
                         URL_GET_DATA = {props.URL_GET_DATA}
@@ -202,7 +241,9 @@ function JobContents(props){
                         currency = {props.currency}
                         update_item = { props.update_item }
                         delete_item = { props.delete_item }
-                        URL_ITEMS = { props.URL_ITEMS } />
+                        URL_ITEMS = { props.URL_ITEMS }
+                        add_new_items = { props.add_new_items }
+                        update_doc_state = { props.update_doc_state } />
             <section class="job-section pair-related">
                 <JobPo  job_id = {props.job_id}
                         currency = {props.currency}

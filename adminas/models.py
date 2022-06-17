@@ -4,6 +4,7 @@ from django.contrib.auth.models import AbstractUser
 from django.db.models.deletion import SET_NULL
 from django.db.models import Sum
 from django.utils import formats
+from django.urls import reverse
 
 from django_countries.fields import CountryField
 
@@ -45,6 +46,7 @@ class DocAssignment(models.Model):
         """
             Get the maximum quantity that could be assigned to self.
         """
+        # Get queryset of the other relevant DocAssignments for this JobItem
         assignment_qs = DocAssignment.objects\
                     .filter(item=self.item)\
                     .filter(version__document__doc_type=self.version.document.doc_type)\
@@ -59,6 +61,11 @@ class DocAssignment(models.Model):
 
         return self.item.quantity - qty_assigned
 
+    def quantity_is_valid(self):
+        """
+            Check if there are still enough of the JobItem on the Job to cover all the document assignments.
+        """
+        return self.max_quantity_excl_self() >= self.quantity
 
     def __str__(self):
         return f'{self.quantity} x {self.item.product.name} assigned to {self.version.document.doc_type} {self.version.document.reference}'
@@ -1099,25 +1106,36 @@ class JobItem(AdminAuditTrail):
         """
             Check if this JobItem appears on a document which has been issued.
         """
-        return self.num_on_issued_documents() > 0
+        #return self.num_on_issued_documents() > 0
+        return DocAssignment.objects.filter(item=self).filter(version__active=True) != None
 
 
-    def num_on_issued_documents(self):
+    def num_required_for_issued_documents(self):
         """
-            Count how many of this JobItem appear on a document which has been issued.
+            Quantity required to fulfill all assignments to issued documents.
         """
         doc_assignments = DocAssignment.objects.filter(item=self).filter(version__active=True)
         if doc_assignments == None:
             return 0
 
-        total = 0
-        for doca in doc_assignments:
-            if not doca.version.issue_date == None:
-                total += doca.quantity
-        return total
+        # It is expected that each JobItem unit will appear once on each doc_type, so if there
+        # are 3 on issued WOs and 4 on issued OCs, we need 4 (since WO and OC can share the 3).
+        result = 0
+        for loop_tuple in DOCUMENT_TYPES:
+            required_by_doc_type = 0
+            doc_type = loop_tuple[0]
+            docs_this_type = doc_assignments.filter(version__document__doc_type=doc_type)
+
+            for doca in docs_this_type:
+                if not doca.version.issue_date == None:
+                    required_by_doc_type += doca.quantity
+            
+            result = required_by_doc_type if required_by_doc_type > result else result
+
+        return result
 
 
-    def num_on_draft_documents(self):
+    def num_required_for_draft_documents(self):
         """
             Count how many of this JobItem appear on a draft document.
         """
@@ -1315,7 +1333,6 @@ class JobItem(AdminAuditTrail):
                 num_needed_for_assignments += ma.quantity * ma.parent.quantity
         
         product_qty_without_me = self.job.quantity_of_product(self.product) - self.quantity
-
         return product_qty_without_me + new_qty >= num_needed_for_assignments
 
 
@@ -1503,6 +1520,24 @@ class DocumentVersion(AdminAuditTrail):
     invoice_to = models.ForeignKey(Address, on_delete=models.PROTECT, null=True, blank=True, related_name='financial_documents')
     delivery_to = models.ForeignKey(Address, on_delete=models.PROTECT, null=True, blank=True, related_name='delivery_documents')
     items = models.ManyToManyField(JobItem, related_name='on_documents', through='DocAssignment')
+
+    def is_valid(self):
+        for i in DocAssignment.objects.filter(version=self):
+            if not i.quantity_is_valid():
+                return False
+        return True
+
+    def summary(self):
+        result = {}
+        result['doc_version_id'] = self.id
+        result['doc_type'] = self.document.doc_type
+        result['issue_date'] = self.issue_date
+        result['created_on'] = self.created_on.strftime('%Y-%m-%d')
+        result['reference'] = self.document.reference
+        result['is_valid'] = self.is_valid()
+        result['url'] = reverse('doc_main', kwargs={'doc_id': self.id})
+
+        return result
 
 
     def get_display_data_dict(self):

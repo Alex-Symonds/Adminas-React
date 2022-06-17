@@ -79,7 +79,7 @@ function JobToDoIndicator(props){
     const [todo, setTodo] = React.useState(false);
     const [url, setUrl] = React.useState('');
 
-    const { data, error, isLoaded } = useFetch(`${props.URL_GET_DATA}?job_id=${props.job_id}&type=page_load&name=todo`);
+    const { data, error, isLoaded } = useFetch(url_for_page_load(props.URL_GET_DATA, props.job_id, 'todo'));
     React.useEffect(() => {
         if(typeof data.on_todo !== 'undefined'){
             setTodo(data.on_todo);
@@ -89,6 +89,10 @@ function JobToDoIndicator(props){
         }
     }, [data]);
 
+
+    function toggle_todo(is_todo){
+        setTodo(is_todo);
+    }
 
     let css_class = todo ? 'on' : 'off';
     let display_text = todo ? 'on' : 'off';
@@ -104,7 +108,7 @@ function JobToDoIndicator(props){
         <div class="indicator-wrapper">
             <div class={'status-indicator ' + css_class}>
                 <span class="status-name">to-do</span>
-                <button class="todo-list-toggle" data-job_id={props.job_id} data-on_todo_list={todo}>{display_text}</button>
+                <button class="todo-list-toggle" onClick={() => toggle_todo(!todo)}>{display_text}</button>
             </div>
         </div>
     ]

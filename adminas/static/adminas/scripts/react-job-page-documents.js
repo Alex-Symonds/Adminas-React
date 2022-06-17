@@ -2,23 +2,6 @@
 
 
 function JobDocuments(props){
-    
-    const [docList, setDocs] = React.useState([]);
-    const { data, error, isLoaded } = useFetch(url_for_page_load(props.URL_GET_DATA, props.job_id, 'documents'));
-
-    React.useEffect(() => {
-        if(typeof data.doc_list !== 'undefined'){
-            setDocs(data.doc_list);
-        }
-    }, [data]);
-
-    if(error){
-        return <LoadingErrorEle name='documents' />
-    }
-    else if (!isLoaded){
-        return <LoadingEle />
-    }
-    
     return [
         <section class="job-doc-section item">
             <h3>Documents</h3>
@@ -27,15 +10,15 @@ function JobDocuments(props){
                                         job_id = {props.job_id}
                                         job_total_qty = {props.job_total_qty}
                                         doc_quantities = {props.doc_quantities} 
-                                        doc_list = {docList}
-                                        URL_DOC_BUILDER = {data.url_builder} />
+                                        doc_list = {props.doc_list}
+                                        URL_DOC_BUILDER = {props.URL_DOCS} />
             <JobDocumentsSubsection     title ='Order Confirmation'
                                         doc_type ='OC'
                                         job_id = {props.job_id}
                                         job_total_qty = {props.job_total_qty}
                                         doc_quantities = {props.doc_quantities} 
-                                        doc_list = {docList}
-                                        URL_DOC_BUILDER = {data.url_builder} />
+                                        doc_list = {props.doc_list}
+                                        URL_DOC_BUILDER = {props.URL_DOCS} />
         </section>
     ]
 }
@@ -96,6 +79,7 @@ function JobDocumentsListOfDocLinks(props){
 function JobDocumentsLi(props){
     var doc_issue_status_display = props.doc.issue_date == null ? 'D' : 'I';
     var css_class = props.doc.issue_date == null ? 'draft' : 'issued';
+    css_class = props.doc.is_valid == true ? css_class : css_class + ' invalid';
     var doc_date = props.doc.issue_date == null ? props.doc.created_on : props.doc.issue_date;
 
     return [
@@ -105,7 +89,15 @@ function JobDocumentsLi(props){
                     {doc_issue_status_display}
                 </span>
                 <span class="name">{props.doc.doc_type } { props.doc.reference } dtd {doc_date}</span>
+                <InvalidIcon    is_valid={props.doc.is_valid}/>
             </a>
         </li>
     ]
+}
+
+function InvalidIcon(props){
+    if(props.is_valid){
+        return null;
+    }
+    return <div class="invalid-icon"><span>invalid item assignments</span></div>
 }
