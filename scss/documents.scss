@@ -161,7 +161,21 @@
         background: v.$c_accent;
         background: v.$g_button_main;
         color: v.$c_txt_main;
+
+        &:disabled{
+            border-color: v.$c_tone_02;
+            background: v.$c_tone_03;
+            font-weight: normal;
+
+            &:hover{
+                border-color: v.$c_tone_02;
+                background: v.$c_tone_03;
+                color: v.$c_txt_main;
+            }
+        }
     }
+
+
 
     button.revert-replace{
         background: v.$c_tone_00;
@@ -195,6 +209,17 @@
 }
 
 .edit-document{
+    .panel.included-container li{
+        padding-bottom: 0;
+
+        .invalid-icon{
+            top: 0;
+            width: 1.5rem;
+            height: 1.5rem;
+            margin: 0 0.3rem 0 0;
+        }
+    }
+
     .document-fields-container{
         padding-bottom: 1rem;
     }
@@ -419,6 +444,24 @@
 
 
 .panel{
+
+    &.included-container li{
+        padding-bottom: 0.3rem;
+
+        &.invalid{
+            border-left: 3px solid v.$c_warning_bright;
+            background: v.$c_tone_02;
+        }
+        
+        .invalid-icon{
+            margin-left: 0.3rem;
+            width: 1.2rem;
+            height: 1.2rem;
+            top: 0.3rem;
+        }
+    }
+
+
     &.excluded-container ul{
         .display,
         .none{

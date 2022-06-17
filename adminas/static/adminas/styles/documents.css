@@ -126,6 +126,16 @@
   background: linear-gradient(45deg, #4ADFF7 0%, #00D4F5 50%, #00c2e0 100%);
   color: #F6F6F6;
 }
+.status-controls .filled:disabled {
+  border-color: #444;
+  background: #666;
+  font-weight: normal;
+}
+.status-controls .filled:disabled:hover {
+  border-color: #444;
+  background: #666;
+  color: #F6F6F6;
+}
 .status-controls button.revert-replace {
   background: #141414;
   color: #00D4F5;
@@ -149,6 +159,15 @@
   flex-wrap: wrap;
 }
 
+.edit-document .panel.included-container li {
+  padding-bottom: 0;
+}
+.edit-document .panel.included-container li .invalid-icon {
+  top: 0;
+  width: 1.5rem;
+  height: 1.5rem;
+  margin: 0 0.3rem 0 0;
+}
 .edit-document .document-fields-container {
   padding-bottom: 1rem;
 }
@@ -326,6 +345,19 @@
   margin-top: 0.3rem;
 }
 
+.panel.included-container li {
+  padding-bottom: 0.3rem;
+}
+.panel.included-container li.invalid {
+  border-left: 3px solid red;
+  background: #444;
+}
+.panel.included-container li .invalid-icon {
+  margin-left: 0.3rem;
+  width: 1.2rem;
+  height: 1.2rem;
+  top: 0.3rem;
+}
 .panel.excluded-container ul .display,
 .panel.excluded-container ul .none {
   color: #666;

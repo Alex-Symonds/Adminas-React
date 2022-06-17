@@ -336,18 +336,23 @@ nav{
 }
 
 .invalid-icon{
+    display: inline-block;
+    width: 1.5rem;
+    height: 1.5rem;
+
     background-image: url(../images/i-warning.svg);
     background-color: transparent;
     background-repeat: no-repeat;
-    background-size: 24px 24px;
+    background-size: contain;
     background-position: center center;
 
     position: relative;
-    width: 24px;
-    height: 24px;
-    margin: 2px;
     
     span{
+        position: absolute;
+        top:0;
+        right:26px;
+        z-index: 3;
         color: transparent;
         text-align: center;
     }
@@ -362,12 +367,6 @@ nav{
 
             display: block;
             padding: 0.3rem;
-            // width: 3rem;
-
-            position: absolute;
-            top:0;
-            right:26px;
-            z-index: 3;
         }
     }
 }

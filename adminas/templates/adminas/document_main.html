@@ -48,6 +48,14 @@
     {% endif %}
     </section>
 
+    {% if not doc_version.issue_date and doc_version.active and not doc_version.is_valid %}
+    <section class="subsection warning">
+        <h4>Invalid Item Quantities</h4>
+        <p>
+            JobItem quantities have altered since the draft document was created: there are no longer enough to fulfil all draft document assignments.
+        </p>
+    </section>
+    {% endif %}
 
     
     <section class="document-fields-container subsection">
@@ -91,7 +99,8 @@
                 <h5 class="panel-header">Include</h5>
                 <ul class="included">
     {% for inc in doc_version.get_included_items %}
-                    <li>
+                    <li {% if inc.invalid_quantity %}class="invalid"{% endif %}>
+                        {% if inc.invalid_quantity %}<span class="invalid-icon"><span>quantity is invalid</span></span>{% endif %}
                         <span class="display">{{ inc.display }}</span><span class="id-number">{{ inc.jiid }}</span>
                     </li>
     {% empty %}

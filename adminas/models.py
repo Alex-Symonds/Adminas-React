@@ -1539,6 +1539,18 @@ class DocumentVersion(AdminAuditTrail):
 
         return result
 
+    def assignment_validity_by_jiid(self):
+        result = {}
+
+        for assignment in DocAssignment.objects.filter(version=self):
+            id_as_str = str(assignment.item.id)
+
+            if not id_as_str in result:
+                result[id_as_str] = assignment.quantity_is_valid()
+        
+        return result
+
+
 
     def get_display_data_dict(self):
         """
@@ -1855,8 +1867,9 @@ class DocumentVersion(AdminAuditTrail):
                 this_dict = {}
                 this_dict['id'] = a.pk
                 this_dict['jiid'] = a.item.id
-                this_dict['total_quantity'] = a.max_quantity_excl_self() #a.item.quantity
+                this_dict['max_allowed'] = a.max_quantity_excl_self()
                 this_dict['display'] = a.item.display_str().replace(str(a.item.quantity), str(a.quantity))
+                this_dict['invalid_quantity'] = not a.quantity_is_valid()
                 result.append(this_dict)
             return result
 

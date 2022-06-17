@@ -546,12 +546,9 @@ function JobItemEditor(props){
     const [productId, setProductId] = React.useState(props.data.product_id);
     const [priceListId, setPriceListId] = React.useState(props.data.price_list_id);
 
-    // const [prevQuantity, setPrevQuantity] = React.useState(null);
-
     const [backendError, setBackendError] = React.useState(null);
 
     function update_quantity(new_qty){
-        // setPrevQuantity(quantity);
         setQuantity(new_qty);
     }
 

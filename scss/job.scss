@@ -258,14 +258,15 @@
 
     li{
         margin-top: 0.3rem;
+        box-sizing: border-box;
 
         a{
             display: flex;
             justify-content: space-between;
-            width: 100%;
+            //width: 100%;
 
             margin: 0;
-            padding: 0 0.6rem 0 0;
+            padding: 0 0.9rem 0 0;
             text-decoration: none;
 
             border-radius: 1rem;
@@ -277,14 +278,6 @@
 
             &:hover{
                 background: v.$c_tone_02;
-            }
-        }
-
-        &.invalid a{
-            background: v.$c_tone_02;
-
-            &:hover{
-                background: v.$c_tone_03;
             }
         }
 
@@ -345,6 +338,7 @@
         &.invalid a{
             border-color: v.$c_warning;
             color: v.$c_txt_warning_g;
+            background: v.$c_tone_02;
 
             .icon{
                 border-color: v.$c_warning;
@@ -352,6 +346,7 @@
 
             &:hover{
                 border-color: v.$c_warning_bright;
+                background: v.$c_tone_03;
 
                 .icon{
                     color: v.$c_txt_warning_g;
@@ -359,6 +354,11 @@
                     border-color: v.$c_warning_bright;
                 }
             }
+
+        }
+
+        .invalid-icon{
+            top: 0.15rem;
         }
 
         .name{

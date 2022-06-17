@@ -156,13 +156,13 @@
 }
 .job-doc-section li {
   margin-top: 0.3rem;
+  box-sizing: border-box;
 }
 .job-doc-section li a {
   display: flex;
   justify-content: space-between;
-  width: 100%;
   margin: 0;
-  padding: 0 0.6rem 0 0;
+  padding: 0 0.9rem 0 0;
   text-decoration: none;
   border-radius: 1rem;
   border-top-left-radius: 0.2rem;
@@ -172,12 +172,6 @@
 }
 .job-doc-section li a:hover {
   background: #444;
-}
-.job-doc-section li.invalid a {
-  background: #444;
-}
-.job-doc-section li.invalid a:hover {
-  background: #666;
 }
 .job-doc-section li .icon {
   display: block;
@@ -223,17 +217,22 @@
 .job-doc-section li.invalid a {
   border-color: #cf0000;
   color: white;
+  background: #444;
 }
 .job-doc-section li.invalid a .icon {
   border-color: #cf0000;
 }
 .job-doc-section li.invalid a:hover {
   border-color: red;
+  background: #666;
 }
 .job-doc-section li.invalid a:hover .icon {
   color: white;
   background: #cf0000;
   border-color: red;
+}
+.job-doc-section li .invalid-icon {
+  top: 0.15rem;
 }
 .job-doc-section li .name {
   padding: 0.3rem 0.7rem;

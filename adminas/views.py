@@ -1158,7 +1158,6 @@ def get_data(request):
                     doc_list.append(doc_version.summary())
 
                 response_data['doc_list'] = doc_list
-                response_data['url_builder'] = reverse('doc_builder') + '?job=' + job_id
             
             elif name == 'todo':
                 response_data['url'] = reverse('todo_list_management')
@@ -1171,7 +1170,7 @@ def get_data(request):
                     'doc_quantities': this_job.all_documents_item_quantities()
                 }
 
-                # "Main" needs this to update state; JobItems section needs it for the form
+                # URLs needed by Job component to update state (also JobItems section needs /items for the form)
                 response_data['items_url'] = reverse('items')
                 response_data['docbuilder_url'] = reverse('doc_builder') + '?job=' + job_id
                 
@@ -1295,7 +1294,7 @@ def doc_builder(request):
             'redirect': reverse('job', kwargs={'job_id': doc_obj.document.job.id})
         })
 
-    # PUT and POST need to do very similar things, so let's share
+    # PUT and POST have similar start-up needs, so let's share
     elif request.method == 'PUT' or request.method == 'POST':
         # Forms common to all doc types.
         incoming_data = json.loads(request.body)
@@ -1326,7 +1325,7 @@ def doc_builder(request):
                 'message': 'Invalid data.'
             }, status=500)  
 
-        # Handle steps specific to POST or PUT
+        # At this point POST or PUT branch off
         response = {}
         if(request.method == 'POST'):
             # Create a new document
@@ -1362,6 +1361,8 @@ def doc_builder(request):
                     'message': "Can't update a document that has already been issued (nice try though)"
                 }, status=403)
 
+
+
             # Update the document
             parent = doc_obj.document
             parent.reference = form.cleaned_data['reference']
@@ -1381,6 +1382,11 @@ def doc_builder(request):
             new_assignments = doc_obj.update_item_assignments_and_get_create_list(incoming_data['assigned_items'])
             new_special_instructions = doc_obj.update_special_instructions_and_get_create_list(incoming_data['special_instructions'])
             response['message'] = 'Document saved'
+
+            # Document validity support
+            response['doc_is_valid'] = doc_obj.is_valid()
+            response['item_is_valid'] = doc_obj.assignment_validity_by_jiid()
+            
 
         # Create new assignments and instructions as necessary
         create_document_assignments(new_assignments, doc_obj)

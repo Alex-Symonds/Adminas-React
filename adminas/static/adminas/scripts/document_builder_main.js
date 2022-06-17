@@ -180,6 +180,13 @@ function update_document_on_server(issue_date){
         } else {
             display_document_response_message(data, document.querySelector('.status-controls'));
             remove_save_warning_ele();
+
+            if ('doc_is_valid' in data){
+                console.log('fetch bit is ok');
+                console.log(data);
+                console.log('-------');
+                clear_validity_warnings(data);
+            }
         }
     })
     .catch(error => {
@@ -237,7 +244,6 @@ function get_assigned_items_as_list(){
             }
         });
     }
-    console.log(assigned_items.length);
     return assigned_items;
 }
 
@@ -514,6 +520,34 @@ function create_no_special_instructions_ele(){
     p.classList.add('no_special_instructions');
     p.innerHTML = "No special instructions on this document.";
     return p;
+}
+
+// Validity Warnings
+function clear_validity_warnings(data){
+    clear_document_warning(data.doc_is_valid);
+    clear_lineitem_warnings(data.item_is_valid);
+}
+
+// Check if the document is valid now and if so, remove the warning and reactivate the issue button 
+function clear_document_warning(is_valid){
+    if(is_valid === true && document.contains(document.getElementById('invalid_document_warning'))){
+        document.getElementById('invalid_document_warning').remove();
+        document.getElementById('document_issue_btn').removeAttribute('disabled');
+    }
+}
+
+// Run through the "included" <li>s, removing the invalid formatting and icon if it's now fixed
+function clear_lineitem_warnings(item_valid_list){
+    const CSS_CLASS_INVALID = 'invalid';
+
+    document.querySelectorAll(`.${CSS_CLASS_INVALID}`).forEach((this_li) => {
+        const jiid = this_li.dataset.jiid;
+        if(jiid in item_valid_list && item_valid_list[jiid] === true){
+            this_li.classList.remove(CSS_CLASS_INVALID);
+            this_li.querySelector('.invalid-icon').remove();
+        }
+    });
+
 }
 
 
