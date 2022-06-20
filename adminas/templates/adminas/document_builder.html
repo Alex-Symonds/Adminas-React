@@ -34,19 +34,24 @@
         <h3>Working on document</h3>
 
     {% if doc_id == 0 %}
-        <p>Preview is disabled until the document has been saved.</p>
+        <p class="filled disabled">preview PDF</p>
     {% else %}
         <a class="return-to-job" href="{% url 'doc_main' doc_id %}">&laquo; exit edit mode</a>
         <a class="filled" href="{% url 'doc_display' doc_id %}?mode=preview">preview PDF</a>
     {% endif %}
 
         <button id="document_save_btn" class="filled">save draft</button>
+
+    {% if doc_id == 0 %} 
+        <button id="document_delete_btn" class="button-warning" disabled>delete</button>
+    {% else %}
         <button id="document_delete_btn" class="button-warning">delete</button>
+    {% endif %}
         
-        <button id="document_issue_btn" class="filled" {% if not doc.is_valid %}disabled{% endif %}>issue final</button>
+        <button id="document_issue_btn" class="filled" {% if not is_valid or doc_id == 0 %}disabled{% endif %}>issue final</button>
     </section>
 
-    {% if not doc.is_valid %}
+    {% if not is_valid %}
     <section class="subsection warning" id="invalid_document_warning">
         <h4>Invalid Item Quantities</h4>
         <p>
@@ -115,12 +120,12 @@
                 <h4 class="panel-header">Include</h4>
                 <ul id="included">
     {% for inc in included_items %}
-                    <li data-jiid="{{ inc.jiid }}" {% if inc.invalid_quantity %}class="invalid" data-max_allowed="{{ inc.max_allowed }}"{% endif %}>
+                    <li data-jiid="{{ inc.jiid }}" {% if inc.invalid_quantity %}class="invalid" data-max_available="{{ inc.max_available }}"{% endif %}>
                         {% if inc.invalid_quantity %}<span class="invalid-icon"><span>quantity is invalid</span></span>{% endif %}
                         <span class="display">{{ inc.display }}</span>
                         <div class="button-container">
                             <button class="toggle-docitem-btn button-primary">excl. &raquo;</button>
-        {% if inc.max_allowed > 1 %}
+        {% if inc.max_available > 1 %}
                             <button class="split-docitem-btn button-primary-hollow">&laquo; split &raquo;</button>
         {% endif %}
                         </div>

@@ -30,6 +30,10 @@ const STR_INCLUDES_BTN = '&laquo; incl.';
 const STR_EXCLUDES_BTN = 'excl. &raquo;';
 const STR_SPLIT_BTN = '&laquo; split &raquo;';
 
+const CSS_CLASS_INVALID_LI = 'invalid';
+const CSS_CLASS_INVALID_ICON = 'invalid-icon';
+
+
 
 // Add the event listeners to the split and incl/excl buttons
 document.addEventListener('DOMContentLoaded', () => {
@@ -47,7 +51,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
 });
-
 
 
 
@@ -71,6 +74,16 @@ function toggle_doc_item(e){
 
 // Toggle docitems: manage moving the <li> and, if necessary, updating the message of intentional emptiness.
 function update_both_docitem_ul_for_toggle(dst_ul, src_ul, docitem_ele){
+
+    // Handle invalid docitems
+    if(docitem_is_invalid(docitem_ele)){
+        if(!fix_invalid_docitem_ele(docitem_ele)){
+            docitem_ele.remove();
+            update_none_li(src_ul, dst_ul);
+            return;
+        }        
+    }
+
     move_docitem_li(dst_ul, docitem_ele);
     update_none_li(src_ul, dst_ul);
 }
@@ -207,6 +220,8 @@ function get_combined_docitem_text(src_text, dst_text){
 
 
 
+
+
 // ---------------------------------------------------------
 // Split docitems
 // ---------------------------------------------------------
@@ -222,19 +237,24 @@ function open_docitem_split_window(split_btn){
 
     const li_ele = split_btn.closest('li');
     const calling_ul_id = li_ele.parentElement.id;
-    li_ele.append(create_ele_docitem_split_window(li_ele.dataset.jiid, calling_ul_id));
+    li_ele.append(create_ele_docitem_split_window(li_ele, calling_ul_id));
     hide_all_by_class(CLASS_SPLIT_BTN);
     hide_all_by_class(CLASS_TOGGLE_BTN);
 }
 
 // Split DocItem Panel: Create the panel
-function create_ele_docitem_split_window(jobitem_id, calling_ul_id){
+function create_ele_docitem_split_window(docitem_ele, calling_ul_id){
+    let jobitem_id = docitem_ele.dataset.jiid;
+
     let div = document.createElement('div');
     div.classList.add(CLASS_SPLIT_WINDOW);
     div.classList.add(CSS_GENERIC_FORM_LIKE);
     div.classList.add(CSS_GENERIC_PANEL);
 
     div.append(create_ele_docitem_split_heading());
+    if(split_window_needs_invalid_warning(jobitem_id)){
+        div.append(create_ele_docitem_invalid_split_warning());
+    }
     div.append(create_ele_docitem_desc(jobitem_id));
     div.append(create_ele_docitem_split_controls(jobitem_id, calling_ul_id));
     div.append(create_ele_docitem_split_status_container(jobitem_id));
@@ -279,11 +299,32 @@ function get_combined_docitem_text_from_jobitem_id(jobitem_id){
 function get_individual_docitem_text_from_jobitem_id(ul_id, jobitem_id){
     let ul = document.querySelector('#' + ul_id);
     let li = get_li_with_same_jiid(ul, jobitem_id);
+
     if(li != null){
-        return li.querySelector('.' + CLASS_DISPLAY_SPAN).innerHTML;
+        return get_valid_description(li);
     } else {
         return '';
     } 
+}
+
+
+function split_window_needs_invalid_warning(jobitem_id){
+    const includes_ul = document.querySelector('#' + ID_INCLUDES_UL);
+    const docitem_ele = get_li_with_same_jiid(includes_ul, jobitem_id);
+    return docitem_is_invalid(docitem_ele);
+}
+
+function create_ele_docitem_invalid_split_warning(){
+    let result = document.createElement('div');
+    result.classList.add('invalid');
+
+    let icon_ele = document.querySelector(`.${CSS_CLASS_INVALID_ICON}`).cloneNode(true);
+    result.append(icon_ele);
+
+    let text = document.createTextNode('Invalid quantity detected and corrected');
+    result.append(text);
+
+    return result;
 }
 
 
@@ -339,7 +380,10 @@ function create_ele_docitem_split_direction_div(called_from){
 
 // Split DocItem Panel: component, the input where you enter the quantity you want
 function create_ele_docitem_edit_field(){
+    // JobItem quantity fields are usually used in cases where min=1 makes sense.
+    // Here, 0 makes sense too, so adjust the min.
     let fld = get_jobitem_qty_field();
+    fld.min = 0;
 
     fld.addEventListener('change', (e) => {
         update_split_window(e.target);
@@ -503,8 +547,14 @@ function get_total_qty(jiid){
 
 // Split DocItem Window: function, find the quantity expressed in a JobItem <li> based on the UL ID and the JobItem ID
 function get_docitem_qty(class_name, jiid){
-    let ul = document.querySelector('#' + class_name);
+    const ul = document.querySelector('#' + class_name);
     const docitem_ele = get_li_with_same_jiid(ul, jiid);
+
+    if(docitem_is_invalid(docitem_ele)){
+        let max_available = parseInt(docitem_ele.dataset.max_available);
+        return max_available < 0 ? 0 : max_available;
+    }
+
     return get_docitem_qty_from_li(docitem_ele);
 }
 
@@ -659,4 +709,89 @@ function create_docitem_li(jobitem_id, description, ul_id){
 }
 
 
+
+
+
+// -------------------------------------------------------------------
+// Support for "invalid" DocItems (i.e. ones where user updates have 
+// resulted in a JobItem being over-booked for draft documents)
+// -------------------------------------------------------------------
+
+// Invalid DocItems: determine if it's invalid
+function docitem_is_invalid(docitem_ele){
+    // DocItems must exist in order to be invalid
+    if(docitem_ele == null){
+        return false;
+    }
+    return docitem_ele.classList.contains(CSS_CLASS_INVALID_LI);
+}
+
+// Invalid DocItems: given a docitem, work out a valid description for it
+function get_valid_description(docitem_ele){
+    const display_span = docitem_ele.querySelector('.' + CLASS_DISPLAY_SPAN);
+    if(display_span == null){
+        return 'Description not found';
+    }
+    
+    // Handle straightforward valid docitems
+    if(!docitem_is_invalid(docitem_ele)){
+        return display_span.innerHTML;
+    }
+
+    /*
+    "max_available" reflects the quantity on the JobItem minus the quantities
+    assigned to other documents of the same type as this one. It is possible 
+    for it to be a negative number (e.g. suppose the JobItem has qty=1 and another
+    document has qty=2, the max_available for this document will be -1).
+
+    In the event of a negative max_available, qty=0 is sufficient for THIS document to 
+    be valid and that's all we care about right now (the -1 is the other document's problem).
+    */
+    var max_available = parseInt(docitem_ele.dataset.max_available);
+    max_available = max_available > 0 ? max_available : 0;
+    return display_span.innerHTML.replace(QTY_RE, max_available);
+}
+
+// Invalid DocItems: given an invalid docitem element, perform all adjustments needed to make it valid
+function fix_invalid_docitem_ele(docitem_ele){
+    // Handle cases where it's impossible to fix the docitem_ele (i.e. amount available is 0 or negative)
+    if(parseInt(docitem_ele.dataset.max_available) <= 0){
+        return false;
+    }
+
+    // If it's fixable, fix it
+    replace_invalid_description(docitem_ele);
+    remove_invalid_css(docitem_ele);
+    remove_invalid_icon(docitem_ele);
+    return true;
+}
+
+// Invalid DocItem Fixing: replace the docitem's description 
+function replace_invalid_description(docitem_ele){
+    if(element_does_not_exist(docitem_ele)){
+        return;
+    }
+    const display_span = docitem_ele.querySelector('.' + CLASS_DISPLAY_SPAN);
+    display_span.innerHTML = get_valid_description(docitem_ele);
+}
+
+
+// Invalid DocItem Fixing: remove CSS for invalid docitems
+function remove_invalid_css(docitem_ele){
+    if(element_does_not_exist(docitem_ele)){
+        return;
+    }
+
+    docitem_ele.classList.remove(CSS_CLASS_INVALID_LI); 
+}
+
+// Invalid DocItem Fixing: remove the little warning icon
+function remove_invalid_icon(docitem_ele){
+    if(element_does_not_exist(docitem_ele)){
+        return;
+    }
+    if(!element_does_not_exist(docitem_ele.querySelector(`.${CSS_CLASS_INVALID_ICON}`))){
+        docitem_ele.querySelector(`.${CSS_CLASS_INVALID_ICON}`).remove();
+    }  
+}
 

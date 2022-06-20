@@ -161,18 +161,26 @@
         background: v.$c_accent;
         background: v.$g_button_main;
         color: v.$c_txt_main;
+    }
 
-        &:disabled{
+    button:disabled,
+    p.disabled{
+        border-color: v.$c_tone_02;
+        background: v.$c_tone_03;
+        font-weight: normal;
+
+        &:hover{
             border-color: v.$c_tone_02;
             background: v.$c_tone_03;
-            font-weight: normal;
-
-            &:hover{
-                border-color: v.$c_tone_02;
-                background: v.$c_tone_03;
-                color: v.$c_txt_main;
-            }
         }
+    }
+
+    .filled.disabled,
+    .filled:disabled{
+        color: v.$c_txt_main;
+    }
+    .button-warning:disabled:hover{
+        color: v.$c_warning;
     }
 
 
@@ -279,6 +287,15 @@
                 margin: 0.3rem auto 0;
                 font-size: 1.3rem;
                 height: 2rem;
+            }
+
+            .invalid{
+                display: flex;
+                align-items: center;
+
+                background: v.$c_tone_01;
+                border-left: 3px solid v.$c_warning;
+                padding: 0.3rem 0.5rem;  
             }
 
             .split-direction-setter{

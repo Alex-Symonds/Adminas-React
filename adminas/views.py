@@ -1264,7 +1264,6 @@ def doc_builder(request):
     elif request.GET.get('job') != None and request.GET.get('type') != None:
         # Prepare doc variables based on job ID and doc type (used by POST+CREATE and GET+BLANK)
         doc_dict = get_dict_document_builder(job_id=request.GET.get('job'), doc_code=request.GET.get('type'))
-
     else:
         doc_dict = {}
         doc_dict['error_msg'] = "Invalid GET parameters: can't find document."
@@ -1280,7 +1279,7 @@ def doc_builder(request):
 
     # Stick doc_obj into a separate variable because it's used a lot
     doc_obj = doc_dict['doc_obj']
-
+    debug(doc_obj)
     if request.method == 'DELETE':
         if doc_obj.issue_date != None:
             return JsonResponse({
@@ -1361,8 +1360,6 @@ def doc_builder(request):
                     'message': "Can't update a document that has already been issued (nice try though)"
                 }, status=403)
 
-
-
             # Update the document
             parent = doc_obj.document
             parent.reference = form.cleaned_data['reference']
@@ -1370,8 +1367,7 @@ def doc_builder(request):
             parent.job = doc_dict['job_obj']
             parent.save()
 
-            # Update the version
-            doc_obj.issue_date = version_form.cleaned_data['issue_date']
+            # Update the version with everything except the issue_date
             doc_obj.invoice_to = doc_dict['job_obj'].invoice_to
             doc_obj.delivery_to = doc_dict['job_obj'].delivery_to
             doc_obj.save()
@@ -1381,12 +1377,20 @@ def doc_builder(request):
             # Handle update and delete here. Create is also needed for new documents, so we'll handle that outside of this if statement.
             new_assignments = doc_obj.update_item_assignments_and_get_create_list(incoming_data['assigned_items'])
             new_special_instructions = doc_obj.update_special_instructions_and_get_create_list(incoming_data['special_instructions'])
-            response['message'] = 'Document saved'
 
+            # Prevent documents with invalid item assignments from being issued (the issue button is supposed to be greyed out when invalid
+            # assignments exist but, y'know, frontend shenanigans...)
+            if doc_obj.is_valid():
+                doc_obj.issue_date = version_form.cleaned_data['issue_date']
+                doc_obj.save()
+                response['message'] = 'Document saved'
+
+            elif version_form.cleaned_data['issue_date'] != None:
+                response['message'] = 'Document saved, but not issued (invalid item assignments exist)'
+            
             # Document validity support
             response['doc_is_valid'] = doc_obj.is_valid()
             response['item_is_valid'] = doc_obj.assignment_validity_by_jiid()
-            
 
         # Create new assignments and instructions as necessary
         create_document_assignments(new_assignments, doc_obj)
@@ -1406,9 +1410,8 @@ def doc_builder(request):
         else:
             return JsonResponse(response, status=200)
 
- 
-    # doc_obj will == None at this stage if this is a GET request for a "blank" new document
-    doc_specific_obj = None
+    # GET response: user could be GETting an existing document or a shiny new blank document
+    # Prepare variables for an existing document
     if doc_obj != None:
         included_list = doc_obj.get_included_items()
         excluded_list = doc_obj.get_excluded_items()
@@ -1420,18 +1423,22 @@ def doc_builder(request):
             try:
                 doc_specific_obj = ProductionData.objects.filter(version=doc_obj)[0]
             except:
-                pass
+                doc_specific_obj = None
 
+    # Prepare variables for a blank new document
     else:
         included_list = doc_dict['job_obj'].get_items_unassigned_to_doc(doc_dict['doc_code'])
         excluded_list = doc_dict['job_obj'].get_items_assigned_to_doc(doc_dict['doc_code'])
         special_instructions = None
+        doc_specific_obj = None
         version_num = 1
 
+    # Pass whichever set of variables to the template
     return render(request, 'adminas/document_builder.html', {
         'doc_title': doc_dict['doc_title'],
         'doc_id': doc_obj.id if doc_obj != None else 0,
         'doc': doc_obj,
+        'is_valid': doc_obj.is_valid() if doc_obj != None else True,
         'version_number': version_num,
         'doc_type': doc_dict['doc_code'],
         'reference': doc_dict['doc_ref'],

@@ -23,6 +23,13 @@ function add_event_listener_if_element_exists(element, called_function){
     }
 }
 
+function element_does_not_exist(ele){
+    if(ele == null){
+        return true;
+    }
+    return false;
+}
+
 // Add comma for thousands separator
 function numberWithCommas(num) {
     // https://stackoverflow.com/questions/2901102/how-to-print-a-number-with-commas-as-thousands-separators-in-javascript

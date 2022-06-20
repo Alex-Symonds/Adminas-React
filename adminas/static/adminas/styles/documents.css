@@ -126,15 +126,23 @@
   background: linear-gradient(45deg, #4ADFF7 0%, #00D4F5 50%, #00c2e0 100%);
   color: #F6F6F6;
 }
-.status-controls .filled:disabled {
+.status-controls button:disabled,
+.status-controls p.disabled {
   border-color: #444;
   background: #666;
   font-weight: normal;
 }
-.status-controls .filled:disabled:hover {
+.status-controls button:disabled:hover,
+.status-controls p.disabled:hover {
   border-color: #444;
   background: #666;
+}
+.status-controls .filled.disabled,
+.status-controls .filled:disabled {
   color: #F6F6F6;
+}
+.status-controls .button-warning:disabled:hover {
+  color: #cf0000;
 }
 .status-controls button.revert-replace {
   background: #141414;
@@ -218,6 +226,13 @@
   margin: 0.3rem auto 0;
   font-size: 1.3rem;
   height: 2rem;
+}
+.edit-document .document-item-lists .split-docitem-window .invalid {
+  display: flex;
+  align-items: center;
+  background: #222;
+  border-left: 3px solid #cf0000;
+  padding: 0.3rem 0.5rem;
 }
 .edit-document .document-item-lists .split-docitem-window .split-direction-setter {
   display: flex;

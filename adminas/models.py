@@ -1522,9 +1522,11 @@ class DocumentVersion(AdminAuditTrail):
     items = models.ManyToManyField(JobItem, related_name='on_documents', through='DocAssignment')
 
     def is_valid(self):
-        for i in DocAssignment.objects.filter(version=self):
-            if not i.quantity_is_valid():
-                return False
+        doc_assignments = DocAssignment.objects.filter(version=self)
+        if doc_assignments.count() > 0:
+            for i in DocAssignment.objects.filter(version=self):
+                if not i.quantity_is_valid():
+                    return False
         return True
 
     def summary(self):
@@ -1867,7 +1869,7 @@ class DocumentVersion(AdminAuditTrail):
                 this_dict = {}
                 this_dict['id'] = a.pk
                 this_dict['jiid'] = a.item.id
-                this_dict['max_allowed'] = a.max_quantity_excl_self()
+                this_dict['max_available'] = a.max_quantity_excl_self()
                 this_dict['display'] = a.item.display_str().replace(str(a.item.quantity), str(a.quantity))
                 this_dict['invalid_quantity'] = not a.quantity_is_valid()
                 result.append(this_dict)
