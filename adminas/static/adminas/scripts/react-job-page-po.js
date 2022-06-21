@@ -14,7 +14,8 @@ function JobPo(props){
                                     update_form_vis = {setFormVisible}
                                     job_id =  {props.job_id}
                                     URL_GET_DATA = {props.URL_GET_DATA}
-                                    currency = {props.currency} />
+                                    currency = {props.currency}
+                                    create_po = { props.create_po } />
             </div>
             <JobPoDiscrepancy   currency = {props.currency}
                                 data = {props.po_data}
@@ -52,6 +53,10 @@ function JobPoAddNew(props){
         props.update_form_vis(false);
     }
 
+    function handle_submit(new_po_id, po_attributes){
+        props.create_po(new_po_id, po_attributes);
+    }
+
     // Actual form has its own component, for easy sharing with Edit PO
     return <JobPoEditor URL_GET_DATA = { props.URL_GET_DATA }
                         form_id = 'po_form'
@@ -63,7 +68,9 @@ function JobPoAddNew(props){
                         currency = {props.currency}
                         value = {null}
                         job_id = {props.job_id}
-                        po_id = { null } />
+                        po_id = { null }
+                        handle_submit = { handle_submit }
+                        />
 }
 
 // PO editor form
@@ -117,11 +124,8 @@ function JobPoEditor(props){
 
     // Functions for handling submission to BE
     const save_po = () => {
-        // Get PUT working first
-        //const url = props.po_id === null ? actionUrl : `${actionUrl}?id=${props.po_id}`;
-        //const method = props.po_id === null ? 'POST' : 'PUT';
-        const url = `${actionUrl}?id=${props.po_id}`;
-        const method = 'PUT';
+        const url = props.po_id === null ? actionUrl : `${actionUrl}?id=${props.po_id}`;
+        const method = props.po_id === null ? 'POST' : 'PUT';
 
         const headers = getFetchHeaders(method, state_to_object_be());
 
@@ -133,8 +137,7 @@ function JobPoEditor(props){
             }
             if('id' in resp_json){
                 if(props.po_id === null){
-                    // TODO: create a new PO in state, using "data" and the id from the BE
-                    console.log('save a new PO into state');
+                    props.handle_submit(resp_json.id, state_to_object_fe());
                 }
                 else {
                     props.handle_submit(state_to_object_fe());
@@ -199,7 +202,6 @@ function JobPoEditor(props){
                                     default_opt_id = {null}
                                     handle_change = {update_currency} />
             <label for="id_value">Value:</label><input type="number" name="value" step="0.01" required="" id="id_value" value={poValue} onChange={update_po_value}/>
-            <input type="hidden" name="job" value={props.job_id} id="id_job" />
             <EditorControls submit = { handle_submit }
                             delete = { handle_delete }
                             want_delete = { props.po_id !== null } />

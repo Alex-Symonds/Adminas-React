@@ -580,9 +580,13 @@ def purchase_order(request):
         posted_form = POForm(incoming_data)
         if posted_form.is_valid():
 
+
             # Update PO
-            if request.GET.get('id'):
+            if request.method == 'PUT' and request.GET.get('id'):
                 po_to_update = PurchaseOrder.objects.get(id=request.GET.get('id'))
+                value_has_changed = po_to_update.value != posted_form.cleaned_data['value']
+                currency_has_changed = po_to_update.currency != posted_form.cleaned_data['currency']        
+
                 po_to_update.reference = posted_form.cleaned_data['reference']
                 po_to_update.date_on_po = posted_form.cleaned_data['date_on_po']
                 po_to_update.date_received = posted_form.cleaned_data['date_received']
@@ -590,12 +594,13 @@ def purchase_order(request):
                 po_to_update.value = posted_form.cleaned_data['value']
                 po_to_update.save()
 
-                # Price change means previous price confirmation is no longer valid
-                job = po_to_update.job
-                job.price_changed()
-
             # Create PO
-            else:
+            elif request.method == 'POST':
+
+                # Value and currency are considered to have changed, because before there was None and now there is not-None.
+                value_has_changed = True
+                currency_has_changed = True
+
                 new_po = PurchaseOrder(
                     created_by = request.user,
                     job = posted_form.cleaned_data['job'],
@@ -607,18 +612,19 @@ def purchase_order(request):
                 )
                 new_po.save()
 
-            #return HttpResponseRedirect(reverse('job', kwargs={'job_id': posted_form.cleaned_data['job'].id }))
+            # If the create or edit means the financial situation has changed, the previous price confirmation is no longer valid
+            if value_has_changed or currency_has_changed:
+                posted_form.cleaned_data['job'].price_changed()
+
             return JsonResponse({
                 'id': po_to_update.id if request.GET.get('id') else new_po.id
             }, status=200)
 
         else:
             debug(posted_form.errors)
-            debug(incoming_data)
             return JsonResponse({
                 'message': 'PO form was rejected'
             }, status=400)
-            #return error_page(request, 'PO form was invalid', 400)
 
 
 def items(request):

@@ -126,6 +126,14 @@ function JobPage(){
         ]);  
     }
 
+    function create_po(po_id, po_attributes){
+        po_attributes['po_id'] = po_id;
+        setPoList(prevState => ([
+            ...prevState,
+            po_attributes
+        ]));
+    }
+
     function update_po(po_id, po_attributes){
         var index = poList.findIndex(po => po.po_id === parseInt(po_id));
         if(index === -1){
@@ -152,7 +160,6 @@ function JobPage(){
     function update_price_accepted(is_accepted){
         setPriceAccepted(is_accepted);
     }
-
 
     function add_new_items(new_items){
         console.log(`Received command to add new items based on this:`);
@@ -207,7 +214,8 @@ function JobPage(){
                             add_new_items = { add_new_items }
                             doc_list = { docList }
                             URL_DOCS = { urlDocs }
-                            update_doc_state = { update_doc_state_from_backend }  />
+                            update_doc_state = { update_doc_state_from_backend }
+                            create_po = { create_po }  />
         </div>
     ]
 }
@@ -245,6 +253,7 @@ function JobContents(props){
                         URL_GET_DATA = {props.URL_GET_DATA}
                         update_po = { props.update_po }
                         delete_po = { props.delete_po }
+                        create_po = { props.create_po }
                         />
                 <JobPriceCheck      currency = {props.currency}
                                     price_accepted = {props.price_accepted}
