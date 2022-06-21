@@ -115,6 +115,7 @@
                 <ul class="excluded">
         {% for excl in doc_version.get_excluded_items %}
                     <li {% if excl.is_available == False %}class="unavailable"{% endif %}>
+                        {% if excl.is_invalid %}<span class="invalid-icon"><span>quantity is invalid</span></span>{% endif %}
                         <span class="display">
                             {{ excl.display }}
             {% if excl.is_available %}

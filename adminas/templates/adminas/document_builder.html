@@ -139,14 +139,15 @@
                 <h4 class="panel-header">Exclude</h4>
                 <ul id="excluded">
         {% for excl in excluded_items %}
-                    <li data-jiid="{{ excl.jiid }}" {% if excl.is_available == False %}class="unavailable"{% endif %}>
+                    <li data-jiid="{{ excl.jiid }}"{% if excl.is_available == False %} class="unavailable"{% endif %}>
+                        {% if excl.is_invalid %}<span class="invalid-icon"><span>quantity is invalid</span></span>{% endif %}
                         <span class="display">
                             {{ excl.display }}
             {% if excl.is_available %}
                         </span>
                         <div class="button-container">
                             <button class="toggle-docitem-btn button-primary">&laquo; incl.</button>
-                {% if excl.max_allowed > 1 %}
+                {% if excl.total_quantity > 1 %}
                             <button class="split-docitem-btn button-primary-hollow">&laquo; split &raquo;</button>
                 {% endif %}
                         </div>

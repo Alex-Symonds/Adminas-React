@@ -948,6 +948,7 @@ class Job(AdminAuditTrail):
             this_dict['jiid'] = ae.item.pk
             this_dict['display'] = ae.item.display_str().replace(str(ae.item.quantity), str(ae.quantity))
             this_dict['is_available'] = False
+            this_dict['is_invalid'] = not ae.quantity_is_valid()
             this_dict['used_by'] = ae.version.document.reference
             this_dict['doc_id'] = ae.version.id
             result.append(this_dict)                
@@ -1985,6 +1986,7 @@ class DocumentVersion(AdminAuditTrail):
             this_dict['is_available'] = False
             this_dict['used_by'] = ae.version.document.reference
             this_dict['doc_id'] = ae.version.id
+            this_dict['is_invalid'] = not ae.quantity_is_valid()
             result.append(this_dict)                
         return result
 

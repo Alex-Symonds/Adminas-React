@@ -256,7 +256,7 @@ function create_ele_docitem_split_window(docitem_ele, calling_ul_id){
         div.append(create_ele_docitem_invalid_split_warning());
     }
     div.append(create_ele_docitem_desc(jobitem_id));
-    div.append(create_ele_docitem_split_controls(jobitem_id, calling_ul_id));
+    div.append(create_ele_docitem_split_controls(jobitem_id, calling_ul_id, docitem_ele));
     div.append(create_ele_docitem_split_status_container(jobitem_id));
     div.append(create_ele_docitem_split_submit_btn());
     
@@ -330,12 +330,16 @@ function create_ele_docitem_invalid_split_warning(){
 
 
 // Split DocItem Panel: component, the bit where you actually click and input things
-function create_ele_docitem_split_controls(jobitem_id, calling_ul_id){
+function create_ele_docitem_split_controls(jobitem_id, calling_ul_id, docitem_ele){
     const div = document.createElement('div');
     div.classList.add(CLASS_SPLIT_DIRECTION_SETTER);
     div.append(create_ele_docitem_split_direction_div(calling_ul_id));
 
-    let default_qty = get_docitem_qty(calling_ul_id, jobitem_id);
+    if(docitem_is_invalid(docitem_ele)){
+        var default_qty = docitem_ele.dataset.max_available;
+    } else {
+        var default_qty = get_docitem_qty(calling_ul_id, jobitem_id);
+    }
     const input_fld = create_ele_docitem_edit_field(default_qty);
     div.append(input_fld);
 
@@ -379,11 +383,12 @@ function create_ele_docitem_split_direction_div(called_from){
 }
 
 // Split DocItem Panel: component, the input where you enter the quantity you want
-function create_ele_docitem_edit_field(){
+function create_ele_docitem_edit_field(default_qty){
     // JobItem quantity fields are usually used in cases where min=1 makes sense.
     // Here, 0 makes sense too, so adjust the min.
     let fld = get_jobitem_qty_field();
     fld.min = 0;
+    fld.value = default_qty;
 
     fld.addEventListener('change', (e) => {
         update_split_window(e.target);
@@ -604,9 +609,7 @@ function process_split_request(calling_ele){
     the description in each modified in accordance with the user's input.
     */
     else{
-        const description = get_combined_docitem_text_from_jobitem_id(jobitem_id);
-        process_docitem_split_N_and_N(ID_INCLUDES_UL, incl_value, jobitem_id, description);
-        process_docitem_split_N_and_N(ID_EXCLUDES_UL, excl_value, jobitem_id, description);
+        process_docitem_split_N_and_N(incl_value, excl_value, jobitem_id);
     }
 
     // The items just changed, so show the "unsaved changes" warning; then close this panel.
@@ -616,22 +619,48 @@ function process_split_request(calling_ele){
 
 // Split DocItem Activity: handle the <li> and <ul> update in cases where the split set one to quantity = 0.
 function process_docitem_split_N_and_0(ul_id_with_0, jobitem_id){
-    // 0 quantity = the 0-having <ul> should have no <li> for this JobItem.
+    // Use cases:
+    //  1)  ul-to-be-0 has an unwanted <li> in it, which must be moved/merged to the other <ul>
+    //  2)  The "calling" docitem is invalid. The user is splitting off N valid items to keep, then disposing of the rest
+    //  3)  User decided not to make any changes, but clicked "submit" with the same quantities rather than closing the window
+
+    // Determine if case #1 applies by finding out if ul-to-be-0 has a <li> in it for this JobItem ID
     var src_ul = document.querySelector('#' + ul_id_with_0);
-    const docitem_li = get_li_with_same_jiid(src_ul, jobitem_id);
+    const li_to_move = get_li_with_same_jiid(src_ul, jobitem_id);
 
-    // If it's not empty, this is equivalent to clicking incl. or excl., so run that function.
-    if(docitem_li != null){
+    // Case #1: Moving/merging a <li> from one <ul> to the other is the job of the toggle function
+    // (note: the toggle function has its own handling for invalid docitems, so don't need to worry about that here)
+    if(li_to_move != null){
         var dst_ul = get_dest_docitem_ul(src_ul);
-        update_both_docitem_ul_for_toggle(dst_ul, src_ul, docitem_li);
+        update_both_docitem_ul_for_toggle(dst_ul, src_ul, li_to_move);
+        return;
     }
-    // If it was empty, we can assume the other <ul> has the <li> and all is well.
 
+    // Determine if Case #2 applies by grabbing the <li> in "includes" (if it exists), since that's the potentially "invalid" one
+    var includes_ul = document.querySelector(`#${ID_INCLUDES_UL}`);
+    var includes_li = get_li_with_same_jiid(includes_ul, jobitem_id);
+
+    // Case #2: The splitter enforces valid quantities, so if one <ul> is to contain 0, the other must contain max_available
+    // Therefore "splitting off N valid items to keep" = fixing an invalid docitem
+    // "Disposing of the rest" is what happens naturally, unless you make an effort to stop it, so we just... won't
+    if(docitem_is_invalid(includes_li)){
+        fix_invalid_docitem_ele(includes_li);
+        return;
+    }
+
+    // Case #3: no toggling or fixing is required, so do nothing.
     return;
 }
 
 // Split DocItem Activity: handle the <li> and <ul> update in cases where the split set non-0 for both.
-function process_docitem_split_N_and_N(ul_id, new_quantity, jobitem_id, description){
+function process_docitem_split_N_and_N(incl_value, excl_value, jobitem_id){
+    const description = get_combined_docitem_text_from_jobitem_id(jobitem_id);
+    process_docitem_split_set_ul(ID_INCLUDES_UL, incl_value, jobitem_id, description);
+    process_docitem_split_set_ul(ID_EXCLUDES_UL, excl_value, jobitem_id, description);
+}
+
+// Split DocItem Activity: ensure a given <ul> contains an <li> with quantity N
+function process_docitem_split_set_ul(ul_id, new_quantity, jobitem_id, description){
 
     // Find the <ul> in question and try to find the <li> for this JobItem ID
     const target_ul = document.querySelector('#' + ul_id);
@@ -641,10 +670,16 @@ function process_docitem_split_N_and_N(ul_id, new_quantity, jobitem_id, descript
     const have_li = target_li != null;
     let new_display_string = description.replace(QTY_RE, new_quantity);
 
-    // If this <ul> already has an <li> for this JobItem, update the innerHTML to reflect the new quantity.
+    // If this <ul> already has an <li> for this JobItem, update it to reflect the new quantity.
     if(have_li){
         let display_span = target_li.querySelector('.' + CLASS_DISPLAY_SPAN);
-        display_span.innerHTML = display_span.innerHTML = new_display_string;
+        display_span.innerHTML = new_display_string;
+
+        // If it was previously invalid, the splitter should have enforced a valid quantity now.
+        // We already updated the desciption, so all that remains is to wipe the formatting.
+        if(docitem_is_invalid(target_li)){
+            wipe_invalid_formatting(target_li);
+        }
     }
     // If the <ul> lacks a <li> for this JobItem, create one.
     else {
@@ -655,6 +690,7 @@ function process_docitem_split_N_and_N(ul_id, new_quantity, jobitem_id, descript
         remove_none_li(target_ul);
     }
 }
+
 
 // Split DocItem Support: navigates the DOM to find the "result ele" containing the number chosen by the user
 function get_docitem_split_window_result_ele(result_preview_class){
@@ -761,8 +797,7 @@ function fix_invalid_docitem_ele(docitem_ele){
 
     // If it's fixable, fix it
     replace_invalid_description(docitem_ele);
-    remove_invalid_css(docitem_ele);
-    remove_invalid_icon(docitem_ele);
+    wipe_invalid_formatting(docitem_ele);
     return true;
 }
 
@@ -775,6 +810,11 @@ function replace_invalid_description(docitem_ele){
     display_span.innerHTML = get_valid_description(docitem_ele);
 }
 
+// Invalid DocItem Fixing: remove any/all decorations applied to invalid docitems
+function wipe_invalid_formatting(docitem_ele){
+    remove_invalid_css(docitem_ele);
+    remove_invalid_icon(docitem_ele);
+}
 
 // Invalid DocItem Fixing: remove CSS for invalid docitems
 function remove_invalid_css(docitem_ele){
@@ -795,3 +835,9 @@ function remove_invalid_icon(docitem_ele){
     }  
 }
 
+function element_does_not_exist(ele){
+    if(ele == null){
+        return true;
+    }
+    return false;
+}
