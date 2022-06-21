@@ -556,8 +556,11 @@ def purchase_order(request):
     if request.method == 'DELETE':
         if 'id' in request.GET:
             po_id = request.GET.get('id')
+
         else:
-            return error_page(request, "Invalid request", 400)
+            return JsonResponse({
+                'message': 'Invalid request'
+            }, status=400)
 
         try:
             po_to_delete = PurchaseOrder.objects.get(id=po_id)
@@ -565,12 +568,19 @@ def purchase_order(request):
             # Deactivate POs rather than deleting them, in case someone needs it as an audit trail
             po_to_delete.active = False
             po_to_delete.save()
+
             job = po_to_delete.job
             job.price_changed()
-            return HttpResponseRedirect(reverse('job', kwargs={'job_id': job.pk }))
+            return JsonResponse({
+                'ok': True
+            }, status=200)
+            #return HttpResponseRedirect(reverse('job', kwargs={'job_id': job.pk }))
 
         except PurchaseOrder.DoesNotExist:
-            return error_page(request, "Can't find PO.", 400)
+            return JsonResponse({
+                'message': 'PO has already been deleted'
+            }, status=400)
+            #return error_page(request, "Can't find PO.", 400)
 
 
     elif request.method == 'POST' or request.method == 'PUT':
@@ -1197,7 +1207,7 @@ def get_data(request):
                     response_data['item_list'].append(item.serialise())
 
                 response_data['po_list'] = []
-                for po in this_job.po.all():
+                for po in this_job.po.filter(active=True):
                     response_data['po_list'].append(po.serialise())
 
                 response_data['doc_list'] = []

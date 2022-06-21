@@ -118,8 +118,9 @@ function JobPoEditor(props){
         save_po();  
     }
 
-    function handle_delete(){
-        props.handle_delete();
+    function handle_delete(e){
+        e.preventDefault();
+        delete_po();
     }
 
     // Functions for handling submission to BE
@@ -143,6 +144,23 @@ function JobPoEditor(props){
                     props.handle_submit(state_to_object_fe());
                 }
                 props.cancel();
+            }
+        })
+        .catch(error => console.log(error))
+    };
+
+    const delete_po = () => {
+        const url = `${actionUrl}?id=${props.po_id}`;
+        const headers = getFetchHeaders('DELETE', null);
+        fetch(url, headers)
+        .then(response => response.json())
+        .then(resp_data => {
+            if('ok' in resp_data){
+                props.handle_delete();
+                props.cancel();
+            }
+            else if('message' in resp_data){
+                setBackendError(resp_data['message']);
             }
         })
         .catch(error => console.log(error))

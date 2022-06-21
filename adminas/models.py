@@ -822,7 +822,7 @@ class Job(AdminAuditTrail):
             Get the total PO sum for this Job (number).
         """
         try:
-            return sum([po.value for po in self.po.all()])
+            return sum([po.value for po in self.po.filter(active=True)])
         except:
             return 0
 

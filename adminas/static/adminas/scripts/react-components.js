@@ -218,12 +218,17 @@ const updateBackend = (url, method, body_obj) => {
 };
 
 function getFetchHeaders(method, body_obj){
-    return {
+    const headers = {
         method: method,
-        body: JSON.stringify(body_obj),
         headers: getDjangoCsrfHeaders(),
         credentals: 'include' 
     }
+
+    if(body_obj !== null){
+        headers.body = JSON.stringify(body_obj)
+    }
+
+    return headers;
 }
 
     

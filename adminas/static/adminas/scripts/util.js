@@ -23,9 +23,6 @@ function add_event_listener_if_element_exists(element, called_function){
     }
 }
 
-function getRandomInt(max) {
-    return Math.floor(Math.random() * max);
-  }
 
 // Add comma for thousands separator
 function numberWithCommas(num) {
