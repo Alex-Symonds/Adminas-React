@@ -354,6 +354,7 @@ def job_comments(request, job_id):
         if not comment_form.is_valid():
             debug(comment_form.errors)
             return JsonResponse({
+                'message': "Invalid form data.",
                 'error': "Invalid form data."
             }, status=400)   
 
@@ -392,6 +393,7 @@ def job_comments(request, job_id):
                 job = Job.objects.get(id=job_id)
             except Job.DoesNotExist:
                 return JsonResponse({
+                    'message': "Can't find Job.",
                     'error': "Can't find Job."
                 }, status=400)
 

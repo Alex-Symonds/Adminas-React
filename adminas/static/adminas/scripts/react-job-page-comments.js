@@ -7,7 +7,9 @@
 const DEFAULT_COMMENT_ID = '0';
 
 function JobComments(props){
-    const [urlCommentsPage, setUrl] = React.useState('');
+
+    // Comment-related states
+    const [urlComments, setUrl] = React.useState('');
     const [username, setUsername] = React.useState('');
     const [comments, setComments] = React.useState([]);
     const [activeEdit, setActiveEdit] = React.useState([null, null]);
@@ -16,7 +18,7 @@ function JobComments(props){
     const { data, error, isLoaded } = useFetch(url_for_page_load(props.URL_GET_DATA, props.job_id, 'comments'));
     React.useEffect(() => {
         if(typeof data.url !== 'undefined'){
-            setUrl(data.url + '?page=1');
+            setUrl(data.url);
         }
 
         if(typeof data.username !== 'undefined'){
@@ -70,7 +72,7 @@ function JobComments(props){
                                 update_active_edit = { update_active_edit }
                                 update_comment = { update_comment }
                                 delete_comment = { delete_comment }
-                                url_comments_page = { urlCommentsPage }
+                                url_comments = { urlComments }
                                 />
 }
 
@@ -78,19 +80,21 @@ function JobCommentsRender(props){
     return [
         <section id="job_comments" class="item">
             <h3>Comments</h3>
-            <a href={props.url_comments_page}>See all {props.comments.length} comments</a>
+            <a href={`${props.url_comments}?page=1`}>See all {props.comments.length} comments</a>
             <JobCommentsSubsection title='Pinned'       css_class='pinned'      username = { props.username } 
                                                                                 comments = { props.comments } 
                                                                                 active_edit = { props.active_edit }
                                                                                 update_active_edit = { props.update_active_edit }
                                                                                 update_comment = { props.update_comment }
-                                                                                delete_comment = { props.delete_comment } />
+                                                                                delete_comment = { props.delete_comment }
+                                                                                url_comments = { props.url_comments }/>
             <JobCommentsSubsection title='Highlighted'  css_class='highlighted' username = { props.username } 
                                                                                 comments = { props.comments } 
                                                                                 active_edit = { props.active_edit }
                                                                                 update_active_edit = { props.update_active_edit }
                                                                                 update_comment = { props.update_comment }
-                                                                                delete_comment = { props.delete_comment } />
+                                                                                delete_comment = { props.delete_comment }
+                                                                                url_comments = { props.url_comments } />
         </section>
     ]
 }
@@ -110,6 +114,7 @@ function JobCommentsSubsection(props){
                                         section_name = { props.css_class }
                                         active_edit = { props.active_edit }
                                         update_active_edit = { props.update_active_edit }
+                                        url_comments = { props.url_comments }
                                         />
     }
 
@@ -146,6 +151,7 @@ function CommentsBlock(props){
                                 section_name = { props.section_name }
                                 active_edit = { props.active_edit }
                                 update_active_edit = { props.update_active_edit }
+                                url_comments = { props.url_comments }
                 />
             })}
         </div>
@@ -182,7 +188,8 @@ function Comment(props){
         return <CommentEditor   comment = {props.c}
                                 update_comment = { props.update_comment }
                                 delete_comment = { props.delete_comment }
-                                edit_mode = { edit_mode } />
+                                edit_mode = { edit_mode }
+                                url_comments = { props.url_comments } />
     }
     // Otherwise render the "normal" comment
     return <CommentRead     c = {props.c}
@@ -292,6 +299,8 @@ function CommentEditor(props){
     const [isPinned, setPinned] = React.useState(props.comment.pinned);
     const [isHighlighted, setHighlighted] = React.useState(props.comment.highlighted);
 
+    const [backendError, setBackendError] = React.useState(null);
+
     function handle_content_change(e){
         setContents(e.target.value);
     }
@@ -307,26 +316,55 @@ function CommentEditor(props){
 
     // Changes to "pass up" on submit or delete
     function submit_comment(){
-        const updated_comment = {
+        save_comment();
+    }
+
+    const save_comment = () => {
+        const url = `${props.url_comments}?id=${props.comment.id}`;
+        const headers = getFetchHeaders('PUT', state_to_object_be());
+        
+        fetch(url, headers)
+        .then(response => response.json())
+        .then(resp_data => {
+            if('message' in resp_data){
+                setBackendError(resp_data.message);
+            }
+            else if('job_id' in resp_data){
+                props.update_comment(props.comment.id, state_to_object_fe());
+                props.edit_mode(false);
+            }
+        })
+        .catch(error => console.log('Error: ', error))
+    };
+
+    function state_to_object_be(){
+        return {
             contents: contents,
             private: isPrivate,
             pinned: isPinned,
             highlighted: isHighlighted
         };
-        props.update_comment(props.comment.id, updated_comment);
+    }
 
-        // Also turn off edit mode and return to read mode
-        props.edit_mode(false);
+    function state_to_object_fe(){
+        // These are the same atm
+        return state_to_object_be();
     }
 
     function delete_comment(){
         props.delete_comment(props.comment.id);
     }
 
+    function remove_error(){
+        setBackendError(null);
+    }
+
     return [
         <div class="job-comment-cu-container panel form-like">
             <button class="close" onClick={() => props.edit_mode(false) }><span>close</span></button>
             <h4>Edit Comment</h4>
+            <BackendError   message = {backendError}
+                            turn_off_error = { remove_error } />
             <textarea id="id_comment_contents" name="contents" cols="30" rows="5" value={contents} onChange={handle_content_change}></textarea>
             <CommentEditorCheckboxes    c = {props.comment} 
                                         is_private = { isPrivate }
