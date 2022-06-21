@@ -23,12 +23,7 @@ function add_event_listener_if_element_exists(element, called_function){
     }
 }
 
-function element_does_not_exist(ele){
-    if(ele == null){
-        return true;
-    }
-    return false;
-}
+
 
 // Add comma for thousands separator
 function numberWithCommas(num) {

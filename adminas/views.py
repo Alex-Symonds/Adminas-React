@@ -573,9 +573,11 @@ def purchase_order(request):
             return error_page(request, "Can't find PO.", 400)
 
 
-    elif request.method == 'POST':
+    elif request.method == 'POST' or request.method == 'PUT':
         # Create and Update should both submit a JSONed POForm, so handle/check that
-        posted_form = POForm(request.POST)
+        #posted_form = POForm(request.POST)
+        incoming_data = json.loads(request.body)
+        posted_form = POForm(incoming_data)
         if posted_form.is_valid():
 
             # Update PO
@@ -605,11 +607,18 @@ def purchase_order(request):
                 )
                 new_po.save()
 
-            return HttpResponseRedirect(reverse('job', kwargs={'job_id': posted_form.cleaned_data['job'].id }))
+            #return HttpResponseRedirect(reverse('job', kwargs={'job_id': posted_form.cleaned_data['job'].id }))
+            return JsonResponse({
+                'id': po_to_update.id if request.GET.get('id') else new_po.id
+            }, status=200)
 
         else:
             debug(posted_form.errors)
-            return error_page(request, 'PO form was invalid', 400)
+            debug(incoming_data)
+            return JsonResponse({
+                'message': 'PO form was rejected'
+            }, status=400)
+            #return error_page(request, 'PO form was invalid', 400)
 
 
 def items(request):
@@ -1569,4 +1578,3 @@ def document_main(request, doc_id):
         'doc_specific': doc_specific_obj,
         'special_instructions': doc_obj.instructions.all().order_by('-created_on')
     })
-

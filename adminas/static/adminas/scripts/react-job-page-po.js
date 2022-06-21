@@ -52,26 +52,8 @@ function JobPoAddNew(props){
         props.update_form_vis(false);
     }
 
-    // Fetch the action URL for Purchase Order form from server
-    const [actionUrl, setActionUrl] = React.useState('');
-    const { data, error, isLoaded } = useFetch(url_for_url_list(props.URL_GET_DATA, props.job_id));
-    React.useEffect(() => {
-        if(typeof data.po_url !== 'undefined'){
-            setActionUrl(data.po_url);
-        }
-    }, [data]);
-
-    // Display
-    if(error){
-        return <LoadingErrorEle name='form' />
-    }
-    else if(!isLoaded){
-        return <LoadingEle />
-    }
-
     // Actual form has its own component, for easy sharing with Edit PO
-    return <JobPoEditor URL_ACTION = { actionUrl }
-                        URL_GET_DATA = { props.URL_GET_DATA }
+    return <JobPoEditor URL_GET_DATA = { props.URL_GET_DATA }
                         form_id = 'po_form'
                         cancel = { hide_form }
                         title = 'Add PO'
@@ -81,18 +63,32 @@ function JobPoAddNew(props){
                         currency = {props.currency}
                         value = {null}
                         job_id = {props.job_id}
-                        po_id = { null }
-                        />
+                        po_id = { null } />
 }
 
 // PO editor form
 function JobPoEditor(props){
+
+    // States for controlled form fields
     const [reference, setReference] = React.useState(props.reference);
     const [dateOnPo, setDateOnPo] = React.useState(props.date_on_po);
     const [dateReceived, setDateReceived] = React.useState(props.date_received);
     const [currency, setCurrency] = React.useState(props.currency);
     const [poValue, setPoValue] = React.useState(props.value);
 
+    // States for fetching the URL for purchase order actions on the BE
+    const [actionUrl, setActionUrl] = React.useState('');
+    const { data, error, isLoaded } = useFetch(url_for_url_list(props.URL_GET_DATA, props.job_id));
+    React.useEffect(() => {
+        if(typeof data.po_url !== 'undefined'){
+            setActionUrl(data.po_url);
+        }
+    }, [data]);
+
+    // States for handling the BE response to attempted submissions
+    const [backendError, setBackendError] = React.useState(null);
+
+    // Functions for managing controlled form fields
     function update_reference(e){
         setReference(e.target.value);
     }
@@ -109,28 +105,84 @@ function JobPoEditor(props){
         setPoValue(e.target.value);
     }
 
+    // Functions for handling form buttons
     function handle_submit(e){
         e.preventDefault();
-        var form_obj = {
-            reference: reference,
-            date_on_po: dateOnPo,
-            value: poValue,
-            date_received: dateReceived,
-            currency: currency
-        };
-        props.handle_submit(form_obj);
-        props.cancel();
+        save_po();  
     }
 
     function handle_delete(){
         props.handle_delete();
     }
 
+    // Functions for handling submission to BE
+    const save_po = () => {
+        // Get PUT working first
+        //const url = props.po_id === null ? actionUrl : `${actionUrl}?id=${props.po_id}`;
+        //const method = props.po_id === null ? 'POST' : 'PUT';
+        const url = `${actionUrl}?id=${props.po_id}`;
+        const method = 'PUT';
+
+        const headers = getFetchHeaders(method, state_to_object_be());
+
+        fetch(url, headers)
+        .then(response => response.json())
+        .then(resp_json => {
+            if('message' in resp_json){
+                setBackendError(resp_json.message);
+            }
+            if('id' in resp_json){
+                if(props.po_id === null){
+                    // TODO: create a new PO in state, using "data" and the id from the BE
+                    console.log('save a new PO into state');
+                }
+                else {
+                    props.handle_submit(state_to_object_fe());
+                }
+                props.cancel();
+            }
+        })
+        .catch(error => console.log(error))
+    };
+
+    function state_to_object_fe(){
+        return {
+            reference: reference,
+            date_on_po: dateOnPo,
+            value: poValue,
+            date_received: dateReceived,
+            currency: currency
+        };   
+    }
+    function state_to_object_be(){
+        return {
+            reference: reference,
+            date_on_po: dateOnPo,
+            value: poValue,
+            date_received: dateReceived,
+            currency: currency,
+            job: props.job_id
+        };   
+    }
+
+    function remove_error(){
+        setBackendError(null);
+    }
+
+    // Display
+    if(error){
+        return <LoadingErrorEle name='form' />
+    }
+    else if(!isLoaded){
+        return <LoadingEle />
+    }
+
     return [
         <form class="form-like panel" id={props.form_id} onSubmit={handle_submit}>
             <button type="button" class="cancel-po-form close" onClick={props.cancel}><span>cancel</span></button>
             <h5 class="panel-header">{ props.title }</h5>
-
+            <BackendError   message = {backendError}
+                            turn_off_error = { remove_error } />
             <label for="id_reference">Customer PO Number:</label>
             <input type="text" name="reference" maxlength="50" required="" id="id_reference" value={ reference } onChange={update_reference}/>
             <label for="id_date_on_po">Date on PO:</label>
@@ -226,8 +278,7 @@ function JobPoElement(props){
 
     // If edit mode is active, display the form (form has its own component, for easy sharing with Add PO)
     if(props.active_edit === props.data.po_id){
-        return <JobPoEditor URL_ACTION = { null }
-                            URL_GET_DATA = { props.URL_GET_DATA }
+        return <JobPoEditor URL_GET_DATA = { props.URL_GET_DATA }
                             form_id = 'po_edit_form'
                             cancel = { hide_form }
                             title = 'Edit PO asdf'

@@ -1,9 +1,9 @@
 // JobItems section
 // Includes:
-//      || JobItems formset (for ading new items)
-//      || JobItem main section (for existing items)
-//      || JobItemEle   (one existing item)
-//      || JobItemEditor    (edit an existing item)
+//      || JobItems formset (for creating new items: option for creating multiple items at once)
+//      || JobItem main section (for displaying existing items)
+//      || JobItemEle   (displaying one existing item)
+//      || JobItemEditor    (edit one existing item)
 
 function JobItems(props){
     const [formVisible, setFormVisible] = React.useState(null);
@@ -59,11 +59,9 @@ function JobItemsAddForm(props){
         blank_field_set()
     ]);
 
-
-
     // Handling adding/removing extra items to the form
     const MAX_FORMS = 1000;
-
+    
     function add_field_set(e){
         e.preventDefault();
         if(inputFields.length >= MAX_FORMS){
@@ -578,17 +576,8 @@ function JobItemEditor(props){
             setBackendError(message);
 
             if('ok' in resp_json){
-                // The backend permits users to edit items such that it messes up documents,
-                // so long as only draft documents are affected.
-                // Draft documents are pretty flexible, so only edits to quantity can cause issues.
-                // To find out if the quantity changed obviously we need the previous state for
-                // comparison, so let's sort that out before updating the item's state.
-                if(quantity != props.data.quantity){
-                    props.update_doc_state();
-                }
-
-                // With that sorted, proceed with the main event and tidying up
                 props.update_item(props.data.ji_id, state_to_object_fe());
+                props.update_doc_state();
                 props.edit_mode(false);
             }
         })

@@ -160,19 +160,12 @@ function JobPage(){
     }
 
     function update_doc_state_from_backend(){
-        console.log('Updating documents state');
         fetch(url_for_page_load(URL_GET_DATA, job_id, 'documents'))
         .then(response => response.json())
         .then(resp_data => {
             if(typeof resp_data.doc_list !== 'undefined'){
                 setDocs(resp_data.doc_list)
             }
-            //     var data = docList;
-            // }
-            // else {
-            //     var data = resp_data.doc_list;
-            // }
-            // setDocs(data);
         })
         .catch(error => console.log(error));
     }
