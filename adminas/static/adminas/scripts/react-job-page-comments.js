@@ -48,7 +48,7 @@ function JobComments(props){
         ]);
     }
 
-    function delete_comment(comment_id){
+    function remove_comment(comment_id){
         var index = comments.findIndex(c => c.id === parseInt(comment_id));
         if(index === -1){
             return;
@@ -71,7 +71,7 @@ function JobComments(props){
                                 active_edit = { activeEdit }
                                 update_active_edit = { update_active_edit }
                                 update_comment = { update_comment }
-                                delete_comment = { delete_comment }
+                                delete_comment = { remove_comment }
                                 url_comments = { urlComments }
                                 />
 }
@@ -165,14 +165,9 @@ function Comment(props){
     // Note re. vanilla JS portions of Adminas.
     // On the Job page only the "collapsed" comments are used, so only collapsed comments are setup in React atm.
 
-    // Notes re. edit mode
-    // A Comment can be in "read mode" or "edit mode". Only one comment on the page is allowed to be in edit mode at a time:
-    // setting Comment B to edit mode should return Comment A to read mode. To enable siblings to affect one another, 
-    // the "active edit" state has been lifted up. It is possible for the same comment ID to appear twice (if it is both pinned 
-    // and highlighted, it will appear in both sections) so to ensure only one editor is open at a time, we must consider
-    // both the comment_id and the section it's in.
-
-    // Set the comment ID and section name here, so children don't have to worry about those implementation details.
+    // For comments, the "currently editing" state stores an ID AND a section name instead of just the ID. This is because
+    // a comment which is both pinned and highlighted will appear in both sections, so using the ID alone would result in 
+    // an unnecessary second editor window.
     function edit_mode(want_edit){
         if(!want_edit){
             var new_settings = [null, null];
@@ -194,7 +189,8 @@ function Comment(props){
     // Otherwise render the "normal" comment
     return <CommentRead     c = {props.c}
                             edit_mode = { edit_mode }
-                            update_comment = { props.update_comment } />
+                            update_comment = { props.update_comment }
+                            url_comments = { props.url_comments } />
 }
 
 // "Normal" readable comment component
@@ -226,7 +222,8 @@ function CommentRead(props){
                                         highlighted = { props.c.highlighted }
                                         user_is_owner ={ props.c.user_is_owner }
                                         edit_mode = { props.edit_mode }
-                                        update_comment = { props.update_comment } />
+                                        update_comment = { props.update_comment }
+                                        url_comments = { props.url_comments } />
             </details>
         </article>  
     ]
@@ -245,9 +242,28 @@ function CommentContentsMain(props){
 // Read Comment: the bit at the bottom, with the author, timestamp and buttons (pin, highlight and edit)
 function CommentContentsFooter(props){
 
-    function toggle_highlight(){
-        var want_highlight = !props.highlighted;
-        props.update_comment(props.comment_id, {highlighted: want_highlight});
+    const [backendError, setBackendError] = React.useState(null);
+
+    function toggle_comment_from_icon(attributes){
+        const url = `${props.url_comments}?id=${props.comment_id}`;
+        const headers = getFetchHeaders('PUT', attributes);
+
+        fetch(url, headers)
+        .then(response => response.json())
+        .then(resp_data => {
+            if('message' in resp_data){
+                setBackendError(resp_data.message);
+            }
+            else if('ok' in resp_data){
+                props.update_comment(props.comment_id, attributes);
+                props.edit_mode(false);
+            }
+        })
+        .catch(error => console.log('Error: ', error))
+    }
+
+    function remove_error(){
+        setBackendError(null);
     }
 
     return [
@@ -256,10 +272,14 @@ function CommentContentsFooter(props){
                 {props.created_by} on {props.created_on }
             </div>
             <div class="controls">
+                <BackendError   message = {backendError}
+                                turn_off_error = { remove_error } />
                 <CommentPinnedButton    pinned = { props.pinned }
-                                        update_comment = { props.update_comment } 
+                                        toggle_comment_from_icon = { toggle_comment_from_icon } 
                                         comment_id = { props.comment_id } />
-                <button class="highlighted-toggle" onClick={toggle_highlight}>+/- highlight</button>
+                <CommentHighlightButton highlighted = { props.highlighted }
+                                        toggle_comment_from_icon = { toggle_comment_from_icon } 
+                                        comment_id = { props.comment_id } />
                 <CommentEditButton  user_is_owner = { props.user_is_owner }
                                     edit_mode = { props.edit_mode } />
             </div>
@@ -267,18 +287,29 @@ function CommentContentsFooter(props){
     ]
 }
 
+
 // Read Comment: the pinned button at the bottom
 function CommentPinnedButton(props){
-    function toggle_pinned(){
+    function handle_toggle(){
         var want_pin = !props.pinned;
-        props.update_comment(props.comment_id, {pinned: want_pin});
+        props.toggle_comment_from_icon({pinned: want_pin});
     }
 
     var display_text = props.pinned ? 'unpin' : 'pin';
     var css_class_list = "pinned-toggle pinned-status-";   
     props.pinned ? css_class_list += 'on' : css_class_list += 'off';
 
-    return <button class={css_class_list} onClick={toggle_pinned}>{display_text}</button>
+    return <button class={css_class_list} onClick={handle_toggle}>{display_text}</button>
+}
+
+// Read Comment: the highlight button at the bottom
+function CommentHighlightButton(props){
+    function handle_toggle(){
+        var want_highlight = !props.highlighted;
+        props.toggle_comment_from_icon({highlighted: want_highlight});
+    }
+
+    return <button class="highlighted-toggle" onClick={handle_toggle}>+/- highlight</button>
 }
 
 // Read Comment: edit button at the bottom
@@ -315,7 +346,7 @@ function CommentEditor(props){
     }
 
     // Changes to "pass up" on submit or delete
-    function submit_comment(){
+    function handle_submit(){
         save_comment();
     }
 
@@ -329,7 +360,8 @@ function CommentEditor(props){
             if('message' in resp_data){
                 setBackendError(resp_data.message);
             }
-            else if('job_id' in resp_data){
+            else if('ok' in resp_data){
+                console.log(resp_data)
                 props.update_comment(props.comment.id, state_to_object_fe());
                 props.edit_mode(false);
             }
@@ -351,8 +383,28 @@ function CommentEditor(props){
         return state_to_object_be();
     }
 
+    function handle_delete(){
+        delete_comment();
+    }
+
     function delete_comment(){
-        props.delete_comment(props.comment.id);
+        const url = `${props.url_comments}?id=${props.comment.id}`;
+        const headers = getFetchHeaders('DELETE', null);
+        
+        fetch(url, headers)
+        .then(response => jsonOr204(response))
+        .then(resp_data => {
+            if(resp_data === 204){
+                props.delete_comment(props.comment.id);
+            }
+            else if('message' in resp_data){
+                setBackendError(resp_data.message);
+            }
+            else {
+                setBackendError('Delete failed');
+            }
+        })
+        .catch(error => console.log('Error: ', error))
     }
 
     function remove_error(){
@@ -374,8 +426,8 @@ function CommentEditor(props){
                                         is_highlighted = { isHighlighted }
                                         handle_highlighted_change = { update_highlighted }
                                          />
-            <EditorControls     submit = { submit_comment }
-                                delete = { delete_comment }
+            <EditorControls     submit = { handle_submit }
+                                delete = { handle_delete }
                                 want_delete = { true }
                                 />
         </div>

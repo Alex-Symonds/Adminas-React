@@ -162,8 +162,8 @@ function JobPage(){
     }
 
     function add_new_items(new_items){
-        console.log(`Received command to add new items based on this:`);
-        console.log(new_items);
+        var new_state = itemsList.concat(new_items);
+        setItemsList(new_state);
     }
 
     function update_doc_state_from_backend(){

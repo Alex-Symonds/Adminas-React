@@ -310,121 +310,255 @@ def job(request, job_id):
     })
 
 
+
+
+
+def get_comment_details(request, need_edit):
+    """
+    Retrieve a comment based on a GET param "id"
+    """
+    try:
+        comment = JobComment.objects.get(id=request.GET.get('id'))
+
+    except JobComment.DoesNotExist:
+        return {
+            'error': "Can't find comment.",
+            'status': 400
+        }
+    
+    if need_edit and comment.created_by != request.user:
+        return {
+            'error': "You are not the owner of this comment.",
+            'status': 403
+        }
+    
+    return {
+        'comment': comment
+    }
+
+
+
+def get_comment_form_details(request):
+    """
+    Put request data into a comment form and check validity
+    """
+    posted_data = json.loads(request.body)
+    comment_form = JobCommentFullForm({
+        'private': posted_data['private'],
+        'contents': posted_data['contents'],
+        'pinned': posted_data['pinned'],
+        'highlighted': posted_data['highlighted']
+    })
+
+    if not comment_form.is_valid():
+        debug(comment_form.errors)
+        return {
+            'error': "Invalid form data.",
+            'status': 400
+        }
+
+    return {
+        'form': comment_form
+    }
+
+
+def update_membership(want_membership, memberlist_includes, member, mtm_list):
+    """
+    Fix membership of an MTM list, but only if it's wrong
+    """
+    have_membership = memberlist_includes(member)
+
+    if want_membership and not have_membership:
+        mtm_list.add(member)
+    elif not want_membership and have_membership:
+        mtm_list.remove(member)
+
+
+def respond_with_error(details):
+    """
+    JsonResponse based on a dict with "error" and "status"
+    """
+    # Legacy inconsistency issue: some places expect "message" for error text; some expect "error".
+    # Until this is resolved, return both.
+    return JsonResponse({
+        'message': details['error'],
+        'error': details['error']
+    }, status = details['status']) 
+
+
+def get_comment_toggle_details(posted_data):
+    """
+    Attempt to extract a dict of toggle information (which toggle and desired value) from un-JSONed data
+    """
+    if 'pinned' in posted_data or 'highlighted' in posted_data:
+
+        if 'pinned' in posted_data:
+            result = cleaned_bool_dict(posted_data, 'pinned')
+        elif 'highlighted' in posted_data:
+            result = cleaned_bool_dict(posted_data, 'highlighted')
+
+        return result
+
+    return {
+        'error': 'Invalid request',
+        'status': 400
+    }
+
+def string_to_bool(str):
+    if str.lower() == 'true':
+        return True
+    elif str.lower() == 'false':
+        return False
+    return None
+
+
+def cleaned_bool_dict(data, key):
+    """
+    Extract a key/value pair from data, where the value is a boolean
+    """
+    if key in data:
+        result = {}
+
+        if isinstance(data[key], bool):
+            result[key] = data[key]
+            return result
+
+        elif isinstance(data[key], str):
+            bool_or_none = string_to_bool(data[key])
+            if bool_or_none != None:
+                result[key] = bool_or_none
+                return result
+
+        result['error'] = 'Invalid request (toggle is not remotely bool-y)'
+    else:
+        result['error'] = 'Invalid request (toggle key not in data)'
+        
+    result['status'] = 400
+    return result
+    
+    
+
+
+
+
+
+
+
+
+
 def job_comments(request, job_id):
     """
         Job Comments page, plus processing for JobComments.
     """
     if not request.user.is_authenticated:
         return anonymous_user(request)
-    
-    # If the request involves modifying an existing comment, check for existence and permission.
-    if request.method == 'PUT' or request.method == 'DELETE':
-        comment_id = request.GET.get('id')
-        try:
-            comment = JobComment.objects.get(id=comment_id)
-        except JobComment.DoesNotExist:
-            return JsonResponse({
-                'message': "Can't find comment."
-            }, status=400)
-
-        if(comment.created_by != request.user):
-            return JsonResponse({
-                'message': "You are not the owner of this comment."
-            }, status=403) 
-
 
     # User wants to delete a job comment
     if request.method == 'DELETE':
-        comment.delete()
-        return HttpResponse(status=204)   
+        comment_details = get_comment_details(request, True)
+        if 'error' in comment_details:
+            return respond_with_error(comment_details)
+        else:
+            comment = comment_details['comment']
+            comment.delete()
+            return HttpResponse(status=204)   
 
+    # User wants to edit an existing job comment
+    elif request.method == 'PUT':
+        # Check GET parameters in the request to ensure we can get a valid comment from them, then proceed with un-JSONing the data
+        comment_details = get_comment_details(request, True)
+        if 'error' in comment_details:
+            return respond_with_error(comment_details)
 
-    # User wants the create or update a comment
-    elif request.method == 'POST' or request.method == 'PUT':
-
-        # Stick the data into the form for cleaning and check it's all ok.
+        comment = comment_details['comment']
         posted_data = json.loads(request.body)
-        comment_form = JobCommentFullForm({
-            'private': posted_data['private'],
-            'contents': posted_data['contents'],
-            'pinned': posted_data['pinned'],
-            'highlighted': posted_data['highlighted']
-        })
 
-        if not comment_form.is_valid():
-            debug(comment_form.errors)
-            return JsonResponse({
-                'message': "Invalid form data.",
-                'error': "Invalid form data."
-            }, status=400)   
+        # Note: edits come from two places: the comment editor ("full" edits) or icons on a "read-mode" comment ("toggles")
+        # Only full edits have a 'contents' key, so use that to distinguish between the two
+        if 'contents' in posted_data:
+            # Check incoming data against what we expect from a full editor update
+            form_details = get_comment_form_details(request)
+            if 'error' in form_details:
+                return respond_with_error(form_details)
 
-
-        # Edit the existing comment.
-        if request.method == 'PUT':
-            
-            # Note: comment was assigned during the initial "is it ok to proceed?" checks.
+            # Perform full-update-only updates
+            comment_form = form_details['form']
             comment.contents = comment_form.cleaned_data['contents']
             comment.private = comment_form.cleaned_data['private']
-            user = User.objects.get(username=request.user.username)
 
-            # Handle pinned status
+            # Set desired states for toggle-ables
             want_pinned = comment_form.cleaned_data['pinned']
-            have_pinned = comment.is_pinned_by(user)
-
-            if want_pinned and not have_pinned:
-                comment.pinned_by.add(request.user)
-            elif not want_pinned and have_pinned:
-                comment.pinned_by.remove(request.user)
-
-            # Handle highlighted status
             want_highlighted = comment_form.cleaned_data['highlighted']
-            have_highlighted = comment.is_highlighted_by(user)
+        
+        else:
+            # Check incoming data against what we expect from a toggle click
+            toggle_details = get_comment_toggle_details(posted_data)
+            if 'error' in toggle_details:
+                return respond_with_error(toggle_details)
+            
+            # Set desired states for toggle-ables
+            want_pinned = comment.is_pinned_by(request.user) if not 'pinned' in toggle_details else toggle_details['pinned']
+            want_highlighted = comment.is_highlighted_by(request.user) if not 'highlighted' in toggle_details else toggle_details['highlighted']
 
-            if want_highlighted and not have_highlighted:
-                comment.highlighted_by.add(request.user)
-            elif not want_highlighted and have_highlighted:
-                comment.highlighted_by.remove(request.user)                
+        # Regardless of whether this is a toggle or a full update, update the toggle-ables
+        update_membership(want_pinned, comment.is_pinned_by, request.user, comment.pinned_by)
+        update_membership(want_highlighted, comment.is_highlighted_by, request.user, comment.highlighted_by)
 
-            comment.save()
+        # Save and report success
+        comment.save()
+        data = comment.serialise(request.user)  # For Vanilla JS pages, which will use this to populate the edited comment element
+        data['ok'] = True   # For React, which just needs the ok to call its setWhatever() hooks
+        return JsonResponse(data, status=200)
+
+
+    # User wants the create  a comment
+    elif request.method == 'POST':
+
+        # Stick the data into the form for cleaning and check it's all ok.
+        form_details = get_comment_form_details(request)
+        if 'error' in form_details:
+            return respond_with_error(form_details)
+
+        comment_form = form_details['form']
+
+        # Make sure the Job ID is ok
+        try:
+            job = Job.objects.get(id=job_id)
+        except Job.DoesNotExist:
+            return respond_with_error({
+                'error': "Can't find Job.",
+                'status': 400
+            })
 
         # Create new comment
-        elif request.method == 'POST':
-            try:
-                job = Job.objects.get(id=job_id)
-            except Job.DoesNotExist:
-                return JsonResponse({
-                    'message': "Can't find Job.",
-                    'error': "Can't find Job."
-                }, status=400)
+        comment = JobComment(
+            created_by = request.user,
+            job = job,
+            contents = comment_form.cleaned_data['contents'],
+            private = comment_form.cleaned_data['private']
+        )
+        comment.save()
 
-            # Create comment
-            comment = JobComment(
-                created_by = request.user,
-                job = job,
-                contents = comment_form.cleaned_data['contents'],
-                private = comment_form.cleaned_data['private']
-            )
+        want_pinned = comment_form.cleaned_data['pinned']
+        if want_pinned:
+            comment.pinned_by.add(request.user)
+
+        want_highlighted = comment_form.cleaned_data['highlighted']
+        if want_highlighted:
+            comment.highlighted_by.add(request.user)
+
+        if want_pinned or want_highlighted:
             comment.save()
 
-            want_pinned = comment_form.cleaned_data['pinned']
-            if want_pinned:
-                comment.pinned_by.add(request.user)
-
-            want_highlighted = comment_form.cleaned_data['highlighted']
-            if want_highlighted:
-                comment.highlighted_by.add(request.user)
-
-            if want_pinned or want_highlighted:
-                comment.save()
-
-        # Whether POST or PUT, respond with the current data.
+        # Respond with all the data needed to display a new comment on the page
         data = comment.serialise(request.user)
         data['job_id'] = job_id
         data['created_on'] = formats.date_format(comment.created_on, "DATETIME_FORMAT")
 
         return JsonResponse(data, status=200)
 
-    # User wants to see the page. Begin by getting the general purpose info for the heading and subheading.
+    # GET
+    # Begin by getting the general purpose info for the heading and subheading.
     my_job = Job.objects.get(id=job_id)
     job = {}
     job['id'] = my_job.id
@@ -672,14 +806,22 @@ def items(request):
     # Adding a new item.
     # This can come form two places: the Job page or the ModuleManagement page.
     elif request.method == 'POST':
-
         # Try processing as a formset with a flexible number of items added at once (i.e. from the multi-item form on the Job page)
         # (Job page is expecting an HTTP response)
-        formset = JobItemFormSet(request.POST)
+        #formset = JobItemFormSet(request.POST)
+        formset = JobItemFormSet(json.loads(request.body))
         if formset.is_valid():
+            jobitems = []
             for form in formset:
-                add_jobitem(request.user, form)
-            return HttpResponseRedirect(reverse('job', kwargs={'job_id': form.cleaned_data['job'].id}))
+                new_ji = add_jobitem(request.user, form)
+                jobitems.append(new_ji.serialise())
+            
+            return JsonResponse({
+                'ok': True,
+                'jobitems': jobitems
+            }, status = 200)
+
+            #return HttpResponseRedirect(reverse('job', kwargs={'job_id': form.cleaned_data['job'].id}))
 
         # If that fails, try processing as a non-formset (i.e. from the Module Management page)
         # (ModuleManagement expects a JSON response)
@@ -689,7 +831,10 @@ def items(request):
             
             # If this fails too then idk, the incoming data just ain't right. Try to redirect to the error page while hoping JSON wasn't expected.
             except:
-                return error_page(request, 'Invalid data.', 400)
+                return JsonResponse({
+                    'message': "Invalid data",
+                }, status=400)
+                #return error_page(request, 'Invalid data.', 400)
             
             # Add a JobItem based on modular info, then return the JobItem ID
             if incoming_data['source_page'] == 'module_management':
@@ -704,6 +849,7 @@ def items(request):
                 })
 
                 if not form.is_valid():
+                    debug('invalid module form')
                     return JsonResponse({
                         'message': 'Item form was invalid.'
                     }, status=400)
@@ -714,6 +860,11 @@ def items(request):
                 return JsonResponse({
                     'id': ji.product.id
                 }, status=200)
+            else:
+                debug('invalid multi form')
+                return JsonResponse({
+                    'message': "Invalid formset",
+                }, status=400)
 
 
     # Updates can be called from two places:

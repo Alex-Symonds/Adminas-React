@@ -53,11 +53,13 @@ function JobItemsAddForm(props){
     };
 
     // Setup states for the CRUD URL and handling the formset.
-    
     const [numToAdd, setNumToAdd] = React.useState(null);
     const [inputFields, setFields] = React.useState([
         blank_field_set()
     ]);
+
+    // State for handling response to backend updates
+    const [backendError, setBackendError] = React.useState(null);
 
     // Handling adding/removing extra items to the form
     const MAX_FORMS = 1000;
@@ -112,9 +114,55 @@ function JobItemsAddForm(props){
     }
 
     function handle_submit(e){
-        e.preventDefault;
-        props.add_new_items(inputFields);
-        hide_form();
+        e.preventDefault();
+        create_new_items();
+    }
+
+    function create_new_items(){
+        const url = props.URL_ITEMS;
+        const headers = getFetchHeaders('POST', state_to_object_be());
+
+        fetch(url, headers)
+        .then(response => response.json())
+        .then(resp_data => {
+
+            if('error' in resp_data){
+                setBackendError(resp_data.error);
+                return;
+            }
+            if('ok' in resp_data){
+                props.add_new_items(resp_data.jobitems);
+                hide_form();
+            }
+
+        })
+        .catch(error => console.log('Error: ', error))
+    }
+
+    function state_to_object_be(){
+        let obj = {
+            'form-TOTAL_FORMS': `${inputFields.length}`,
+            'form-INITIAL_FORMS': '0',
+            'form-MIN_NUM_FORMS': '0',
+            'form-MAX_NUM_FORMS': '1000'
+        }
+
+        for(var index in inputFields){
+            var item_form = inputFields[index];
+            var prefix = `form-${index}-`;
+
+            obj[prefix + 'quantity'] = item_form.quantity;
+            obj[prefix + 'product'] = item_form.product_id;
+            obj[prefix + 'selling_price'] = item_form.selling_price;
+            obj[prefix + 'price_list'] = item_form.price_list_id;
+            obj[prefix + 'job'] = props.job_id;
+        }
+
+        return obj;
+    }
+
+    function remove_error(){
+        setBackendError(null);
     }
 
     return <JobItemsAddFormRender   hide_form = { hide_form }
@@ -129,16 +177,19 @@ function JobItemsAddForm(props){
                                     handle_num_add_change = { handle_num_add_change }
                                     update_form = {update_fields}
                                     handle_submit = {handle_submit}
+                                    backend_error = {backendError}
+                                    remove_error = {remove_error}
     />
     
 }
 
 function JobItemsAddFormRender(props){
-    //<form method="POST" action={props.URL_ITEMS} id="items_form">
     return [
         <div id="new_items_container" class="form-like panel">
             <button id="close_item_form_btn" class="close" onClick={props.hide_form}><span>close</span></button>
             <h5 class="panel-header">Add New Items</h5>
+            <BackendError   message = {props.backend_error}
+                            turn_off_error = { props.remove_error } />
             <form id="items_form" onSubmit={e => props.handle_submit(e)}>
                 <input type="hidden" name="form-TOTAL_FORMS" value={props.input_fields.length} id="id_form-TOTAL_FORMS" />
                 <input type="hidden" name="form-INITIAL_FORMS" value="0" id="id_form-INITIAL_FORMS" />
@@ -477,6 +528,8 @@ function slot_assignment_data_by_product(item_list){
 // Product-based slot assignments, first pass: create an object containing multiple nested objects, one for each unique product.
 // Use product_id as the key for fast lookup and set total_product_quantity as you go.
 function get_products_list_no_assignments(item_list){
+    console.log(item_list);
+
     var result = {};
 
     for(var idx in item_list){

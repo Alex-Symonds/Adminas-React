@@ -274,3 +274,9 @@ function getCookie(name) {
     }
     return cookieValue;
 }
+
+// When deleting something, check for 204 before attempting to JSON anything.
+async function jsonOr204(response){
+    if(response.status === 204) return 204;
+    return await response.json();
+}
