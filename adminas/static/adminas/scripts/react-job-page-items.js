@@ -26,7 +26,8 @@ function JobItems(props){
                                     job_id = {props.job_id}
                                     update_item = { props.update_item }
                                     delete_item = { props.delete_item }
-                                    update_doc_state = { props.update_doc_state } />
+                                    update_doc_state = { props.update_doc_state }
+                                    URL_ITEMS = { props.URL_ITEMS }/>
             </div>
         </section>
     ]
@@ -308,6 +309,7 @@ function JobItemsExisting(props){
                             update_item = { props.update_item }
                             delete_item = { props.delete_item }
                             update_doc_state = { props.update_doc_state }
+                            URL_ITEMS = { props.URL_ITEMS }
                             />
                 )
             }
@@ -338,6 +340,7 @@ function JobItemEle(props){
                                 update_item = { props.update_item }
                                 delete_item = { delete_item }
                                 update_doc_state = { props.update_doc_state }
+                                URL_ITEMS = { props.URL_ITEMS }
                                 />
     }
 
@@ -528,8 +531,6 @@ function slot_assignment_data_by_product(item_list){
 // Product-based slot assignments, first pass: create an object containing multiple nested objects, one for each unique product.
 // Use product_id as the key for fast lookup and set total_product_quantity as you go.
 function get_products_list_no_assignments(item_list){
-    console.log(item_list);
-
     var result = {};
 
     for(var idx in item_list){
@@ -616,7 +617,7 @@ function JobItemEditor(props){
     }
 
     const save_item = () => {
-        const url = `/items?id=${props.data.ji_id}`;
+        const url = `${props.URL_ITEMS}?id=${props.data.ji_id}`;
         var headers = getFetchHeaders('PUT', state_to_object_be());
 
         fetch(url, headers)
@@ -662,8 +663,27 @@ function JobItemEditor(props){
     }
 
     function handle_delete(){
-        props.delete_item(props.data.ji_id);
-        props.edit_mode(false);
+        delete_jobitem();
+    }
+
+    function delete_jobitem(){
+        var url = `${props.URL_ITEMS}?id=${props.data.ji_id}`;
+        var headers = getFetchHeaders('DELETE', null);
+
+        fetch(url, headers)
+        .then(response => response.json())
+        .then(resp_data => {
+            if('message' in resp_data){
+                setBackendError(resp_data.message);
+            }
+
+            if('ok' in resp_data){
+                props.delete_item(props.data.ji_id);
+                props.edit_mode(false);
+            }
+        })
+        .catch(error => console.log('Error: ', error))
+
     }
 
     function remove_error(){

@@ -838,17 +838,28 @@ nav{
 
 // || Text formatting (errors, database IDs)
 .temp-warning-msg{
-    margin-left: 0.6rem;
-    color: v.$c_txt_warning_g;
-    background: v.$g_warning_hover;
-    font-size: 0.9rem;
-    padding: 0 0.3rem;
-    border-radius: 0.45rem;
-    border: 1px solid v.$c_txt_warning_g;
+    display: flex;
+    align-items: center;
+
     width: fit-content;
     max-width: 65%;
-    min-height: 1.2rem;
+    min-height: 32px;
     word-wrap: wrap;
+    
+    margin-left: 0.6rem;
+    padding: 0 0.3rem;
+
+    font-size: 0.9rem;
+
+    color: v.$c_txt_warning_g;
+    background: v.$c_tone_00;//v.$g_warning_hover;
+    
+    border-top-right-radius: 0.45rem;
+    border-bottom-right-radius: 0.45rem;
+    border: 1px solid v.$c_tone_02;//v.$c_txt_warning_g;
+    border-left: 3px solid v.$c_warning;
+    
+
 
     &.user-management{
         margin-top: 1rem;

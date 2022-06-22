@@ -672,17 +672,21 @@ nav li a:hover {
   }
 }
 .temp-warning-msg {
-  margin-left: 0.6rem;
-  color: white;
-  background: linear-gradient(0deg, #ac0000 0%, #e60000 100%);
-  font-size: 0.9rem;
-  padding: 0 0.3rem;
-  border-radius: 0.45rem;
-  border: 1px solid white;
+  display: flex;
+  align-items: center;
   width: fit-content;
   max-width: 65%;
-  min-height: 1.2rem;
+  min-height: 32px;
   word-wrap: wrap;
+  margin-left: 0.6rem;
+  padding: 0 0.3rem;
+  font-size: 0.9rem;
+  color: white;
+  background: #141414;
+  border-top-right-radius: 0.45rem;
+  border-bottom-right-radius: 0.45rem;
+  border: 1px solid #444;
+  border-left: 3px solid #cf0000;
 }
 .temp-warning-msg.user-management {
   margin-top: 1rem;

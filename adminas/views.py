@@ -799,8 +799,11 @@ def items(request):
         ji.job.price_changed()
         ji.delete()
         return JsonResponse({
-            'reload': 'true'
+            'ok': True
         }, status=200)
+        # return JsonResponse({
+        #     'reload': 'true'
+        # }, status=200)
 
 
     # Adding a new item.
