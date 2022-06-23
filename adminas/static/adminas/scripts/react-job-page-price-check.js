@@ -11,7 +11,8 @@ function JobPriceCheck(props){
                                         total_selling = {props.total_selling}
                                         total_list = {props.total_list}/>
             <JobPriceCheckDetails       data = { props.items_data }
-                                        update_item = { props.update_item }/>
+                                        update_item = { props.update_item }
+                                        URL_ITEMS = { props.URL_ITEMS }/>
         </section>
     ]
 }
@@ -102,7 +103,8 @@ function JobPriceCheckDetails(props){
                                                         data={item}
                                                         active_edit = { activeEdit }
                                                         edit_mode = { update_active_edit }
-                                                        update_item = { props.update_item }/>
+                                                        update_item = { props.update_item }
+                                                        URL_ITEMS = { props.URL_ITEMS } />
                         )
                     }
                 </tbody>
@@ -114,7 +116,7 @@ function JobPriceCheckDetails(props){
 function JobPriceCheckDetailsRow(props){
 
     const [showName, setShowName] = React.useState(false);
-
+    const [backendError, setBackendError] = React.useState(null);
 
 
     var selling_price = parseFloat(props.data.selling_price);
@@ -139,8 +141,16 @@ function JobPriceCheckDetailsRow(props){
         return props.active_edit === props.data.ji_id;
     }
 
-    function handle_submit(new_attributes){
+    function update_item(new_attributes){
         props.update_item(props.data.ji_id, new_attributes);
+    }
+
+    function backend_error(message){
+        setBackendError(message);
+    }
+
+    function remove_error(){
+        setBackendError(null);
     }
 
     return[
@@ -152,6 +162,8 @@ function JobPriceCheckDetailsRow(props){
             </td>
             <td class="qty">{props.data.quantity}</td>
             <td class="selling-price-container">
+                <BackendError   message = { backendError }
+                                turn_off_error = { remove_error } />
                 <span class="selling-price">{format_money(selling_price)}</span>
                 <JobPriceCheckEditButton    active_edit = { props.active_edit }
                                             edit_mode = { edit_on } />
@@ -163,7 +175,9 @@ function JobPriceCheckDetailsRow(props){
                                             quantity = { props.data.quantity }
                                             part_number = { props.data.part_number }
                                             item_name = { props.data.product_name }
-                                            handle_submit = { handle_submit }
+                                            update_item = { update_item }
+                                            URL_ITEMS_WITH_ID = { `${props.URL_ITEMS}?id=${props.data.ji_id}` }
+                                            backend_error = { backend_error }
                                             />
             </td>
             <td class="version">{props.data.price_list_name}</td>
@@ -190,7 +204,6 @@ function JobPriceCheckEditButton(props){
         return null;
     }
 
-    //<button class="edit-btn edit-icon" data-jiid={props.data.ji_id}><span>edit</span></button>
     return <button class="edit-btn edit-icon" onClick={ props.edit_mode }><span>edit</span></button>
 }
 
@@ -217,6 +230,34 @@ function JobPriceCheckPriceEditor(props){
         });
     }
 
+    function change_price(){
+        const headers = getFetchHeaders('PUT', state_as_object_be());
+
+        fetch(props.URL_ITEMS_WITH_ID, headers)
+        .then(response => response.json())
+        .then(resp_data => {
+            if('message' in resp_data){
+                props.backend_error(resp_data.message);
+                props.cancel();
+                return;
+            }
+
+            if('ok' in resp_data){
+                props.update_item({
+                    selling_price: priceState.selling_price
+                });
+                props.cancel();
+            }
+        })
+        .catch(error => console.log('Error: ', error))
+    }
+
+    function state_as_object_be(){
+        return {
+            'selling_price': priceState.selling_price
+        }
+    }
+
     // Wait for the state to update, then send the new price all the way up to the itemList state.
     React.useEffect(() => {
 
@@ -228,10 +269,7 @@ function JobPriceCheckPriceEditor(props){
 
         // If the user used the editor to alter the price, update the price in the "main" state and then close the editor.
         if(!priceState.is_init_value && priceState.selling_price !== props.selling_price){
-            props.handle_submit({
-                selling_price: priceState.selling_price
-            });
-            props.cancel();
+            change_price();
         }
 
     }, [priceState]);

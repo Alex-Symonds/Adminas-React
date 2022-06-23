@@ -801,9 +801,6 @@ def items(request):
         return JsonResponse({
             'ok': True
         }, status=200)
-        # return JsonResponse({
-        #     'reload': 'true'
-        # }, status=200)
 
 
     # Adding a new item.
@@ -899,17 +896,9 @@ def items(request):
                 }, status=400)
         
             # Store the original values for the product and quantity so that we can check if they've changed
-            # previous_product = ji.product
-            # previous_qty = ji.quantity
             updated_product = form.cleaned_data['product']
             updated_qty = form.cleaned_data['quantity']
             updated_selling_price = form.cleaned_data['selling_price']
-
-            # Prepare the updated JobItem in accordance with the proposed edit, but don't save it yet
-            # ji.quantity = form.cleaned_data['quantity']
-            # ji.product = form.cleaned_data['product']
-            # ji.selling_price = form.cleaned_data['selling_price']
-            # ji.price_list = form.cleaned_data['price_list']
 
             # Identify if the proposed edit touches on anything that requires a special response
             product_has_changed = updated_product != ji.product
@@ -917,12 +906,10 @@ def items(request):
             price_has_changed = updated_selling_price != ji.selling_price
 
             # Module assignments relate to products rather than JobItems, so the product matters:
-            # if 1 x ProductA was updated to 1 x ProductB, we need to check if 0 x ProductA would be acceptable
-            # rather than just going "oh, it's still quantity = 1, so that's fine".
-            updated_product_quantity = updated_qty
-            if product_has_changed:
-                updated_product_quantity = 0
-            
+            # if a JobItem had 1 x ProductA and was updated to 1 x ProductB, we need to check if 0 x ProductA 
+            # would be acceptable rather than just going "oh, it's still quantity = 1, so that's fine".
+            updated_product_quantity = 0 if product_has_changed else updated_qty
+
             # Modular items check: Check that the proposed edit wouldn't leave any other items with empty slots
             if not ji.quantity_is_ok_for_modular_as_child(updated_product_quantity):
                 return JsonResponse({
@@ -938,28 +925,14 @@ def items(request):
 
             # Issued documents check
             # If this item appears on an issued document, nothing can be edited that would affect the issued document.
-            # The only things that DON'T affect the issued document are:
-            #   a) Price list changing (= doesn't appear on OC or WO, only used for admin price checks)
-            #   b) Quantity changes, so long as the new quantity is still >= the number assigned to issued documents
             num_on_issued = ji.num_required_for_issued_documents()
             if  num_on_issued > 0 and\
-                (
-                    product_has_changed or price_has_changed or\
-                    updated_qty < num_on_issued
-                ):
+                (product_has_changed or price_has_changed or updated_qty < num_on_issued):
 
                 return JsonResponse({
                     'message': f"Update failed: issued documents would be altered."
                 }, status=400)
 
-
-            # Draft documents check
-            # num_on_draft = ji.num_required_for_draft_documents()
-            # if num_on_draft > 0 and updated_qty < num_on_issued + num_on_draft:
-            #     return JsonResponse({
-            #         'message': f"Update failed: insufficient items to fill draft documents.",
-            #         'doc_id_list': ji.draft_document_id_list()
-            #     }, status=400)               
 
             # The modules are happy (from a backend perspective), so save the changes and perform knock-on updates
             ji.quantity = updated_qty
@@ -980,7 +953,7 @@ def items(request):
                 'ok': 'true'
             }, status=200)                        
         
-        # If the none selling_price field isn't there, assume we're only updating the price
+        # If the not-selling_price field isn't there, assume we're only updating the price
         else:
             form = JobItemPriceForm(incoming_data)
             if not form.is_valid():
@@ -993,6 +966,7 @@ def items(request):
             ji.job.price_changed()
 
             return JsonResponse({
+                'ok': True,
                 'reload': 'true'
             }, status=200)  
 

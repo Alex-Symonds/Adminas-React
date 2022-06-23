@@ -1107,8 +1107,6 @@ class JobItem(AdminAuditTrail):
         """
             Check if this JobItem appears on a document which has been issued.
         """
-        #return self.num_on_issued_documents() > 0
-
         return DocAssignment.objects.filter(item=self).filter(version__active=True).count() > 0
 
 

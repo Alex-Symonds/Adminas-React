@@ -262,6 +262,7 @@ function JobContents(props){
                                     items_data = {props.items_data}
                                     update_item = { props.update_item }
                                     update_price_accepted = { props.update_price_accepted }
+                                    URL_ITEMS = { props.URL_ITEMS }
                                     />
             </section>  
         </div>

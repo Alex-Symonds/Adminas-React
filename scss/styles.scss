@@ -846,6 +846,7 @@ nav{
     min-height: 32px;
     word-wrap: wrap;
     
+    margin-top: 0.3rem;
     margin-left: 0.6rem;
     padding: 0 0.3rem;
 
@@ -859,8 +860,6 @@ nav{
     border: 1px solid v.$c_tone_02;//v.$c_txt_warning_g;
     border-left: 3px solid v.$c_warning;
     
-
-
     &.user-management{
         margin-top: 1rem;
         padding: 0.5rem;

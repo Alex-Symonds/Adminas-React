@@ -678,6 +678,7 @@ nav li a:hover {
   max-width: 65%;
   min-height: 32px;
   word-wrap: wrap;
+  margin-top: 0.3rem;
   margin-left: 0.6rem;
   padding: 0 0.3rem;
   font-size: 0.9rem;
