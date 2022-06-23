@@ -821,10 +821,11 @@ class Job(AdminAuditTrail):
         """
             Get the total PO sum for this Job (number).
         """
-        try:
+        if self.po.filter(active=True).count() > 0:
             return sum([po.value for po in self.po.filter(active=True)])
-        except:
-            return 0
+        return 0
+
+
 
     def total_po_value_f(self):
         """

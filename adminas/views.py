@@ -3,7 +3,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.db import IntegrityError
 from django.urls import reverse
-from django.db.models import Sum, Count
+from django.db.models import Sum, Count, Case, When
 from django.core.paginator import Paginator
 from django.utils import formats
 
@@ -1403,12 +1403,16 @@ def records(request):
     paginated = Paginator(jobs, num_records_per_page)
 
     if request.GET.get('page'):
-        req_page = request.GET.get('page')
+        req_page_num = request.GET.get('page')
     else:
-        req_page = 1
+        req_page_num = 1
 
-    req_page = paginated.page(req_page)
-    data = req_page.object_list.annotate(total_po_value=Sum('po__value')).annotate(num_po=Count('po'))
+    req_page = paginated.page(req_page_num)
+    #Sum(Case(When(cost_saving_10th__gt=0, then=F('warranty')), default=0))
+    #data = req_page.object_list.annotate(total_po_value=Sum('po__value')).annotate(num_po=Count('po'))
+    data = req_page.object_list\
+            .annotate(total_po_value=Sum(Case(When(po__active=True, then='po__value')), default=0))\
+            .annotate(num_po=Count(Case(When(po__active=True, then='po'), default=0)))
 
     for j in data:
         j.total_po_value_f = format_money(j.total_po_value)

@@ -90,7 +90,9 @@
                         <h4 class="panel-header">Purchase Orders</h4>
                         <ul>  
             {% for po in job.po.all %}
+                {% if po.active %}
                             <li>{{ po.reference }}</li>
+                {% endif %}
             {% endfor %}
                         </ul>
                     </div>
@@ -98,7 +100,13 @@
                         {{ job.po.all.0.reference }}
         {% endif %}
                 </td>
-                <td>{{ job.total_po_value_f }}</td>
+                <td>
+        {% if job.total_po_value_f == '[ERR]' %}
+                    0.00
+        {% else %}
+                    {{ job.total_po_value_f }}
+        {% endif %}
+                </td>
                 <td>{{ job.incoterm_code }}</td>
                 <td>{{ job.invoice_to.site.company.name }}</td>
                 <td>
