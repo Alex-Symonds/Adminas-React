@@ -808,7 +808,6 @@ def items(request):
     elif request.method == 'POST':
         # Try processing as a formset with a flexible number of items added at once (i.e. from the multi-item form on the Job page)
         # (Job page is expecting an HTTP response)
-        #formset = JobItemFormSet(request.POST)
         formset = JobItemFormSet(json.loads(request.body))
         if formset.is_valid():
             jobitems = []
@@ -820,8 +819,6 @@ def items(request):
                 'ok': True,
                 'jobitems': jobitems
             }, status = 200)
-
-            #return HttpResponseRedirect(reverse('job', kwargs={'job_id': form.cleaned_data['job'].id}))
 
         # If that fails, try processing as a non-formset (i.e. from the Module Management page)
         # (ModuleManagement expects a JSON response)
@@ -849,7 +846,6 @@ def items(request):
                 })
 
                 if not form.is_valid():
-                    debug('invalid module form')
                     return JsonResponse({
                         'message': 'Item form was invalid.'
                     }, status=400)
@@ -861,7 +857,6 @@ def items(request):
                     'id': ji.product.id
                 }, status=200)
             else:
-                debug('invalid multi form')
                 return JsonResponse({
                     'message': "Invalid formset",
                 }, status=400)
@@ -895,20 +890,28 @@ def items(request):
                     'message': f"Update failed"
                 }, status=400)
         
-            # Store the original values for the product and quantity so that we can check if they've changed
-            updated_product = form.cleaned_data['product']
-            updated_qty = form.cleaned_data['quantity']
-            updated_selling_price = form.cleaned_data['selling_price']
+            product_update = get_update_status_dict(form.cleaned_data['product'], ji.product)
+            quantity_update = get_update_status_dict(form.cleaned_data['quantity'], ji.quantity)
+            selling_price_update = get_update_status_dict(form.cleaned_data['selling_price'], ji.selling_price)
+            price_list_update = get_update_status_dict(form.cleaned_data['price_list'], ji.price_list)
 
-            # Identify if the proposed edit touches on anything that requires a special response
-            product_has_changed = updated_product != ji.product
-            quantity_has_changed = updated_qty != ji.quantity
-            price_has_changed = updated_selling_price != ji.selling_price
+
+            # # Store the original values for the product and quantity so that we can check if they've changed
+            # updated_product = form.cleaned_data['product']
+            # updated_qty = form.cleaned_data['quantity']
+            # updated_selling_price = form.cleaned_data['selling_price']
+            # updated_price_list = form.cleaned_data['price_list']
+
+            # # Identify what has changedsw
+            # product_has_changed = updated_product != ji.product
+            # quantity_has_changed = updated_qty != ji.quantity
+            # price_has_changed = updated_selling_price != ji.selling_price
+            # price_list_has_changed = updated_price_list != ji.price_list
 
             # Module assignments relate to products rather than JobItems, so the product matters:
             # if a JobItem had 1 x ProductA and was updated to 1 x ProductB, we need to check if 0 x ProductA 
             # would be acceptable rather than just going "oh, it's still quantity = 1, so that's fine".
-            updated_product_quantity = 0 if product_has_changed else updated_qty
+            updated_product_quantity = 0 if product_update['has_changed'] else quantity_update['new']
 
             # Modular items check: Check that the proposed edit wouldn't leave any other items with empty slots
             if not ji.quantity_is_ok_for_modular_as_child(updated_product_quantity):
@@ -917,7 +920,7 @@ def items(request):
                 }, status=400)                             
 
             # Modular items check: Check that the proposed edit wouldn't leave itself with empty slots
-            if ji.product.is_modular() and not product_has_changed and updated_product_quantity > ji.quantity:
+            if ji.product.is_modular() and not product_update['has_changed'] and updated_product_quantity > ji.quantity:
                 if not ji.quantity_is_ok_for_modular_as_parent(updated_product_quantity):
                     return JsonResponse({
                         'message': f"Update failed: insufficient items to fill specification."
@@ -927,7 +930,7 @@ def items(request):
             # If this item appears on an issued document, nothing can be edited that would affect the issued document.
             num_on_issued = ji.num_required_for_issued_documents()
             if  num_on_issued > 0 and\
-                (product_has_changed or price_has_changed or updated_qty < num_on_issued):
+                (product_update['has_changed'] or selling_price_update['has_changed'] or quantity_update['new'] < num_on_issued):
 
                 return JsonResponse({
                     'message': f"Update failed: issued documents would be altered."
@@ -935,22 +938,26 @@ def items(request):
 
 
             # The modules are happy (from a backend perspective), so save the changes and perform knock-on updates
-            ji.quantity = updated_qty
-            ji.product = updated_product
-            ji.selling_price = updated_selling_price
-            ji.price_list = form.cleaned_data['price_list']
+            ji.quantity = quantity_update['new']
+            ji.product = product_update['new']
+            ji.selling_price = selling_price_update['new']
+            ji.price_list = price_list_update['new']
             ji.save()
-
-            if product_has_changed:
+            
+            if product_update['has_changed']:
                 ji.reset_standard_accessories()
 
-            elif quantity_has_changed:
+            elif quantity_update['has_changed']:
                 ji.update_standard_accessories_quantities()
 
             ji.job.price_changed()
 
+            # Warn the frontend if this update has had knock-on effects on other fields
+            refresh_needed = product_update['has_changed'] or price_list_update['has_changed']
+
             return JsonResponse({
-                'ok': 'true'
+                'ok': 'true',
+                'refresh_needed': refresh_needed
             }, status=200)                        
         
         # If the not-selling_price field isn't there, assume we're only updating the price
@@ -974,27 +981,38 @@ def items(request):
     # User is fiddling with the product dropdown, so send them the description of the current item
     # in the language chosen for this job.
     elif request.method == 'GET':
-        if 'product_id' in  request.GET:
+        if 'product_id' in request.GET:
             product_id = request.GET.get('product_id')
             job_id = request.GET.get('job_id')
             lang = Job.objects.get(id=job_id).language
             description = Product.objects.get(id=product_id).get_description(lang)
 
             return JsonResponse({
-                'desc': description
+                'desc': description,
+                'ok': True
             }, status=200)
 
         elif 'ji_id' in request.GET:
             ji_id = request.GET.get('ji_id')
 
             try:
-                ji = JobItem.objects.get(ji_id)
-            except:
+                ji = JobItem.objects.get(id=ji_id)
+            except JobItem.DoesNotExist:
                 return JsonResponse({
                     'error': 'JobItem not found'
                 }, status=404)
 
-            return JsonResponse(ji.serialise(), status=200)
+            response_data = ji.serialise()
+            response_data['ok'] = True
+
+            return JsonResponse(response_data, status=200)
+
+
+def get_update_status_dict(new_value, previous_value):
+    return {
+        'new': new_value,
+        'has_changed': new_value != previous_value
+    }
 
 
 

@@ -82,30 +82,9 @@ function JobPage(){
 
     // || Updating states
     function update_item(item_id, item_attributes){
-        console.log(`Updating item ID #${item_id} with this:`);
-        console.log(item_attributes);
-
         var index = itemsList.findIndex(i => i.ji_id === parseInt(item_id));
         if(index === -1){
             return;
-        }
-
-        // If the user just changed the product ID and/or price list ID, this will have implications for 2-6 other fields,
-        // so grab a full set of fresh data from the server.
-        var target_item = itemsList[index];
-        if('product_id' in item_attributes || 'price_list_id' in item_attributes){
-            var product_changed = 'product_id' in item_attributes && target_item.product_id != item_attributes.product_id;
-            var price_list_changed = 'price_list_id' in item_attributes && target_item.price_list_id != item_attributes.price_list_id;
-
-            if(product_changed || price_list_changed){
-                // const { data, error, isLoaded } = useFetch(`${urlItems}?ji_id=${item_id}`;
-                // request full set of item info from BE
-                // item_attributes = the entire JSON string sent by the server
-                console.log(`PLACEHOLDER: FETCH DATA FOR ITEM ID#${item_id}`);
-                item_attributes.description = 'placeholder for a new desc from server';
-                item_attributes.price_list_name = 'PLC1234.05';
-            }
-
         }
 
         setItemsList([

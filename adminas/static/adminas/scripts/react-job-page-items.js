@@ -341,6 +341,7 @@ function JobItemEle(props){
                                 delete_item = { delete_item }
                                 update_doc_state = { props.update_doc_state }
                                 URL_ITEMS = { props.URL_ITEMS }
+                                job_id = { props.job_id }
                                 />
     }
 
@@ -598,6 +599,8 @@ function JobItemEditor(props){
     const [productId, setProductId] = React.useState(props.data.product_id);
     const [priceListId, setPriceListId] = React.useState(props.data.price_list_id);
 
+    const [description, setDescription] = React.useState(props.data.description);
+
     const [backendError, setBackendError] = React.useState(null);
 
     function update_quantity(new_qty){
@@ -610,6 +613,13 @@ function JobItemEditor(props){
 
     function update_product(new_prod_id){
         setProductId(new_prod_id);
+
+        if(new_prod_id < 1){
+            setDescription('');
+        }
+        else {
+            update_product_description(new_prod_id);
+        }
     }
 
     function update_price_list(new_price_list_id){
@@ -623,21 +633,51 @@ function JobItemEditor(props){
         fetch(url, headers)
         .then(response => response.json())
         .then(resp_json => {
-            var message = null;
             if('message' in resp_json){
-                message = resp_json.message;
+                setBackendError(resp_json.message);
+                return;
             }
-            setBackendError(message);
-
+            
             if('ok' in resp_json){
-                props.update_item(props.data.ji_id, state_to_object_fe());
-                props.update_doc_state();
-                props.edit_mode(false);
+                // Check if the server thinks the edit means a full refresh of the JobItem is required.
+                // If so, refresh the entire JobItem from the BE
+                if('refresh_needed' in resp_json && resp_json.refresh_needed == true){
+                    get_jobitem_data_from_be();
+                }
+                // Otherwise update the "main" state with this state
+                else {
+                    props.update_item(props.data.ji_id, state_to_object_fe());
+                    after_state_update();
+                }   
             }
         })
         .catch(error => console.log(error))
     };
 
+    function after_state_update(){
+        props.update_doc_state();
+        props.edit_mode(false);
+    }
+
+    function get_jobitem_data_from_be(){
+        var url = `${props.URL_ITEMS}?ji_id=${props.data.ji_id}`;
+
+        fetch(url)
+        .then(response => response.json())
+        .then(resp_data => {
+            if('error' in resp_data){
+                setBackendError(resp_json.error);
+                return;
+            }
+
+            if('ok' in resp_data){
+                delete resp_data.ok;
+                props.update_item(props.data.ji_id, resp_data);
+                after_state_update();
+            }
+        })
+        .catch(error => console.log(error))
+    }
 
     function state_to_object_be(){
         return {
@@ -690,6 +730,18 @@ function JobItemEditor(props){
         setBackendError(null);
     }
 
+    function update_product_description(product_id){
+        var url = `${props.URL_ITEMS}?job_id=${props.job_id}&product_id=${product_id}`;
+        fetch(url)
+        .then(response => response.json())
+        .then(resp_data => {
+            if('desc' in resp_data){
+                setDescription(resp_data.desc)
+            }
+        })
+        .catch(error => console.log(error))
+    }
+
     return [
         <div id="container_edit_item" class="panel form-like">
             <CancelButton cancel = { () => props.edit_mode(false) } />
@@ -703,6 +755,7 @@ function JobItemEditor(props){
                                 selling_price = { sellingPrice }
                                 product_id = { productId }
                                 price_list_id = { priceListId }
+                                description = { description }
                                 change_quantity = { update_quantity }
                                 change_price = { update_selling_price }
                                 change_product = { update_product }
@@ -741,6 +794,7 @@ function JobItemFormFields(props){
                                     selected_opt_id = {props.product_id}
                                     default_opt_id = {null}
                                     handle_change = { handle_product_change } />
+            <span class='desc'>{props.description}</span>
 
             <label for={props.id_prefix + 'selling_price'}>Selling Price</label>
             <input  type="number" name={props.prefix + 'selling_price'} step="0.01" id={props.id_prefix + 'selling_price'} value={props.selling_price} 
