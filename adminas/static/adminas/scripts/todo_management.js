@@ -81,10 +81,9 @@ function remove_from_todo_list(btn){
 // Add to To-Do List: backend, then conditional frontend response
 function add_to_todo_list(btn){
     fetch(`${URL_TODO_MANAGEMENT}`, {
-        method: 'POST',
+        method: 'PUT',
         body: JSON.stringify({
-            'job_id': btn.dataset.job_id,
-            'task': 'add'
+            'job_id': btn.dataset.job_id
         }),
         headers: getDjangoCsrfHeaders(),
         credentials: 'include'

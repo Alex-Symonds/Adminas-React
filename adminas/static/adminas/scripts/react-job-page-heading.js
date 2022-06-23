@@ -90,8 +90,23 @@ function JobToDoIndicator(props){
     }, [data]);
 
 
-    function toggle_todo(is_todo){
-        setTodo(is_todo);
+    function toggle_todo(){
+        var todo_now = !todo;
+        var method = todo_now ? 'PUT' : 'DELETE';
+        var headers = getFetchHeaders(method, {'job_id': props.job_id});
+
+        fetch(url, headers)
+        .then(response => response.json())
+        .then(resp_data => {
+            if('message' in resp_data){
+                console.log('Error: ', resp_data.message);
+            }
+
+            if(resp_data.status === 'ok'){
+                setTodo(todo_now);
+            }
+        })
+        .catch(error => console.log('Error: ', error))
     }
 
     let css_class = todo ? 'on' : 'off';
@@ -108,7 +123,7 @@ function JobToDoIndicator(props){
         <div class="indicator-wrapper">
             <div class={'status-indicator ' + css_class}>
                 <span class="status-name">to-do</span>
-                <button class="todo-list-toggle" onClick={() => toggle_todo(!todo)}>{display_text}</button>
+                <button class="todo-list-toggle" onClick={() => toggle_todo()}>{display_text}</button>
             </div>
         </div>
     ]

@@ -202,13 +202,7 @@ function CommentRead(props){
     }
 
     return [
-        <article
-            class={css_class_list}
-            data-comment_id={props.c.id}
-            data-is_private={props.c.private}
-            data-is_pinned={props.c.pinned}
-            data-is_highlighted={props.c.highlighted}
-        >
+        <article class={css_class_list}>
             <details>
                 <summary>
                     <CommentContentsMain    user_is_owner = { props.c.user_is_owner }

@@ -139,10 +139,11 @@ def todo_list_management(request):
             user.todo_list_jobs.remove(job)
             user.save()
             return JsonResponse({
+                'status': 'ok',
                 'id': posted_data['job_id']
             }, status=200)
 
-    elif request.method == 'POST':
+    elif request.method == 'PUT':
         if not job in user.todo_list_jobs.all():
             user.todo_list_jobs.add(job)
             user.save()

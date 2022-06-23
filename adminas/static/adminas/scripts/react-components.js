@@ -1,7 +1,68 @@
+/*
+    This file contains React components and general JS functions for use by React-controlled portions of Adminas.
+
+    Contents:
+        || Strings and Formatting
+        || Buttons and Controls
+        || Price Comparison Table
+        || Select
+        || Backend Data Loading
+        || Backend Data Updating
+
+*/
+
+
+
+// || Strings and Formatting
 function nbsp(){
     return '\u00A0';
 }
 
+function format_money(float_value){
+    return float_value.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})
+}
+
+function format_percentage(perc){
+    return perc.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) + '%';
+}
+
+
+
+// || Buttons and Controls
+function SubmitButton(props){
+    // Needs submit()
+    return <button class="button-primary" onClick={ props.submit }>submit</button>
+}
+
+function DeleteButton(props){
+    // Needs "user_has_permission" boolean (false = don't render) and delete()
+    if(!props.user_has_permission){
+        return null;
+    }
+    return <button class="button-warning delete-btn" onClick={ props.delete }>delete</button>
+}
+
+function CancelButton(props){
+    // Needs cancel() for onClick
+    return <button class="close" onClick = { props.cancel }><span>close</span></button>
+}
+
+function EditorControls(props){
+    // Needs sumbit(), delete(), want_delete
+    return [
+        <div class="controls">
+            <SubmitButton   submit = { props.submit }/>
+            <DeleteButton   delete = { props.delete } 
+                            user_has_permission = { props.want_delete }  />
+        </div>
+    ]
+}
+
+
+
+// || Price Comparison Table
+// The Job pages compares the sum total of all the individual items entered against the total PO value and the total list price.
+// Both sections display a similar table.
 function PriceComparisonTable(props){
     var difference_as_perc = props.difference / props.second_value * 100;
     return [
@@ -19,13 +80,9 @@ function QuantityNameLi(props){
     ]
 }
 
-function get_placeholder_options(){
-    return [
-        {id: 1, display_str: "Test thingy"},
-        {id: 2, display_str: "Another test thingy"}
-    ]
-}
 
+
+// || Select (React component)
 // Create a <select> element with a list of valid options obtained from the backend.
 // onChange it calls "props.handle_change(e.target)" so the parent can extract whatever info is needed from the <select> element.
 function SelectBackendOptions(props){
@@ -86,15 +143,19 @@ function OptionIdAndName(props){
 }
 
 
+// || Backend Data Loading
+// Component to display when waiting for data from the server
 function LoadingEle(props){
     return <div class="loading">Loading...</div>
 }
 
+// Component to display when loading data from the server has gone horribly wrong
 function LoadingErrorEle(props){
     return <div class="loading error">Error loading { props.name }</div>
 }
 
-
+// Reusable function to GET data from the server, also returning the "error" and "isLoaded"
+// variables used to activate the loading elements
 const useFetch = url => {
     const [data, setData] = React.useState([]);
     const [error, setError] = React.useState(null);
@@ -119,104 +180,20 @@ const useFetch = url => {
     return { data, error, isLoaded };
 };
 
-
+// Helper function: add the appropriate GET params to requests for initial page data
 function url_for_page_load(main_url, job_id, name){
     return `${main_url}?job_id=${job_id}&type=page_load&name=${name}`;
 }
 
+// Helper function: add the appropriate GET params when requesting a list of otpions for a <select>
 function url_for_url_list(main_url, job_id){
     return `${main_url}?job_id=${job_id}&type=urls`;
 }
 
-function format_money(float_value){
-    return float_value.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})
-}
-
-function format_percentage(perc){
-    return perc.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) + '%';
-}
-
-function SubmitButton(props){
-    // Needs submit()
-    return <button class="button-primary" onClick={ props.submit }>submit</button>
-}
-
-function DeleteButton(props){
-    // Needs "user_has_permission" boolean (false = don't render) and delete()
-    if(!props.user_has_permission){
-        return null;
-    }
-    return <button class="button-warning delete-btn" onClick={ props.delete }>delete</button>
-}
-
-function CancelButton(props){
-    // Needs cancel() for onClick
-    return <button class="close" onClick = { props.cancel }><span>close</span></button>
-}
-
-function EditorControls(props){
-    // Needs sumbit(), delete(), want_delete
-    return [
-        <div class="controls">
-            <SubmitButton   submit = { props.submit }/>
-            <DeleteButton   delete = { props.delete } 
-                            user_has_permission = { props.want_delete }  />
-        </div>
-    ]
-}
-
-const OLDupdateBackend = (url, method, body_obj) => {
-    const [data, setData] = React.useState([]);
-    const [error, setError] = React.useState(null);
-    const [isLoaded, setLoaded] = React.useState(false);
-
-    React.useEffect(() => {
-        const fetchData = async () => {
-            const my_fetch = await fetch(url, {
-                method: method,
-                body: JSON.stringify(body_obj),
-                headers: getDjangoCsrfHeaders(),
-                credentals: 'include'
-            })
-            .then(response => response.json())
-            .then(resp_json => {
-                setData(resp_json);
-                setLoaded(true);
-            })
-            .catch(error => {
-                setError(error);
-                setLoaded(true);
-            });
-        };
-        fetchData();
-    }, [url]);
-
-    return { data, error, isLoaded };
-};
 
 
-const updateBackend = (url, method, body_obj) => {
-    let isLoaded = false;
-    let data = null;
-    fetch(url, {
-            method: method,
-            body: JSON.stringify(body_obj),
-            headers: getDjangoCsrfHeaders(),
-            credentals: 'include'
-        })
-        .then(response => response.json())
-        .then(resp_json => {
-            data = resp_json;
-            let error = null;
-            isLoaded = true;
-            return { data, error, isLoaded };
-        })
-        .catch(error => {
-            isLoaded = true;
-            return { data, error, isLoaded };
-        });
-};
-
+// || Backend Data Updating
+// Generate a set of headers
 function getFetchHeaders(method, body_obj){
     const headers = {
         method: method,
@@ -230,24 +207,6 @@ function getFetchHeaders(method, body_obj){
 
     return headers;
 }
-
-    
-
-
-
-function BackendError(props){    
-    // Needs "message" -- which is null as a deafult -- and "turn_off_error()"
-    if(props.message === null){
-        return null;
-    }
-    return [
-        <div class="temp-warning-msg">
-            { props.message }
-            <CancelButton   cancel = { props.turn_off_error } />
-        </div>]
-}
-
-
 
 // Taken from Django documentation for CSRF handling.
 function getDjangoCsrfHeaders(){
@@ -275,7 +234,21 @@ function getCookie(name) {
     return cookieValue;
 }
 
-// When deleting something, check for 204 before attempting to JSON anything.
+// React component to display a wanring message when the backend didn't like something about the user's request
+function BackendError(props){    
+    // Needs "message" -- which is null as a default -- and "turn_off_error()"
+    if(props.message === null){
+        return null;
+    }
+    return [
+        <div class="temp-warning-msg">
+            { props.message }
+            <CancelButton   cancel = { props.turn_off_error } />
+        </div>]
+}
+
+
+// When deleting something where the server may respond 204, check for that before attempting to JSON anything.
 async function jsonOr204(response){
     if(response.status === 204) return 204;
     return await response.json();

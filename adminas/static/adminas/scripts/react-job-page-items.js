@@ -201,6 +201,7 @@ function JobItemsAddFormRender(props){
                     <JobItemsAddFormRow     key = {index}
                                             form_index = {index}
                                             URL_GET_DATA = {props.URL_GET_DATA}
+                                            URL_ITEMS = {props.URL_ITEMS}
                                             data = {data}
                                             job_id = {props.job_id}
                                             num_forms = {props.input_fields.length}
@@ -228,7 +229,7 @@ function JobItemsAddFormRow(props){
         var attr = {quantity: new_qty};
         update_form(attr);
     }
-    function update_price(new_price){
+    function update_selling_price(new_price){
         var attr = {selling_price: new_price};
         update_form(attr);
     }
@@ -254,12 +255,15 @@ function JobItemsAddFormRow(props){
             <JobItemFormFields  id_prefix = ''
                                 prefix = ''
                                 URL_GET_DATA = { props.URL_GET_DATA }
+                                URL_ITEMS = {props.URL_ITEMS}
                                 quantity = { props.data.quantity }
                                 selling_price = { props.data.selling_price }
                                 product_id = { props.data.product_id }
                                 price_list_id = { props.data.price_list_id }
+                                description = ''
+                                job_id = {props.job_id}
                                 change_quantity = { update_quantity }
-                                change_price = { update_price }
+                                change_price = { update_selling_price }
                                 change_product = { update_product }
                                 change_price_list = { update_price_list }
                                 />
@@ -599,7 +603,6 @@ function JobItemEditor(props){
     const [productId, setProductId] = React.useState(props.data.product_id);
     const [priceListId, setPriceListId] = React.useState(props.data.price_list_id);
 
-    const [description, setDescription] = React.useState(props.data.description);
 
     const [backendError, setBackendError] = React.useState(null);
 
@@ -613,13 +616,6 @@ function JobItemEditor(props){
 
     function update_product(new_prod_id){
         setProductId(new_prod_id);
-
-        if(new_prod_id < 1){
-            setDescription('');
-        }
-        else {
-            update_product_description(new_prod_id);
-        }
     }
 
     function update_price_list(new_price_list_id){
@@ -730,17 +726,7 @@ function JobItemEditor(props){
         setBackendError(null);
     }
 
-    function update_product_description(product_id){
-        var url = `${props.URL_ITEMS}?job_id=${props.job_id}&product_id=${product_id}`;
-        fetch(url)
-        .then(response => response.json())
-        .then(resp_data => {
-            if('desc' in resp_data){
-                setDescription(resp_data.desc)
-            }
-        })
-        .catch(error => console.log(error))
-    }
+
 
     return [
         <div id="container_edit_item" class="panel form-like">
@@ -751,11 +737,13 @@ function JobItemEditor(props){
             <JobItemFormFields  id_prefix = ''
                                 prefix = ''
                                 URL_GET_DATA = { props.URL_GET_DATA }
+                                URL_ITEMS = {props.URL_ITEMS}
                                 quantity = { quantity }
                                 selling_price = { sellingPrice }
                                 product_id = { productId }
                                 price_list_id = { priceListId }
-                                description = { description }
+                                description = {props.data.description}
+                                job_id = {props.job_id}
                                 change_quantity = { update_quantity }
                                 change_price = { update_selling_price }
                                 change_product = { update_product }
@@ -771,12 +759,27 @@ function JobItemEditor(props){
 
 
 function JobItemFormFields(props){
+    const [description, setDescription] = React.useState(props.description);
+
     function handle_product_change(select_ele){
         props.change_product(select_ele.value);
+        update_product_description(select_ele.value);
     }
 
     function handle_price_list_change(select_ele){
         props.change_price_list(select_ele.value)
+    }
+
+    function update_product_description(product_id){
+        var url = `${props.URL_ITEMS}?job_id=${props.job_id}&product_id=${product_id}`;
+        fetch(url)
+        .then(response => response.json())
+        .then(resp_data => {
+            if('desc' in resp_data){
+                setDescription(resp_data.desc)
+            }
+        })
+        .catch(error => console.log(error))
     }
 
     return [
@@ -794,7 +797,7 @@ function JobItemFormFields(props){
                                     selected_opt_id = {props.product_id}
                                     default_opt_id = {null}
                                     handle_change = { handle_product_change } />
-            <span class='desc'>{props.description}</span>
+            <span class='desc'>{description}</span>
 
             <label for={props.id_prefix + 'selling_price'}>Selling Price</label>
             <input  type="number" name={props.prefix + 'selling_price'} step="0.01" id={props.id_prefix + 'selling_price'} value={props.selling_price} 
