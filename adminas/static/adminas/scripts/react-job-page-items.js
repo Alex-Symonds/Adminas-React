@@ -463,10 +463,7 @@ function JobItemsCreator(props){
         const url = props.actions_items.url;
         const headers = getFetchHeaders('POST', state_to_object_be());
 
-        fetch(url, headers)
-        .then(response => response.json())
-        .then(resp_data => {
-
+        update_server(url, headers, resp_data => {
             if('error' in resp_data){
                 backend_error.set(resp_data.error);
                 return;
@@ -476,9 +473,7 @@ function JobItemsCreator(props){
                 props.actions_items.create_f(resp_data.jobitems);
                 props.editor.off();
             }
-
         })
-        .catch(error => console.log('Error: ', error))
     }
 
     // Arrange the formset state info such that Django will understand it
@@ -691,18 +686,13 @@ function JobItemEditor(props){
         const url = `${props.URL_ITEMS}?id=${props.data.ji_id}`;
         var headers = getFetchHeaders('PUT', state_to_object_be());
 
-        fetch(url, headers)
-        .then(response => response.json())
-        .then(resp_json => {
-            if('message' in resp_json){
-                backend_error.set(resp_json.message);
-                return;
-            }
-            
-            if('ok' in resp_json){
+        update_server(url, headers, resp_data => {
+            if('message' in resp_data){
+                backend_error.set(resp_data.message);
+            } else if('ok' in resp_data){
                 // Check if the server thinks the edit means a full refresh of the JobItem is required.
                 // If so, refresh the entire JobItem from the BE
-                if('refresh_needed' in resp_json && resp_json.refresh_needed == true){
+                if('refresh_needed' in resp_data && resp_data.refresh_needed == true){
                     update_item_from_be();
                 }
                 // Otherwise update the "main" state with the form's state
@@ -711,8 +701,7 @@ function JobItemEditor(props){
                     props.editor.off();
                 }   
             }
-        })
-        .catch(error => console.log(error))
+        });
     };
 
     function update_item_from_be(){
@@ -769,9 +758,7 @@ function JobItemEditor(props){
         var url = `${props.URL_ITEMS}?id=${props.data.ji_id}`;
         var headers = getFetchHeaders('DELETE', null);
 
-        fetch(url, headers)
-        .then(response => response.json())
-        .then(resp_data => {
+        update_server(url, headers, resp_data => {
             if('message' in resp_data){
                 backend_error.set(resp_data.message);
             }
@@ -780,9 +767,7 @@ function JobItemEditor(props){
                 props.delete_item(props.data.ji_id);
                 props.editor.off();
             }
-        })
-        .catch(error => console.log('Error: ', error))
-
+        });
     }
 
     // Render
