@@ -1,12 +1,18 @@
-// React code for the Job page's heading subsection, including:
-//      constants for status codes (also used by react-job-page) and associated symbols
-//      Heading
-//      ToDo List toggle
-//      Status strip
+/*
+    Summary:
+    Heading section on the Job page, including the status warning tags
 
+    Contents:
+        || Status Code constants and associated "icon" texts
+        || Main section
+        || Heading and Todo Toggle
+        || Status Strip
+*/
 
-// Status Code constants and associated "icon" texts.
-// Notes: matching declarations exist in models.py; also, these are directly used as CSS classes.
+// || Status Code constants and associated "icon" texts.
+// Notes:
+//  >> matching declarations exist in models.py
+//  >> these are directly used as CSS classes.
 const STATUS_CODE_OK = 'status_ok';
 const STATUS_CODE_ACTION = 'status_action';
 const STATUS_CODE_ATTN = 'status_attn';
@@ -28,20 +34,20 @@ function job_status_symbol(status_code){
 }
 
 
-// Main component
-function JobHeadingSubsection(props){
+// || Main section
+function JobHeadingSubsectionUI(props){
     return [
         <section class="job-heading-with-status">
             <div id="job_status_strip" class="subsection">
-                <JobHeading     job_id = {props.job_id}
-                                URL_GET_DATA = {props.URL_GET_DATA} />
-                <JobStatusStrip status_data = {props.status_data} />
+                <JobHeading     job_id = { props.job_id }
+                                URL_GET_DATA = { props.URL_GET_DATA } />
+                <JobStatusStrip status_data = { props.status_data } />
             </div>
         </section>
         ]
 }
 
-// First-level child: heading and todo toggle
+// || Heading and Todo Toggle
 function JobHeading(props){
     // Fetch the names of the Job and the customer from the server
     const [names, setNames] = React.useState({
@@ -50,29 +56,36 @@ function JobHeading(props){
     });
     const { data, error, isLoaded } = useFetch(url_for_page_load(props.URL_GET_DATA, props.job_id, 'heading'));
     React.useEffect(() => {
-        if(typeof data.names !== 'undefined'){
-            setNames(data.names);
-        }
+        set_if_ok(data, 'names', setNames);
     }, [data]);
 
     // Handle async stuff
     if(error){
-        <LoadingErrorEle name='names' />
+        <LoadingErrorUI name='names' />
     }
     else if(!isLoaded){
-        <LoadingEle />
+        <LoadingUI />
     }
 
-    // The main event
+    return <JobHeadingUI    customer_name = { names.customer_name }
+                            job_id = { props.job_id }
+                            job_name = { names.job_name }
+                            URL_GET_DATA = { props.URL_GET_DATA }
+                            />
+}
+
+function JobHeadingUI(props){
     return [
             <div class="job-heading-with-extra">
-                <h2>Job {names.job_name}</h2>
-                <JobToDoIndicator   job_id = {props.job_id}
-                                    URL_GET_DATA = {props.URL_GET_DATA}/>
-                <JobSubHeading      customer_name = {names.customer_name} />
+                <h2>Job { props.job_name }</h2>
+                <JobToDoIndicator   job_id = { props.job_id }
+                                    URL_GET_DATA = { props.URL_GET_DATA }/>
+                <JobSubHeadingUI  customer_name = { props.customer_name } />
             </div>
         ]
 }
+
+
 
 // Todo toggle
 function JobToDoIndicator(props){
@@ -81,12 +94,8 @@ function JobToDoIndicator(props){
 
     const { data, error, isLoaded } = useFetch(url_for_page_load(props.URL_GET_DATA, props.job_id, 'todo'));
     React.useEffect(() => {
-        if(typeof data.on_todo !== 'undefined'){
-            setTodo(data.on_todo);
-        }
-        if(typeof data.url !== 'undefined'){
-            setUrl(data.url);
-        }
+        set_if_ok(data, 'on_todo', setTodo);
+        set_if_ok(data, 'url', setUrl);
     }, [data]);
 
 
@@ -109,27 +118,32 @@ function JobToDoIndicator(props){
         .catch(error => console.log('Error: ', error))
     }
 
-    let css_class = todo ? 'on' : 'off';
-    let display_text = todo ? 'on' : 'off';
-
     if(error){
-        return <LoadingErrorEle name='todo status' />
+        return <LoadingErrorUI name='todo status' />
     }
     else if (!isLoaded){
-        return <LoadingEle />
+        return <LoadingUI />
     }
 
+    return <JobToDoIndicatorUI  todo = { todo }
+                                toggle_todo = { toggle_todo } />
+
+}
+
+function JobToDoIndicatorUI(props){
+    let css_class = props.todo ? 'on' : 'off';
+    let display_text = props.todo ? 'on' : 'off';
     return [
         <div class="indicator-wrapper">
             <div class={'status-indicator ' + css_class}>
                 <span class="status-name">to-do</span>
-                <button class="todo-list-toggle" onClick={() => toggle_todo()}>{display_text}</button>
+                <button class="todo-list-toggle" onClick={ props.toggle_todo }>{display_text}</button>
             </div>
         </div>
     ]
 }
 
-function JobSubHeading(props){
+function JobSubHeadingUI(props){
     if(props.customer_name != ''){
         return <div class="subheading">for {props.customer_name}</div>
     }
@@ -138,21 +152,22 @@ function JobSubHeading(props){
 
 
 
-// First-level child: status strip
+// || Status Strip
 function JobStatusStrip(props){
     var status_list = list_of_job_statuses(props.status_data);
+
     return [
         <div class="job-status-ele-container">
             {status_list.map((tuple, index) => 
-                <JobStatusElement   key = {index}
+                <JobStatusElementUI key = {index}
                                     status_code = {tuple[0]}
                                     message = {tuple[1]} />
             )}
         </div>
-    ];
+    ]
 }
 
-function JobStatusElement(props){
+function JobStatusElementUI(props){
     let css_classes = "status-ele " + props.status_code;
     let icon_text = job_status_symbol(props.status_code);
     
@@ -165,7 +180,7 @@ function JobStatusElement(props){
 }
 
 
-// Determine statuses to go in the strip, based on status_data object.
+// Status strip helpers: Determine statuses to go in the strip, based on status_data object.
 function list_of_job_statuses(status_data){
     // Set the order of appearance here.
     var result = [];
@@ -188,19 +203,21 @@ function get_status_price_acceptance(data){
 function get_status_items(data){
     var result = [];
 
-    // If there are no items, we can skip the rest
     if(data.total_qty_all_items == 0){
         result.push([STATUS_CODE_ACTION, 'No items']);
         return result;
     }
 
+
     // Display an extra notification if there's >0 special items (defined as modular items with more fillers than are normally allowed)
-    if(data.special_item_exists){
+    const special_item_exists = data.items_list.some(item => item.excess_modules === true);
+    if(special_item_exists){
         result.push([STATUS_CODE_ATTN, 'Special item/s']);
     }
 
-    // "Normal" item statuses
-    if(data.incomplete_item_exists){
+    // Mutually exclusive item statuses
+    const incomplete_item_exists = data.items_list.some(item => item.is_modular === true && item.is_complete === false);
+    if(incomplete_item_exists){
         result.push([STATUS_CODE_ACTION, 'Incomplete item/s']);
     }
     else {

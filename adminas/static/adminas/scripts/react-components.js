@@ -6,9 +6,10 @@
         || Buttons and Controls
         || Price Comparison Table
         || Select
+        || Package Data and Methods
         || Backend Data Loading
         || Backend Data Updating
-
+        || Generic functions for updating states
 */
 
 
@@ -18,11 +19,21 @@ function nbsp(){
     return '\u00A0';
 }
 
+function capitaliseFirstLetter(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+  }
+
 function format_money(float_value){
+    if(isNaN(float_value)){
+        return '-';
+    }
     return float_value.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})
 }
 
 function format_percentage(perc){
+    if(isNaN(perc)){
+        return '-%';
+    }
     return perc.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) + '%';
 }
 
@@ -64,12 +75,27 @@ function EditorControls(props){
 // The Job pages compares the sum total of all the individual items entered against the total PO value and the total list price.
 // Both sections display a similar table.
 function PriceComparisonTable(props){
-    var difference_as_perc = props.difference / props.second_value * 100;
+    let difference_as_perc = 0;
+    if(props.second_value !== 0){
+        difference_as_perc = props.difference / props.second_value * 100;
+    }
+    
+    return <PriceComparisonTableUI  currency = { props.currency }
+                                    difference = { props.difference }
+                                    difference_as_perc = { difference_as_perc }
+                                    first_title = { props.first_title }
+                                    first_value = { props.first_value }
+                                    second_title = { props.second_title }
+                                    second_value = { props.second_value }
+                                    />
+}
+
+function PriceComparisonTableUI(props){
     return [
         <table id="po-discrepancy" class="price-comparison">
             <tr><th>{props.first_title}</th><td>{props.currency}</td><td class="po-total-price-f number">{format_money(props.first_value)}</td><td></td></tr>
             <tr><th>{props.second_title}</th><td>{props.currency }</td><td class="selling-price number">{format_money(props.second_value)}</td><td></td></tr>
-            <tr class="conclusion"><th>Difference</th><td>{props.currency}</td><td class="diff-val number">{format_money(props.difference)}</td><td><span class="diff-perc">{format_percentage(difference_as_perc)}</span></td></tr>
+            <tr class="conclusion"><th>Difference</th><td>{props.currency}</td><td class="diff-val number">{format_money(props.difference)}</td><td><span class="diff-perc">{format_percentage(props.difference_as_perc)}</span></td></tr>
         </table>
     ]
 }
@@ -89,31 +115,26 @@ function SelectBackendOptions(props){
     const url = props.api_url + '?type=select_options_list&name=' + props.get_param;
     const { data, error, isLoaded } = useFetch(url);
     if(error){
-        return <LoadingErrorEle />
+        return <LoadingErrorUI name='dropdown' />
     }
     
-    else if (typeof data.opt_list === 'undefined'){
-        return <LoadingEle />
+    else if (!isLoaded || typeof data.opt_list === 'undefined'){
+        return <LoadingUI />
     }
 
     else{
         return [
             <select name={props.select_name} id={props.select_id} required={props.is_required} onChange={(e) => props.handle_change(e.target)}>
-                <OptionEmptyDefault default_id = {props.default_id} selected_opt_id = {props.selected_opt_id}/>
+                <OptionEmptyDefaultUI selected_opt_id = {props.selected_opt_id}/>
                 {
                     data.opt_list.map((option) => {
-                        var is_selected =   option.id == props.selected_opt_id
-                                            ||
-                                            (   props.selected_opt_id == ''
-                                                &&
-                                                option.id == props.default_id
-                                            );
+                        var is_selected = option.id == props.selected_opt_id;
 
-                        return <OptionIdAndName key = {option.id.toString()}
-                                                id = {option.id}
-                                                name = {option.display_str}
-                                                is_selected = {is_selected}
-                                                />
+                        return <OptionIdAndNameUI   key = {option.id.toString()}
+                                                    id = {option.id}
+                                                    is_selected = {is_selected}
+                                                    name = {option.display_str}
+                                                    />
                     })
                 }
             </select>
@@ -122,20 +143,12 @@ function SelectBackendOptions(props){
 }
 
 // Part of <select>. This is a "none" option to add above the "real" options.
-function OptionEmptyDefault(props){
-    if(props.default_id != null){
-        return null;
-    }
-
-    if(props.selected_opt_id == null){
-        return <option value="">---------</option>
-    }
-
-    return <option value="" selected>---------</option>
+function OptionEmptyDefaultUI(props){
+    return <option value="" selected={ props.selected_opt_id !== null && props.selected_opt_id !== '' }>---------</option>
 }
 
 // Part of <select>. Add an option using a single id / name pair.
-function OptionIdAndName(props){
+function OptionIdAndNameUI(props){
     if(props.is_selected){
         return <option value={props.id} selected>{props.name}</option>
     }
@@ -143,15 +156,52 @@ function OptionIdAndName(props){
 }
 
 
+// || Package Data and Methods
+// Group together URL for backend access with state management functions
+function get_actions_object(url, create_f, update_f, delete_f){
+    return {
+        url, create_f, update_f, delete_f
+    }
+}
+
+// Group a state and its updater for convenient passing as props
+function get_and_set(get, set){
+    return {
+        get, set
+    }
+}
+
+
+// Group edit mode stuff, i.e turn on/off and "should I be on or off?" info
+function get_editor_object(this_id, state_id, update_state){
+    function edit_on(){
+        update_state(this_id);
+    }
+    function edit_off(){
+        update_state(null);
+    }
+    return {
+        'on': edit_on,
+        'off': edit_off,
+        'active_id': state_id,
+        'is_active': state_id === this_id
+    };
+}
+
 // || Backend Data Loading
 // Component to display when waiting for data from the server
-function LoadingEle(props){
+function LoadingUI(props){
     return <div class="loading">Loading...</div>
 }
 
 // Component to display when loading data from the server has gone horribly wrong
-function LoadingErrorEle(props){
+function LoadingErrorUI(props){
     return <div class="loading error">Error loading { props.name }</div>
+}
+
+// Component to display when there is no data to load.
+function EmptySectionUI(props){
+    return <p class="empty-section-notice">{ props.message }</p>
 }
 
 // Reusable function to GET data from the server, also returning the "error" and "isLoaded"
@@ -179,6 +229,27 @@ const useFetch = url => {
 
     return { data, error, isLoaded };
 };
+
+const update_server = (url, headers, handle_response) => {
+    const fetchData = async () => {
+        const my_fetch = await fetch(url, headers)
+        .then(response => response.json())
+        .then(resp_json => {
+            handle_response(resp_json);
+        })
+        .catch(error => {
+            console.log('Error: ', error)
+        });
+    };
+    fetchData();
+};
+
+function set_if_ok(data, key, setter){
+    if(typeof data[key] !== 'undefined'){
+        setter(data[key]);
+    }
+}
+
 
 // Helper function: add the appropriate GET params to requests for initial page data
 function url_for_page_load(main_url, job_id, name){
@@ -235,7 +306,7 @@ function getCookie(name) {
 }
 
 // React component to display a wanring message when the backend didn't like something about the user's request
-function BackendError(props){    
+function BackendErrorUI(props){    
     // Needs "message" -- which is null as a default -- and "turn_off_error()"
     if(props.message === null){
         return null;
@@ -247,9 +318,59 @@ function BackendError(props){
         </div>]
 }
 
+// With backend errors, I always want the same three things (contents, set and clear) and it'd be nice to pass
+// contents and clear together (and set, if the fetch is in a different component to the state), so here's a grouping
+function get_backend_error_object(property, updater){
+    function set(message){
+        updater(message);
+    }
+    function clear(){
+        updater(null);
+    }
+    return {
+        message: property,
+        set: set,
+        clear: clear
+    }
+}
+
 
 // When deleting something where the server may respond 204, check for that before attempting to JSON anything.
 async function jsonOr204(response){
     if(response.status === 204) return 204;
     return await response.json();
+}
+
+
+
+// || Generic functions for updating states
+function list_state_update(listState, setListState, id_key, id, new_attributes){
+    var index = listState.findIndex(ele => ele[id_key] === parseInt(id));
+    if(index === -1){
+        return;
+    }
+    setListState([
+        ...listState.slice(0, index),
+        Object.assign(listState[index], new_attributes),
+        ...listState.slice(index + 1)
+    ]);
+}
+
+function list_state_delete(listState, setListState, id_key, id){
+    var index = listState.findIndex(ele => ele[id_key] === parseInt(id));
+    if(index === -1){
+        return;
+    }
+    setListState([
+        ...listState.slice(0, index),
+        ...listState.slice(index + 1)
+    ]);  
+}
+
+function list_state_create_one(setListState, id_key, id, attributes){
+    attributes[id_key] = id;
+    setListState(prevState => ([
+        ...prevState,
+        attributes
+    ]));
 }

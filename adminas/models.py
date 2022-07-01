@@ -712,7 +712,8 @@ class Job(AdminAuditTrail):
                     {doc_type: WO, qty_on_issued: 1, qty_on_draft: 4},
                     {doc_type: OC, qty_on_issued: 0, qty_on_draft: 1}
                 ]
-            Note: a single line item with quantity=100 would show up as 100.
+            Note: this is summing the quantities expressed in the line items, not counting the number of line items.
+            e.g. a document with 1 line item showing quantity=100 would count as 100, rather than 1.
         """
         # This was added to enable the Job status for documents (i.e. "ok", "pending", "missing").
         # Some of these statuses are defined by a comparison between the quantity of items appearing on issued/draft documents

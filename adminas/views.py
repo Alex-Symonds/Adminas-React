@@ -660,12 +660,12 @@ def price_check(request, job_id):
     if not request.user.is_authenticated:
         return anonymous_user(request)
 
-    if request.method == 'POST':
+    if request.method == 'PUT':
         try:
             my_job = Job.objects.get(id=job_id)
         except Job.DoesNotExist:
             return JsonResponse({
-                'message': 'Job not found'
+                'error': 'Job not found'
             }, status=404)
 
         try:         
@@ -674,11 +674,11 @@ def price_check(request, job_id):
             my_job.save()
         except:
             return JsonResponse({
-                'message': 'Update failed.'
+                'error': 'Update failed.'
             }, status=400)     
 
         return JsonResponse({
-            'current_status': my_job.price_is_ok
+            'ok': True
         }, status=200)
    
 
@@ -1287,8 +1287,9 @@ def get_data(request):
 
             this_job = Job.objects.get(id=job_id)
             response_data = {}
-            response_data['module_management_url'] = reverse('manage_modules', kwargs={'job_id': this_job.id})
+            #response_data['module_management_url'] = reverse('manage_modules', kwargs={'job_id': this_job.id})
             response_data['po_url'] = reverse('purchase_order')
+            response_data['price_acceptance_url'] = reverse('price_check', kwargs={'job_id': this_job.id})
 
             return JsonResponse(response_data, status=200)
 
@@ -1341,7 +1342,8 @@ def get_data(request):
                 # "Main" contains Job info which can't be altered on the Job page and is used in more than one component.
                 response_data['main'] = {
                     'currency': this_job.currency,
-                    'doc_quantities': this_job.all_documents_item_quantities()
+                    'doc_quantities': this_job.all_documents_item_quantities(),
+                    'URL_MODULE_MANAGEMENT': reverse('manage_modules', kwargs={'job_id': this_job.id})
                 }
 
                 # URLs needed by Job component to update state (also JobItems section needs /items for the form)
@@ -1352,8 +1354,9 @@ def get_data(request):
                 response_data['price_accepted'] = this_job.price_is_ok
 
                 response_data['item_list'] = []
-                for item in this_job.main_item_list():
-                    response_data['item_list'].append(item.serialise())
+                if this_job.main_item_list() != None:
+                    for item in this_job.main_item_list():
+                        response_data['item_list'].append(item.serialise())
 
                 response_data['po_list'] = []
                 for po in this_job.po.filter(active=True):

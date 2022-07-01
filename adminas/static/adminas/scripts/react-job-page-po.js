@@ -1,238 +1,120 @@
-// PO section on the Job page
+/*
+    Summary:
+    PO section on the Job page
 
-// Entire PO section
+    Contents:
+        || Main PO section
+        || Create PO section
+        || Discrepancy Warning
+        || Existing POs
+        || PO editor form
+*/
+
+// || Main section
 function JobPo(props){
-    const [formVisible, setFormVisible] = React.useState(null);
-
     return [
         <section id="job_po_section" class="item">
             <h3>Purchase Orders</h3>
-            <div class="job-po-form-container">
-                <JobPoAddButton     form_vis = {formVisible}
-                                    update_form_vis = {setFormVisible} />
-                <JobPoAddNew        form_vis = {formVisible}
-                                    update_form_vis = {setFormVisible}
-                                    job_id =  {props.job_id}
-                                    URL_GET_DATA = {props.URL_GET_DATA}
-                                    currency = {props.currency}
-                                    create_po = { props.create_po } />
-            </div>
-            <JobPoDiscrepancy   currency = {props.currency}
+            <JobPoCreate    actions_po = { props.actions_po }
+                            currency = { props.currency }
+                            job_id =  { props.job_id }
+                            URL_GET_DATA = {props.URL_GET_DATA}
+                            />
+            <JobPoDiscrepancyUI currency = { props.currency}
+                                data = { props.po_data }
+                                num_po = { props.num_po } 
+                                />
+            <JobPoList          actions_po = { props.actions_po }
+                                currency = {props.currency} 
                                 data = {props.po_data}
-                                num_po = {props.po_list.length} />
-            <JobPoList          currency = {props.currency} 
-                                po_list = {props.po_list}
+                                job_id = { props.job_id }
                                 URL_GET_DATA = { props.URL_GET_DATA }
-                                job_id = {props.job_id}
-                                update_po = { props.update_po }
-                                delete_po = { props.delete_po } />
+                                />
         </section>
     ]
 }
 
-// Button to click to open the form to add one PO to the Job
-function JobPoAddButton(props){
-    if(props.form_vis){
-        return null;
-    }
-    function show_form(){
-        props.update_form_vis(true);
-    }
-    return [
-        <button id="toggle_po_form_btn" class="add-button" onClick={show_form}>New PO</button>
-    ]
-}
 
-// Form for adding a shiny new PO to the Job
-function JobPoAddNew(props){
-    // Exit early if it's not wanted
-    if(props.form_vis === null || !props.form_vis){
-        return null;
-    }
-    function hide_form(){
-        props.update_form_vis(false);
-    }
+// || Create PO section
+function JobPoCreate(props){
+    // Either the button or the form should be visible, never both.
+    // Use an editor object to monitor this, allowing reuse of code with that called by components
+    // monitoring multiple competing children.
+    const [activeEdit, setActiveEdit] = React.useState(null);
+    const editor = get_editor_object('create_po_form', activeEdit, setActiveEdit);
 
-    function handle_submit(new_po_id, po_attributes){
-        props.create_po(new_po_id, po_attributes);
-    }
-
-    // Actual form has its own component, for easy sharing with Edit PO
-    return <JobPoEditor URL_GET_DATA = { props.URL_GET_DATA }
-                        form_id = 'po_form'
-                        cancel = { hide_form }
-                        title = 'Add PO'
-                        reference = {null}
-                        date_on_po = {null}
-                        date_received = {null}
-                        currency = {props.currency}
-                        value = {null}
-                        job_id = {props.job_id}
-                        po_id = { null }
-                        handle_submit = { handle_submit }
+    return <JobPoAddUI  actions_po = { props.actions_po }
+                        currency = { props.currency }
+                        editor = { editor }
+                        job_id =  { props.job_id }
+                        URL_GET_DATA = {props.URL_GET_DATA}
                         />
 }
 
-// PO editor form
-function JobPoEditor(props){
+function JobPoAddUI(props){
+    return [
+        <div class="job-po-form-container">
+            <JobPoAddButtonUI   form_visible = { props.form_visible }
+                                editor = { props.editor } />
+            <JobPoAddNew        actions_po = { props.actions_po }
+                                currency = { props.currency }
+                                editor = { props.editor }
+                                job_id =  { props.job_id }
+                                URL_GET_DATA = {props.URL_GET_DATA}
+                                />
+        </div>
+    ]
+}
 
-    // States for controlled form fields
-    const [reference, setReference] = React.useState(props.reference);
-    const [dateOnPo, setDateOnPo] = React.useState(props.date_on_po);
-    const [dateReceived, setDateReceived] = React.useState(props.date_received);
-    const [currency, setCurrency] = React.useState(props.currency);
-    const [poValue, setPoValue] = React.useState(props.value);
-
-    // States for fetching the URL for purchase order actions on the BE
-    const [actionUrl, setActionUrl] = React.useState('');
-    const { data, error, isLoaded } = useFetch(url_for_url_list(props.URL_GET_DATA, props.job_id));
-    React.useEffect(() => {
-        if(typeof data.po_url !== 'undefined'){
-            setActionUrl(data.po_url);
-        }
-    }, [data]);
-
-    // States for handling the BE response to attempted submissions
-    const [backendError, setBackendError] = React.useState(null);
-
-    // Functions for managing controlled form fields
-    function update_reference(e){
-        setReference(e.target.value);
-    }
-    function update_date_on_po(e){
-        setDateOnPo(e.target.value);
-    }
-    function update_date_received(e){
-        setDateReceived(e.target.value);
-    }
-    function update_currency(select_ele){
-        setCurrency(select_ele.value);
-    }
-    function update_po_value(e){
-        setPoValue(e.target.value);
-    }
-
-    // Functions for handling form buttons
-    function handle_submit(e){
-        e.preventDefault();
-        save_po();  
-    }
-
-    function handle_delete(e){
-        e.preventDefault();
-        delete_po();
-    }
-
-    // Functions for handling submission to BE
-    const save_po = () => {
-        const url = props.po_id === null ? actionUrl : `${actionUrl}?id=${props.po_id}`;
-        const method = props.po_id === null ? 'POST' : 'PUT';
-
-        const headers = getFetchHeaders(method, state_to_object_be());
-
-        fetch(url, headers)
-        .then(response => response.json())
-        .then(resp_json => {
-            if('message' in resp_json){
-                setBackendError(resp_json.message);
-            }
-            if('id' in resp_json){
-                if(props.po_id === null){
-                    props.handle_submit(resp_json.id, state_to_object_fe());
-                }
-                else {
-                    props.handle_submit(state_to_object_fe());
-                }
-                props.cancel();
-            }
-        })
-        .catch(error => console.log(error))
-    };
-
-    const delete_po = () => {
-        const url = `${actionUrl}?id=${props.po_id}`;
-        const headers = getFetchHeaders('DELETE', null);
-        fetch(url, headers)
-        .then(response => response.json())
-        .then(resp_data => {
-            if('ok' in resp_data){
-                props.handle_delete();
-                props.cancel();
-            }
-            else if('message' in resp_data){
-                setBackendError(resp_data['message']);
-            }
-        })
-        .catch(error => console.log(error))
-    };
-
-    function state_to_object_fe(){
-        return {
-            reference: reference,
-            date_on_po: dateOnPo,
-            value: poValue,
-            date_received: dateReceived,
-            currency: currency
-        };   
-    }
-    function state_to_object_be(){
-        return {
-            reference: reference,
-            date_on_po: dateOnPo,
-            value: poValue,
-            date_received: dateReceived,
-            currency: currency,
-            job: props.job_id
-        };   
-    }
-
-    function remove_error(){
-        setBackendError(null);
-    }
-
-    // Display
-    if(error){
-        return <LoadingErrorEle name='form' />
-    }
-    else if(!isLoaded){
-        return <LoadingEle />
+// Click to open the "add PO" form
+function JobPoAddButtonUI(props){
+    if(props.editor.is_active){
+        return null;
     }
 
     return [
-        <form class="form-like panel" id={props.form_id} onSubmit={handle_submit}>
-            <button type="button" class="cancel-po-form close" onClick={props.cancel}><span>cancel</span></button>
-            <h5 class="panel-header">{ props.title }</h5>
-            <BackendError   message = {backendError}
-                            turn_off_error = { remove_error } />
-            <label for="id_reference">Customer PO Number:</label>
-            <input type="text" name="reference" maxlength="50" required="" id="id_reference" value={ reference } onChange={update_reference}/>
-            <label for="id_date_on_po">Date on PO:</label>
-            <input type="date" name="date_on_po" required="" id="id_date_on_po" value={ dateOnPo } onChange={update_date_on_po}/>
-            <label for="id_date_received">Date received:</label>
-            <input type="date" name="date_received" required="" id="id_date_received" value={ dateReceived } onChange={update_date_received} />
-            <label for="id_currency">Currency:</label>
-            <SelectBackendOptions   select_id = {'id_currency'}
-                                    select_name = {'currency'}
-                                    is_required = {true}
-                                    api_url = {props.URL_GET_DATA}
-                                    get_param = 'currencies'
-                                    selected_opt_id = {currency}
-                                    default_opt_id = {null}
-                                    handle_change = {update_currency} />
-            <label for="id_value">Value:</label><input type="number" name="value" step="0.01" required="" id="id_value" value={poValue} onChange={update_po_value}/>
-            <EditorControls submit = { handle_submit }
-                            delete = { handle_delete }
-                            want_delete = { props.po_id !== null } />
-        </form>
+        <button id="toggle_po_form_btn" class="add-button" onClick={ props.editor.on }>New PO</button>
     ]
+}
 
+// "Create mode" wrapper for the JobPoEditor
+function JobPoAddNew(props){
+    if(!props.editor.is_active){
+        return null;
+    }
+
+    // JobPoEditor is shared with the Update/Delete form
+    // It requires the parent to pass in functions to "handle_submit" and "handle_delete"
+    // on the frontend. Make submit = create.
+    function handle_submit(new_po_id, po_attributes){
+        props.actions_po.create_f(new_po_id, po_attributes);
+    }
+
+    // Make a "blank" data object for passing into the editor
+    const data = {
+        'po_id': null,
+        'currency': props.currency,
+        'date_on_po': null,
+        'date_received': null,
+        'reference': null,
+        'value': null
+    }
+
+    return <JobPoEditor data = { data }
+                        editor = { props.editor }
+                        form_id = 'po_form'
+                        state_submit = { handle_submit }
+                        state_delete = { null }
+                        job_id = { props.job_id }
+                        title = 'Add PO'
+                        URL_GET_DATA = { props.URL_GET_DATA }
+                        />
 }
 
 
-
-
+// || Discrepancy Warning
 // Subsection showing the difference between total PO value and total line items value. Conditionally displayed when there's a mismatch with prices.
-function JobPoDiscrepancy(props){
+function JobPoDiscrepancyUI(props){
     if(props.data.difference === 0 || props.num_po === 0){
         return null;
     }
@@ -257,76 +139,86 @@ function JobPoDiscrepancy(props){
 
 
 
-
-// Actual list of POs
+// || Existing POs
+// Container to hold the elements for each individual PO
 function JobPoList(props){
-    if(props.po_list.length === 0){
-        return <p class="empty-section-notice">No purchase orders have been entered.</p>
+    if(props.data.po_list.length === 0){
+        return <EmptySectionUI message='No purchase orders have been entered.' />
     }
 
     // manage edit mode: only one PO should be editable at a time
     const [activeEdit, setActiveEdit] = React.useState(null);
+    const editor_state = get_and_set(activeEdit, setActiveEdit);
 
+    return <JobPoListUI po_list = { props.data.po_list }
+                        actions_po = { props.actions_po }
+                        currency = { props.currency }
+                        editor_state = { editor_state }
+                        job_id = { props.job_id }
+                        URL_GET_DATA = { props.URL_GET_DATA }
+                        />
+}
+
+function JobPoListUI(props){
     return [
         <div class="job-po-container">
             {props.po_list.map((po) =>
-                <JobPoElement   key = {po.po_id.toString()}
-                                currency = {props.currency}
-                                data = {po}
-                                job_id = {props.job_id}
-                                active_edit = { activeEdit }
-                                update_active_edit = { setActiveEdit }
+                <JobPoElement   key = { po.po_id.toString() }
+                                actions_po = { props.actions_po }
+                                currency = { props.currency }
+                                data = { po }
+                                editor_state = { props.editor_state }
+                                job_id = { props.job_id }
                                 URL_GET_DATA = { props.URL_GET_DATA }
-                                update_po = { props.update_po }
-                                delete_po = { props.delete_po } />
+                                />
             )}
         </div>
     ]
 }
-function JobPoElement(props){
-    function hide_form(){
-        props.update_active_edit(null);
-    }
 
+// Element displaying info for a single PO
+function JobPoElement(props){
+
+    const editor = get_editor_object(props.data.po_id, props.editor_state.get, props.editor_state.set);
+
+    // JobPoEditor is shared with the Update/Delete form
+    // It requires the parent to pass in functions to "handle_submit" and "handle_delete"
+    // on the frontend. Make submit = update and delete = ... well, delete.
     function handle_edit(po_attributes){
-        props.update_po(props.data.po_id, po_attributes);
+        props.actions_po.update_f(props.data.po_id, po_attributes);
     }
 
     function handle_delete(){
-        props.delete_po(props.data.po_id);
+        props.actions_po.delete_f(props.data.po_id);
     }
 
-    // If edit mode is active, display the form (form has its own component, for easy sharing with Add PO)
-    if(props.active_edit === props.data.po_id){
-        return <JobPoEditor URL_GET_DATA = { props.URL_GET_DATA }
+    // If edit mode is active, display the editor while passing in the data for this PO
+    if(editor.is_active){
+        // Note: we're passing editor.off instead of just the editor because the "create" section is handling form cancelling differently.
+        return <JobPoEditor data = { props.data }
+                            editor = { editor }
                             form_id = 'po_edit_form'
-                            cancel = { hide_form }
-                            title = 'Edit PO asdf'
-                            reference = { props.data.reference }
-                            date_on_po = { props.data.date_on_po }
-                            date_received = { props.data.date_received }
-                            currency = { props.data.currency }
-                            value = { props.data.value }
+                            state_delete = { handle_delete }
+                            state_submit = { handle_edit }
                             job_id = { props.job_id }
-                            handle_submit = { handle_edit }
-                            handle_delete = { handle_delete }
-                            po_id = { props.data.po_id }
-                        />
+                            title = 'Edit PO'
+                            URL_GET_DATA = { props.URL_GET_DATA }
+                            />
     }
 
     // Otherwise show the read-mode
-    return <JobPoRead   currency = {props.currency}
+    return <JobPoReadUI currency = {props.currency}
                         data = {props.data}
-                        update_active_edit = { props.update_active_edit } />
+                        editor = { editor } />
 }
 
 // Element for reading info of a single PO
-function JobPoRead(props){
+function JobPoReadUI(props){
     return [
         <div class="po-row">
             <div class="details">
-                <span class="reference">{props.data.reference}</span> dated <span class="date_on_po">{props.data.date_on_po}</span> for <span class="currency">{props.currency}</span> <span class="value">{props.data.value}</span> (received <span class="date_received">{format_money(props.data.date_received)}</span>)
-                <button type="button" class="po-edit edit-icon" data-po={props.data.po_id} onClick={() => props.update_active_edit(props.data.po_id)}><span>edit</span></button>
+                <span class="reference">{ props.data.reference }</span> dated <span class="date_on_po">{ props.data.date_on_po }</span> for <span class="currency">{ props.currency }</span> <span class="value">{ format_money(parseFloat(props.data.value)) }</span> (received <span class="date_received">{ props.data.date_received }</span>)
+                <button type="button" class="po-edit edit-icon" onClick={ props.editor.on }><span>edit</span></button>
             </div>
         </div>
     ]
@@ -335,3 +227,180 @@ function JobPoRead(props){
 
 
 
+
+// || PO editor form
+// Shared by CREATE and UPDATE/DELETE
+function JobPoEditor(props){
+
+    // Controlled form fields
+    const [reference, setReference] = React.useState(props.data.reference);
+    const [dateOnPo, setDateOnPo] = React.useState(props.data.date_on_po);
+    const [dateReceived, setDateReceived] = React.useState(props.data.date_received);
+    const [currency, setCurrency] = React.useState(props.data.currency);
+    const [poValue, setPoValue] = React.useState(props.data.value);
+
+    function update_reference(e){
+        setReference(e.target.value);
+    }
+    function update_date_on_po(e){
+        setDateOnPo(e.target.value);
+    }
+    function update_date_received(e){
+        setDateReceived(e.target.value);
+    }
+    function update_currency(select_ele){
+        setCurrency(select_ele.value);
+    }
+    function update_po_value(e){
+        setPoValue(e.target.value);
+    }
+
+    var controlled = {
+        'reference': get_and_set(reference, update_reference),
+        'date_on_po': get_and_set(dateOnPo, update_date_on_po),
+        'date_received': get_and_set(dateReceived, update_date_received),
+        'currency': get_and_set(currency, update_currency),
+        'po_value': get_and_set(poValue, update_po_value)
+    }
+
+    // Fetching the URL for purchase order actions from the BE
+    const [actionUrl, setActionUrl] = React.useState('');
+    const { data, error, isLoaded } = useFetch(url_for_url_list(props.URL_GET_DATA, props.job_id));
+    React.useEffect(() => {
+        set_if_ok(data, 'po_url', setActionUrl);
+    }, [data]);
+
+    // Functions for handling form buttons
+    function handle_submit(e){
+        e.preventDefault();
+        save_po();  
+    }
+
+    function handle_delete(e){
+        e.preventDefault();
+        delete_po();
+    }
+
+    // Backend updates
+    const [backendError, setBackendError] = React.useState(null);
+    const backend_error = get_backend_error_object(backendError, setBackendError);
+
+    const save_po = () => {
+        const url = props.data.po_id === null ? actionUrl : `${actionUrl}?id=${props.data.po_id}`;
+        const method = props.data.po_id === null ? 'POST' : 'PUT';
+
+        const headers = getFetchHeaders(method, state_to_object_be());
+
+        fetch(url, headers)
+        .then(response => response.json())
+        .then(resp_json => {
+            if('message' in resp_json){
+                backend_error.set(resp_json.message);
+            }
+            if('id' in resp_json){
+                // props.po_id is null when we're creating a new PO. The new PO
+                // will need to know the ID from the BE, so include that
+                if(props.data.po_id === null){
+                    props.state_submit(resp_json.id, state_to_object_fe());
+                }
+                // Otherwise it's an existing PO, so just send the new state.
+                else {
+                    props.state_submit(state_to_object_fe());
+                }
+                props.editor.off();
+            }
+        })
+        .catch(error => console.log(error))
+    };
+
+    const delete_po = () => {
+        const url = `${actionUrl}?id=${props.data.po_id}`;
+        const headers = getFetchHeaders('DELETE', null);
+        fetch(url, headers)
+        .then(response => response.json())
+        .then(resp_data => {
+            if('ok' in resp_data){
+                props.state_delete();
+                props.editor.off();
+            }
+            else if('message' in resp_data){
+                backend_error.set(resp_data['message']);
+            }
+        })
+        .catch(error => console.log(error))
+    };
+
+    // Object with keys appropriate for the state
+    function state_to_object_fe(){
+        return {
+            reference: reference,
+            date_on_po: dateOnPo,
+            value: poValue,
+            date_received: dateReceived,
+            currency: currency
+        };   
+    }
+
+    // Object with keys appropriate for the backend
+    function state_to_object_be(){
+        return {
+            reference: reference,
+            date_on_po: dateOnPo,
+            value: poValue,
+            date_received: dateReceived,
+            currency: currency,
+            job: props.job_id
+        };   
+    }
+
+    if(error){
+        return <LoadingErrorUI name='form' />
+    }
+    else if(!isLoaded){
+        return <LoadingUI />
+    }
+    return <JobPoEditorUI   backend_error = { backend_error }
+                            editor = { props.editor }
+                            controlled = { controlled }
+                            form_id = { props.form_id }
+                            handle_delete = { handle_delete }
+                            handle_submit = { handle_submit }
+                            title = { props.title }
+                            URL_GET_DATA = { props.URL_GET_DATA }
+                            />
+}
+
+function JobPoEditorUI(props){
+    const ID_REFERENCE = 'id_po_reference';
+    const ID_DATE_ON_PO = 'id_date_on_po';
+    const ID_DATE_RECEIVED = 'id_po_date_received';
+    const ID_CURRENCY = 'id_po_currency';
+    const ID_VALUE = 'id_po_value';
+
+    return [
+        <form class="form-like panel" id={ props.form_id }>
+            <button type="button" class="cancel-po-form close" onClick={ props.editor.off }><span>cancel</span></button>
+            <h5 class="panel-header">{ props.title }</h5>
+            <BackendErrorUI message = { props.backend_error.message }
+                            turn_off_error = { props.backend_error.clear } />
+            <label for={ID_REFERENCE}>Customer PO Number:</label>
+            <input type="text" name="reference" maxlength="50" required="" id={ID_REFERENCE} value={ props.controlled.reference.get } onChange={ props.controlled.reference.set }/>
+            <label for={ID_DATE_ON_PO}>Date on PO:</label>
+            <input type="date" name="date_on_po" required="" id={ID_DATE_ON_PO} value={ props.controlled.date_on_po.get } onChange={ props.controlled.date_on_po.set }/>
+            <label for={ID_DATE_RECEIVED}>Date received:</label>
+            <input type="date" name="date_received" required="" id={ID_DATE_RECEIVED} value={ props.controlled.date_received.get } onChange={ props.controlled.date_received.set } />
+            <label for={ID_CURRENCY}>Currency:</label>
+            <SelectBackendOptions   select_id = { ID_CURRENCY }
+                                    select_name = { 'currency' }
+                                    is_required = {true}
+                                    api_url = { props.URL_GET_DATA }
+                                    get_param = 'currencies'
+                                    selected_opt_id = { props.controlled.currency.get }
+                                    handle_change = { props.controlled.currency.set } />
+            <label for={ID_VALUE}>Value:</label><input type="number" name="value" step="0.01" required="" id={ID_VALUE} value={ props.controlled.po_value.get } onChange={ props.controlled.po_value.set }/>
+            <EditorControls submit = { props.handle_submit }
+                            delete = { props.handle_delete }
+                            want_delete = { props.po_id !== null } />
+        </form>
+    ]
+}
