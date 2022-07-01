@@ -104,18 +104,28 @@ function JobToDoIndicator(props){
         var method = todo_now ? 'PUT' : 'DELETE';
         var headers = getFetchHeaders(method, {'job_id': props.job_id});
 
-        fetch(url, headers)
-        .then(response => response.json())
-        .then(resp_data => {
+        update_server(url, headers, resp_data => {
             if('message' in resp_data){
                 console.log('Error: ', resp_data.message);
             }
-
             if(resp_data.status === 'ok'){
                 setTodo(todo_now);
             }
-        })
-        .catch(error => console.log('Error: ', error))
+        });
+
+
+        // fetch(url, headers)
+        // .then(response => response.json())
+        // .then(resp_data => {
+        //     if('message' in resp_data){
+        //         console.log('Error: ', resp_data.message);
+        //     }
+
+        //     if(resp_data.status === 'ok'){
+        //         setTodo(todo_now);
+        //     }
+        // })
+        // .catch(error => console.log('Error: ', error))
     }
 
     if(error){
