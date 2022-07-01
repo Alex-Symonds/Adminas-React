@@ -153,10 +153,13 @@
   width: max-content;
   margin-top: 0.5rem;
 }
+.job-doc-section .subsection {
+  padding-bottom: 0.7rem;
+}
 .job-doc-section ul {
   list-style-type: none;
   margin: 1rem 3px 0;
-  padding: 0 0 0.7rem 0.2rem;
+  padding: 0 0 0 0.2rem;
 }
 .job-doc-section li {
   margin-top: 0.3rem;
@@ -743,54 +746,6 @@ table.price-comparison .conclusion th, table.price-comparison .conclusion td {
   flex-wrap: wrap;
   gap: 0.5rem 0.7rem;
   padding: 0.7rem;
-}
-
-.status-ele {
-  display: block;
-  background: #222;
-  border: 1px solid #888;
-}
-.status-ele .icon {
-  display: inline-block;
-  background: #888;
-  border-right: 1px solid transparent;
-  width: 1rem;
-  padding: 0.2rem 0.4rem;
-  text-align: center;
-  font-weight: bold;
-}
-.status-ele .message {
-  padding: 0.2rem 1rem;
-  margin-right: 3px;
-  display: inline-block;
-}
-.status-ele.status_action {
-  border-color: #00D4F5;
-}
-.status-ele.status_action .icon {
-  color: #222;
-  background: #00D4F5;
-}
-.status-ele.status_ok {
-  border-color: #067A4A;
-}
-.status-ele.status_ok .icon {
-  background: #067A4A;
-  border-right: 1px solid #067A4A;
-}
-.status-ele.status_attn {
-  border-color: #cc00ff;
-}
-.status-ele.status_attn .icon {
-  color: #222;
-  background: #cc00ff;
-}
-.status-ele.status_warning {
-  border-color: #cf0000;
-}
-.status-ele.status_warning .icon {
-  color: #222;
-  background: #cf0000;
 }
 
 /*# sourceMappingURL=job.css.map */

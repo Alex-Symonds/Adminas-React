@@ -257,10 +257,14 @@
         margin-top: 0.5rem;
     }
 
+    .subsection{
+        padding-bottom: 0.7rem;
+    }
+
     ul{
         list-style-type: none;
         margin: 1rem 3px 0;
-        padding: 0 0 0.7rem 0.2rem;
+        padding: 0 0 0 0.2rem;
     }
 
     li{
@@ -961,53 +965,4 @@ table.price-comparison{
     padding: 0.7rem;
 }
 
-.status-ele{
-    display: block;
-    background: v.$c_tone_01;
-    border: 1px solid v.$c_tone_04;
-    
-    .icon{
-        display: inline-block;
-        background: v.$c_tone_04;
-        border-right: 1px solid transparent;
-        width: 1rem;
-        padding: 0.2rem 0.4rem;
-        text-align: center;
-        font-weight: bold;
-    }
 
-    .message{
-        padding: 0.2rem 1rem;
-        margin-right: 3px;
-        display: inline-block;
-    }
-
-    &.status_action{
-        border-color: v.$c_accent;
-        .icon{
-            color: v.$c_tone_01;
-            background: v.$c_accent;
-        }
-    }
-    &.status_ok{
-        border-color: v.$c_accent_secondary_02;
-        .icon{
-            background: v.$c_accent_secondary_02;
-            border-right: 1px solid v.$c_accent_secondary_02;
-        }
-    }
-    &.status_attn{
-        border-color: v.$c_flag_special;
-        .icon{
-            color: v.$c_tone_01;
-            background: v.$c_flag_special;
-        }
-    }
-    &.status_warning{
-        border-color: v.$c_warning;
-        .icon{
-            color: v.$c_tone_01;
-            background: v.$c_warning;
-        }        
-    }
-}
