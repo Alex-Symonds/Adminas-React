@@ -3,11 +3,12 @@
     Comments section on Job page
 
     Contents:
+        || Consts   (these need to match CSS classes)
         || Main section
         || Subsections
         || Individual Comments
         || Comment Reader
-            Note: the vanilla JS had two types of comments, "collapsable" and "full". "Full" comments don't appear on the Job page,
+            Note: the vanilla JS has two types of comments, "collapsable" and "full". "Full" comments don't appear on the Job page,
                   so only "collapsable" has been React-ified
         || Comment Editor
 */
@@ -163,6 +164,8 @@ function Comment(props){
 }
 
 // || "Normal" Comment (aka READ comment)
+// Note: if this ever expands to include full comments, around here is where it'd make sense to add the branch.
+// Both types share the same "article" tags, but "collapsable" uses <details> and <summary>, while "full" uses two divs with classes.
 function CommentReaderUI(props){
     var css_class_list = "one-comment";
     css_class_list += props.comment.private ? ' private' : ' public';  // Update CSS class list for public/private
@@ -214,6 +217,7 @@ function CommentContentsFooter(props){
                 backend_error.set(resp_data.message);
             }
             else if('ok' in resp_data){
+                backend_error.set('testing backend errors');
                 props.actions_comments.update_f(props.comment.id, attributes);
             }
         });
@@ -250,11 +254,9 @@ function CommentContentsFooterUI(props){
 // Read Comment: the pinned button at the bottom
 function CommentPinnedButtonUI(props){
     const display_text = props.pinned ? 'unpin' : 'pin';
-
     const on_or_off = props.pinned ? 'on' : 'off';
-    const css_class_list = `pinned-toggle pinned-status-${on_or_off}`;
 
-    return <button class={css_class_list} onClick={ props.handle_toggle }>{display_text}</button>
+    return <button class={`pinned-toggle pinned-status-${on_or_off}`} onClick={ props.handle_toggle }>{display_text}</button>
 }
 
 // Read Comment: the highlight button at the bottom

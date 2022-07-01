@@ -488,6 +488,66 @@ nav{
     }
 }
 
+.close,
+.delete-panel{
+    position: relative;
+    float: right;
+    color: v.$c_tone_07;
+    margin-right: 3px;
+
+    width: 30px;
+    height: 30px;
+    background-repeat: no-repeat;
+    background-position: right;
+    border: transparent;
+
+    background-color: transparent;
+    padding: 3px 5px;
+    z-index: 2;
+
+    span{
+        display: block;
+        position: absolute;
+        top:0;
+        right:26px;
+        z-index: 5;
+
+        font-size: 1rem;
+        width: 4rem;
+
+        color: transparent;
+        text-align: center;
+    }
+
+    &:hover{
+        span{
+            color: v.$c_txt_main;
+            border-radius: 5px;
+            background: rgba(v.$c_tone_00, 80%);
+            border: 1px solid v.$c_tone_00;
+        }
+    }    
+}
+
+.close{
+    background-image: url(../images/i-x-hollow.svg);
+
+    &:hover{
+        background-image: url(../images/i-x-filled.svg);
+    }
+}
+
+.delete-panel{
+    color: v.$c_tone_07;
+    background-image: url(../images/i-minus-empty.svg);
+
+     &:hover{
+        background-image: url(../images/i-minus-filled.svg);
+    }
+}
+
+
+
 .return-to-job{
     display: block;
     border: 1px solid v.$c_accent_02;
@@ -559,63 +619,63 @@ nav{
         }
     }
 
-    .close,
-    .delete-panel{
-        position: relative;
-        float: right;
-        color: v.$c_tone_07;
-        margin-right: 3px;
+    // .close,
+    // .delete-panel{
+    //     position: relative;
+    //     float: right;
+    //     color: v.$c_tone_07;
+    //     margin-right: 3px;
     
-        width: 30px;
-        height: 30px;
-        background-repeat: no-repeat;
-        background-position: right;
-        border: transparent;
+    //     width: 30px;
+    //     height: 30px;
+    //     background-repeat: no-repeat;
+    //     background-position: right;
+    //     border: transparent;
     
-        background-color: transparent;
-        padding: 3px 5px;
-        z-index: 2;
+    //     background-color: transparent;
+    //     padding: 3px 5px;
+    //     z-index: 2;
     
-        span{
-            display: block;
-            position: absolute;
-            top:0;
-            right:26px;
-            z-index: 5;
+    //     span{
+    //         display: block;
+    //         position: absolute;
+    //         top:0;
+    //         right:26px;
+    //         z-index: 5;
 
-            font-size: 1rem;
-            width: 4rem;
+    //         font-size: 1rem;
+    //         width: 4rem;
 
-            color: transparent;
-            text-align: center;
-        }
+    //         color: transparent;
+    //         text-align: center;
+    //     }
     
-        &:hover{
-            span{
-                color: v.$c_txt_main;
-                border-radius: 5px;
-                background: rgba(v.$c_tone_00, 80%);
-                border: 1px solid v.$c_tone_00;
-            }
-        }    
-    }
+    //     &:hover{
+    //         span{
+    //             color: v.$c_txt_main;
+    //             border-radius: 5px;
+    //             background: rgba(v.$c_tone_00, 80%);
+    //             border: 1px solid v.$c_tone_00;
+    //         }
+    //     }    
+    // }
 
-    .close{
-        background-image: url(../images/i-x-hollow.svg);
+    // .close{
+    //     background-image: url(../images/i-x-hollow.svg);
 
-        &:hover{
-            background-image: url(../images/i-x-filled.svg);
-        }
-    }
+    //     &:hover{
+    //         background-image: url(../images/i-x-filled.svg);
+    //     }
+    // }
 
-    .delete-panel{
-        color: v.$c_tone_07;
-        background-image: url(../images/i-minus-empty.svg);
+    // .delete-panel{
+    //     color: v.$c_tone_07;
+    //     background-image: url(../images/i-minus-empty.svg);
  
-         &:hover{
-            background-image: url(../images/i-minus-filled.svg);
-        }
-    }
+    //      &:hover{
+    //         background-image: url(../images/i-minus-filled.svg);
+    //     }
+    // }
 }
 
 // Panel subsections
@@ -864,6 +924,10 @@ nav{
         margin-top: 1rem;
         padding: 0.5rem;
     }
+
+    .close{
+        margin-left: 1rem;
+    }
 }
 
 .error-message{
@@ -1029,6 +1093,8 @@ nav{
 
 // || Comments
 .one-comment{
+    position: relative;
+
     width: calc(100% - 10px);
     min-width: 250px;
     max-width: v.$MAX_WIDTH;
@@ -1212,6 +1278,12 @@ nav{
                 background-position: 4px 4px;
             }
         }
+    }
+
+    .temp-warning-msg{
+        position: absolute;
+        z-index: 3;
+        box-shadow: v.$shadow_popout;
     }
 }
 

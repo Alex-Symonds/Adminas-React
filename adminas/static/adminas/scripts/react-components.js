@@ -110,7 +110,6 @@ function QuantityNameLi(props){
 
 // || Select (React component)
 // Create a <select> element with a list of valid options obtained from the backend.
-// onChange it calls "props.handle_change(e.target)" so the parent can extract whatever info is needed from the <select> element.
 function SelectBackendOptions(props){
     const url = props.api_url + '?type=select_options_list&name=' + props.get_param;
     const { data, error, isLoaded } = useFetch(url);
@@ -124,7 +123,7 @@ function SelectBackendOptions(props){
 
     else{
         return [
-            <select name={props.select_name} id={props.select_id} required={props.is_required} onChange={(e) => props.handle_change(e.target)}>
+            <select name={props.select_name} id={props.select_id} required={props.is_required} onChange={ props.handle_change }>
                 <OptionEmptyDefaultUI selected_opt_id = {props.selected_opt_id}/>
                 {
                     data.opt_list.map((option) => {
@@ -171,8 +170,7 @@ function get_and_set(get, set){
     }
 }
 
-
-// Group edit mode stuff, i.e turn on/off and "should I be on or off?" info
+// Group edit mode stuff, i.e turn on/off and info to determine "should I be on or off?"
 function get_editor_object(this_id, state_id, update_state){
     function edit_on(){
         update_state(this_id);
@@ -199,7 +197,7 @@ function LoadingErrorUI(props){
     return <div class="loading error">Error loading { props.name }</div>
 }
 
-// Component to display when there is no data to load.
+// Component to display when there was no data to display.
 function EmptySectionUI(props){
     return <p class="empty-section-notice">{ props.message }</p>
 }
@@ -230,20 +228,18 @@ const useFetch = url => {
     return { data, error, isLoaded };
 };
 
-const update_server = (url, headers, handle_response) => {
-    console.log('using update_server 10:47');
-    fetch(url, headers)
-    .then(response => jsonOr204(response))
-    .then(resp_json => {
-        handle_response(resp_json);
-    })
-    .catch(error => {
-        console.log('Error: ', error)
-    });
-};
 
+// Helper function: add the appropriate GET params to requests for initial page data
+function url_for_page_load(main_url, job_id, name){
+    return `${main_url}?job_id=${job_id}&type=page_load&name=${name}`;
+}
 
+// Helper function: add the appropriate GET params when requesting a list of options for a <select>
+function url_for_url_list(main_url, job_id){
+    return `${main_url}?job_id=${job_id}&type=urls`;
+}
 
+// Helper function. Check if the key appears in the response data and if so, use the setter to set something to it
 function set_if_ok(data, key, setter){
     if(typeof data[key] !== 'undefined'){
         setter(data[key]);
@@ -251,15 +247,6 @@ function set_if_ok(data, key, setter){
 }
 
 
-// Helper function: add the appropriate GET params to requests for initial page data
-function url_for_page_load(main_url, job_id, name){
-    return `${main_url}?job_id=${job_id}&type=page_load&name=${name}`;
-}
-
-// Helper function: add the appropriate GET params when requesting a list of otpions for a <select>
-function url_for_url_list(main_url, job_id){
-    return `${main_url}?job_id=${job_id}&type=urls`;
-}
 
 
 
@@ -305,7 +292,25 @@ function getCookie(name) {
     return cookieValue;
 }
 
-// React component to display a wanring message when the backend didn't like something about the user's request
+// Send data to the server
+const update_server = (url, headers, handle_response) => {
+    fetch(url, headers)
+    .then(response => jsonOr204(response))
+    .then(resp_json => {
+        handle_response(resp_json);
+    })
+    .catch(error => {
+        console.log('Error: ', error)
+    });
+};
+
+// When deleting something where the server may respond 204, check for that before attempting to JSON anything.
+async function jsonOr204(response){
+    if(response.status === 204) return 204;
+    return await response.json();
+}
+
+// React component to display a warning message when the backend didn't like something about the user's request
 function BackendErrorUI(props){    
     // Needs "message" -- which is null as a default -- and "turn_off_error()"
     if(props.message === null){
@@ -318,7 +323,7 @@ function BackendErrorUI(props){
         </div>]
 }
 
-// With backend errors, I always want the same three things (contents, set and clear) and it'd be nice to pass
+// When passing backend errors as props, I usually want some combination of contents, set and clear. It'd be nice to pass
 // contents and clear together (and set, if the fetch is in a different component to the state), so here's a grouping
 function get_backend_error_object(property, updater){
     function set(message){
@@ -332,13 +337,6 @@ function get_backend_error_object(property, updater){
         set: set,
         clear: clear
     }
-}
-
-
-// When deleting something where the server may respond 204, check for that before attempting to JSON anything.
-async function jsonOr204(response){
-    if(response.status === 204) return 204;
-    return await response.json();
 }
 
 
@@ -368,7 +366,6 @@ function list_state_delete(listState, setListState, id_key, id){
 }
 
 function list_state_create_one(setListState, attributes){
-    console.log(attributes);
     setListState(prevState => ([
         ...prevState,
         attributes

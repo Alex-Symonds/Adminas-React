@@ -414,6 +414,7 @@ function JobItemsCreator(props){
         if(numToAdd === null){
             return;
         }
+
         var new_fields = [];
         var counter = 0;
         while(counter < numToAdd){
@@ -469,7 +470,7 @@ function JobItemsCreator(props){
                 return;
             }
             if('ok' in resp_data){
-                // The server will include an object with all the fields for newly created item/s
+                // The server's response will include an object with all the fields for newly created item/s
                 props.actions_items.create_f(resp_data.jobitems);
                 props.editor.off();
             }
@@ -517,7 +518,7 @@ function blank_create_jobitem_object(){
     return {quantity: '', product_id: '', selling_price: '', price_list_id: ''};
 }
 
-// Add items form: the rendery bit by itself
+// Add items form
 function JobItemsCreatorUI(props){
     return [
         <div id="new_items_container" class="form-like panel">
@@ -568,12 +569,12 @@ function JobItemsCreatorRow(props){
         var attr = {selling_price: e.target.value};
         update_formset_state(attr);
     }
-    function update_product(select_ele){
-        var attr = {product_id: select_ele.value};
+    function update_product(e){
+        var attr = {product_id: e.target.value};
         update_formset_state(attr);
     }
-    function update_price_list(select_ele){
-        var attr = {price_list_id: select_ele.value};
+    function update_price_list(e){
+        var attr = {price_list_id: e.target.value};
         update_formset_state(attr);
     }
 
@@ -606,8 +607,8 @@ function JobItemsCreatorRow(props){
 
 function JobItemsCreatorRowUI(props){
     // Django formsets require a specific format for names/IDs, so prepare that here
-    var prefix = 'form-' + props.form_index + '-';
-    var id_prefix = 'id_' + prefix;
+    const prefix = 'form-' + props.form_index + '-';
+    const FFN_JOB = getFormsetFieldNames(prefix, 'job');
 
     return [
         <div class="form-row panel">
@@ -615,14 +616,13 @@ function JobItemsCreatorRowUI(props){
                                             handle_click = { props.handle_click } />
             <JobItemSharedFormFields    controlled = { props.controlled }
                                         description = ''
-                                        id_prefix = { id_prefix }
                                         job_id = { props.job_id }
                                         prefix = { prefix }
                                         URL_GET_DATA = { props.URL_GET_DATA }
                                         URL_ITEMS = {props.URL_ITEMS}
                                         />
 
-            <input type="hidden" name={prefix + 'job'} value={props.job_id} id={id_prefix + 'job'} />
+            <input type="hidden" name={ FFN_JOB.name } value={props.job_id} id={ FFN_JOB.id } />
         </div>
     ]
 }
@@ -653,11 +653,11 @@ function JobItemEditor(props){
     function update_selling_price(e){
         setSellingPrice(e.target.value);
     }
-    function update_product(select_ele){
-        setProductId(select_ele.value);
+    function update_product(e){
+        setProductId(e.target.value);
     }
-    function update_price_list(select_ele){
-        setPriceListId(select_ele.value);
+    function update_price_list(e){
+        setPriceListId(e.target.value);
     }
 
     const controlled = {
@@ -792,7 +792,6 @@ function JobItemEditorUI(props){
                             turn_off_error = { props.backend_error.clear } />
             <JobItemSharedFormFields    controlled = { props.controlled }
                                         description = {props.description}
-                                        id_prefix = ''
                                         job_id = {props.job_id}
                                         prefix = ''         
                                         URL_GET_DATA = { props.URL_GET_DATA }
@@ -813,9 +812,9 @@ function JobItemSharedFormFields(props){
     // Auto-description: selecting a product in the dropdown should display the full description underneath
     const [description, setDescription] = React.useState(props.description);
 
-    function handle_product_change(select_ele){
-        props.controlled.product_id.set(select_ele);
-        update_product_description(select_ele.value);
+    function handle_product_change(e){
+        props.controlled.product_id.set(e);
+        update_product_description(e.target.value);
     }
 
     function update_product_description(product_id){
@@ -834,7 +833,6 @@ function JobItemSharedFormFields(props){
     return <JobItemSharedFormFieldsUI   controlled = { props.controlled }
                                         description = { description }
                                         handle_product_change = { handle_product_change }
-                                        id_prefix = ''
                                         prefix = ''     
                                         URL_GET_DATA = { props.URL_GET_DATA }
                                         />
@@ -842,39 +840,39 @@ function JobItemSharedFormFields(props){
 
 function JobItemSharedFormFieldsUI(props){
     // Set IDs here so that "for" on the label and "id" on the input/select/whatever will always match
-    const ID_QUANTITY = props.id_prefix + 'quantity';
-    const ID_PRODUCT = props.id_prefix + 'product';
-    const ID_SELLING_PRICE = props.id_prefix + 'selling_price';
-    const ID_PRICE_LIST = props.id_prefix + 'price_list';
+    const FFN_QUANTITY = getFormsetFieldNames(props.prefix, 'quantity');
+    const FFN_PRODUCT = getFormsetFieldNames(props.prefix, 'product');
+    const FFN_SELLING_PRICE = getFormsetFieldNames(props.prefix, 'selling_price');
+    const FFN_PRICE_LIST = getFormsetFieldNames(props.prefix, 'price_list');
 
     return [
         <div>
-            <label for={ ID_QUANTITY }>Quantity</label>
-            <input  type="number" name={props.prefix + 'quantity'} id={ ID_QUANTITY } value={ props.controlled.quantity.get }
+            <label for={ FFN_QUANTITY.id }>Quantity</label>
+            <input  type="number" name={ FFN_QUANTITY.name } id={ FFN_QUANTITY.id } value={ props.controlled.quantity.get }
                     onChange={ props.controlled.quantity.set }/>
 
-            <label for={ ID_PRODUCT }>Item</label>
+            <label for={ FFN_PRODUCT.id }>Item</label>
             <SelectBackendOptions   api_url = { props.URL_GET_DATA }
                                     get_param = 'products'
                                     handle_change = { props.handle_product_change }
                                     is_required = { true }
-                                    select_id = { ID_PRODUCT }
-                                    select_name = { props.prefix + 'product' }
+                                    select_id = { FFN_PRODUCT.id }
+                                    select_name = { FFN_PRODUCT.name }
                                     selected_opt_id = { props.controlled.product_id.get }
                                     />
             <JobItemAutoDescUI  description = { props.description } />
 
-            <label for={ ID_SELLING_PRICE }>Selling Price</label>
-            <input  type="number" name={props.prefix + 'selling_price'} step="0.01" id={ ID_SELLING_PRICE } value={ props.controlled.selling_price.get } 
+            <label for={ FFN_SELLING_PRICE.id }>Selling Price</label>
+            <input  type="number" name={ FFN_SELLING_PRICE.name } step="0.01" id={ FFN_SELLING_PRICE.id } value={ props.controlled.selling_price.get } 
                     onChange={ props.controlled.selling_price.set }/>
 
-            <label for={ ID_PRICE_LIST}>Price List</label>
+            <label for={ FFN_PRICE_LIST.id }>Price List</label>
             <SelectBackendOptions   api_url = { props.URL_GET_DATA }
                                     get_param = 'price_lists'
                                     handle_change = { props.controlled.price_list_id.set }
                                     is_required = { true }
-                                    select_id = { ID_PRICE_LIST}
-                                    select_name = { props.prefix + 'price_list'}
+                                    select_id = { FFN_PRICE_LIST.id }
+                                    select_name = { FFN_PRICE_LIST.name }
                                     selected_opt_id = { props.controlled.price_list_id.get }
                                     />
         </div>
@@ -887,4 +885,12 @@ function JobItemAutoDescUI(props){
         return null;
     }
     return <span class='desc'>{ props.description }</span>
+}
+
+// Object to help ensure names and IDs remain consistent.
+function getFormsetFieldNames(prefix, fieldName){
+    return {
+        name: prefix + fieldName,
+        id: 'id_' + prefix + fieldName
+    }
 }

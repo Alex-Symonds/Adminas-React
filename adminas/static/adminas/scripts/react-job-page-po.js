@@ -248,8 +248,8 @@ function JobPoEditor(props){
     function update_date_received(e){
         setDateReceived(e.target.value);
     }
-    function update_currency(select_ele){
-        setCurrency(select_ele.value);
+    function update_currency(e){
+        setCurrency(e.target.value);
     }
     function update_po_value(e){
         setPoValue(e.target.value);
