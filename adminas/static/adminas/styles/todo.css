@@ -110,10 +110,19 @@ p.empty-section-notice {
   border-bottom: 1px solid #00D4F5;
 }
 .panel.job .comments {
+  border-top: 1px solid #444;
   margin: 0;
+  padding: 0.1rem;
 }
 .panel.job .add-button.comment {
   margin: 3px 5px;
+}
+.panel.job .status-container {
+  margin: 0.3rem;
+}
+.panel.job .status-container .status-ele {
+  margin-bottom: 0.3rem;
+  color: #f4f4f4;
 }
 
 /*# sourceMappingURL=todo.css.map */

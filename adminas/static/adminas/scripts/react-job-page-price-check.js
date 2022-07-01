@@ -357,7 +357,7 @@ function JobPriceCheckPriceEditor(props){
                 props.editor.off();
             }
             else if('ok' in resp_data){
-                props.backend_error.set('test backend error');
+                props.backend_error.set('test much longer backend error which is waffling on about why something is not working and stuff');
                 props.update_item(new_attributes);
                 props.editor.off();
             }

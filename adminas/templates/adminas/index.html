@@ -45,16 +45,35 @@
             {% endif %}
          @ {{ job.currency }}&nbsp;{{ job.value }}
                     </p>
-                    <ul>        
-            {% for str_warning in job.admin_warnings.strings %}
-                        <li>{{ str_warning }}</li>
-            {% endfor %}    
-            {% for tuple_warning in job.admin_warnings.tuples %}
-                        <li>{{ tuple_warning.0 }} {{ tuple_warning.1 }}</li>
-            {% endfor %} 
-                    </ul>
+            {% for status in job.status %}
+                {% if forloop.first %}
+                    <section class="status-container">
+                {% endif %}
+                        <div class="status-ele {{ status.0 }}">
+                            <span class="icon">
+                {% if status.0 == 'status_ok' %}
+                                ok
+                {% elif status.0 == 'status_attn' %}
+                                !
+                {% elif status.0 == 'status_action' %}
+                                ?
+                {% else %}
+                                -
+                {% endif %}
+                            </span>
+                            <span class="message">{{ status.1 }}</span>
+                        </div>
+        
+                {% if forloop.last %}
+                    </section>
+                {% endif %}
+            {% endfor %}
                 </a>
             </section>
+
+            
+
+            
 
             <section class="comments" data-url_comments="{% url 'job_comments' job.id %}">
             {% if job.pinned_comments %}

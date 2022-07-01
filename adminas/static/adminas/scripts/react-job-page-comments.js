@@ -217,7 +217,6 @@ function CommentContentsFooter(props){
                 backend_error.set(resp_data.message);
             }
             else if('ok' in resp_data){
-                backend_error.set('testing backend errors');
                 props.actions_comments.update_f(props.comment.id, attributes);
             }
         });

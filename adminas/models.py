@@ -560,9 +560,9 @@ class Job(AdminAuditTrail):
             Status strip on Job page. Get a dict of status codes and brief messages.
         """
         result = []
-        result.append(self.status_items())
-        result.append(self.status_po())
         result.append(self.status_price())
+        result += self.status_items()
+        result.append(self.status_po())
         
         for loop_tuple in DOCUMENT_TYPES:
             doc_type = loop_tuple[0]
@@ -588,12 +588,18 @@ class Job(AdminAuditTrail):
 
     def status_items(self):
         if self.items.count() == 0:
-            return (STATUS_CODE_ACTION, 'No items')
-        elif self.modular_items_incomplete():
-            return (STATUS_CODE_ACTION, 'Incomplete modular')
-        elif self.has_special_modular():
-           return (STATUS_CODE_ATTN, 'Special item')
-        return (STATUS_CODE_OK, 'Items ok')
+            return [(STATUS_CODE_ACTION, 'No items')]
+
+        result = []
+        if self.has_special_modular():
+           result.append((STATUS_CODE_ATTN, 'Special item/s'))
+
+        if self.modular_items_incomplete():
+            result.append((STATUS_CODE_ACTION, 'Item/s incomplete'))
+        else:
+            result.append((STATUS_CODE_OK, 'Items ok'))
+        
+        return result
 
 
     def status_doc(self, doc_type):
@@ -602,12 +608,12 @@ class Job(AdminAuditTrail):
 
         # No items on the Job means there can't be any assigned to a doc, so the doc must be missing.
         # Number of unassigned items = total number of main items, it means nothing has been assigned to anything == doc is missing.
-        if self.main_item_list().count() == 0 or (num_unassigned != None and num_unassigned == self.main_item_list().count()):
+        if self.main_item_list() == None or len(self.main_item_list()) == 0 or (num_unassigned != None and num_unassigned == len(self.main_item_list())):
             return (STATUS_CODE_ACTION, f'{doc_type} missing')
 
         # If the number of unassigned documents is 0 and there are no unissued documents, we're done
         elif num_unassigned != None and num_unassigned == 0 and not self.unissued_documents_exist(doc_type):
-            return (STATUS_CODE_OK, f'{doc_type} finalised')
+            return (STATUS_CODE_OK, f'{doc_type} ok')
 
         # Otherwise we're at some sort of middling point
         return (STATUS_CODE_ACTION, f'{doc_type} pending')

@@ -44,24 +44,31 @@
         color: white;
     }
 
-    #price_confirmation_button,
-    .todo-list-toggle{
+    button{
         display: block;
         padding: 0.1rem 1rem 0.1rem 0.7rem;
-        background: transparent;
-
+        
         color: v.$c_tone_06;
         border: 1px solid v.$c_tone_03;
         border-left: 3px solid v.$c_tone_05;
 
-        &:hover{
-            background: v.$c_tone_03;
+        &.todo-list-toggle{
+            background: v.$c_tone_01;
+            &:hover{
+                background: v.$c_tone_03;
+            }
+        }
+
+        &#price_confirmation_button{
+            background: transparent;
+            &:hover{
+                background: v.$c_tone_03;
+            }
         }
     }
 
     &.on{
-        #price_confirmation_button,
-        .todo-list-toggle{
+        button{
             color: v.$c_accent_secondary;
             border: 1px solid v.$c_accent_secondary_03;
             border-left: 3px solid v.$c_accent_secondary;
@@ -816,6 +823,15 @@ table.price-comparison{
         font-style: italic;
         color: v.$c_tone_06;
     }
+
+    .temp-warning-msg{
+        position: absolute;
+        z-index: 3;
+        right: 0;
+
+        box-shadow: v.$shadow_popout;
+        min-width: 12rem;
+    }
 }
 
 
@@ -909,8 +925,7 @@ table.price-comparison{
             position: relative;
             top: -0.2rem;
 
-            button{
-                background: v.$c_tone_01;
+            .todo-list-toggle{
                 padding-top: 0;
             }
 

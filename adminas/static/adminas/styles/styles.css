@@ -676,11 +676,11 @@ nav li a:hover {
 }
 .temp-warning-msg {
   display: flex;
+  justify-content: space-between;
   align-items: center;
   width: fit-content;
   max-width: 65%;
   min-height: 32px;
-  word-wrap: wrap;
   margin-top: 0.3rem;
   margin-left: 0.6rem;
   padding: 0 0.3rem;
@@ -696,8 +696,13 @@ nav li a:hover {
   margin-top: 1rem;
   padding: 0.5rem;
 }
+.temp-warning-msg .message {
+  flex-grow: 3;
+}
 .temp-warning-msg .close {
-  margin-left: 1rem;
+  min-width: 30px;
+  max-width: 30px;
+  margin-left: 0.7rem;
 }
 
 .error-message {
@@ -975,7 +980,7 @@ nav li a:hover {
 .one-comment .controls .pinned-status-off:hover {
   background-position: 4px 4px;
 }
-.one-comment .temp-warning-msg {
+.one-comment .controls .temp-warning-msg {
   position: absolute;
   z-index: 3;
   box-shadow: 0 0 1rem 1.5rem rgba(0, 0, 0, 0.4);
@@ -1064,6 +1069,54 @@ nav li a:hover {
 }
 .hover-parent:hover .hover-child {
   display: block;
+}
+
+.status-ele {
+  display: block;
+  background: #222;
+  border: 1px solid #888;
+}
+.status-ele .icon {
+  display: inline-block;
+  background: #888;
+  border-right: 1px solid transparent;
+  width: 1rem;
+  padding: 0.2rem 0.4rem;
+  text-align: center;
+  font-weight: bold;
+}
+.status-ele .message {
+  padding: 0.2rem 1rem;
+  margin-right: 3px;
+  display: inline-block;
+}
+.status-ele.status_action {
+  border-color: #00D4F5;
+}
+.status-ele.status_action .icon {
+  color: #222;
+  background: #00D4F5;
+}
+.status-ele.status_ok {
+  border-color: #067A4A;
+}
+.status-ele.status_ok .icon {
+  background: #067A4A;
+  border-right: 1px solid #067A4A;
+}
+.status-ele.status_attn {
+  border-color: #cc00ff;
+}
+.status-ele.status_attn .icon {
+  color: #222;
+  background: #cc00ff;
+}
+.status-ele.status_warning {
+  border-color: #cf0000;
+}
+.status-ele.status_warning .icon {
+  color: #222;
+  background: #cf0000;
 }
 
 /*# sourceMappingURL=styles.css.map */

@@ -318,7 +318,7 @@ function BackendErrorUI(props){
     }
     return [
         <div class="temp-warning-msg">
-            { props.message }
+            <div class="message">{ props.message }</div>
             <CancelButton   cancel = { props.turn_off_error } />
         </div>]
 }

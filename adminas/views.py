@@ -100,6 +100,7 @@ def index(request):
         job['value'] = j.total_value_f()
         job['admin_warnings'] = j.admin_warnings()
         job['pinned_comments'] = j.get_pinned_comments(request.user, '-created_on')
+        job['status'] = j.job_status()
 
         jobs_list.append(job)
 

@@ -135,10 +135,23 @@ p.empty-section-notice{
     }
 
     .comments{
+        border-top: 1px solid v.$c_tone_02;
         margin: 0;
+        padding: 0.1rem;
     }
 
     .add-button.comment{
         margin: 3px 5px;
     }
+
+    .status-container{
+        margin: 0.3rem;
+
+        .status-ele{
+            margin-bottom: 0.3rem;
+            color: #f4f4f4;
+        }
+    }
+
+
 }

@@ -214,7 +214,7 @@ function get_status_items(data){
     // Mutually exclusive item statuses
     const incomplete_item_exists = data.items_list.some(item => item.is_modular === true && item.is_complete === false);
     if(incomplete_item_exists){
-        result.push([STATUS_CODE_ACTION, 'Incomplete item/s']);
+        result.push([STATUS_CODE_ACTION, 'Item/s incomplete']);
     }
     else {
         result.push([STATUS_CODE_OK, 'Items ok']);

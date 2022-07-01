@@ -37,28 +37,32 @@
   width: fit-content;
   color: white;
 }
-.status-indicator #price_confirmation_button,
-.status-indicator .todo-list-toggle {
+.status-indicator button {
   display: block;
   padding: 0.1rem 1rem 0.1rem 0.7rem;
-  background: transparent;
   color: #BBB;
   border: 1px solid #666;
   border-left: 3px solid #AAA;
 }
-.status-indicator #price_confirmation_button:hover,
-.status-indicator .todo-list-toggle:hover {
+.status-indicator button.todo-list-toggle {
+  background: #222;
+}
+.status-indicator button.todo-list-toggle:hover {
   background: #666;
 }
-.status-indicator.on #price_confirmation_button,
-.status-indicator.on .todo-list-toggle {
+.status-indicator button#price_confirmation_button {
+  background: transparent;
+}
+.status-indicator button#price_confirmation_button:hover {
+  background: #666;
+}
+.status-indicator.on button {
   color: #0DFA96;
   border: 1px solid #09BA70;
   border-left: 3px solid #0DFA96;
   min-width: 49px;
 }
-.status-indicator.on #price_confirmation_button:hover,
-.status-indicator.on .todo-list-toggle:hover {
+.status-indicator.on button:hover {
   background: linear-gradient(335deg, #0AC778 0%, #0DFA96 100%);
   color: black;
   font-weight: bold;
@@ -614,6 +618,13 @@ table.price-comparison .conclusion th, table.price-comparison .conclusion td {
   font-style: italic;
   color: #BBB;
 }
+#price_check_table .temp-warning-msg {
+  position: absolute;
+  z-index: 3;
+  right: 0;
+  box-shadow: 0 0 1rem 1.5rem rgba(0, 0, 0, 0.4);
+  min-width: 12rem;
+}
 
 .empty-section-notice {
   padding: 0 1rem;
@@ -704,8 +715,7 @@ table.price-comparison .conclusion th, table.price-comparison .conclusion td {
   position: relative;
   top: -0.2rem;
 }
-.job-heading-with-status .job-heading-with-extra .status-indicator button {
-  background: #222;
+.job-heading-with-status .job-heading-with-extra .status-indicator .todo-list-toggle {
   padding-top: 0;
 }
 .job-heading-with-status .job-heading-with-extra .status-indicator .status-name {
