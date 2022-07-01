@@ -66,17 +66,14 @@ function PriceAcceptanceToggle(props){
             'new_status': is_accepted_now
         });
 
-        fetch(url, headers)
-        .then(response => response.json())
-        .then(resp_data => {
+        update_server(url, headers, resp_data => {
             if('error' in resp_data){
                 console.log(`Error: ${resp_data.error}`);
             }
             else if('ok' in resp_data){
                 props.price_accepted_state.set(is_accepted_now);
             }
-        })
-        .catch(error => console.log('Error: ', error))
+        });
     }
 
     if(error){
@@ -354,9 +351,7 @@ function JobPriceCheckPriceEditor(props){
         }
         const headers = getFetchHeaders('PUT', new_attributes);
 
-        fetch(props.url_with_id, headers)
-        .then(response => response.json())
-        .then(resp_data => {
+        update_server(props.url_with_id, headers, resp_data => {
             if('message' in resp_data){
                 props.backend_error.set(resp_data.message);
                 props.editor.off();
@@ -366,8 +361,7 @@ function JobPriceCheckPriceEditor(props){
                 props.update_item(new_attributes);
                 props.editor.off();
             }
-        })
-        .catch(error => console.log('Error: ', error))
+        });
     }
 
     return <JobPriceCheckPriceEditorUI  calc = { props.calc }
