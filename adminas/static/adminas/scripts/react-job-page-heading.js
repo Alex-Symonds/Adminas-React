@@ -112,20 +112,6 @@ function JobToDoIndicator(props){
                 setTodo(todo_now);
             }
         });
-
-
-        // fetch(url, headers)
-        // .then(response => response.json())
-        // .then(resp_data => {
-        //     if('message' in resp_data){
-        //         console.log('Error: ', resp_data.message);
-        //     }
-
-        //     if(resp_data.status === 'ok'){
-        //         setTodo(todo_now);
-        //     }
-        // })
-        // .catch(error => console.log('Error: ', error))
     }
 
     if(error){

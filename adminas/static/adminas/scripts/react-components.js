@@ -367,8 +367,8 @@ function list_state_delete(listState, setListState, id_key, id){
     ]);  
 }
 
-function list_state_create_one(setListState, id_key, id, attributes){
-    attributes[id_key] = id;
+function list_state_create_one(setListState, attributes){
+    console.log(attributes);
     setListState(prevState => ([
         ...prevState,
         attributes

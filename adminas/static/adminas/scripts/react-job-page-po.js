@@ -291,17 +291,17 @@ function JobPoEditor(props){
 
         const headers = getFetchHeaders(method, state_to_object_be());
 
-        fetch(url, headers)
-        .then(response => response.json())
-        .then(resp_json => {
-            if('message' in resp_json){
-                backend_error.set(resp_json.message);
+        update_server(url, headers, resp_data => {
+            if('message' in resp_data){
+                backend_error.set(resp_data.message);
             }
-            if('id' in resp_json){
-                // props.po_id is null when we're creating a new PO. The new PO
+            if('id' in resp_data){
+                // props.po_id = null when we're creating a new PO. The new PO
                 // will need to know the ID from the BE, so include that
                 if(props.data.po_id === null){
-                    props.state_submit(resp_json.id, state_to_object_fe());
+                    var attributes = state_to_object_fe();
+                    attributes.po_id = resp_data.id;
+                    props.state_submit(attributes);
                 }
                 // Otherwise it's an existing PO, so just send the new state.
                 else {
@@ -309,16 +309,14 @@ function JobPoEditor(props){
                 }
                 props.editor.off();
             }
-        })
-        .catch(error => console.log(error))
+        });
     };
 
     const delete_po = () => {
         const url = `${actionUrl}?id=${props.data.po_id}`;
         const headers = getFetchHeaders('DELETE', null);
-        fetch(url, headers)
-        .then(response => response.json())
-        .then(resp_data => {
+
+        update_server(url, headers, resp_data => {
             if('ok' in resp_data){
                 props.state_delete();
                 props.editor.off();
@@ -326,8 +324,7 @@ function JobPoEditor(props){
             else if('message' in resp_data){
                 backend_error.set(resp_data['message']);
             }
-        })
-        .catch(error => console.log(error))
+        });
     };
 
     // Object with keys appropriate for the state

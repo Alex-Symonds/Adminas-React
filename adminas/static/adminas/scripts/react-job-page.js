@@ -62,8 +62,8 @@ function JobPage(){
 
 
     // Updating states: POs
-    function create_po(po_id, po_attributes){
-        list_state_create_one(setPoList, 'po_id', po_id, po_attributes);
+    function create_po(po_attributes){
+        list_state_create_one(setPoList, po_attributes);
     }
 
     function update_po(po_id, po_attributes){
