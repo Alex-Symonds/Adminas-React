@@ -231,18 +231,18 @@ const useFetch = url => {
 };
 
 const update_server = (url, headers, handle_response) => {
-    const fetchData = async () => {
-        const my_fetch = await fetch(url, headers)
-        .then(response => response.json())
-        .then(resp_json => {
-            handle_response(resp_json);
-        })
-        .catch(error => {
-            console.log('Error: ', error)
-        });
-    };
-    fetchData();
+    console.log('using update_server 10:47');
+    fetch(url, headers)
+    .then(response => jsonOr204(response))
+    .then(resp_json => {
+        handle_response(resp_json);
+    })
+    .catch(error => {
+        console.log('Error: ', error)
+    });
 };
+
+
 
 function set_if_ok(data, key, setter){
     if(typeof data[key] !== 'undefined'){

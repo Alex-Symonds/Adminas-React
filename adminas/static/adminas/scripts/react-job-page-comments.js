@@ -48,7 +48,7 @@ function JobComments(props){
     }
 
     function remove_comment(comment_id){
-        list_state_delete(comments, setComment, 'id', comment_id); 
+        list_state_delete(comments, setComments, 'id', comment_id); 
     }
 
     const actions_comments = get_actions_object(urlComments, null, update_comment, remove_comment);
@@ -208,34 +208,15 @@ function CommentContentsFooter(props){
     function toggle_comment_from_icon(attributes){
         const url = `${props.actions_comments.url}?id=${props.comment.id}`;
         const headers = getFetchHeaders('PUT', attributes);
+
         update_server(url, headers, resp_data => {
-                if('message' in resp_data){
-                    backend_error.set(resp_data.message);
-                }
-                else if('ok' in resp_data){
-                    props.actions_comments.update_f(props.comment.id, attributes);
-                }
-        });
-    }
-
-
-
-
-    function OLDtoggle_comment_from_icon(attributes){
-        const url = `${props.actions_comments.url}?id=${props.comment.id}`;
-        const headers = getFetchHeaders('PUT', attributes);
-
-        fetch(url, headers)
-        .then(response => response.json())
-        .then(resp_data => {
             if('message' in resp_data){
                 backend_error.set(resp_data.message);
             }
             else if('ok' in resp_data){
                 props.actions_comments.update_f(props.comment.id, attributes);
             }
-        })
-        .catch(error => console.log('Error: ', error))
+        });
     }
 
     return <CommentContentsFooterUI backend_error = { backend_error }
@@ -333,9 +314,7 @@ function CommentEditor(props){
         const url = `${props.actions_comments.url}?id=${props.comment.id}`;
         const headers = getFetchHeaders('PUT', state_to_object_be());
         
-        fetch(url, headers)
-        .then(response => response.json())
-        .then(resp_data => {
+        update_server(url, headers, resp_data => {
             if('message' in resp_data){
                 setBackendError(resp_data.message);
             }
@@ -343,8 +322,7 @@ function CommentEditor(props){
                 props.actions_comments.update_f(props.comment.id, state_to_object_fe());
                 props.editor.off();
             }
-        })
-        .catch(error => console.log('Error: ', error))
+        });
     };
 
     function state_to_object_be(){
@@ -368,10 +346,8 @@ function CommentEditor(props){
     function delete_comment(){
         const url = `${props.actions_comments.url}?id=${props.comment.id}`;
         const headers = getFetchHeaders('DELETE', null);
-        
-        fetch(url, headers)
-        .then(response => jsonOr204(response))
-        .then(resp_data => {
+
+        update_server(url, headers, resp_data => {
             if(resp_data === 204){
                 props.actions_comments.delete_f(props.comment.id);
             }
@@ -381,8 +357,7 @@ function CommentEditor(props){
             else {
                 backend_error.set('Delete failed');
             }
-        })
-        .catch(error => console.log('Error: ', error))
+        });
     }
 
     return <CommentEditorUI backend_error = { backend_error }
