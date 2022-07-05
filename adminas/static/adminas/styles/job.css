@@ -431,8 +431,12 @@
 }
 
 .job-item-container {
-  max-width: 700px;
-  box-shadow: 0 0 10px 1px rgba(0, 0, 0, 0.85);
+  border-radius: 0;
+  border: none;
+}
+.job-item-container div,
+.job-item-container h5 {
+  border-left: 3px solid #888;
 }
 .job-item-container .panel-header {
   border-bottom: none;
@@ -604,6 +608,91 @@ table.price-comparison .conclusion th, table.price-comparison .conclusion td {
 
 #price_summary {
   margin-top: 1.5rem;
+}
+
+.jobitems-details {
+  width: 40rem;
+  background: #222;
+}
+
+#jobitems_table a {
+  text-decoration: none;
+}
+#jobitems_table .quantity,
+#jobitems_table .assignments {
+  padding: 0;
+}
+#jobitems_table .selected {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  width: 100%;
+  padding: 0.1rem 0.5rem;
+  box-sizing: border-box;
+  border-left: 3px solid transparent;
+}
+#jobitems_table tr:nth-of-type(even).details-inactive,
+#jobitems_table tr:nth-of-type(even).details-child {
+  background: transparent;
+}
+#jobitems_table .details-active,
+#jobitems_table tr:nth-of-type(even).details-active {
+  background: #BBB;
+  color: black;
+  font-weight: bold;
+}
+#jobitems_table .details-active .quantity .selected,
+#jobitems_table tr:nth-of-type(even).details-active .quantity .selected {
+  border-color: #00D4F5;
+}
+#jobitems_table .details-child .part_no,
+#jobitems_table .details-child .product_name,
+#jobitems_table .details-child .selling_price,
+#jobitems_table .details-child .edit_ji,
+#jobitems_table .details-child .assignments {
+  color: white;
+  background: #666;
+  border-color: #888;
+}
+#jobitems_table .details-child .assignments .selected {
+  color: white;
+  border-color: #00D4F5;
+}
+#jobitems_table .details-inactive,
+#jobitems_table .details-child .quantity {
+  color: #666;
+}
+#jobitems_table th.empty {
+  border: none;
+  background: transparent;
+}
+#jobitems_table .quantity,
+#jobitems_table .selling_price {
+  text-align: right;
+}
+#jobitems_table .assignments {
+  font-size: 0.9rem;
+}
+#jobitems_table .edit_modules .edit-icon {
+  margin: 1px 10px 0 0;
+}
+#jobitems_table .edit_modules .edit-icon:hover {
+  background-position: 5px 5px;
+}
+#jobitems_table .edit_modules .edit-icon:hover span {
+  width: 4rem;
+}
+#jobitems_table .edit_modules.modules-ok {
+  border-left: 3px solid #0DFA96;
+}
+#jobitems_table .edit_modules.modules-incomplete {
+  border-left: 3px solid red;
+  background: #cf0000;
+}
+#jobitems_table .edit_modules.modules-excess {
+  border-left: 3px solid #eb9dff;
+  background: #9600ec;
 }
 
 #price_check_table .selling-price {

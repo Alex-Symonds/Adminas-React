@@ -45,10 +45,12 @@
             {% endif %}
          @ {{ job.currency }}&nbsp;{{ job.value }}
                     </p>
+
             {% for status in job.status %}
                 {% if forloop.first %}
                     <section class="status-container">
                 {% endif %}
+
                         <div class="status-ele {{ status.0 }}">
                             <span class="icon">
                 {% if status.0 == 'status_ok' %}
@@ -68,13 +70,11 @@
                     </section>
                 {% endif %}
             {% endfor %}
+
                 </a>
             </section>
 
             
-
-            
-
             <section class="comments" data-url_comments="{% url 'job_comments' job.id %}">
             {% if job.pinned_comments %}
                 <h5 class="secondary-icon">PINNED</h5>

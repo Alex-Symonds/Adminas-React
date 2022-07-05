@@ -402,9 +402,16 @@ nav li a:hover {
   top: 0;
   right: 26px;
 }
+.edit-icon.dark {
+  background-image: url(../images/i-edit-dark.svg);
+}
+.edit-icon.dark:hover {
+  border-color: #1a1a1aff;
+}
 
 .close,
-.delete-panel {
+.delete-panel,
+.more-icon {
   position: relative;
   float: right;
   color: #F6F6F6;
@@ -419,7 +426,8 @@ nav li a:hover {
   z-index: 2;
 }
 .close span,
-.delete-panel span {
+.delete-panel span,
+.more-icon span {
   display: block;
   position: absolute;
   top: 0;
@@ -431,7 +439,8 @@ nav li a:hover {
   text-align: center;
 }
 .close:hover span,
-.delete-panel:hover span {
+.delete-panel:hover span,
+.more-icon:hover span {
   color: #F6F6F6;
   border-radius: 5px;
   background: rgba(20, 20, 20, 0.8);
@@ -451,6 +460,21 @@ nav li a:hover {
 }
 .delete-panel:hover {
   background-image: url(../images/i-minus-filled.svg);
+}
+
+.more-icon {
+  color: #F6F6F6;
+  background-image: url(../images/i-more-empty.svg);
+}
+.more-icon span {
+  top: -3px;
+  left: 0;
+}
+.more-icon:hover, .more-icon:active, .more-icon:focus {
+  background-image: url(../images/i-more-filled.svg);
+}
+.more-icon.dark:hover, .more-icon.dark:active, .more-icon.dark:focus {
+  background-image: url(../images/i-more-filled-dark.svg);
 }
 
 .return-to-job {
@@ -768,28 +792,36 @@ nav li a:hover {
   border-bottom-right-radius: 1rem;
 }
 
+#jobitems_table,
 .responsive-table {
   margin: 0.3rem;
   border-collapse: collapse;
 }
+#jobitems_table tr:nth-of-type(even),
 .responsive-table tr:nth-of-type(even) {
   background: #444;
 }
+#jobitems_table th,
+#jobitems_table td,
 .responsive-table th,
 .responsive-table td {
   padding: 0.1rem 0.5rem;
 }
+#jobitems_table th,
 .responsive-table th {
   border: 1px solid #444;
   background: #666;
 }
+#jobitems_table td,
 .responsive-table td {
   border: 1px solid #666;
   height: 2rem;
 }
+#jobitems_table .edit-icon,
 .responsive-table .edit-icon {
   margin: 0 0 0 0.3rem;
 }
+#jobitems_table .edit-icon:hover,
 .responsive-table .edit-icon:hover {
   background-position: 5px 4px;
 }

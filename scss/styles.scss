@@ -486,10 +486,19 @@ nav{
             right:26px;
         }
     }
+
+    &.dark{
+        background-image: url(../images/i-edit-dark.svg);
+
+        &:hover{
+            border-color: #1a1a1aff;
+        }
+    }
 }
 
 .close,
-.delete-panel{
+.delete-panel,
+.more-icon{
     position: relative;
     float: right;
     color: v.$c_tone_07;
@@ -545,6 +554,31 @@ nav{
         background-image: url(../images/i-minus-filled.svg);
     }
 }
+
+.more-icon{
+    color: v.$c_tone_07;
+    background-image: url(../images/i-more-empty.svg);
+
+    span{
+        top: -3px;
+        left: 0;
+    }
+
+    &:hover,
+    &:active,
+    &:focus{
+        background-image: url(../images/i-more-filled.svg);
+    }
+
+    &.dark{
+        &:hover,
+        &:active,
+        &:focus{
+            background-image: url(../images/i-more-filled-dark.svg);
+        }
+    }
+}
+
 
 
 
@@ -1018,6 +1052,7 @@ nav{
 
 
 // || Responsive table (i.e. switches from a table to formatted rows when the screen is too narrow)
+#jobitems_table,
 .responsive-table{
     margin: 0.3rem;
     border-collapse: collapse;

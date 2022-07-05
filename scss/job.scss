@@ -603,8 +603,15 @@
 
 
 .job-item-container{
-    max-width: v.$MAX_WIDTH;
-    box-shadow: v.$panel_shadow;
+    //box-shadow: v.$panel_shadow;
+
+    border-radius: 0;
+    border: none;
+
+    div,
+    h5{
+        border-left: 3px solid v.$c_tone_04;
+    }
 
     .panel-header{
         border-bottom: none;
@@ -809,6 +816,135 @@ table.price-comparison{
 
 #price_summary{
     margin-top: 1.5rem;
+}
+
+
+.jobitems-details{
+    width: 40rem;
+    background: v.$c_tone_01;
+}
+
+
+
+#jobitems_table{
+    a{
+        text-decoration: none;
+    }
+
+    // When selected as a parent, a wide side-border should appear against quantity.
+    // When selected as a child, a wide side-border should appear against assignments.
+    // It's nice for this border to appear inside the td so the table's border lines
+    // are uninterrupted. To this end, there's a div wrapped around the contents of those
+    // two cells.
+
+    // Get rid of the padding on cells with a div wrapper
+    .quantity,
+    .assignments{
+        padding: 0;
+    }
+
+    // Reapply td padding/formatting and a non-wiggly border
+    .selected{
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        height: 100%;
+        width: 100%;
+
+        padding: 0.1rem 0.5rem;
+        box-sizing: border-box;
+        border-left: 3px solid transparent;
+    }
+
+    // Turn off the banding when something is selected
+    tr:nth-of-type(even).details-inactive,
+    tr:nth-of-type(even).details-child{
+        background: transparent;
+    }
+
+    .details-active,
+    tr:nth-of-type(even).details-active {
+        background: v.$c_tone_06;
+        color: black;
+        font-weight: bold;
+
+        .quantity .selected{
+            border-color: v.$c_accent;
+        }
+    }
+
+    .details-child{
+        .part_no,
+        .product_name,
+        .selling_price,
+        .edit_ji,
+        .assignments{
+            color: white;
+            background: v.$c_tone_03;
+            border-color: v.$c_tone_04;
+        }
+
+        .assignments .selected{
+            color: white;
+            border-color: v.$c_accent;
+        }
+    }
+
+        .details-inactive,
+    .details-child .quantity{
+        color: v.$c_tone_03;
+    }
+
+
+
+
+
+
+
+    th.empty{
+        border: none;
+        background: transparent;
+    }
+
+    .quantity,
+    .selling_price{
+        text-align: right;
+    }
+
+    .assignments{
+        font-size: 0.9rem;
+    }
+
+    .edit_modules{
+        .edit-icon{
+            margin: 1px 10px 0 0;
+
+            &:hover{
+                background-position: 5px 5px;
+
+                span{
+                    width: 4rem;
+                }
+            }
+        }
+
+        &.modules-ok{
+            border-left: 3px solid v.$c_accent_secondary;
+        }
+    
+        &.modules-incomplete{
+            border-left: 3px solid red;
+            background: v.$c_warning;
+        }
+    
+        &.modules-excess{
+            border-left: 3px solid v.$c_flag_special_bright;
+            background: v.$c_flag_special_dark;
+        } 
+    }
+
+
 }
 
 #price_check_table{
