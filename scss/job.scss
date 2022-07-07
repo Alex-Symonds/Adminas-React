@@ -602,11 +602,210 @@
 }
 
 
-.job-item-container{
-    //box-shadow: v.$panel_shadow;
 
-    border-radius: 0;
-    border: none;
+
+.job-item-container{
+    padding: 0;
+    border-bottom: 1px solid v.$c_tone_04;
+
+    margin: 1rem 0 0 2rem;
+    &:first-of-type{
+        margin: 0;
+    }
+
+    .ji-list{
+        padding: 0.1rem 0 0.3rem 0;
+
+        table{
+            margin-left: 0.8rem;
+            color: v.$c_tone_06;
+
+            .desc{
+                padding: 0 0.4rem;
+            }
+        }
+    }
+
+    .product-quantity{
+        display: inline-block;
+        padding: 0.3rem 0.5rem;
+        font-size: 1.1rem;
+        font-weight: bold;
+    }
+
+    a{
+        text-decoration: none;
+    }
+
+    .subsection{
+        margin: 0;
+        border-left: 3px solid v.$c_tone_04;
+        border-bottom: none;
+    }
+
+    .subsection-heading{
+        font-size: 1rem;
+
+        .desc{
+            &:before,
+            &:after{
+                content: '"';
+            }
+
+            margin: 0.2rem 0 0 0;
+            font-style: italic;
+            font-weight: normal;
+            font-size: 0.95rem;
+            color: v.$c_tone_06;
+        }
+    }
+
+    ul{
+        margin: 3px 0 0 0;
+        padding-bottom: 0.3rem;
+    }
+
+    li{
+        color: v.$c_tone_06;
+    }
+
+    .assignment-icon{
+        display: inline-block;
+        border: 1px solid v.$c_tone_00;
+        border-radius: 0.2rem;
+        font-size: 0.75rem;
+        margin: 0;
+        padding: 0;
+        margin: 0 0.1rem;
+    
+        span{
+            display: block;
+            float: left;
+            padding: 1px 6px;
+            margin: 0;
+        }
+    
+        .label{
+            border-top-left-radius: 0.15rem;
+            border-bottom-left-radius: 0.15rem;
+            border-right: 2px solid v.$c_accent_secondary;
+            background: v.$c_tone_01;
+            color: v.$c_tone_06;
+        }
+        .status{
+            background: v.$c_tone_01;
+            font-weight: bold;
+        }
+       
+        &:last-of-type{
+            border-bottom: 1px solid v.$c_tone_00;
+        }
+    }
+
+    .money{
+        padding: 4px 2px 10px 0.75rem;
+
+        .currency,
+        .selling_price{
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .selling_price{
+            margin-left: 0.5rem;
+        }
+
+    }
+
+    .std-accs-container{
+        border-left: 3px solid v.$c_tone_04;
+
+        p{
+            padding: 0.2rem 0 0.2rem 0.4rem;
+            width: calc(100% - 0.4rem);
+            background: v.$c_tone_02; 
+            margin: 0;
+        }
+    }
+
+    .module-status-section{
+        .intro-line{
+            display: flex;
+            align-items: center;
+            box-sizing: border-box;
+            width: 100%;
+            padding: 0.2rem 0.1rem 0.2rem 0.4rem;
+            background: v.$c_accent_02;
+
+            .display-text{
+                flex-grow: 2;
+            }
+            &:after{
+                content: '';
+                display: table;
+                clear: both;
+            }
+        }
+    }
+
+    .assignments{
+        border-left: 3px solid v.$c_tone_04;
+        border-color: rgb(212, 199, 163);
+        .intro-line{
+            background:rgb(77, 73, 65);
+            //background: v.$c_tone_02;
+        }
+    }
+
+    .modules-ok{
+        border-left: 3px solid v.$c_accent_secondary;
+        .intro-line{
+            background: v.$c_tone_02;
+        }
+    }  
+
+    .modules-incomplete{
+        border-left: 3px solid red;
+        .intro-line{
+            background: v.$c_warning;
+        }
+    }
+
+    .modules-excess{
+        border-left: 3px solid v.$c_flag_special_bright;
+        .intro-line{
+            background: v.$c_flag_special_dark;
+        }
+        li{
+            color: v.$c_tone_06;
+        }
+    } 
+
+    &.product .subsection,
+    .subsection.product{
+        .subsection-heading{
+            background: v.$c_product_dark;
+        }
+        border-color: v.$c_product_light;
+    }
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.OLDjob-item-container{
+    //box-shadow: v.$panel_shadow;
 
     div,
     h5{
@@ -667,8 +866,8 @@
     .money{
         margin: 0 3px;
         padding: 4px 2px 10px 5px;
-        border-top: 1px solid v.$c_tone_04;
-        border-left: 3px solid transparent;
+        //border-top: 1px solid v.$c_tone_04;
+        //border-left: 3px solid transparent;
 
         .currency,
         .selling_price{
@@ -727,7 +926,6 @@
         border-left: 3px solid v.$c_accent_secondary;
         .intro-line{
             background: v.$c_tone_02;
-            //background: v.$c_accent_secondary_02;
         }
     }  
 
@@ -820,8 +1018,8 @@ table.price-comparison{
 
 
 .jobitems-details{
+    margin: 2rem;
     width: 40rem;
-    background: v.$c_tone_01;
 }
 
 
@@ -831,20 +1029,35 @@ table.price-comparison{
         text-decoration: none;
     }
 
-    // When selected as a parent, a wide side-border should appear against quantity.
-    // When selected as a child, a wide side-border should appear against assignments.
+    // Turn off the banding when something is selected
+    &.details-visible{
+        td{
+            color: v.$c_tone_03;
+        }
+        tr:nth-of-type(even){
+            background: transparent;
+        }
+    }
+
+    // When a row is selected as a parent, a wide side-border should appear against quantity.
+    // When a row is selected as a child, a wide side-border should appear against assignments.
     // It's nice for this border to appear inside the td so the table's border lines
     // are uninterrupted. To this end, there's a div wrapped around the contents of those
     // two cells.
 
     // Get rid of the padding on cells with a div wrapper
-    .quantity,
-    .assignments{
+    .ji_id,
+    .assignments,
+    .part_no{
         padding: 0;
+
+        .id-number{
+            margin: 0;
+        }
     }
 
-    // Reapply td padding/formatting and a non-wiggly border
-    .selected{
+    // Reapply td padding/formatting and the extra border
+    .flag-selection-reason{
         display: flex;
         align-items: center;
         justify-content: center;
@@ -857,20 +1070,22 @@ table.price-comparison{
         border-left: 3px solid transparent;
     }
 
-    // Turn off the banding when something is selected
-    tr:nth-of-type(even).details-inactive,
-    tr:nth-of-type(even).details-child{
-        background: transparent;
-    }
 
-    .details-active,
-    tr:nth-of-type(even).details-active {
+    tr:nth-of-type(even).details-active,
+    .details-active {
         background: v.$c_tone_06;
-        color: black;
-        font-weight: bold;
 
-        .quantity .selected{
+        td{
+            color: black;
+            font-weight: bold;
+        }
+
+        .ji_id .flag-selection-reason{
             border-color: v.$c_accent;
+        }
+
+        .edit-icon span{
+            font-weight: normal;
         }
     }
 
@@ -885,19 +1100,23 @@ table.price-comparison{
             border-color: v.$c_tone_04;
         }
 
-        .assignments .selected{
-            color: white;
+        .assignments .flag-selection-reason{
             border-color: v.$c_accent;
         }
     }
 
-        .details-inactive,
-    .details-child .quantity{
-        color: v.$c_tone_03;
+    .details-sibling{
+        .part_no,
+        .product_name{
+            color: white;
+            background: v.$c_product_dark; //v.$c_tone_03;
+            border-color: v.$c_tone_04;
+        }
+
+        .part_no .flag-selection-reason{
+            border-color: v.$c_accent;
+        }
     }
-
-
-
 
 
 

@@ -980,11 +980,8 @@ nav{
     padding: 4px 8px;
 }
 
-.id-number{
-    &:before{
-        content: 'id ';
-    }
-
+.id-number,
+.price-list{
     margin: 0 0 0 5px;
     padding: 1px 5px;
     font-size: 0.75rem;
@@ -1002,6 +999,16 @@ nav{
     width: fit-content;
 }
 
+.id-number{
+    &:before{
+        content: 'id ';
+    }
+    border-left: 2px solid v.$c_accent_secondary_03;
+}
+
+.price-list{
+    border-left: 2px solid v.$c_accent_secondary_03;
+}
 
 
 

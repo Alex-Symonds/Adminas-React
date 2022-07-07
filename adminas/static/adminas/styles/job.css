@@ -431,16 +431,49 @@
 }
 
 .job-item-container {
-  border-radius: 0;
-  border: none;
+  padding: 0;
+  border-bottom: 1px solid #888;
+  margin: 1rem 0 0 2rem;
 }
-.job-item-container div,
-.job-item-container h5 {
+.job-item-container:first-of-type {
+  margin: 0;
+}
+.job-item-container .ji-list {
+  padding: 0.1rem 0 0.3rem 0;
+}
+.job-item-container .ji-list table {
+  margin-left: 0.8rem;
+  color: #BBB;
+}
+.job-item-container .ji-list table .desc {
+  padding: 0 0.4rem;
+}
+.job-item-container .product-quantity {
+  display: inline-block;
+  padding: 0.3rem 0.5rem;
+  font-size: 1.1rem;
+  font-weight: bold;
+}
+.job-item-container a {
+  text-decoration: none;
+}
+.job-item-container .subsection {
+  margin: 0;
   border-left: 3px solid #888;
-}
-.job-item-container .panel-header {
   border-bottom: none;
-  width: calc(100% - 16px);
+}
+.job-item-container .subsection-heading {
+  font-size: 1rem;
+}
+.job-item-container .subsection-heading .desc {
+  margin: 0.2rem 0 0 0;
+  font-style: italic;
+  font-weight: normal;
+  font-size: 0.95rem;
+  color: #BBB;
+}
+.job-item-container .subsection-heading .desc:before, .job-item-container .subsection-heading .desc:after {
+  content: '"';
 }
 .job-item-container ul {
   margin: 3px 0 0 0;
@@ -448,9 +481,6 @@
 }
 .job-item-container li {
   color: #BBB;
-}
-.job-item-container div:last-child {
-  border-bottom: none;
 }
 .job-item-container .assignment-icon {
   display: inline-block;
@@ -482,10 +512,7 @@
   border-bottom: 1px solid #141414;
 }
 .job-item-container .money {
-  margin: 0 3px;
-  padding: 4px 2px 10px 5px;
-  border-top: 1px solid #888;
-  border-left: 3px solid transparent;
+  padding: 4px 2px 10px 0.75rem;
 }
 .job-item-container .money .currency,
 .job-item-container .money .selling_price {
@@ -496,7 +523,6 @@
   margin-left: 0.5rem;
 }
 .job-item-container .std-accs-container {
-  margin-left: 3px;
   border-left: 3px solid #888;
 }
 .job-item-container .std-accs-container p {
@@ -505,15 +531,12 @@
   background: #444;
   margin: 0;
 }
-.job-item-container .module-status-section {
-  margin: 3px 0 1px 3px;
-  border-bottom-left-radius: 3px;
-}
 .job-item-container .module-status-section .intro-line {
   display: flex;
   align-items: center;
-  padding: 0.2rem 0 0.2rem 0.4rem;
-  width: calc(100% - 0.4rem - 3px);
+  box-sizing: border-box;
+  width: 100%;
+  padding: 0.2rem 0.1rem 0.2rem 0.4rem;
   background: #00c2e0;
 }
 .job-item-container .module-status-section .intro-line .display-text {
@@ -526,9 +549,10 @@
 }
 .job-item-container .assignments {
   border-left: 3px solid #888;
+  border-color: #d4c7a3;
 }
 .job-item-container .assignments .intro-line {
-  background: #444;
+  background: #4d4941;
 }
 .job-item-container .modules-ok {
   border-left: 3px solid #0DFA96;
@@ -549,6 +573,130 @@
   background: #9600ec;
 }
 .job-item-container .modules-excess li {
+  color: #BBB;
+}
+.job-item-container.product .subsection,
+.job-item-container .subsection.product {
+  border-color: #d4c7a3;
+}
+.job-item-container.product .subsection .subsection-heading,
+.job-item-container .subsection.product .subsection-heading {
+  background: #4d4941;
+}
+
+.OLDjob-item-container div,
+.OLDjob-item-container h5 {
+  border-left: 3px solid #888;
+}
+.OLDjob-item-container .panel-header {
+  border-bottom: none;
+  width: calc(100% - 16px);
+}
+.OLDjob-item-container ul {
+  margin: 3px 0 0 0;
+  padding-bottom: 0.3rem;
+}
+.OLDjob-item-container li {
+  color: #BBB;
+}
+.OLDjob-item-container div:last-child {
+  border-bottom: none;
+}
+.OLDjob-item-container .assignment-icon {
+  display: inline-block;
+  border: 1px solid #141414;
+  border-radius: 0.2rem;
+  font-size: 0.75rem;
+  margin: 0;
+  padding: 0;
+  margin: 0 0.1rem;
+}
+.OLDjob-item-container .assignment-icon span {
+  display: block;
+  float: left;
+  padding: 1px 6px;
+  margin: 0;
+}
+.OLDjob-item-container .assignment-icon .label {
+  border-top-left-radius: 0.15rem;
+  border-bottom-left-radius: 0.15rem;
+  border-right: 2px solid #0DFA96;
+  background: #222;
+  color: #BBB;
+}
+.OLDjob-item-container .assignment-icon .status {
+  background: #222;
+  font-weight: bold;
+}
+.OLDjob-item-container .assignment-icon:last-of-type {
+  border-bottom: 1px solid #141414;
+}
+.OLDjob-item-container .money {
+  margin: 0 3px;
+  padding: 4px 2px 10px 5px;
+}
+.OLDjob-item-container .money .currency,
+.OLDjob-item-container .money .selling_price {
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+.OLDjob-item-container .money .selling_price {
+  margin-left: 0.5rem;
+}
+.OLDjob-item-container .std-accs-container {
+  margin-left: 3px;
+  border-left: 3px solid #888;
+}
+.OLDjob-item-container .std-accs-container p {
+  padding: 0.2rem 0 0.2rem 0.4rem;
+  width: calc(100% - 0.4rem);
+  background: #444;
+  margin: 0;
+}
+.OLDjob-item-container .module-status-section {
+  margin: 3px 0 1px 3px;
+  border-bottom-left-radius: 3px;
+}
+.OLDjob-item-container .module-status-section .intro-line {
+  display: flex;
+  align-items: center;
+  padding: 0.2rem 0 0.2rem 0.4rem;
+  width: calc(100% - 0.4rem - 3px);
+  background: #00c2e0;
+}
+.OLDjob-item-container .module-status-section .intro-line .display-text {
+  flex-grow: 2;
+}
+.OLDjob-item-container .module-status-section .intro-line:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+.OLDjob-item-container .assignments {
+  border-left: 3px solid #888;
+}
+.OLDjob-item-container .assignments .intro-line {
+  background: #444;
+}
+.OLDjob-item-container .modules-ok {
+  border-left: 3px solid #0DFA96;
+}
+.OLDjob-item-container .modules-ok .intro-line {
+  background: #444;
+}
+.OLDjob-item-container .modules-incomplete {
+  border-left: 3px solid red;
+}
+.OLDjob-item-container .modules-incomplete .intro-line {
+  background: #cf0000;
+}
+.OLDjob-item-container .modules-excess {
+  border-left: 3px solid #eb9dff;
+}
+.OLDjob-item-container .modules-excess .intro-line {
+  background: #9600ec;
+}
+.OLDjob-item-container .modules-excess li {
   color: #BBB;
 }
 
@@ -611,18 +759,30 @@ table.price-comparison .conclusion th, table.price-comparison .conclusion td {
 }
 
 .jobitems-details {
+  margin: 2rem;
   width: 40rem;
-  background: #222;
 }
 
 #jobitems_table a {
   text-decoration: none;
 }
-#jobitems_table .quantity,
-#jobitems_table .assignments {
+#jobitems_table.details-visible td {
+  color: #666;
+}
+#jobitems_table.details-visible tr:nth-of-type(even) {
+  background: transparent;
+}
+#jobitems_table .ji_id,
+#jobitems_table .assignments,
+#jobitems_table .part_no {
   padding: 0;
 }
-#jobitems_table .selected {
+#jobitems_table .ji_id .id-number,
+#jobitems_table .assignments .id-number,
+#jobitems_table .part_no .id-number {
+  margin: 0;
+}
+#jobitems_table .flag-selection-reason {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -632,19 +792,22 @@ table.price-comparison .conclusion th, table.price-comparison .conclusion td {
   box-sizing: border-box;
   border-left: 3px solid transparent;
 }
-#jobitems_table tr:nth-of-type(even).details-inactive,
-#jobitems_table tr:nth-of-type(even).details-child {
-  background: transparent;
-}
-#jobitems_table .details-active,
-#jobitems_table tr:nth-of-type(even).details-active {
+#jobitems_table tr:nth-of-type(even).details-active,
+#jobitems_table .details-active {
   background: #BBB;
+}
+#jobitems_table tr:nth-of-type(even).details-active td,
+#jobitems_table .details-active td {
   color: black;
   font-weight: bold;
 }
-#jobitems_table .details-active .quantity .selected,
-#jobitems_table tr:nth-of-type(even).details-active .quantity .selected {
+#jobitems_table tr:nth-of-type(even).details-active .ji_id .flag-selection-reason,
+#jobitems_table .details-active .ji_id .flag-selection-reason {
   border-color: #00D4F5;
+}
+#jobitems_table tr:nth-of-type(even).details-active .edit-icon span,
+#jobitems_table .details-active .edit-icon span {
+  font-weight: normal;
 }
 #jobitems_table .details-child .part_no,
 #jobitems_table .details-child .product_name,
@@ -655,13 +818,17 @@ table.price-comparison .conclusion th, table.price-comparison .conclusion td {
   background: #666;
   border-color: #888;
 }
-#jobitems_table .details-child .assignments .selected {
-  color: white;
+#jobitems_table .details-child .assignments .flag-selection-reason {
   border-color: #00D4F5;
 }
-#jobitems_table .details-inactive,
-#jobitems_table .details-child .quantity {
-  color: #666;
+#jobitems_table .details-sibling .part_no,
+#jobitems_table .details-sibling .product_name {
+  color: white;
+  background: #4d4941;
+  border-color: #888;
+}
+#jobitems_table .details-sibling .part_no .flag-selection-reason {
+  border-color: #00D4F5;
 }
 #jobitems_table th.empty {
   border: none;

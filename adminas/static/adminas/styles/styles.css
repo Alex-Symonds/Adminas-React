@@ -739,7 +739,8 @@ nav li a:hover {
   padding: 4px 8px;
 }
 
-.id-number {
+.id-number,
+.price-list {
   margin: 0 0 0 5px;
   padding: 1px 5px;
   font-size: 0.75rem;
@@ -753,8 +754,16 @@ nav li a:hover {
   width: -moz-fit-content;
   width: fit-content;
 }
+
+.id-number {
+  border-left: 2px solid #09BA70;
+}
 .id-number:before {
   content: "id ";
+}
+
+.price-list {
+  border-left: 2px solid #09BA70;
 }
 
 .pagination_controls {
