@@ -83,6 +83,7 @@
 .document-sections-wrapper .po-row {
   display: flex;
   justify-content: space-between;
+  box-sizing: border-box;
   width: 100%;
   border: 1px solid #666;
   padding: 0.3rem;
@@ -431,6 +432,7 @@
 }
 
 .job-item-container {
+  max-width: 35rem;
   padding: 0;
   border-bottom: 1px solid #888;
   margin: 1rem 0 0 2rem;
@@ -471,6 +473,7 @@
   font-weight: normal;
   font-size: 0.95rem;
   color: #BBB;
+  padding: 0.1rem;
 }
 .job-item-container .subsection-heading .desc:before, .job-item-container .subsection-heading .desc:after {
   content: '"';
@@ -514,12 +517,9 @@
 .job-item-container .money {
   padding: 4px 2px 10px 0.75rem;
 }
-.job-item-container .money .currency,
 .job-item-container .money .selling_price {
   font-size: 1.2rem;
   font-weight: bold;
-}
-.job-item-container .money .selling_price {
   margin-left: 0.5rem;
 }
 .job-item-container .std-accs-container {
@@ -564,7 +564,7 @@
   border-left: 3px solid red;
 }
 .job-item-container .modules-incomplete .intro-line {
-  background: #cf0000;
+  background: #450000;
 }
 .job-item-container .modules-excess {
   border-left: 3px solid #eb9dff;
@@ -582,122 +582,6 @@
 .job-item-container.product .subsection .subsection-heading,
 .job-item-container .subsection.product .subsection-heading {
   background: #4d4941;
-}
-
-.OLDjob-item-container div,
-.OLDjob-item-container h5 {
-  border-left: 3px solid #888;
-}
-.OLDjob-item-container .panel-header {
-  border-bottom: none;
-  width: calc(100% - 16px);
-}
-.OLDjob-item-container ul {
-  margin: 3px 0 0 0;
-  padding-bottom: 0.3rem;
-}
-.OLDjob-item-container li {
-  color: #BBB;
-}
-.OLDjob-item-container div:last-child {
-  border-bottom: none;
-}
-.OLDjob-item-container .assignment-icon {
-  display: inline-block;
-  border: 1px solid #141414;
-  border-radius: 0.2rem;
-  font-size: 0.75rem;
-  margin: 0;
-  padding: 0;
-  margin: 0 0.1rem;
-}
-.OLDjob-item-container .assignment-icon span {
-  display: block;
-  float: left;
-  padding: 1px 6px;
-  margin: 0;
-}
-.OLDjob-item-container .assignment-icon .label {
-  border-top-left-radius: 0.15rem;
-  border-bottom-left-radius: 0.15rem;
-  border-right: 2px solid #0DFA96;
-  background: #222;
-  color: #BBB;
-}
-.OLDjob-item-container .assignment-icon .status {
-  background: #222;
-  font-weight: bold;
-}
-.OLDjob-item-container .assignment-icon:last-of-type {
-  border-bottom: 1px solid #141414;
-}
-.OLDjob-item-container .money {
-  margin: 0 3px;
-  padding: 4px 2px 10px 5px;
-}
-.OLDjob-item-container .money .currency,
-.OLDjob-item-container .money .selling_price {
-  font-size: 1.2rem;
-  font-weight: bold;
-}
-.OLDjob-item-container .money .selling_price {
-  margin-left: 0.5rem;
-}
-.OLDjob-item-container .std-accs-container {
-  margin-left: 3px;
-  border-left: 3px solid #888;
-}
-.OLDjob-item-container .std-accs-container p {
-  padding: 0.2rem 0 0.2rem 0.4rem;
-  width: calc(100% - 0.4rem);
-  background: #444;
-  margin: 0;
-}
-.OLDjob-item-container .module-status-section {
-  margin: 3px 0 1px 3px;
-  border-bottom-left-radius: 3px;
-}
-.OLDjob-item-container .module-status-section .intro-line {
-  display: flex;
-  align-items: center;
-  padding: 0.2rem 0 0.2rem 0.4rem;
-  width: calc(100% - 0.4rem - 3px);
-  background: #00c2e0;
-}
-.OLDjob-item-container .module-status-section .intro-line .display-text {
-  flex-grow: 2;
-}
-.OLDjob-item-container .module-status-section .intro-line:after {
-  content: "";
-  display: table;
-  clear: both;
-}
-.OLDjob-item-container .assignments {
-  border-left: 3px solid #888;
-}
-.OLDjob-item-container .assignments .intro-line {
-  background: #444;
-}
-.OLDjob-item-container .modules-ok {
-  border-left: 3px solid #0DFA96;
-}
-.OLDjob-item-container .modules-ok .intro-line {
-  background: #444;
-}
-.OLDjob-item-container .modules-incomplete {
-  border-left: 3px solid red;
-}
-.OLDjob-item-container .modules-incomplete .intro-line {
-  background: #cf0000;
-}
-.OLDjob-item-container .modules-excess {
-  border-left: 3px solid #eb9dff;
-}
-.OLDjob-item-container .modules-excess .intro-line {
-  background: #9600ec;
-}
-.OLDjob-item-container .modules-excess li {
-  color: #BBB;
 }
 
 #toggle_item_form_btn {
@@ -723,6 +607,9 @@ table.price-comparison td {
 table.price-comparison th, table.price-comparison td {
   border-top: 1px solid #444;
 }
+table.price-comparison .diff-perc {
+  font-size: 0.9rem;
+}
 table.price-comparison .diff-perc:before {
   content: "(";
 }
@@ -742,6 +629,11 @@ table.price-comparison .conclusion th, table.price-comparison .conclusion td {
   border-top: 1px solid #666;
 }
 
+@media screen and (max-width: 400px) {
+  table.price-comparison {
+    margin: 0.2rem;
+  }
+}
 .status-toggle-indicator {
   display: block;
   padding: 0.1rem 1rem 0.1rem 0.7rem;
@@ -760,29 +652,33 @@ table.price-comparison .conclusion th, table.price-comparison .conclusion td {
 
 .jobitems-details {
   margin: 2rem;
-  width: 40rem;
+  width: 30rem;
 }
 
-#jobitems_table a {
-  text-decoration: none;
+#jobitems_table .quantity,
+#jobitems_table .selling_price {
+  text-align: right;
+}
+#jobitems_table .modular {
+  font-size: 0.9rem;
+}
+#jobitems_table .ji_id .id-number {
+  margin: 0;
 }
 #jobitems_table.details-visible td {
   color: #666;
 }
-#jobitems_table.details-visible tr:nth-of-type(even) {
-  background: transparent;
+#jobitems_table.details-visible .content-highlight-wrapper.modules-ok, #jobitems_table.details-visible .content-highlight-wrapper.modules-excess, #jobitems_table.details-visible .content-highlight-wrapper.modules-incomplete {
+  color: #888;
+  border-color: #888;
+  background: #444;
 }
+#jobitems_table .modular,
 #jobitems_table .ji_id,
-#jobitems_table .assignments,
 #jobitems_table .part_no {
   padding: 0;
 }
-#jobitems_table .ji_id .id-number,
-#jobitems_table .assignments .id-number,
-#jobitems_table .part_no .id-number {
-  margin: 0;
-}
-#jobitems_table .flag-selection-reason {
+#jobitems_table .content-highlight-wrapper {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -792,33 +688,42 @@ table.price-comparison .conclusion th, table.price-comparison .conclusion td {
   box-sizing: border-box;
   border-left: 3px solid transparent;
 }
-#jobitems_table tr:nth-of-type(even).details-active,
+#jobitems_table.details-visible .details-active .content-highlight-wrapper.modules-ok, #jobitems_table.details-visible .details-child .content-highlight-wrapper.modules-ok, #jobitems_table.details-visible .details-sibling .content-highlight-wrapper.modules-ok,
+#jobitems_table .content-highlight-wrapper.modules-ok {
+  color: white;
+  border-color: #0DFA96;
+  background: #067A4A;
+}
+#jobitems_table.details-visible .details-active .content-highlight-wrapper.modules-incomplete, #jobitems_table.details-visible .details-child .content-highlight-wrapper.modules-incomplete, #jobitems_table.details-visible .details-sibling .content-highlight-wrapper.modules-incomplete,
+#jobitems_table .content-highlight-wrapper.modules-incomplete {
+  color: white;
+  border-color: red;
+  background: #450000;
+}
+#jobitems_table.details-visible .details-active .content-highlight-wrapper.modules-excess, #jobitems_table.details-visible .details-child .content-highlight-wrapper.modules-excess, #jobitems_table.details-visible .details-sibling .content-highlight-wrapper.modules-excess,
+#jobitems_table .content-highlight-wrapper.modules-excess {
+  color: white;
+  border-color: #eb9dff;
+  background: #9600ec;
+}
 #jobitems_table .details-active {
   background: #BBB;
 }
-#jobitems_table tr:nth-of-type(even).details-active td,
 #jobitems_table .details-active td {
   color: black;
-  font-weight: bold;
 }
-#jobitems_table tr:nth-of-type(even).details-active .ji_id .flag-selection-reason,
-#jobitems_table .details-active .ji_id .flag-selection-reason {
+#jobitems_table .details-active .ji_id .content-highlight-wrapper {
   border-color: #00D4F5;
-}
-#jobitems_table tr:nth-of-type(even).details-active .edit-icon span,
-#jobitems_table .details-active .edit-icon span {
-  font-weight: normal;
 }
 #jobitems_table .details-child .part_no,
 #jobitems_table .details-child .product_name,
 #jobitems_table .details-child .selling_price,
-#jobitems_table .details-child .edit_ji,
-#jobitems_table .details-child .assignments {
+#jobitems_table .details-child .modular {
   color: white;
   background: #666;
   border-color: #888;
 }
-#jobitems_table .details-child .assignments .flag-selection-reason {
+#jobitems_table .details-child .part_no .content-highlight-wrapper {
   border-color: #00D4F5;
 }
 #jobitems_table .details-sibling .part_no,
@@ -827,41 +732,256 @@ table.price-comparison .conclusion th, table.price-comparison .conclusion td {
   background: #4d4941;
   border-color: #888;
 }
-#jobitems_table .details-sibling .part_no .flag-selection-reason {
+#jobitems_table .details-sibling .part_no .content-highlight-wrapper {
   border-color: #00D4F5;
 }
-#jobitems_table th.empty {
-  border: none;
-  background: transparent;
-}
-#jobitems_table .quantity,
-#jobitems_table .selling_price {
-  text-align: right;
-}
-#jobitems_table .assignments {
-  font-size: 0.9rem;
-}
-#jobitems_table .edit_modules .edit-icon {
-  margin: 1px 10px 0 0;
-}
-#jobitems_table .edit_modules .edit-icon:hover {
-  background-position: 5px 5px;
-}
-#jobitems_table .edit_modules .edit-icon:hover span {
-  width: 4rem;
-}
-#jobitems_table .edit_modules.modules-ok {
-  border-left: 3px solid #0DFA96;
-}
-#jobitems_table .edit_modules.modules-incomplete {
-  border-left: 3px solid red;
-  background: #cf0000;
-}
-#jobitems_table .edit_modules.modules-excess {
-  border-left: 3px solid #eb9dff;
-  background: #9600ec;
-}
 
+@media screen and (max-width: 680px) {
+  #jobitems_table {
+    width: 100%;
+    margin: 0.3rem 0;
+  }
+  #jobitems_table thead tr {
+    position: absolute;
+    top: -9999px;
+    left: -9999px;
+  }
+  #jobitems_table td {
+    display: inline-block;
+    padding: 0;
+    border: none;
+  }
+  #jobitems_table .content-highlight-wrapper {
+    height: auto;
+    padding: 0;
+  }
+  #jobitems_table tbody tr {
+    display: grid;
+    grid-template-columns: repeat(4, auto) 1fr repeat(2, auto);
+    grid-template-rows: 1.5rem 1.5rem 1.5rem;
+    grid-template-areas: "ji_id      qty         part_no     part_no         .               .           more_info" "prod_name  prod_name   prod_name   prod_name       prod_name       prod_name   prod_name" "mod-status mod-status  mod-status  selling_price   selling_price   price_list  price_list";
+    min-width: 286px;
+    width: 96%;
+    max-width: 450px;
+    box-sizing: border-box;
+    margin: 0.5rem 0 0 0;
+    padding: 0.3rem 0.2rem;
+    border: 1px solid #222;
+    box-shadow: 0 0 10px 1px rgba(0, 0, 0, 0.35);
+  }
+  #jobitems_table .ji_id {
+    grid-area: ji_id;
+  }
+  #jobitems_table .selling_price {
+    grid-area: selling_price;
+  }
+  #jobitems_table .price_list {
+    grid-area: price_list;
+  }
+  #jobitems_table .more_info {
+    grid-area: more_info;
+  }
+  #jobitems_table .product_name {
+    grid-area: prod_name;
+  }
+  #jobitems_table .quantity {
+    grid-area: qty;
+    padding-left: 0.5rem;
+  }
+  #jobitems_table .quantity::after {
+    content: "x";
+    padding: 0 0.4rem;
+  }
+  #jobitems_table .part_no {
+    grid-area: part_no;
+    padding-right: 0.2rem;
+  }
+  #jobitems_table .part_no .content-highlight-wrapper::before {
+    content: "[";
+  }
+  #jobitems_table .part_no .content-highlight-wrapper::after {
+    content: "]";
+  }
+  #jobitems_table .modular {
+    grid-area: mod-status;
+  }
+  #jobitems_table .modular::before {
+    display: inline-block;
+    content: "mod.";
+    background: #222;
+    padding: 0.1rem 0.4rem 0.2rem 0.4rem;
+    font-size: 0.9rem;
+  }
+  #jobitems_table .modular .content-highlight-wrapper {
+    display: inline-block;
+    width: auto;
+    height: auto;
+    min-width: 3rem;
+    padding: 0.1rem 0.5rem 0.2rem;
+    font-size: 0.9rem;
+  }
+  #jobitems_table .modular.not-modular::before,
+#jobitems_table .modular.not-modular .content-highlight-wrapper {
+    position: absolute;
+    top: -9999px;
+    left: -9999px;
+  }
+  #jobitems_table.details-visible .details-active {
+    border-left: 3px solid #00D4F5;
+    padding-left: calc(0.2rem - 2px);
+  }
+  #jobitems_table.details-visible .details-active td.modular::before {
+    color: white;
+  }
+  #jobitems_table.details-visible .details-active .ji_id .content-highlight-wrapper {
+    border-color: transparent;
+  }
+  #jobitems_table.details-visible .details-child {
+    border-left: 3px solid #00D4F5;
+    padding-left: calc(0.2rem - 2px);
+    background: #666;
+  }
+  #jobitems_table.details-visible .details-child td {
+    color: white;
+    height: auto;
+    border-color: #888;
+  }
+  #jobitems_table.details-visible .details-child .part_no .content-highlight-wrapper {
+    border-color: transparent;
+  }
+  #jobitems_table.details-visible .details-sibling {
+    border-left: 3px solid #d4c7a3;
+    padding-left: calc(0.2rem - 2px);
+    background: #4d4941;
+  }
+  #jobitems_table.details-visible .details-sibling td {
+    color: white;
+    border-color: #888;
+  }
+  #jobitems_table.details-visible .details-sibling .part_no .content-highlight-wrapper {
+    border-color: transparent;
+  }
+}
+@media screen and (max-width: 1360px) {
+  .existing-items-container {
+    box-sizing: border-box;
+  }
+
+  .more-icon span {
+    left: -26px;
+  }
+
+  .jobitems-details {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 8;
+    width: 100%;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 2.1rem 0 0 0;
+    border-bottom: 1px solid #666;
+    box-shadow: 0 0 30px 20px rgba(0, 0, 0, 0.8);
+    background: #444;
+  }
+  .jobitems-details .jobitems-details-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-height: 45vh;
+    overflow-y: auto;
+    width: calc(100% - 10px);
+    box-sizing: border-box;
+    padding: 0;
+    border: 0.3rem solid #00c2e0;
+    border-left: none;
+    border-right: none;
+    background: #222;
+  }
+  .jobitems-details .jobitems-details-container.expanded {
+    height: calc(100vh - 2.1rem - 41px);
+    max-height: calc(100vh - 2.1rem - 41px);
+  }
+  .jobitems-details .close {
+    position: absolute;
+    top: 0;
+    right: 0;
+  }
+  .jobitems-details .expand-collapse {
+    float: none;
+    width: 100%;
+    height: 40px;
+    background-size: 30px;
+    background-repeat: no-repeat;
+    background-color: transparent;
+    background-position: center;
+  }
+  .jobitems-details .expand-collapse span {
+    top: -1rem;
+    right: calc(50% - 2rem);
+  }
+  .jobitems-details .expand-collapse.expand {
+    background-image: url(../images/i-chevron-down.svg);
+  }
+  .jobitems-details .expand-collapse.expand:hover {
+    background-image: url(../images/i-chevron-down-blue.svg);
+  }
+  .jobitems-details .expand-collapse.collapse {
+    background-image: url(../images/i-chevron-up.svg);
+  }
+  .jobitems-details .expand-collapse.collapse:hover {
+    background-image: url(../images/i-chevron-up-blue.svg);
+  }
+
+  .job-item-container {
+    background: #333;
+    box-shadow: 0 0 20px 1px rgba(0, 0, 0, 0.5);
+    width: 100%;
+    box-sizing: border-box;
+    margin: 1rem 0 0 0;
+  }
+  .job-item-container .money.subsection {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+  }
+  .job-item-container .money.subsection .selling_price {
+    margin-left: 0;
+  }
+  .job-item-container .assignments .intro-line {
+    justify-content: space-between;
+    flex-wrap: wrap;
+  }
+  .job-item-container .assignments .intro-line .usage-counters {
+    padding-top: 0.3rem;
+  }
+  .job-item-container .module-status-section .intro-line {
+    flex-wrap: wrap;
+  }
+  .job-item-container .module-status-section .intro-line .warning-msg {
+    margin: 0 0.5rem 0 0.5rem;
+    padding: 0 0.7rem 0.2rem 0.3rem;
+  }
+  .job-item-container .module-status-section .intro-line .warning-msg .msg {
+    position: relative;
+    top: -0.1rem;
+  }
+  .job-item-container .module-status-section .intro-line .warning-msg .invalid-icon {
+    top: 0.2rem;
+  }
+  .job-item-container .edit-icon span {
+    right: 0;
+  }
+  .job-item-container .ji-list table {
+    margin: 0;
+  }
+  .job-item-container .ji-list .price-list {
+    position: absolute;
+    top: -9999px;
+    left: -9999px;
+  }
+}
 #price_check_table .selling-price {
   display: inline-block;
   margin-top: 0.25rem;
@@ -952,6 +1072,7 @@ table.price-comparison .conclusion th, table.price-comparison .conclusion td {
   }
 }
 .job-heading-with-status .job-heading-with-extra {
+  box-sizing: border-box;
   width: 100%;
   padding: 0.4rem 0 0.4rem 0.4rem;
   background: #555;

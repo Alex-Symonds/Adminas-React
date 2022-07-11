@@ -132,7 +132,7 @@ function JobPriceCheckDetailsUI(props){
     return [
         <div class="subsection">
             <h4>Details</h4>
-            <table id="price_check_table" class="responsive-table">
+            <table id="price_check_table" class="responsive-table banded">
                 <JobPriceCheckDetailsTableHeadUI />
                 <JobPriceCheckDetailsTableBodyUI    actions_items = { props.actions_items }
                                                     active_edit = { props.active_edit }

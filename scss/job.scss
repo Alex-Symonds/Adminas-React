@@ -177,6 +177,8 @@
     .po-row{
         display: flex;
         justify-content: space-between;
+
+        box-sizing: border-box;
         width: 100%;
 
         border: 1px solid v.$c_tone_03;
@@ -605,6 +607,7 @@
 
 
 .job-item-container{
+    max-width: 35rem;
     padding: 0;
     border-bottom: 1px solid v.$c_tone_04;
 
@@ -657,6 +660,8 @@
             font-weight: normal;
             font-size: 0.95rem;
             color: v.$c_tone_06;
+
+            padding: 0.1rem;
         }
     }
 
@@ -705,13 +710,9 @@
     .money{
         padding: 4px 2px 10px 0.75rem;
 
-        .currency,
         .selling_price{
             font-size: 1.2rem;
             font-weight: bold;
-        }
-
-        .selling_price{
             margin-left: 0.5rem;
         }
 
@@ -752,8 +753,7 @@
         border-left: 3px solid v.$c_tone_04;
         border-color: rgb(212, 199, 163);
         .intro-line{
-            background:rgb(77, 73, 65);
-            //background: v.$c_tone_02;
+            background: v.$c_product_dark;
         }
     }
 
@@ -767,7 +767,7 @@
     .modules-incomplete{
         border-left: 3px solid red;
         .intro-line{
-            background: v.$c_warning;
+            background: v.$c_warning_dark;
         }
     }
 
@@ -804,148 +804,148 @@
 
 
 
-.OLDjob-item-container{
-    //box-shadow: v.$panel_shadow;
+// .OLDjob-item-container{
+//     //box-shadow: v.$panel_shadow;
 
-    div,
-    h5{
-        border-left: 3px solid v.$c_tone_04;
-    }
+//     div,
+//     h5{
+//         border-left: 3px solid v.$c_tone_04;
+//     }
 
-    .panel-header{
-        border-bottom: none;
-        width: calc(100% - 16px);
-    }
+//     .panel-header{
+//         border-bottom: none;
+//         width: calc(100% - 16px);
+//     }
 
-    ul{
-        margin: 3px 0 0 0;
-        padding-bottom: 0.3rem;
-    }
+//     ul{
+//         margin: 3px 0 0 0;
+//         padding-bottom: 0.3rem;
+//     }
 
-    li{
-        color: v.$c_tone_06;
-    }
+//     li{
+//         color: v.$c_tone_06;
+//     }
 
-    div:last-child{
-        border-bottom: none;
-    }
+//     div:last-child{
+//         border-bottom: none;
+//     }
 
-    .assignment-icon{
-        display: inline-block;
-        border: 1px solid v.$c_tone_00;
-        border-radius: 0.2rem;
-        font-size: 0.75rem;
-        margin: 0;
-        padding: 0;
-        margin: 0 0.1rem;
+//     .assignment-icon{
+//         display: inline-block;
+//         border: 1px solid v.$c_tone_00;
+//         border-radius: 0.2rem;
+//         font-size: 0.75rem;
+//         margin: 0;
+//         padding: 0;
+//         margin: 0 0.1rem;
     
-        span{
-            display: block;
-            float: left;
-            padding: 1px 6px;
-            margin: 0;
-        }
+//         span{
+//             display: block;
+//             float: left;
+//             padding: 1px 6px;
+//             margin: 0;
+//         }
     
-        .label{
-            border-top-left-radius: 0.15rem;
-            border-bottom-left-radius: 0.15rem;
-            border-right: 2px solid v.$c_accent_secondary;
-            background: v.$c_tone_01;
-            color: v.$c_tone_06;
-        }
-        .status{
-            background: v.$c_tone_01;
-            font-weight: bold;
-        }
+//         .label{
+//             border-top-left-radius: 0.15rem;
+//             border-bottom-left-radius: 0.15rem;
+//             border-right: 2px solid v.$c_accent_secondary;
+//             background: v.$c_tone_01;
+//             color: v.$c_tone_06;
+//         }
+//         .status{
+//             background: v.$c_tone_01;
+//             font-weight: bold;
+//         }
        
-        &:last-of-type{
-            border-bottom: 1px solid v.$c_tone_00;
-        }
-    }
+//         &:last-of-type{
+//             border-bottom: 1px solid v.$c_tone_00;
+//         }
+//     }
 
-    .money{
-        margin: 0 3px;
-        padding: 4px 2px 10px 5px;
-        //border-top: 1px solid v.$c_tone_04;
-        //border-left: 3px solid transparent;
+//     .money{
+//         margin: 0 3px;
+//         padding: 4px 2px 10px 5px;
+//         //border-top: 1px solid v.$c_tone_04;
+//         //border-left: 3px solid transparent;
 
-        .currency,
-        .selling_price{
-            font-size: 1.2rem;
-            font-weight: bold;
-        }
+//         .currency,
+//         .selling_price{
+//             font-size: 1.2rem;
+//             font-weight: bold;
+//         }
 
-        .selling_price{
-            margin-left: 0.5rem;
-        }
+//         .selling_price{
+//             margin-left: 0.5rem;
+//         }
 
-    }
+//     }
 
-    .std-accs-container{
-        margin-left: 3px;
-        border-left: 3px solid v.$c_tone_04;
+//     .std-accs-container{
+//         margin-left: 3px;
+//         border-left: 3px solid v.$c_tone_04;
 
-        p{
-            padding: 0.2rem 0 0.2rem 0.4rem;
-            width: calc(100% - 0.4rem);
-            background: v.$c_tone_02; 
-            margin: 0;
-        }
-    }
+//         p{
+//             padding: 0.2rem 0 0.2rem 0.4rem;
+//             width: calc(100% - 0.4rem);
+//             background: v.$c_tone_02; 
+//             margin: 0;
+//         }
+//     }
 
-    .module-status-section{
-        margin: 3px 0 1px 3px;
-        border-bottom-left-radius: 3px;
+//     .module-status-section{
+//         margin: 3px 0 1px 3px;
+//         border-bottom-left-radius: 3px;
 
-        .intro-line{
-            display: flex;
-            align-items: center;
-            padding: 0.2rem 0 0.2rem 0.4rem;
-            width: calc(100% - 0.4rem - 3px);
-            background: v.$c_accent_02;
+//         .intro-line{
+//             display: flex;
+//             align-items: center;
+//             padding: 0.2rem 0 0.2rem 0.4rem;
+//             width: calc(100% - 0.4rem - 3px);
+//             background: v.$c_accent_02;
 
-            .display-text{
-                flex-grow: 2;
-            }
-            &:after{
-                content: '';
-                display: table;
-                clear: both;
-            }
-        }
-    }
+//             .display-text{
+//                 flex-grow: 2;
+//             }
+//             &:after{
+//                 content: '';
+//                 display: table;
+//                 clear: both;
+//             }
+//         }
+//     }
 
-    .assignments{
-        border-left: 3px solid v.$c_tone_04;
-        .intro-line{
-            background: v.$c_tone_02;
-        }
-    }
+//     .assignments{
+//         border-left: 3px solid v.$c_tone_04;
+//         .intro-line{
+//             background: v.$c_tone_02;
+//         }
+//     }
 
-    .modules-ok{
-        border-left: 3px solid v.$c_accent_secondary;
-        .intro-line{
-            background: v.$c_tone_02;
-        }
-    }  
+//     .modules-ok{
+//         border-left: 3px solid v.$c_accent_secondary;
+//         .intro-line{
+//             background: v.$c_tone_02;
+//         }
+//     }  
 
-    .modules-incomplete{
-        border-left: 3px solid red;
-        .intro-line{
-            background: v.$c_warning;
-        }
-    }
+//     .modules-incomplete{
+//         border-left: 3px solid red;
+//         .intro-line{
+//             background: v.$c_warning;
+//         }
+//     }
 
-    .modules-excess{
-        border-left: 3px solid v.$c_flag_special_bright;
-        .intro-line{
-            background: v.$c_flag_special_dark;
-        }
-        li{
-            color: v.$c_tone_06;
-        }
-    }  
-}
+//     .modules-excess{
+//         border-left: 3px solid v.$c_flag_special_bright;
+//         .intro-line{
+//             background: v.$c_flag_special_dark;
+//         }
+//         li{
+//             color: v.$c_tone_06;
+//         }
+//     }  
+// }
 
 #toggle_item_form_btn{
     margin-top: 3px;
@@ -973,12 +973,13 @@ table.price-comparison{
     }
 
     .diff-perc{
+        font-size: 0.9rem;
         &:before{
             content: "(";
         }
         &:after{
             content: ")";
-        }
+        } 
     }
 
     .number{
@@ -995,6 +996,12 @@ table.price-comparison{
         th, td{
             border-top: 1px solid v.$c_tone_03;
         }
+    }
+}
+
+@media screen and (max-width: 400px){
+    table.price-comparison{
+        margin: 0.2rem;
     }
 }
 
@@ -1019,45 +1026,59 @@ table.price-comparison{
 
 .jobitems-details{
     margin: 2rem;
-    width: 40rem;
+    width: 30rem;
 }
 
 
 
 #jobitems_table{
-    a{
-        text-decoration: none;
+
+    .quantity,
+    .selling_price{
+        text-align: right;
     }
 
-    // Turn off the banding when something is selected
+    .modular{
+        font-size: 0.9rem;
+    }
+
+    .ji_id .id-number{
+        margin: 0;
+    }
+
+    // When something is selected "dim" the non-selected text and statuses
     &.details-visible{
         td{
             color: v.$c_tone_03;
         }
-        tr:nth-of-type(even){
-            background: transparent;
+
+        .content-highlight-wrapper{
+            &.modules-ok,
+            &.modules-excess,
+            &.modules-incomplete{
+                color: v.$c_tone_04;
+                border-color: v.$c_tone_04;
+                background: v.$c_tone_02;
+            } 
         }
     }
 
     // When a row is selected as a parent, a wide side-border should appear against quantity.
-    // When a row is selected as a child, a wide side-border should appear against assignments.
+    // When a row is selected as a child or sibling, a wide side-border should appear against part no.
+    // The modular status also looks nice with a wide side-border.
     // It's nice for this border to appear inside the td so the table's border lines
     // are uninterrupted. To this end, there's a div wrapped around the contents of those
-    // two cells.
+    // three <td>s in each row.
 
     // Get rid of the padding on cells with a div wrapper
+    .modular,
     .ji_id,
-    .assignments,
     .part_no{
         padding: 0;
-
-        .id-number{
-            margin: 0;
-        }
     }
 
     // Reapply td padding/formatting and the extra border
-    .flag-selection-reason{
+    .content-highlight-wrapper{
         display: flex;
         align-items: center;
         justify-content: center;
@@ -1070,22 +1091,43 @@ table.price-comparison{
         border-left: 3px solid transparent;
     }
 
+    // Set colours for the modular status wrappers, which apply:
+    //      > When the table is in "default mode", with nothing selected
+    //      > When the item has been selected (directly or indirectly)
+    &.details-visible .details-active .content-highlight-wrapper,
+    &.details-visible .details-child .content-highlight-wrapper,
+    &.details-visible .details-sibling .content-highlight-wrapper,
+    .content-highlight-wrapper{
 
-    tr:nth-of-type(even).details-active,
+        &.modules-ok{
+            color: white;
+            border-color: v.$c_accent_secondary;
+            background: v.$c_accent_secondary_02;
+        }
+    
+        &.modules-incomplete{
+            color: white;
+            border-color: v.$c_warning_bright;
+            background: v.$c_warning_dark;
+        }
+    
+        &.modules-excess{
+            color: white;
+            border-color: v.$c_flag_special_bright;
+            background: v.$c_flag_special_dark;
+        } 
+    }
+
+    // Set special formatting to <tr>s selected for details (directly or indirectly)
     .details-active {
         background: v.$c_tone_06;
 
         td{
             color: black;
-            font-weight: bold;
         }
 
-        .ji_id .flag-selection-reason{
+        .ji_id .content-highlight-wrapper{
             border-color: v.$c_accent;
-        }
-
-        .edit-icon span{
-            font-weight: normal;
         }
     }
 
@@ -1093,14 +1135,13 @@ table.price-comparison{
         .part_no,
         .product_name,
         .selling_price,
-        .edit_ji,
-        .assignments{
+        .modular{
             color: white;
             background: v.$c_tone_03;
             border-color: v.$c_tone_04;
         }
 
-        .assignments .flag-selection-reason{
+        .part_no .content-highlight-wrapper{
             border-color: v.$c_accent;
         }
     }
@@ -1109,62 +1150,363 @@ table.price-comparison{
         .part_no,
         .product_name{
             color: white;
-            background: v.$c_product_dark; //v.$c_tone_03;
+            background: v.$c_product_dark;
             border-color: v.$c_tone_04;
         }
 
-        .part_no .flag-selection-reason{
+        .part_no .content-highlight-wrapper{
             border-color: v.$c_accent;
         }
     }
 
+}
 
 
+@media screen and (max-width: 680px){
+    // The table won't fit on a narrow screen, so arrange each <tr> into a three-row grid
 
-    th.empty{
-        border: none;
-        background: transparent;
-    }
+    #jobitems_table{
+        // Make it stop behaving like a table
+        width: 100%;
+        margin: 0.3rem 0;
 
-    .quantity,
-    .selling_price{
-        text-align: right;
-    }
+        thead tr { 
+            position: absolute;
+            top: -9999px;
+            left: -9999px;
+        }
 
-    .assignments{
-        font-size: 0.9rem;
-    }
+        td{
+            display: inline-block;
+            padding: 0;
+            border: none;
+        }
 
-    .edit_modules{
-        .edit-icon{
-            margin: 1px 10px 0 0;
+        .content-highlight-wrapper{
+            height: auto;
+            padding: 0;
+        }
 
-            &:hover{
-                background-position: 5px 5px;
+        // Make it behave like a grid
+        tbody tr{
+            display: grid;
+            grid-template-columns: repeat(4, auto) 1fr repeat(2, auto);
+            grid-template-rows: 1.5rem 1.5rem 1.5rem;
+            grid-template-areas: 
+                "ji_id      qty         part_no     part_no         .               .           more_info"
+                "prod_name  prod_name   prod_name   prod_name       prod_name       prod_name   prod_name"
+                "mod-status mod-status  mod-status  selling_price   selling_price   price_list  price_list"
+            ;
 
-                span{
-                    width: 4rem;
+            min-width: 286px;
+            width: 96%;
+            max-width: 450px;
+
+            box-sizing: border-box;
+            margin: 0.5rem 0 0 0;
+            padding: 0.3rem 0.2rem;
+
+            border: 1px solid v.$c_tone_01;
+            box-shadow: 0 0 10px 1px rgba(black, 35%);
+        }
+
+        .ji_id{
+            grid-area: ji_id;
+        }
+        .selling_price{
+            grid-area: selling_price;
+        }
+        .price_list{
+            grid-area: price_list;
+        }
+        .more_info{
+            grid-area: more_info;
+        }
+        .product_name{
+            grid-area: prod_name;
+        }
+
+        .quantity{
+            grid-area: qty;
+            
+            // In the absence of a heading, append " x " to hint at the quantity-ness
+            padding-left: 0.5rem;
+            &::after{
+                content: "x";
+                padding: 0 0.4rem;
+            }
+        }
+
+        .part_no{
+            grid-area: part_no;
+
+            // In the absence of a heading, add [...] and padding to separate it from the name
+            padding-right: 0.2rem;
+            .content-highlight-wrapper{
+                &::before{
+                    content: "[";
+                }
+                &::after{
+                    content: "]";
                 }
             }
         }
 
-        &.modules-ok{
-            border-left: 3px solid v.$c_accent_secondary;
+        .modular{
+            grid-area: mod-status;
+
+            // The status text needs a heading for context, so add one
+            &::before{
+                display: inline-block;
+                content: "mod.";
+                background: v.$c_tone_01;
+                padding: 0.1rem 0.4rem 0.2rem 0.4rem;
+                font-size: 0.9rem;
+            }
+
+            // In this <td>, the highlight is still wanted, so adjust accordingly
+            .content-highlight-wrapper{
+                display: inline-block;
+                width: auto;
+                height: auto;
+                min-width: 3rem;
+                padding: 0.1rem 0.5rem 0.2rem;
+                font-size: 0.9rem;
+            }
+
+            // If it's not a modular item, just hide all this
+            // (We want the <td> on wide-mode, so React can't just... not render it)
+            &.not-modular{
+                &::before,
+                .content-highlight-wrapper{
+                    position: absolute;
+                    top: -9999px;
+                    left: -9999px;
+                }
+            }
         }
+
+        // Adjust the "details selection" formatting for the new grid-based reality
+        &.details-visible{
+
+            .details-active{
+                // Add wider side-border and adjust padding to avoid content wiggling
+                border-left: 3px solid v.$c_accent;
+                padding-left: calc(0.2rem - 2px); 
+
+                td.modular{
+                    &::before{
+                        color: white;
+                    }
+                }
+
+                .ji_id .content-highlight-wrapper {
+                    border-color: transparent;
+                }
+
+            }
+
+            .details-child{
+                // Add wider side-border and adjust padding to avoid content wiggling
+                border-left: 3px solid v.$c_accent;
+                padding-left: calc(0.2rem - 2px);
+
+                // Apply colour to the entire row
+                background: v.$c_tone_03;
     
-        &.modules-incomplete{
-            border-left: 3px solid red;
-            background: v.$c_warning;
+                td{
+                    color: white;
+                    height: auto;
+                    border-color: v.$c_tone_04;
+                }
+                
+                .part_no .content-highlight-wrapper{
+                    border-color: transparent;
+                }
+            }
+        
+            .details-sibling{
+                // Add wider side-border and adjust padding to avoid content wiggling
+                border-left: 3px solid v.$c_product_light;
+                padding-left: calc(0.2rem - 2px);
+
+                // Apply colour to the entire row
+                background: v.$c_product_dark;
+    
+                td{
+                    color: white;
+                    border-color: v.$c_tone_04;
+                }
+                
+                .part_no .content-highlight-wrapper{
+                    border-color: transparent;
+                }
+            }
         }
-    
-        &.modules-excess{
-            border-left: 3px solid v.$c_flag_special_bright;
-            background: v.$c_flag_special_dark;
-        } 
+    }
+}
+
+// When the details panel won't fit at the side of the table, fix it to the
+// top of the page and give it a scroll bar.
+@media screen and (max-width: 1360px){
+    .existing-items-container{
+        box-sizing: border-box;
+    }
+
+    .more-icon span{
+        left: -26px;
+    }
+
+    .jobitems-details{
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 8;
+
+        width: 100%;
+        box-sizing: border-box;
+
+        margin: 0;
+        padding: 2.1rem 0 0 0;
+
+        border-bottom: 1px solid v.$c_tone_03;
+        box-shadow: 0 0 30px 20px rgba(black, 80%);
+        background: v.$c_tone_02;
+
+        .jobitems-details-container{
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+
+            max-height: 45vh;
+            overflow-y: auto;
+
+            width: calc(100% - 10px);
+            box-sizing: border-box;
+
+            padding: 0;
+
+            border: 0.3rem solid v.$c_accent_02;
+            border-left: none;
+            border-right: none;
+
+            background: v.$c_tone_01;
+        }
+
+        .jobitems-details-container.expanded{
+            height: calc(100vh - 2.1rem - 41px);
+            max-height: calc(100vh - 2.1rem - 41px);
+        }
+
+        .close{
+            position: absolute;
+            top: 0;
+            right: 0;
+        }
+
+        .expand-collapse{
+            float: none;
+            width: 100%;
+            height: 40px;
+
+            background-size: 30px;
+            background-repeat: no-repeat;
+            background-color: transparent;
+            background-position: center;
+
+            span{
+                top: -1rem;
+                right: calc(50% - 2rem);
+            }
+
+            &.expand{
+                background-image: url(../images/i-chevron-down.svg);
+                &:hover{
+                    background-image: url(../images/i-chevron-down-blue.svg);
+                }
+            }
+
+            &.collapse{
+                background-image: url(../images/i-chevron-up.svg);
+                &:hover{
+                    background-image: url(../images/i-chevron-up-blue.svg);
+                }
+            }
+        }
+
     }
 
 
+    .job-item-container{
+        background: #333;
+        box-shadow: 0 0 20px 1px rgba(black, 50%);
+
+        width: 100%;
+        box-sizing: border-box;
+        margin: 1rem 0 0 0;
+
+        // Make the price list icon go under the price if there's no space
+        .money.subsection{
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+
+            .selling_price{
+                margin-left: 0;
+            }
+        }
+
+        // Make the usage counters go under the id and price if there's no space
+        .assignments .intro-line{
+            justify-content: space-between;
+            flex-wrap: wrap;
+
+            .usage-counters{
+                padding-top: 0.3rem;
+            }
+        }
+
+        // Make the invalid warning message drop to another line
+        .module-status-section .intro-line{
+            flex-wrap: wrap;
+
+            .warning-msg{
+                margin: 0 0.5rem 0 0.5rem;
+                padding: 0 0.7rem 0.2rem 0.3rem;
+
+                .msg{
+                    position: relative;
+                    top: -0.1rem;
+                }
+
+                .invalid-icon{
+                    top: 0.2rem;
+                }
+            }
+        }
+
+        .edit-icon span{
+            right: 0;
+        }
+
+        // Get rid of the price list icon if there's no space
+        .ji-list{ 
+            table {
+                margin: 0;
+            }
+
+            .price-list{
+                position: absolute;
+                top: -9999px;
+                left: -9999px;
+            }
+        }
+    }
 }
+
+
+
 
 #price_check_table{
     .selling-price{
@@ -1257,6 +1599,7 @@ table.price-comparison{
 .job-heading-with-status{
 
     .job-heading-with-extra{
+        box-sizing: border-box;
         width: 100%;
         padding: 0.4rem 0 0.4rem 0.4rem;
         background: #555;

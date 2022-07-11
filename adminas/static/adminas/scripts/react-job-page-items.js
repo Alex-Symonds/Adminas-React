@@ -23,6 +23,8 @@ const SELECTED_PARENT = 'parent';
 const SELECTED_CHILD = 'child';
 const SELECTED_SIBLING = 'sibling';
 
+const CSS_HIGHLIGHTED_TD = 'content-highlight-wrapper';
+
 // || Main section
 function JobItems(props){
 
@@ -72,7 +74,19 @@ function JobItemIdIcon(props){
 }
 
 function JobItemPriceListIconSpan(props){
-    return <span class="price-list">{props.price_list_name}</span>
+    let price_list_name = props.price_list_name;
+    if(price_list_name === null){
+        price_list_name = 'TBC';
+    }
+
+    return <span class="price-list">{ price_list_name }</span>
+}
+
+function WarningMessageSpan(props){
+    if(props.message === null){
+        return null;
+    }
+    return <span class="warning-msg"><span class="invalid-icon"></span><span class="msg">{ props.message }</span></span>
 }
 
 // || Button to hide/show the create form
@@ -136,10 +150,10 @@ function JobItemsExistingUI(props){
                                     URL_GET_DATA = {props.URL_GET_DATA}
                                     URL_MODULE_MANAGEMENT = { props.URL_MODULE_MANAGEMENT }
                                     />
-            <JobItemsDetailsContainer 
-                                        actions_items = { props.actions_items }
+            <JobItemsDetailsContainer   actions_items = { props.actions_items }
                                         currency = {props.currency}
                                         details_parent = { props.details_parent }
+                                        details_state = { props.details_state }
                                         editor_state = { props.editor_state }
                                         job_id = {props.job_id}
                                         product_slot_assignments = { props.product_slot_assignments }
@@ -152,11 +166,11 @@ function JobItemsExistingUI(props){
 
 // Existing: Table
 function JobItemsExistingTable(props){
-    const css_class = props.details_parent === null ? null : 'details-visible';
+    const css_class = props.details_parent === null ? 'banded' : 'details-visible';
 
     return [
         <table id="jobitems_table" class={css_class}>
-            <JobItemsExistingTableHeadUI />
+            <JobItemsExistingTableHeadUI currency = { props.currency } />
             <JobItemsExistingTableBodyUI    actions_items = { props.actions_items }
                                             currency = {props.currency}
                                             details_items_list = { props.details_items_list }
@@ -175,21 +189,14 @@ function JobItemsExistingTable(props){
 function JobItemsExistingTableHeadUI(props){
     return [
         <thead>
-            <tr class="upper-h-row">
-                <th colspan={6} class="empty"></th>
-                <th colspan={2}>modules</th>
-                <th class="empty"></th>
-            </tr>
-            <tr class="lower-h-row">
+            <tr>
                 <th>id</th>
                 <th>qty</th>
                 <th>part #</th>
                 <th>name</th>
-                <th>sold @</th>
-                <th></th>
-                <th>child</th>
-                <th>parent</th>
-                <th></th>
+                <th>modular</th>
+                <th>sold @ {props.currency}</th>
+                <th>price list</th>
             </tr>
         </thead>
     ]
@@ -244,11 +251,12 @@ function JobItemRow(props){
 function JobItemRowUI(props){
     const tr_css = get_details_css_class(props.details_selection_status);
     const dark_icon_css = props.details_selection_status === SELECTED_PARENT ? ' dark' : '';
+    const no_modules_css = props.data.is_modular ? '' : ' not-modular';
 
     return [
         <tr class={tr_css}>
             <td class="ji_id">
-                <div class="flag-selection-reason">
+                <div class={CSS_HIGHLIGHTED_TD}>
                     <JobItemIdIcon ji_id = { props.data.ji_id } />
                 </div>
             </td>
@@ -256,23 +264,25 @@ function JobItemRowUI(props){
                 { props.data.quantity }
             </td>
             <td class="part_no">
-                <div class="flag-selection-reason">
+                <div class={CSS_HIGHLIGHTED_TD}>
                     { props.data.part_number }
                 </div>
             </td>
             <td class="product_name">
                 { props.data.product_name }
             </td>
+            <td class={"modular" + no_modules_css}>
+                <JobItemRowModularContentsUI  data = { props.data }
+                                        URL_MODULE_MANAGEMENT = { props.URL_MODULE_MANAGEMENT }
+                                        />
+            </td>
             <td class="selling_price">
-                { props.currency } { format_money(parseFloat(props.data.selling_price)) }
+                { format_money(parseFloat(props.data.selling_price)) }
             </td>
-            <td class="edit_ji">
-                <button class={"ji-edit edit-icon" + dark_icon_css}><span>edit item</span></button>
+            <td class="price_list">
+                <JobItemPriceListIconSpan price_list_name = { props.data.price_list_name }/>
             </td>
-            <JobItemRowChildTdUI  data = { props.product_slot_data } />
-            <JobItemRowModularTdUI  data = { props.data }
-                                    URL_MODULE_MANAGEMENT = { props.URL_MODULE_MANAGEMENT }
-                                    />
+
             <td class="more_info">
                 <button class={"more-icon" + dark_icon_css} onClick={ props.toggle_details }><span>more info</span></button>
             </td>
@@ -286,21 +296,19 @@ function JobItemRowChildTdUI(props){
         const num_unassigned = props.data.total_product_quantity - props.data.num_assigned;
         display_string = `${ props.data.total_product_quantity } (${ props.data.num_assigned }:${ num_unassigned })`;
     }
-    return <td class="assignments"><div class="flag-selection-reason">{ display_string }</div></td>
+    return <td class="assignments"><div class={CSS_HIGHLIGHTED_TD}>{ display_string }</div></td>
 }
 
-function JobItemRowModularTdUI(props){
+function JobItemRowModularContentsUI(props){
     if(!props.data.is_modular){
-        return <td class="edit_modules"></td>
+        return <div class={CSS_HIGHLIGHTED_TD}>-</div>
     }
 
-    var css_class = 'edit_modules modules-' + job_item_module_status_css(props.data);
+    var css_suffix = job_item_module_status_css(props.data);
+    var display_str = job_item_module_status_string(props.data);
 
-    return [
-        <td class={css_class}>
-            <a href={props.URL_MODULE_MANAGEMENT + '#modular_jobitem_' + props.data.ji_id} class="ji-edit edit-icon"><span>edit modules</span></a>
-        </td>
-    ]
+    return <div class={CSS_HIGHLIGHTED_TD + ' modules-' + css_suffix}>{ display_str }</div>
+
 }
 
 
@@ -310,25 +318,51 @@ function JobItemsDetailsContainer(props){
         return null;
     }
 
+    function details_off(){
+        props.details_state.set(null);
+    }
+
+    const [isExpanded, setIsExpanded] = React.useState(false);
+    const expanded = get_and_set(isExpanded, setIsExpanded);
+
+    const expanded_class = isExpanded ? " expanded" : "";
+
     return [
         <div class="jobitems-details">
-            <JobItem    actions_items = { props.actions_items }
-                        currency = {props.currency}
-                        data = { props.details_parent }
-                        editor_state = { props.editor_state }
-                        job_id = {props.job_id}
-                        product_slot_data = { props.product_slot_assignments[props.details_parent.product_id.toString()] }
-                        URL_GET_DATA = {props.URL_GET_DATA}
-                        URL_MODULE_MANAGEMENT = { props.URL_MODULE_MANAGEMENT }
-                        />
-            { props.details_parent.module_list.map(mod =>
-                    <JobItemProductUI   key = { String(mod.product_id) }
-                                        currency = { props.currency }
-                                        data = { props.product_slot_assignments[mod.product_id.toString()] }
-                    />)
-            }
+            <CancelButton   cancel = { details_off } />
+            <div class={"jobitems-details-container" + expanded_class}>
+                <JobItem    actions_items = { props.actions_items }
+                            currency = {props.currency}
+                            data = { props.details_parent }
+                            details_state = { props.details_state }
+                            editor_state = { props.editor_state }
+                            job_id = {props.job_id}
+                            product_slot_data = { props.product_slot_assignments[props.details_parent.product_id.toString()] }
+                            URL_GET_DATA = {props.URL_GET_DATA}
+                            URL_MODULE_MANAGEMENT = { props.URL_MODULE_MANAGEMENT }
+                            />
+                { props.details_parent.module_list.map(mod =>
+                        <JobItemProductUI   key = { String(mod.product_id) }
+                                            currency = { props.currency }
+                                            data = { props.product_slot_assignments[mod.product_id.toString()] }
+                        />)
+                }
+            </div>
+            <ExpandCollapseToggle   expanded = { expanded} />
         </div>
     ]
+}
+
+function ExpandCollapseToggle(props){
+    const css_class = props.expanded.get ? "collapse" : "expand";
+    const display_text = css_class;
+
+    const toggle_to = !props.expanded.get;
+    function handle_click(){
+        props.expanded.set(toggle_to);
+    }
+
+    return <button class={"expand-collapse " + css_class } onClick={ handle_click }><span>{ display_text }</span></button>
 }
 
 function get_details_parent(parent_id, data){
@@ -409,7 +443,8 @@ function JobItem(props){
     }
 
     // Read mode display
-    return <JobItemReaderUI currency = { props.currency }
+    return <JobItemReaderUI 
+                            currency = { props.currency }
                             data = { props.data }
                             editor = { editor }
                             job_id = {props.job_id}
@@ -422,7 +457,8 @@ function JobItem(props){
 function JobItemReaderUI(props){
     return [
         <div class="job-item-container">
-            <JobItemHeadingUI   description = { props.data.description }
+            <JobItemHeadingUI   
+                                description = { props.data.description }
                                 ji_id = { props.data.ji_id }
                                 part_number = { props.data.part_number }
                                 product_name = { props.data.product_name }
@@ -473,7 +509,7 @@ function JobItemMoneyUI(props){
     var selling_price = parseFloat(props.data.selling_price);
     return [
         <div class="money subsection">
-            <span class="currency">{ props.currency }</span><span class="selling_price">{format_money(selling_price)}</span>
+            <span class="selling_price">{ props.currency + nbsp() +format_money(selling_price) }</span>
             <JobItemPriceListIconSpan price_list_name = { props.data.price_list_name } />
             <button class="ji-edit edit-icon" onClick={ props.editor.on }><span>edit</span></button>
         </div>
@@ -513,10 +549,15 @@ function JobItemSpecificationUI(props){
     }
     var css_module_status = job_item_module_status_css(props.data);
     var heading_display_str = job_item_module_title_str(props.data);
+    const warning_message = props.data.is_complete ? null : 'incomplete'.toUpperCase();
+
     return [
         <div class={'module-status-section subsection modules-' + css_module_status}>
             <div class="intro-line">
-                <span class="display-text">&raquo;&nbsp;{heading_display_str}</span>
+                <span class="display-text">
+                    &raquo;&nbsp;{heading_display_str} 
+                </span>
+                <WarningMessageSpan message = { warning_message } />
                 <a href={props.URL_MODULE_MANAGEMENT + '#modular_jobitem_' + props.data.ji_id} class="edit-icon"><span>edit</span></a>
             </div>
             <ul class="details">
@@ -532,20 +573,30 @@ function JobItemSpecificationUI(props){
     ]
 }
 
-// JobItemReader: JobItemSpecification helper
-// Work out what the CSS class should be
+// JobItemReader: JobItemSpecification helpers
+// CSS class, based on specification status
 function job_item_module_status_css(data){
     if(data.excess_modules){
         return 'excess';
     }
-    else if(data.is_complete){
+    if(data.is_complete){
         return 'ok';
     }
     return 'incomplete';
 }
 
-// JobItemReader: JobItemSpecification helper
-// Work out the title for the section
+// Display text, based on specification status
+function job_item_module_status_string(data){
+    if(data.excess_modules){
+        return 'special';
+    }
+    if(data.is_complete){
+        return 'ok';
+    }
+    return 'invalid';
+}
+
+// Title, based on specification status and quantity
 function job_item_module_title_str(data){
     var result = 'Specification';
     if(data.excess_modules){
@@ -553,9 +604,6 @@ function job_item_module_title_str(data){
     }
     if(data.quantity > 1){
         result += ' (per' + nbsp() + 'item)';
-    }
-    if(!data.is_complete){
-        result += ' ---' + nbsp() + 'WARNING:' + nbsp() + 'INCOMPLETE' + nbsp() + '---';
     }
     return result;
 }
@@ -602,7 +650,7 @@ function JobItemsProductMembersRowUI(props){
     return [
         <tr>
             <td><JobItemIdIcon ji_id = { props.data.ji_id } /></td>
-            <td class="desc">{ props.data.quantity } for { props.currency } { format_money(parseFloat(props.data.selling_price) ) }</td>
+            <td class="desc">{ props.data.quantity } for { props.currency + nbsp() + format_money(parseFloat(props.data.selling_price) ) }</td>
             <td><JobItemPriceListIconSpan price_list_name = { props.data.price_list_name } /></td>
         </tr>
     ]
@@ -621,12 +669,14 @@ function JobItemAssignmentsUI(props){
                 <span class="display-text">
                     &laquo; Assignment
                 </span>
+                <div class="usage-counters">
                 <JobItemAssignmentsCounterUI    display_str='used'
                                                 num = {props.product_slot_data.num_assigned}
                                                 total = {props.product_slot_data.total_product_quantity} />
                 <JobItemAssignmentsCounterUI    display_str='unused'
                                                 num = {props.product_slot_data.total_product_quantity - props.product_slot_data.num_assigned}
                                                 total = {props.product_slot_data.total_product_quantity} />
+                </div>
             </div>
             <ul>
                 {
@@ -654,7 +704,6 @@ function JobItemAssignmentsCounterUI(props){
 function JobItemAssignmentLiUI(props){
     var each = props.data.parent_qty > 1 ? 'each ' : '';
     return <li>{props.data.quantity } {each}to {props.data.parent_qty} x [{props.data.part_num}] {props.data.product_name} <span class="id-number">{props.data.parent_id}</span></li>
-
 }
 
 // JobItemReader: helper function

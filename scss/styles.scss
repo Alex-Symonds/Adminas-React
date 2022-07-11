@@ -34,12 +34,6 @@
 }
 
 
-// #id_qty{
-//     height: 1rem;
-//     max-width: 5rem;
-// }
-
-
 
 
 // || HTML tag adjustments
@@ -49,6 +43,7 @@ body{
 }
 
 body {
+    margin: 4px;
     font-family: v.$f_contents;
     background: v.$c_bg_main;
     background: v.$g_bg_main;
@@ -196,8 +191,11 @@ article{
     width: 100%;
 }
 @media screen and (min-width: 500px){
+    body{
+        margin: 8px;
+    }
     .page_container{
-        width: 90%;
+        width: 96%;
         margin: 0 auto 0;
     } 
 }
@@ -462,6 +460,10 @@ nav{
     max-width: 26px;
 
     span{
+        position: absolute;
+        top:0;
+        right:26px;
+
         color: transparent;
         text-align: center;
     }
@@ -480,10 +482,6 @@ nav{
 
             display: block;
             width: 3rem;
-
-            position: absolute;
-            top:0;
-            right:26px;
         }
     }
 
@@ -498,7 +496,8 @@ nav{
 
 .close,
 .delete-panel,
-.more-icon{
+.more-icon,
+.expand-collapse{
     position: relative;
     float: right;
     color: v.$c_tone_07;
@@ -517,8 +516,8 @@ nav{
     span{
         display: block;
         position: absolute;
-        top:0;
-        right:26px;
+        top: 0;
+        right: 26px;
         z-index: 5;
 
         font-size: 1rem;
@@ -970,6 +969,32 @@ nav{
     }
 }
 
+.warning-msg{
+    margin: 0 0.5rem 0 0.5rem;
+    padding: 0.1rem 0.7rem 0.2rem 0.3rem;
+
+    font-size: 0.9rem;
+
+    color: v.$c_txt_warning_g;
+    background: v.$c_tone_00;//v.$g_warning_hover;
+    
+    border-top-right-radius: 0.45rem;
+    border-bottom-right-radius: 0.45rem;
+    border: 1px solid v.$c_tone_02;//v.$c_txt_warning_g;
+    border-left: 3px solid v.$c_warning;
+
+    .invalid-icon{
+        top: 0.3rem;
+
+        height: 1.2rem;
+        width: 1.2rem;
+
+        margin-right: 0.4rem;
+    }
+}
+
+
+
 .error-message{
     clear: both;
     float: right;
@@ -1059,15 +1084,17 @@ nav{
 
 
 // || Responsive table (i.e. switches from a table to formatted rows when the screen is too narrow)
+.banded{
+    tr:nth-of-type(even){ 
+        background: v.$c_tone_02;
+    }
+}
+
 #jobitems_table,
 .responsive-table{
     margin: 0.3rem;
     border-collapse: collapse;
-    
-    tr:nth-of-type(even){ 
-        background: v.$c_tone_02;
-    }
-
+ 
     th,
     td{
         padding: 0.1rem 0.5rem;
@@ -1088,6 +1115,7 @@ nav{
         background-position: 5px 4px;
     }
 }
+
 @media only screen and (max-width: v.$breakpoint_table_to_rows) {
     // https://css-tricks.com/responsive-data-tables/
     .responsive-table{
