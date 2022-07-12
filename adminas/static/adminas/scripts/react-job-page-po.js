@@ -162,6 +162,9 @@ function JobPoList(props){
 function JobPoListUI(props){
     return [
         <div class="job-po-container">
+            <table id="po_table" class="banded">
+                <JobPoTableHeadingUI />
+                <tbody>
             {props.po_list.map((po) =>
                 <JobPoElement   key = { po.po_id.toString() }
                                 actions_po = { props.actions_po }
@@ -172,9 +175,27 @@ function JobPoListUI(props){
                                 URL_GET_DATA = { props.URL_GET_DATA }
                                 />
             )}
+                </tbody>
+            </table>
         </div>
     ]
 }
+
+
+function JobPoTableHeadingUI(props){
+    return [
+        <thead>
+            <tr>
+                <th>Reference</th>
+                <th>Date on PO</th>
+                <th>Received</th>
+                <th>Value</th>
+            </tr>
+        </thead>
+    ]
+}
+
+
 
 // Element displaying info for a single PO
 function JobPoElement(props){
@@ -195,7 +216,10 @@ function JobPoElement(props){
     // If edit mode is active, display the editor while passing in the data for this PO
     if(editor.is_active){
         // Note: we're passing editor.off instead of just the editor because the "create" section is handling form cancelling differently.
-        return <JobPoEditor data = { props.data }
+        return [
+            <tr>
+                <td colspan={5}>
+                    <JobPoEditor data = { props.data }
                             editor = { editor }
                             form_id = 'po_edit_form'
                             state_delete = { handle_delete }
@@ -204,6 +228,9 @@ function JobPoElement(props){
                             title = 'Edit PO'
                             URL_GET_DATA = { props.URL_GET_DATA }
                             />
+                </td>
+            </tr>
+        ]
     }
 
     // Otherwise show the read-mode
@@ -212,8 +239,21 @@ function JobPoElement(props){
                         editor = { editor } />
 }
 
+
+
+
+
 // Element for reading info of a single PO
 function JobPoReadUI(props){
+    return [
+        <tr>
+            <td class="ref">{ props.data.reference }</td>
+            <td class="date_on_po">{ props.data.date_on_po }</td>
+            <td class="date_received">{ props.data.date_received }</td>
+            <td class="value">{ props.currency + nbsp() + format_money(parseFloat(props.data.value)) }</td>
+            <td class="edit"><button type="button" class="po-edit edit-icon" onClick={ props.editor.on }><span>edit</span></button></td>
+        </tr>
+    ]
     return [
         <div class="po-row">
             <div class="details">

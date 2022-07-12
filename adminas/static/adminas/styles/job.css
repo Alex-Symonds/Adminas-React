@@ -127,10 +127,6 @@
   min-width: 275px;
 }
 
-#job_po_section .warning {
-  box-shadow: 0 0 2px 2px rgba(255, 255, 255, 0.8);
-}
-
 #toggle_po_form_btn {
   margin-top: 0.4rem;
 }
@@ -655,6 +651,84 @@ table.price-comparison .conclusion th, table.price-comparison .conclusion td {
   width: 30rem;
 }
 
+#po_table .value {
+  text-align: right;
+}
+#po_table tr {
+  position: relative;
+}
+#po_table .panel {
+  position: absolute;
+  top: -0.7rem;
+  background: #222;
+  z-index: 3;
+  box-shadow: 0 0 10px 1px rgba(0, 0, 0, 0.85);
+}
+
+@media screen and (max-width: 473px) {
+  #po_table thead tr {
+    position: absolute;
+    top: -9999px;
+    left: -9999px;
+  }
+  #po_table td {
+    display: inline-block;
+    padding: 0.1rem 0.4rem;
+    border: none;
+    text-align: left;
+    vertical-align: middle;
+    height: auto;
+  }
+  #po_table tbody tr {
+    display: grid;
+    grid-template-columns: 6rem auto auto min-content;
+    grid-template-rows: auto repeat(2, 1.5rem);
+    grid-template-areas: "ref ref ref edit" "date_on_po date_received . ." "value value value value";
+    min-width: 286px;
+    width: 100%;
+    max-width: 450px;
+    box-sizing: border-box;
+    margin: 0.5rem 0 0 0;
+    padding: 0.3rem 0.2rem;
+    border: 1px solid #222;
+    box-shadow: 0 0 10px 1px rgba(0, 0, 0, 0.35);
+  }
+  #po_table .ref {
+    grid-area: ref;
+    font-size: 1.2rem;
+    font-weight: bold;
+  }
+  #po_table .ref:before {
+    content: "PO #";
+    display: inline-block;
+    padding: 0 0.5rem 0 0;
+  }
+  #po_table .date_on_po {
+    grid-area: date_on_po;
+    white-space: nowrap;
+  }
+  #po_table .date_received {
+    grid-area: date_received;
+    box-sizing: border-box;
+    border-left: 3px solid #0DFA96;
+    background: #141414;
+    font-size: 0.9rem;
+    padding: 0.08rem 0.4rem;
+    white-space: nowrap;
+  }
+  #po_table .date_received:before {
+    content: "received";
+    display: inline-block;
+    padding: 0.08rem 0.5rem 0 0;
+  }
+  #po_table .value {
+    grid-area: value;
+    text-align: left;
+  }
+  #po_table .edit {
+    grid-area: edit;
+  }
+}
 #jobitems_table .quantity,
 #jobitems_table .selling_price {
   text-align: right;
@@ -662,7 +736,7 @@ table.price-comparison .conclusion th, table.price-comparison .conclusion td {
 #jobitems_table .modular {
   font-size: 0.9rem;
 }
-#jobitems_table .ji_id .id-number {
+#jobitems_table .ji_id .name-tag.id {
   margin: 0;
 }
 #jobitems_table.details-visible td {
@@ -976,11 +1050,21 @@ table.price-comparison .conclusion th, table.price-comparison .conclusion td {
   .job-item-container .ji-list table {
     margin: 0;
   }
-  .job-item-container .ji-list .price-list {
+  .job-item-container .ji-list .name-tag {
     position: absolute;
     top: -9999px;
     left: -9999px;
   }
+}
+#price_check_table .ji_id {
+  text-align: left;
+}
+#price_check_table .ji_id .name-tag.id {
+  margin: 0;
+}
+#price_check_table .resale-percentage .name-tag::before {
+  content: "RD";
+  padding-right: 0.3rem;
 }
 #price_check_table .selling-price {
   display: inline-block;
@@ -1010,65 +1094,129 @@ table.price-comparison .conclusion th, table.price-comparison .conclusion td {
 }
 
 @media screen and (max-width: 930px) {
-  #price_check_section {
-    max-width: 475px;
+  #price_check_table {
     width: 100%;
-    /*
-    Label the data
-    */
+    margin: 0.3rem 0;
   }
-  #price_check_section .selling-price {
-    margin-top: 0;
-  }
-  #price_check_section #price_check_table td:nth-of-type(2):before {
-    content: "Quantity";
-  }
-  #price_check_section #price_check_table td:nth-of-type(1):before {
-    content: "Part Number";
-  }
-  #price_check_section #price_check_table td:nth-of-type(3):before {
-    content: "Sold @";
-  }
-  #price_check_section #price_check_table td:nth-of-type(4):before {
-    content: "Price List: Version";
-  }
-  #price_check_section #price_check_table td:nth-of-type(5):before {
-    content: "Price List: Value";
-  }
-  #price_check_section #price_check_table td:nth-of-type(6):before {
-    content: "Price List vs. Sold";
-  }
-  #price_check_section #price_check_table td:nth-of-type(7):before {
-    content: "Price List vs. Sold (%)";
-  }
-  #price_check_section #price_check_table td:nth-of-type(8):before {
-    content: "Resale: Discount";
-  }
-  #price_check_section #price_check_table td:nth-of-type(9):before {
-    content: "Resale: Value";
-  }
-  #price_check_section #price_check_table td:nth-of-type(10):before {
-    content: "Resale vs. Sold";
-  }
-  #price_check_section #price_check_table td:nth-of-type(11):before {
-    content: "Resale vs. Sold (%)";
-  }
-  #price_check_section .details {
+  #price_check_table thead tr {
     position: absolute;
-    bottom: -1rem;
-    right: 5px;
-    z-index: 2;
-    width: 15rem;
-    color: #F6F6F6;
-    background: #444;
+    top: -9999px;
+    left: -9999px;
+  }
+  #price_check_table td {
+    display: inline-block;
+    padding: 0;
+    border: none;
+    height: auto;
+    text-align: left;
+    vertical-align: middle;
+  }
+  #price_check_table .selling-price {
+    margin: 0;
+  }
+  #price_check_table tbody tr {
+    display: grid;
+    grid-template-columns: repeat(4, auto) 1fr auto;
+    grid-template-rows: repeat(7, auto);
+    grid-template-areas: "ji_id qty part_no part_no part_no part_no" "price price price price price price" "version      version       version     list-price  list-price  list-price" "list-dv      list-dv       list-dv     list-dv     list-dv     list-dp" "resale-perc  resale-perc   resale-perc resale-price resale-price resale-price" "resale-dv    resale-dv     resale-dv   resale-dv  resale-dv    resale-dp";
+    width: 100%;
+    box-sizing: border-box;
+    margin: 0.5rem 0 0 0.1rem;
+    padding: 0.3rem 0.2rem;
     border: 1px solid #222;
-    padding: 3px;
-    box-shadow: 0 0 10px 1px rgba(0, 0, 0, 0.85);
-    border-right: 3px solid #0DFA96;
-    padding-right: 10px;
+    box-shadow: 0 0 10px 1px rgba(0, 0, 0, 0.35);
+  }
+  #price_check_table .ji_id {
+    grid-area: ji_id;
+    padding-left: 0.1rem;
+  }
+  #price_check_table .qty {
+    grid-area: qty;
+    padding-left: 0.5rem;
+  }
+  #price_check_table .qty::after {
+    content: "x";
+    padding: 0 0.4rem;
+  }
+  #price_check_table .description {
+    grid-area: part_no;
+  }
+  #price_check_table .description .details {
+    padding: 0.2rem 0.4rem;
+    background: #141414;
+    border-radius: 0.3rem;
+    position: absolute;
+    z-index: 8;
+    top: 0.9rem;
+    left: 0;
+    max-width: 90%;
+  }
+  #price_check_table .selling-price-container {
+    grid-area: price;
+    text-align: left;
+    font-weight: bold;
+    font-size: 1.1rem;
+    padding: 0.3rem 0.3rem 0 0.3rem;
+    border-bottom: 1px solid #666;
+  }
+  #price_check_table .selling-price-container:before {
+    display: inline-block;
+    content: "Sold for";
+    padding-right: 1.4rem;
+  }
+  #price_check_table .version {
+    grid-area: version;
+    padding-top: 0.3rem;
+  }
+  #price_check_table .list-price {
+    grid-area: list-price;
+    padding: 0.4rem 0 0 0.7rem;
+    color: #AAA;
+  }
+  #price_check_table .list-diff-val {
+    grid-area: list-dv;
     text-align: right;
-    border-top-left-radius: 0.5rem;
-    border-bottom-left-radius: 0.5rem;
+    border-bottom: 1px solid #666;
+    padding: 0 0 0.4rem 0;
+  }
+  #price_check_table .list-diff-perc {
+    grid-area: list-dp;
+    padding: 0 0 0.4rem 0.5rem;
+    border-bottom: 1px solid #666;
+  }
+  #price_check_table .list-diff-perc::before {
+    content: "(";
+    display: inline-block;
+    padding-left: 0.5rem;
+  }
+  #price_check_table .list-diff-perc::after {
+    content: ")";
+    display: inline-block;
+  }
+  #price_check_table .resale-percentage {
+    grid-area: resale-perc;
+    padding: 0.3rem 0 0 0;
+  }
+  #price_check_table .resale-price {
+    grid-area: resale-price;
+    padding: 0.3rem 0 0 0.7rem;
+    color: #BBB;
+  }
+  #price_check_table .resale-diff-val {
+    grid-area: resale-dv;
+    text-align: right;
+  }
+  #price_check_table .resale-diff-perc {
+    grid-area: resale-dp;
+  }
+  #price_check_table .resale-diff-perc::before {
+    content: "(";
+    display: inline-block;
+    padding-left: 0.5rem;
+  }
+  #price_check_table .resale-diff-perc::after {
+    content: ")";
+    display: inline-block;
   }
 }
 .job-heading-with-status .job-heading-with-extra {

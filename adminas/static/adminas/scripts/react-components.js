@@ -30,13 +30,36 @@ function format_money(float_value){
     return float_value.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})
 }
 
-function format_percentage(perc){
+function format_percentage(perc, min_digits = 0){
     if(isNaN(perc)){
         return '-%';
     }
-    return perc.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) + '%';
+    return perc.toLocaleString(undefined, {minimumFractionDigits: min_digits, maximumFractionDigits: 2}) + '%';
 }
 
+function JobItemIdIcon(props){
+    if(props.ji_id === null){
+        return null;
+    }
+    return <span class="name-tag id">{ props.ji_id }</span>
+}
+
+function JobItemPriceListIconSpan(props){
+    let price_list_name = props.price_list_name;
+    if(price_list_name === null){
+        price_list_name = 'TBC';
+    }
+
+    return <JobItemNameTagSpan name = { price_list_name } />
+}
+
+function JobItemNameTagSpan(props){
+    if(props.name === null){
+        return null;
+    }
+
+    return <span class="name-tag">{ props.name }</span>
+}
 
 
 // || Buttons and Controls

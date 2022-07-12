@@ -66,22 +66,6 @@ function JobItemsUI(props){
 }
 
 // || JobItem General Formatting
-function JobItemIdIcon(props){
-    if(props.ji_id === null){
-        return null;
-    }
-    return <span class="id-number">{ props.ji_id }</span>
-}
-
-function JobItemPriceListIconSpan(props){
-    let price_list_name = props.price_list_name;
-    if(price_list_name === null){
-        price_list_name = 'TBC';
-    }
-
-    return <span class="price-list">{ price_list_name }</span>
-}
-
 function WarningMessageSpan(props){
     if(props.message === null){
         return null;
@@ -248,6 +232,7 @@ function JobItemRow(props){
                             />
 }
 
+
 function JobItemRowUI(props){
     const tr_css = get_details_css_class(props.details_selection_status);
     const dark_icon_css = props.details_selection_status === SELECTED_PARENT ? ' dark' : '';
@@ -323,10 +308,9 @@ function JobItemsDetailsContainer(props){
     }
 
     const [isExpanded, setIsExpanded] = React.useState(false);
-    const expanded = get_and_set(isExpanded, setIsExpanded);
+    const expanded_state = get_and_set(isExpanded, setIsExpanded);
 
     const expanded_class = isExpanded ? " expanded" : "";
-
     return [
         <div class="jobitems-details">
             <CancelButton   cancel = { details_off } />
@@ -348,18 +332,18 @@ function JobItemsDetailsContainer(props){
                         />)
                 }
             </div>
-            <ExpandCollapseToggle   expanded = { expanded} />
+            <ExpandCollapseToggle   expanded_state = { expanded_state } />
         </div>
     ]
 }
 
 function ExpandCollapseToggle(props){
-    const css_class = props.expanded.get ? "collapse" : "expand";
+    const css_class = props.expanded_state.get ? "collapse" : "expand";
     const display_text = css_class;
 
-    const toggle_to = !props.expanded.get;
+    const toggle_to = !props.expanded_state.get;
     function handle_click(){
-        props.expanded.set(toggle_to);
+        props.expanded_state.set(toggle_to);
     }
 
     return <button class={"expand-collapse " + css_class } onClick={ handle_click }><span>{ display_text }</span></button>

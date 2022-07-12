@@ -228,12 +228,6 @@
 
 }
 
-#job_po_section{
-    .warning{
-        box-shadow: v.$warning_shadow;
-    }
-}
-
 #toggle_po_form_btn{
     margin-top: 0.4rem;
 }
@@ -241,6 +235,8 @@
 #job_details{
     max-width: v.$MAX_WIDTH;
 }
+
+
 
 .ji-edit{
     margin-right: 0;
@@ -1030,6 +1026,107 @@ table.price-comparison{
 }
 
 
+#po_table{
+    .value{
+        text-align: right;
+    }
+
+    tr{
+        position: relative;
+    }
+
+    .panel{
+        position: absolute;
+        top: -0.7rem;
+        background: v.$c_tone_01;
+        z-index: 3;
+
+        box-shadow: v.$panel_shadow;
+    }
+}
+@media screen and (max-width: 473px){
+
+    #po_table{
+        thead tr{
+            position: absolute;
+            top: -9999px;
+            left: -9999px;
+        }
+
+        td{
+            display: inline-block;
+            padding: 0.1rem 0.4rem;
+            border: none;
+            text-align: left;
+            vertical-align: middle;
+            height: auto;
+        }
+
+        tbody tr{
+            display: grid;
+            grid-template-columns: 6rem auto auto min-content;
+            grid-template-rows: auto repeat(2, 1.5rem);
+            grid-template-areas: 
+                "ref ref ref edit"
+                "date_on_po date_received . ."
+                "value value value value"
+            ;
+
+            min-width: 286px;
+            width: 100%;
+            max-width: 450px;
+
+            box-sizing: border-box;
+            margin: 0.5rem 0 0 0;
+            padding: 0.3rem 0.2rem;
+
+            border: 1px solid v.$c_tone_01;
+            box-shadow: 0 0 10px 1px rgba(black, 35%);
+        }
+
+
+        .ref{
+            grid-area: ref;
+
+            &:before{
+                content: 'PO #';
+                display: inline-block;
+                padding: 0 0.5rem 0 0;
+            }
+
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+        .date_on_po{
+            grid-area: date_on_po;
+            white-space: nowrap;
+        }
+        .date_received{
+            grid-area: date_received;
+
+            &:before{
+                content: 'received';
+                display: inline-block;
+                padding: 0.08rem 0.5rem 0 0;
+            }
+
+            box-sizing: border-box;
+            border-left: 3px solid v.$c_accent_secondary;
+            background: v.$c_tone_00;
+            font-size: 0.9rem;
+            padding: 0.08rem 0.4rem;
+            white-space: nowrap;
+        }
+        .value{
+            grid-area: value;
+            text-align: left;
+        }
+        .edit{
+            grid-area: edit;
+        }
+    }
+}
+
 
 #jobitems_table{
 
@@ -1042,7 +1139,7 @@ table.price-comparison{
         font-size: 0.9rem;
     }
 
-    .ji_id .id-number{
+    .ji_id .name-tag.id{
         margin: 0;
     }
 
@@ -1496,7 +1593,7 @@ table.price-comparison{
                 margin: 0;
             }
 
-            .price-list{
+            .name-tag{
                 position: absolute;
                 top: -9999px;
                 left: -9999px;
@@ -1509,6 +1606,16 @@ table.price-comparison{
 
 
 #price_check_table{
+    .ji_id{
+        text-align: left;
+        .name-tag.id{
+            margin: 0;
+        }
+    }
+    .resale-percentage .name-tag::before{
+        content: 'RD';
+        padding-right: 0.3rem;
+    }
     .selling-price{
         display: inline-block;
         margin-top: 0.25rem;
@@ -1542,56 +1649,210 @@ table.price-comparison{
 
 // || Responsive table
 @media screen and (max-width: v.$breakpoint_table_to_rows){
-    #price_check_section{
-        max-width: 475px;
+
+    #price_check_table{
+        // Make it stop behaving like a table
         width: 100%;
+        margin: 0.3rem 0;
+
+        thead tr { 
+            position: absolute;
+            top: -9999px;
+            left: -9999px;
+        }
+
+        td{
+            display: inline-block;
+            padding: 0;
+            border: none;
+            height: auto;
+            text-align: left;
+            vertical-align: middle;
+        }
 
         .selling-price{
-            margin-top: 0;
-        }
-        
-        /*
-        Label the data
-        */
-        #price_check_table{
-            td:nth-of-type(2):before { content: "Quantity"; }
-            td:nth-of-type(1):before { content: "Part Number"; }
-            td:nth-of-type(3):before { content: "Sold @"; }
-            td:nth-of-type(4):before { content: "Price List: Version"; }
-            td:nth-of-type(5):before { content: "Price List: Value"; }
-            td:nth-of-type(6):before { content: "Price List vs. Sold"; }
-            td:nth-of-type(7):before { content: "Price List vs. Sold (%)"; }
-            td:nth-of-type(8):before { content: "Resale: Discount"; }
-            td:nth-of-type(9):before { content: "Resale: Value"; }
-            td:nth-of-type(10):before { content: "Resale vs. Sold"; }
-            td:nth-of-type(11):before { content: "Resale vs. Sold (%)"; }
+            margin: 0;
         }
 
-        // In narrow-mode the descriptions overlap the row below, so
-        // add a background; then add other formatting so the background
-        // doesn't look weird.
-        .details{
-            position: absolute;
-            bottom: -1rem;
-            right: 5px;
-            z-index: 2; // So you can click it off again
+        tbody tr{
+            display: grid;
+            grid-template-columns: repeat(4, auto) 1fr auto;
+            grid-template-rows: repeat(7, auto);
+            grid-template-areas: 
+                "ji_id qty part_no part_no part_no part_no"
+                "price price price price price price"
+                "version      version       version     list-price  list-price  list-price"
+                "list-dv      list-dv       list-dv     list-dv     list-dv     list-dp"
+                "resale-perc  resale-perc   resale-perc resale-price resale-price resale-price"
+                "resale-dv    resale-dv     resale-dv   resale-dv  resale-dv    resale-dp"
+            ;
 
-            width: 15rem;
+            width: 100%;
 
-            color: v.$c_tone_07;
-            background: v.$c_tone_02;
+            box-sizing: border-box;
+            margin: 0.5rem 0 0 0.1rem;
+            padding: 0.3rem 0.2rem;
+
             border: 1px solid v.$c_tone_01;
-            padding: 3px;
-            box-shadow: v.$panel_shadow;
+            box-shadow: 0 0 10px 1px rgba(black, 35%);
+        }
 
-            border-right: 3px solid v.$c_accent_secondary;
-            padding-right: 10px;
+        .ji_id{
+            grid-area: ji_id;
+            padding-left: 0.1rem;
+        }
+        .qty{
+            grid-area: qty;
+            
+            // In the absence of a heading, append " x " to hint at the quantity-ness
+            padding-left: 0.5rem;
+            &::after{
+                content: "x";
+                padding: 0 0.4rem;
+            }
+        }
+        .description{
+            grid-area: part_no;
+
+            .details{
+                padding: 0.2rem 0.4rem;
+                background: v.$c_tone_00;
+                border-radius: 0.3rem;
+        
+                position: absolute;
+                z-index: 8;
+                top: 0.9rem;
+                left: 0;
+                max-width: 90%;
+            }
+        }
+
+        .selling-price-container{
+            grid-area: price;
+            text-align: left;
+
+            font-weight: bold;
+            font-size: 1.1rem;
+            padding: 0.3rem 0.3rem 0 0.3rem;
+
+            &:before{
+                display: inline-block;
+                content: 'Sold for';
+                padding-right: 1.4rem;
+            }
+
+            border-bottom: 1px solid v.$c_tone_03;
+        }
+
+        .version{
+            grid-area: version;
+            padding-top: 0.3rem;
+        }
+        .list-price{
+            grid-area: list-price;
+            padding: 0.4rem 0 0 0.7rem;
+            color: v.$c_tone_05;
+        }
+        .list-diff-val{
+            grid-area: list-dv;
             text-align: right;
+            border-bottom: 1px solid v.$c_tone_03;
+            padding: 0 0 0.4rem 0;
+        }
+        .list-diff-perc{
+            grid-area: list-dp;
+            padding: 0 0 0.4rem 0.5rem;
+            border-bottom: 1px solid v.$c_tone_03;
 
-            border-top-left-radius: 0.5rem;
-            border-bottom-left-radius: 0.5rem;
+            &::before{
+                content: '(';
+                display: inline-block;
+                padding-left: 0.5rem;
+            }
+            &::after{
+                content: ')';
+                display: inline-block;
+            }
+        }
+
+        .resale-percentage{
+            grid-area: resale-perc;
+            padding: 0.3rem 0 0 0;
+        }
+        .resale-price{
+            grid-area: resale-price;
+            padding: 0.3rem 0 0 0.7rem;
+            color: v.$c_tone_06;
+        }
+        .resale-diff-val{
+            grid-area: resale-dv;
+            text-align: right;
+        }
+        .resale-diff-perc{
+            grid-area: resale-dp;
+
+            &::before{
+                content: '(';
+                display: inline-block;
+                padding-left: 0.5rem;
+            }
+            &::after{
+                content: ')';
+                display: inline-block;
+            }
         }
     }
+
+    // #price_check_section{
+    //     max-width: 475px;
+    //     width: 100%;
+
+    //     .selling-price{
+    //         margin-top: 0;
+    //     }
+        
+    //     /*
+    //     Label the data
+    //     */
+    //     #price_check_table{
+    //         td:nth-of-type(2):before { content: "Quantity"; }
+    //         td:nth-of-type(1):before { content: "Part Number"; }
+    //         td:nth-of-type(3):before { content: "Sold @"; }
+    //         td:nth-of-type(4):before { content: "Price List: Version"; }
+    //         td:nth-of-type(5):before { content: "Price List: Value"; }
+    //         td:nth-of-type(6):before { content: "Price List vs. Sold"; }
+    //         td:nth-of-type(7):before { content: "Price List vs. Sold (%)"; }
+    //         td:nth-of-type(8):before { content: "Resale: Discount"; }
+    //         td:nth-of-type(9):before { content: "Resale: Value"; }
+    //         td:nth-of-type(10):before { content: "Resale vs. Sold"; }
+    //         td:nth-of-type(11):before { content: "Resale vs. Sold (%)"; }
+    //     }
+
+    //     // In narrow-mode the descriptions overlap the row below, so
+    //     // add a background; then add other formatting so the background
+    //     // doesn't look weird.
+    //     .details{
+    //         position: absolute;
+    //         bottom: -1rem;
+    //         right: 5px;
+    //         z-index: 2; // So you can click it off again
+
+    //         width: 15rem;
+
+    //         color: v.$c_tone_07;
+    //         background: v.$c_tone_02;
+    //         border: 1px solid v.$c_tone_01;
+    //         padding: 3px;
+    //         box-shadow: v.$panel_shadow;
+
+    //         border-right: 3px solid v.$c_accent_secondary;
+    //         padding-right: 10px;
+    //         text-align: right;
+
+    //         border-top-left-radius: 0.5rem;
+    //         border-bottom-left-radius: 0.5rem;
+    //     }
+    // }
 }
 
 

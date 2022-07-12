@@ -555,7 +555,7 @@ nav li a:hover {
   border-bottom: 0;
 }
 .subsection.warning {
-  border-left: 3px solid #cf0000;
+  border-left: 3px solid red;
 }
 .subsection.warning .intro-line, .subsection.warning h4 {
   background: #cf0000;
@@ -765,8 +765,7 @@ nav li a:hover {
   padding: 4px 8px;
 }
 
-.id-number,
-.price-list {
+.name-tag {
   margin: 0 0 0 5px;
   padding: 1px 5px;
   font-size: 0.75rem;
@@ -775,21 +774,14 @@ nav li a:hover {
   border-bottom-right-radius: 3px;
   background: #222;
   border: 1px solid #141414;
+  border-left: 2px solid #09BA70;
   color: #F6F6F6;
   white-space: nowrap;
   width: -moz-fit-content;
   width: fit-content;
 }
-
-.id-number {
-  border-left: 2px solid #09BA70;
-}
-.id-number:before {
+.name-tag.id:before {
   content: "id ";
-}
-
-.price-list {
-  border-left: 2px solid #09BA70;
 }
 
 .pagination_controls {
@@ -827,36 +819,50 @@ nav li a:hover {
   border-bottom-right-radius: 1rem;
 }
 
-.banded tr:nth-of-type(even) {
+.banded tbody tr:nth-of-type(even) {
   background: #444;
 }
 
 #jobitems_table,
+#po_table,
+#price_check_table,
 .responsive-table {
   margin: 0.3rem;
   border-collapse: collapse;
 }
 #jobitems_table th,
 #jobitems_table td,
+#po_table th,
+#po_table td,
+#price_check_table th,
+#price_check_table td,
 .responsive-table th,
 .responsive-table td {
   padding: 0.1rem 0.5rem;
 }
 #jobitems_table th,
+#po_table th,
+#price_check_table th,
 .responsive-table th {
   border: 1px solid #444;
   background: #666;
 }
 #jobitems_table td,
+#po_table td,
+#price_check_table td,
 .responsive-table td {
   border: 1px solid #666;
   height: 2rem;
 }
 #jobitems_table .edit-icon,
+#po_table .edit-icon,
+#price_check_table .edit-icon,
 .responsive-table .edit-icon {
   margin: 0 0 0 0.3rem;
 }
 #jobitems_table .edit-icon:hover,
+#po_table .edit-icon:hover,
+#price_check_table .edit-icon:hover,
 .responsive-table .edit-icon:hover {
   background-position: 5px 4px;
 }

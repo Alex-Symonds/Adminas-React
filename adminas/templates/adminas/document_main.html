@@ -101,7 +101,7 @@
     {% for inc in doc_version.get_included_items %}
                     <li {% if inc.invalid_quantity %}class="invalid"{% endif %}>
                         {% if inc.invalid_quantity %}<span class="invalid-icon"><span>quantity is invalid</span></span>{% endif %}
-                        <span class="display">{{ inc.display }}</span><span class="id-number">{{ inc.jiid }}</span>
+                        <span class="display">{{ inc.display }}</span><span class="name-tag id">{{ inc.jiid }}</span>
                     </li>
     {% empty %}
                     <li class="none">None</li>
@@ -120,7 +120,7 @@
                             {{ excl.display }}
             {% if excl.is_available %}
                         </span>
-                        <span class="id-number">{{ excl.jiid }}</span>
+                        <span class="name-tag id">{{ excl.jiid }}</span>
             {% else %}
                             <span><a href="{% url 'doc_main' excl.doc_id %}">
                                 (on  
@@ -130,7 +130,7 @@
                                 unnamed)
                 {% endif %}
                             </a></span>
-                            <span class="id-number">{{ excl.jiid }}</span>
+                            <span class="name-tag id">{{ excl.jiid }}</span>
                         </span>
             {% endif %}
                     </li>

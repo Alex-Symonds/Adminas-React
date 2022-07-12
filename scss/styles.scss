@@ -726,7 +726,7 @@ nav{
     }
 
     &.warning{
-        border-left: 3px solid v.$c_warning;
+        border-left: 3px solid v.$c_warning_bright;
 
         .intro-line, h4{
             background: v.$c_warning;
@@ -1005,8 +1005,8 @@ nav{
     padding: 4px 8px;
 }
 
-.id-number,
-.price-list{
+// .id-number,
+.name-tag{
     margin: 0 0 0 5px;
     padding: 1px 5px;
     font-size: 0.75rem;
@@ -1016,24 +1016,27 @@ nav{
     border-bottom-right-radius: 3px;
     background: v.$c_tone_01;
     border: 1px solid v.$c_tone_00;
+    border-left: 2px solid v.$c_accent_secondary_03;
     color: v.$c_txt_main;
 
     white-space: nowrap;
 
     width: -moz-fit-content;
     width: fit-content;
-}
 
-.id-number{
-    &:before{
-        content: 'id ';
+    &.id{
+        &:before{
+            content: 'id ';
+        }
     }
-    border-left: 2px solid v.$c_accent_secondary_03;
 }
 
-.price-list{
-    border-left: 2px solid v.$c_accent_secondary_03;
-}
+// .id-number{
+//     &:before{
+//         content: 'id ';
+//     }
+//     border-left: 2px solid v.$c_accent_secondary_03;
+// }
 
 
 
@@ -1085,12 +1088,14 @@ nav{
 
 // || Responsive table (i.e. switches from a table to formatted rows when the screen is too narrow)
 .banded{
-    tr:nth-of-type(even){ 
+    tbody tr:nth-of-type(even){ 
         background: v.$c_tone_02;
     }
 }
 
 #jobitems_table,
+#po_table,
+#price_check_table,
 .responsive-table{
     margin: 0.3rem;
     border-collapse: collapse;

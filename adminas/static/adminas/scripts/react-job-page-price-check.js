@@ -132,7 +132,7 @@ function JobPriceCheckDetailsUI(props){
     return [
         <div class="subsection">
             <h4>Details</h4>
-            <table id="price_check_table" class="responsive-table banded">
+            <table id="price_check_table" class="banded">
                 <JobPriceCheckDetailsTableHeadUI />
                 <JobPriceCheckDetailsTableBodyUI    actions_items = { props.actions_items }
                                                     active_edit = { props.active_edit }
@@ -148,11 +148,12 @@ function JobPriceCheckDetailsTableHeadUI(props){
     return [
         <thead>
             <tr class="upper-h-row">
-                <th colspan={3}></th>
+                <th colspan={4}></th>
                 <th colspan={4}>vs. Price List</th>
                 <th colspan={4}>vs. Resale</th>
             </tr>
             <tr class="lower-h-row">
+                <th>id</th>
                 <th>part #</th>
                 <th>qty</th>
                 <th>sold @</th>
@@ -234,6 +235,9 @@ function JobPriceCheckDetailsTableRow(props){
 function JobPriceCheckDetailsRowUI(props){
     return[
         <tr id={'price_check_row_' + props.data.ji_id }>
+            <td class="ji_id">
+                <JobItemIdIcon ji_id = { props.data.ji_id }/>
+            </td>
             <JobPriceCheckDetailsDescription    data = { props.data } />
             <td class="qty">{props.data.quantity}</td>
             <JobPriceCheckDetailsSellingPrice   calc = { props.calc }
@@ -242,14 +246,18 @@ function JobPriceCheckDetailsRowUI(props){
                                                 update_item = { props.update_item }
                                                 url_with_id = { props.url_with_id }
                                                 />
-            <td class="version">{ props.data.price_list_name }</td>
+            <td class="version">
+                <JobItemPriceListIconSpan price_list_name = { props.data.price_list_name } />
+            </td>
             <td class="list-price">{ format_money(props.calc.list_price) }</td>
             <td class="list-diff-val">{ format_money(props.calc.difference_list) }</td>
-            <td class="list-diff-perc">{ format_percentage(props.calc.difference_list / props.calc.list_price * 100) }</td>
-            <td class="resale-percentage">{ format_percentage(parseFloat(props.data.resale_perc)) }</td>
+            <td class="list-diff-perc">{ format_percentage(props.calc.difference_list / props.calc.list_price * 100, 2) }</td>
+            <td class="resale-percentage">
+                <JobItemNameTagSpan   name = { format_percentage(parseFloat(props.data.resale_perc)) } />
+            </td>
             <td class="resale-price">{ format_money(props.calc.resale_price) }</td>
             <td class="resale-diff-val">{ format_money(props.calc.difference_resale) }</td>
-            <td class="resale-diff-perc">{ format_percentage(props.calc.difference_resale / props.calc.resale_price * 100) }</td>
+            <td class="resale-diff-perc">{ format_percentage(props.calc.difference_resale / props.calc.resale_price * 100, 2) }</td>
         </tr>
     ]
 }
