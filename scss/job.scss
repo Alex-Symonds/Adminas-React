@@ -61,14 +61,17 @@
 
         &#price_confirmation_button{
             background: transparent;
+
             &:hover{
                 background: v.$c_tone_03;
             }
         }
+
     }
 
     &.on{
-        button{
+        button,
+        button#price_confirmation_button{
             color: v.$c_accent_secondary;
             border: 1px solid v.$c_accent_secondary_03;
             border-left: 3px solid v.$c_accent_secondary;
@@ -1080,7 +1083,7 @@ table.price-comparison{
             margin: 0.5rem 0 0 0;
             padding: 0.3rem 0.2rem;
 
-            border: 1px solid v.$c_tone_01;
+            border: 1px solid v.$c_tone_00;
             box-shadow: 0 0 10px 1px rgba(black, 35%);
         }
 
@@ -1303,7 +1306,7 @@ table.price-comparison{
             margin: 0.5rem 0 0 0;
             padding: 0.3rem 0.2rem;
 
-            border: 1px solid v.$c_tone_01;
+            border: 1px solid v.$c_tone_00;
             box-shadow: 0 0 10px 1px rgba(black, 35%);
         }
 
@@ -1693,7 +1696,7 @@ table.price-comparison{
             margin: 0.5rem 0 0 0.1rem;
             padding: 0.3rem 0.2rem;
 
-            border: 1px solid v.$c_tone_01;
+            border: 1px solid v.$c_tone_00;
             box-shadow: 0 0 10px 1px rgba(black, 35%);
         }
 
@@ -1721,7 +1724,7 @@ table.price-comparison{
         
                 position: absolute;
                 z-index: 8;
-                top: 0.9rem;
+                top: -1.4rem;
                 left: 0;
                 max-width: 90%;
             }

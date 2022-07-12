@@ -34,7 +34,7 @@
     {% for parent_jobitem in items %}
     <div id="modular_jobitem_{{ parent_jobitem.id }}" class="panel modular-item-container{% if parent_jobitem.excess_modules_assigned %} excess-modules{% endif %}" data-quantity={{ parent_jobitem.quantity }}>
         <div class="panel-header">
-            <h3>{{ parent_jobitem.quantity }} x {{ parent_jobitem.product }} <span class="id-number">{{ parent_jobitem.id }}</span></h3>
+            <h3>{{ parent_jobitem.quantity }} x {{ parent_jobitem.product }} <span class="name-tag id">{{ parent_jobitem.id }}</span></h3>
             <div class="desc">{% get_item_description parent_jobitem.product job.language %}</div>
         </div>
 

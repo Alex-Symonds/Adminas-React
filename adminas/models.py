@@ -1,4 +1,14 @@
-#from django.core.exceptions import NON_FIELD_ERRORS
+# Models for Adminas-React.
+# Contents:
+#   || Constants
+#   || Misc classes
+#   || Customers/Agents classes
+#   || Products/Prices classes
+#   || Modular classes
+#   || Case-Specific classes
+#      (e.g. POs, Jobs, JobItems, JobComments)
+#   || Documents classes
+
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.db.models.deletion import SET_NULL
@@ -14,9 +24,7 @@ import datetime
 
 from django.db.models import Q
 
-
-
-# Size fields
+# || Constants
 JOB_NAME_LENGTH = 8 # YYMM-NNN
 PART_NUM_LENGTH = 10
 DOCS_ONE_LINER = 300 
@@ -34,6 +42,7 @@ STATUS_CODE_OK = 'status_ok'
 STATUS_CODE_ACTION = 'status_action'
 STATUS_CODE_ATTN = 'status_attn'
 
+# || Misc classes
 class DocAssignment(models.Model):
     """
         Through MTM for line item assignments to documents. 
@@ -85,7 +94,7 @@ class AdminAuditTrail(models.Model):
 
 
 
-# Customers and partners
+# || Customers/Agents classes
 class Company(AdminAuditTrail):
     """
         One Company.
@@ -184,7 +193,7 @@ class Site(AdminAuditTrail):
 
 
 
-# Stuff on offer
+# || Products/Prices classes
 class Product(AdminAuditTrail):
     """
         One Product / standard item on sale.
@@ -322,7 +331,7 @@ class Price(models.Model):
 
 
 
-# Support for modular ordering
+# || Modular classes
 class SlotChoiceList(models.Model):
     """
         Set of Products suitable for filling a Slot.
@@ -380,8 +389,7 @@ class Slot(models.Model):
 
 
 
-# PO-specific stuff
-# PO
+# || Case-Specific classes
 class PurchaseOrder(AdminAuditTrail):
     """
         Data as it appeared on the customer's PO.
@@ -396,8 +404,8 @@ class PurchaseOrder(AdminAuditTrail):
     # PO records are not deleted (for audit trail reasons); instead they are deactivated
     active = models.BooleanField(default=True)
 
-    def value_f(self):
-        return format_money(self.value)
+    # def value_f(self):
+    #     return format_money(self.value)
 
     def serialise(self):
         result = {}
@@ -413,7 +421,6 @@ class PurchaseOrder(AdminAuditTrail):
         return f'{self.reference} from {self.job.invoice_to.site.company.name}'
 
 
-#Job stuff
 class Job(AdminAuditTrail):
     """
      Reflects the concept of "one work thing we must enter into the system".
@@ -437,7 +444,16 @@ class Job(AdminAuditTrail):
 
     price_is_ok = models.BooleanField(default=False)
 
+    # Contents:
+    #   || Job.Misc
+    #   || Job.Modular
+    #   || Job.Comments
+    #   || Job.Status
+    #   || Job.Financial
+    #   || Job.RelevantRelated
+    #   || Job.Documents
 
+    # || Job.Misc
     def is_safe_to_delete(self):
         """
             Determines if this Job can be safely deleted or if it's passed the point of no return (from an administrative perspective).
@@ -455,8 +471,14 @@ class Job(AdminAuditTrail):
 
         return True
 
-        
 
+    def on_todo_list(self, user):
+        """
+            To-do list. Check if this Job is on the todo list for the specified User
+        """
+        return self in user.todo_list_jobs.all()
+
+    ## || Job.Modular
     def quantity_of_product(self, product):
         """
             Modular item support. Count how many of a given Product exists on the Job. (It could be split across multiple line items.)
@@ -483,9 +505,10 @@ class Job(AdminAuditTrail):
 
         return job_qty - a_qty
 
+
     def modular_items_incomplete(self):
         """
-            Check if modular items on the Job have any empty "required" slots
+            Modular item support. Check if any modular items on the Job have any empty "required" slots
         """
         main_items = self.main_item_list()
         if main_items == None:
@@ -496,7 +519,7 @@ class Job(AdminAuditTrail):
                 return True
         return False
 
-
+    # || Job.Comments
     def get_all_comments(self, user, setting_for_order_by):
         """
             Comment support. Get all comments the user is entitled to see, regardless of pinned/highlighted status
@@ -546,18 +569,10 @@ class Job(AdminAuditTrail):
         return result        
 
 
-    def on_todo_list(self, user):
-        """
-            To-do list. Check if this Job is on the todo list for the specified User
-        """
-        return self in user.todo_list_jobs.all()
-
-
-    # -----------------------------------------------------------------------------
-    # ADMINAS-REACT: revamp this to a nicer notifications section
+    # || Job.Status
     def job_status(self):
         """
-            Status strip on Job page. Get a dict of status codes and brief messages.
+            List of status codes and brief messages for this job.
         """
         result = []
         result.append(self.status_price())
@@ -572,12 +587,18 @@ class Job(AdminAuditTrail):
 
 
     def status_price(self):
+        """
+            Status strip on Job page. Status for price authorisation.
+        """
         if not self.price_is_ok:
             return (STATUS_CODE_ACTION, 'Price not accepted')
         return (STATUS_CODE_OK, 'Price accepted')
 
 
     def status_po(self):
+        """
+            Status strip on Job page. Status of POs.
+        """
         qs = self.related_po()       
         if qs.count() == 0:
             return (STATUS_CODE_ACTION, 'PO missing')
@@ -587,6 +608,9 @@ class Job(AdminAuditTrail):
 
 
     def status_items(self):
+        """
+            Status strip on Job page. Statuses related to items and specifications.
+        """
         if self.items.count() == 0:
             return [(STATUS_CODE_ACTION, 'No items')]
 
@@ -603,6 +627,9 @@ class Job(AdminAuditTrail):
 
 
     def status_doc(self, doc_type):
+        """
+            Status strip on Job page. Statuses for documents.
+        """
         unassigned_main_items = self.get_items_unassigned_to_doc(doc_type)
         num_unassigned = len(unassigned_main_items) if unassigned_main_items != None else None
 
@@ -620,59 +647,14 @@ class Job(AdminAuditTrail):
 
 
     def has_special_modular(self):
+        """
+            Determine if the Job contains any "special" items.
+        """
         for ji in self.main_item_list():
             if ji.excess_modules_assigned():
                 return True
         return False
-    # -----------------------------------------------------------------------------
 
-    def num_admin_warnings(self):
-        return len(self.admin_warnings()['strings']) + len(self.admin_warnings()['tuples'])
-
-    def admin_warnings(self):
-        """
-            Produce a list of some things remaining to be done/resolved on this Job
-        """
-        result = {}
-
-        result['strings'] = []
-        if not self.price_is_ok:
-            result['strings'].append('Price unconfirmed'.upper())
-        
-        if self.total_difference_value_po_vs_line() != 0:
-            result['strings'].append('Price discrepancy (PO vs. line items)')
-
-        if self.items.count() == 0:
-            result['strings'].append('No items added')
-
-        if self.modular_items_incomplete():
-            result['strings'].append('Modular items incomplete')
-        
-        result['tuples'] = []
-        qs = self.related_po()
-        if qs.count() == 0:
-            result['tuples'].append(('PO', 'none entered'))
-
-        result['tuples'] += self.get_document_warnings()
-
-        return result
-
-    def get_document_warnings(self):
-        """
-            List of unfinished document business (unissued documents; unassigned items)
-        """
-        result = []
-        for loop_tuple in DOCUMENT_TYPES:
-            doc_type = loop_tuple[0]
-
-            default_incl_items = self.get_items_unassigned_to_doc(doc_type)
-            if len(default_incl_items) > 0 if default_incl_items != None else False:
-                result.append((doc_type, 'items unassigned'))
-
-            if self.unissued_documents_exist(doc_type):
-                result.append((doc_type, 'documents unissued'))
-
-        return result
 
     def unissued_documents_exist(self, doc_type):
         """
@@ -686,31 +668,7 @@ class Job(AdminAuditTrail):
 
         return dvs.filter(issue_date = None).count() > 0
 
-    # ----------- Documents to support upgrades prior to beginning Adminas-React
-    def num_items_unassigned_to_doc(self, doc_type):
-        """
-            How many JobItems on this Job have not yet been assigned to a particular document type.
-        """
-        if self.items.count() == 0:
-            return 0
 
-        unassigned_items = self.get_items_unassigned_to_doc(doc_type)
-        if unassigned_items == None:
-            return 0
-
-        result = 0
-        for item in unassigned_items:
-            result += item.total_quantity
-
-        return result
-    
-    def num_items_unassigned_to_wo(self):
-        return self.num_items_unassigned_to_doc('WO')
-
-    def num_items_unassigned_to_oc(self):
-        return self.num_items_unassigned_to_doc('OC')
-
-# ----------- Documents to support Adminas-React, but the actual React bit
     def all_documents_item_quantities(self):
         """
             List with an entry for each doc_type, reporting the quantity of items on issued and draft documents of that type.
@@ -724,10 +682,9 @@ class Job(AdminAuditTrail):
         # This was added to enable the Job status for documents (i.e. "ok", "pending", "missing").
         # Some of these statuses are defined by a comparison between the quantity of items appearing on issued/draft documents
         # versus the quantity existing on the Job as a whole.
-        # We need to consider quantity rather than count() because JobItems have a quantity field which can be >1 and Adminas
-        # supports splitting JobItems across multiple documents.
-        # If a Job has a single JobItem with qty=100 and a user assigns qty=1 to an issued document, we want that to come up as
-        # "99 more to go", not "1 x JobItem on the Job; 1 x JobItem on an issued document: we're done".
+        # We need to consider quantity rather than count() because if a Job has a single JobItem with qty=100 and a user 
+        # assigns qty=1 to an issued document, we want that to come up as "99 more to go", not 
+        # "1 x JobItem on the Job; 1 x JobItem on an issued document: we're done".
 
         result = []
         for loop_tuple in DOCUMENT_TYPES:
@@ -762,11 +719,9 @@ class Job(AdminAuditTrail):
                 result += 1
 
         return result
-# -----------
 
 
-
-
+    # || Job.Financial
     def price_changed(self):
         """
             Make any necessary adjustments when something just happened that could impact the overall price of the Job.
@@ -774,7 +729,6 @@ class Job(AdminAuditTrail):
         if self.price_is_ok:
             self.price_is_ok = False
             self.save()
-
 
     def total_value(self):
         """
@@ -788,7 +742,6 @@ class Job(AdminAuditTrail):
             Get the total value for this Job (formatted string).
         """
         return format_money(self.total_value())
-
 
     def total_list_price(self):
         """
@@ -805,7 +758,6 @@ class Job(AdminAuditTrail):
         """
         return format_money(self.total_list_price())
 
-
     def total_line_value(self):
         """
             Get the total JobItem / line item sum for this Job (number).
@@ -816,14 +768,6 @@ class Job(AdminAuditTrail):
         else:
             return order_value
 
-    def total_line_value_f(self):
-        """
-            Get the total JobItem / line item sum for this Job (formatted string).
-        """
-        return format_money(self.total_line_value())
-
-
-    # Prices: value and string of all POs assigned to this Job
     def total_po_value(self):
         """
             Get the total PO sum for this Job (number).
@@ -832,72 +776,14 @@ class Job(AdminAuditTrail):
             return sum([po.value for po in self.po.filter(active=True)])
         return 0
 
-
-
-    def total_po_value_f(self):
-        """
-            Get the total PO sum for this Job (formatted string).
-        """
-        return format_money(self.total_po_value())
-
-
-    # Price comparison: value, formatted string and formatted % for checking the PO total against JobItem total
     def total_difference_value_po_vs_line(self):
         """
             Get the difference between the Job's line item sum and the PO sum (value)
         """
         return self.total_po_value() - self.total_line_value()
 
-    def total_po_difference_value_f(self):
-        """
-            Get the difference between the Job's line item sum and the PO sum (formatted string)
-        """
-        return format_money(self.total_difference_value_po_vs_line())
 
-    def total_po_difference_perc(self):
-        """
-            Get the difference between the Job's line item sum and the PO sum (percentage)
-        """
-        if self.total_po_value() == 0 or self.total_po_value() == None:
-            return 0
-        return round( self.total_difference_value_po_vs_line() / self.total_po_value() * 100 , 2)
-
-
-
-    # Price comparison: value, formatted string and formatted % for checking the list total against JobItem total
-    def total_difference_value_line_vs_list(self):
-        """
-            Get the difference between the Job's line item sum and the list price sum (value)
-        """
-        return self.total_line_value() - self.total_list_price()
-
-    def total_list_difference_value_f(self):
-        """
-            Get the difference between the Job's line item sum and the list price sum (formatted string)
-        """
-        return format_money(self.total_difference_value_line_vs_list())
-
-    def total_list_difference_perc(self):
-        """
-            Get the difference between the Job's line item sum and the list price sum (percentage)
-        """
-        if self.total_list_price() == 0 or self.total_list_price() == None:
-            return 0
-        return round( self.total_difference_value_line_vs_list() / self.total_list_price() * 100, 2)
-
-
-
-    def total_resale_price_f(self):
-        """
-            Get the Job's total resale value (formatted string)
-        """
-        return format_money(sum([item.resale_price() for item in self.items.all()]))
-
-
-
-
-
-
+    # || Job.RelevantRelated
     def main_item_list(self):
         """
             List of only the JobItems which were entered by the user (i.e. excluding automatically added stdAccs)
@@ -921,8 +807,7 @@ class Job(AdminAuditTrail):
         return PurchaseOrder.objects.filter(job=self).filter(active=True).order_by('date_received')
 
 
-
-
+    ## || Job.Documents
     def get_items_unassigned_to_doc(self, doc_type):
         """
             Get a list of JobItems on this Job which have not yet been assigned to a document of the given type.
@@ -961,8 +846,6 @@ class Job(AdminAuditTrail):
             this_dict['doc_id'] = ae.version.id
             result.append(this_dict)                
         return result
-
-
 
     def __str__(self):
         return f'{self.name} {self.created_on}'
@@ -1050,6 +933,14 @@ class JobItem(AdminAuditTrail):
     # with the dispenser ("included_with" would refer to the JobItem for the dispenser) and one to cover the three spares ("included_with" would be blank).
     included_with = models.ForeignKey('self', on_delete=models.CASCADE, related_name='includes', null=True, blank=True)
 
+    # Method contents:
+    #   || JobItem.Display
+    #   || JobItem.Documents
+    #   || JobItem.Financial
+    #   || JobItem.StandardAccessories
+    #   || JobItem.Modular
+
+    # || JobItem.Display
     def serialise(self):
         result = {}
 
@@ -1108,9 +999,11 @@ class JobItem(AdminAuditTrail):
             Variation on the "main" description to appear on documents and the webpage.
             Adds money information at the end.
         """
+        # Used on the Records template
         return f'{self.display_str()} @ {self.job.currency}&nbsp;{self.selling_price_f()}'
  
 
+    # || JobItem.Documents
     def on_issued_document(self):
         """
             Check if this JobItem appears on a document which has been issued.
@@ -1143,37 +1036,7 @@ class JobItem(AdminAuditTrail):
         return result
 
 
-    def num_required_for_draft_documents(self):
-        """
-            Count how many of this JobItem appear on a draft document.
-        """
-        doc_assignments = DocAssignment.objects.filter(item=self).filter(version__active=True)
-        if doc_assignments == None:
-            return 0
-
-        total = 0
-        for doca in doc_assignments:
-            if doca.version.issue_date == None:
-                total += doca.quantity
-        return total
-
-
-    def draft_document_id_list(self):
-        """
-            Get a list of IDs for any draft documents including this JobItem.
-        """
-        doc_assignments = DocAssignment.objects.filter(item=self)
-        if doc_assignments == None:
-            return None
-
-        id_list = []
-        for doca in doc_assignments:
-            if doca.version.issue_date == None:
-                id_list.append(doca.version.id)
-
-        return id_list
-
-
+    # || JobItem.Financial
     def selling_price_f(self):
         """
             Format the selling price for display.
@@ -1197,23 +1060,6 @@ class JobItem(AdminAuditTrail):
         """
         return format_money(self.list_price())
 
-    def resale_price(self):
-        """ 
-            Get current list price, in the Job currency, less resale discount (value)
-        """
-        list_price = self.list_price()
-        if list_price == None:
-            return None
-
-        resale_multiplier = 1 - (self.resale_percentage() / 100)
-        value = float(list_price) * float(resale_multiplier)
-        return round(value, 2)
-
-    def resale_price_f(self):
-        """ 
-            Get current list price, in the Job currency, less resale discount (formatted string)
-        """
-        return format_money(self.resale_price())
 
     def resale_percentage(self):
         """ 
@@ -1234,55 +1080,7 @@ class JobItem(AdminAuditTrail):
                 return self.product.resale_category.resale_perc
 
 
-    def list_difference_value_f(self):
-        """
-            Difference between sum of JobItem selling price and list price (formatted string)
-        """
-        lp = self.list_price()
-        if lp == None:
-            return ERROR_NO_DATA
-        diff = self.selling_price - lp
-        return get_plus_prefix(diff) + format_money(diff)
-
-    def resale_difference_value_f(self):
-        """
-            Difference between sum of JobItem selling price and resale price (formatted string)
-        """
-        rp = self.resale_price()
-        if rp == None:
-            return ERROR_NO_DATA
-        diff = float(self.selling_price) - rp
-        return get_plus_prefix(diff) + format_money(diff)
-
-    def list_difference_perc(self):
-        """
-            Difference between sum of JobItem selling price and list price expressed as a percentage (value)
-        """
-        if self.selling_price == 0 or self.selling_price == None:
-            return 0
-        return round((self.selling_price - self.list_price())/self.selling_price*100, 2)
-
-    def list_difference_perc_f(self):
-        """
-            Difference between sum of JobItem selling price and list price expressed as a percentage (formatted string)
-        """
-        return get_plus_prefix(self.list_difference_perc()) + format_money(self.list_difference_perc())
-
-    def resale_difference_perc(self):
-        """
-            Difference between sum of JobItem selling price and resale price expressed as a percentage (value)
-        """
-        if self.selling_price == 0 or self.selling_price == None:
-            return 0
-        return round((float(self.selling_price) - self.resale_price())/float(self.selling_price)*100, 2)
-
-    def resale_difference_perc_f(self):
-        """
-            Difference between sum of JobItem selling price and resale price expressed as a percentage (formatted string)
-        """
-        return get_plus_prefix(self.resale_difference_perc()) + format_money(self.resale_difference_perc())
-
-
+    # || JobItem.StandardAccessories
     def add_standard_accessories(self):
         """
             Consult the product and quantity, then create additional JobItems to reflect the set of standard accessories supplied with this product.
@@ -1329,6 +1127,7 @@ class JobItem(AdminAuditTrail):
             stdAcc.save()
 
  
+    # || JobItem.Modular
     def quantity_is_ok_for_modular_as_child(self, new_qty):
         """
             Modular: Child. When editing the qty, check the new qty is compatible with JobModule assignments
@@ -1355,24 +1154,6 @@ class JobItem(AdminAuditTrail):
             if total_quantity_needed > total_quantity_exists:
                 return False
         return True
-
-
-    def module_data(self):
-        """
-            Modular: Child. Summary of module assignment status
-        """
-        result = {}
-        result['product_total'] = self.job.quantity_of_product(self.product)
-        result['num_unassigned'] = self.job.num_unassigned_to_slot(self.product)
-        result['num_assigned'] = result['product_total'] - result['num_unassigned']
-        return result
-
-
-    def is_slot_filler(self):
-        """
-            Modular: Child. Check if this product has any assignments
-        """
-        return self.jobmodules_as_child().count() > 0
 
 
     def jobmodules_as_child(self):
@@ -1494,12 +1275,12 @@ class JobModule(models.Model):
 
 
 
-
+# || Documents classes
 class DocumentData(models.Model):
     """
-        Document main class: one of these for each document
-        (e.g. Suppose post-issuing changes were necessary, so there are multiple versions of a single document. 
-        This class represents "a single document", the thing which links them)
+        This class represents "a single document" in the sentence "Adminas supports multiple versions of a single document".
+
+        Acts as a grouping point for its versions.
     """
     reference = models.CharField(max_length=SYSTEM_NAME_LENGTH, blank=True)
     doc_type = models.CharField(max_length=DOC_CODE_MAX_LENGTH, choices=DOCUMENT_TYPES, null=True)
@@ -1512,13 +1293,14 @@ class DocumentData(models.Model):
 
 class DocumentVersion(AdminAuditTrail):
     """
-        Document: one of these for each version of a document.
-        (e.g. Suppose post-issuing changes were necessary, so there are multiple versions of a single document. 
-        This class is what we use for each of the "multiple versions".)
+        This class represents one "version" in the sentence "Adminas supports multiple versions of a single document".
+
+        A document where all goes according to plan will only have one version.
     """
     document = models.ForeignKey(DocumentData, on_delete=models.CASCADE, related_name='versions')
     version_number = models.IntegerField()
     issue_date = models.DateField(null=True, blank=True)
+
 
     # This should be set to False in two situations: version is deleted; version is replaced.
     active = models.BooleanField(default=True)
@@ -1528,14 +1310,6 @@ class DocumentVersion(AdminAuditTrail):
     invoice_to = models.ForeignKey(Address, on_delete=models.PROTECT, null=True, blank=True, related_name='financial_documents')
     delivery_to = models.ForeignKey(Address, on_delete=models.PROTECT, null=True, blank=True, related_name='delivery_documents')
     items = models.ManyToManyField(JobItem, related_name='on_documents', through='DocAssignment')
-
-    def is_valid(self):
-        doc_assignments = DocAssignment.objects.filter(version=self)
-        if doc_assignments.count() > 0:
-            for i in DocAssignment.objects.filter(version=self):
-                if not i.quantity_is_valid():
-                    return False
-        return True
 
     def summary(self):
         result = {}
@@ -1549,6 +1323,14 @@ class DocumentVersion(AdminAuditTrail):
 
         return result
 
+    def is_valid(self):
+        doc_assignments = DocAssignment.objects.filter(version=self)
+        if doc_assignments.count() > 0:
+            for i in DocAssignment.objects.filter(version=self):
+                if not i.quantity_is_valid():
+                    return False
+        return True
+
     def assignment_validity_by_jiid(self):
         result = {}
 
@@ -1559,7 +1341,6 @@ class DocumentVersion(AdminAuditTrail):
                 result[id_as_str] = assignment.quantity_is_valid()
         
         return result
-
 
 
     def get_display_data_dict(self):
@@ -1719,53 +1500,54 @@ class DocumentVersion(AdminAuditTrail):
         """
             Data for populating an issued document, based on the "static" records produced when the document was issued.
         """
-        data = {}
+        #data = {}
+        data = self.issued_json
         data['mode'] = 'issued'
-        data['job_id'] = self.document.job.id
-        data['version_id'] = self.id
+        # data['job_id'] = self.document.job.id
+        # data['version_id'] = self.id
 
-        main = self.static_main_fields.all()[0]
+        # main = self.static_main_fields.all()[0]
 
-        data['issue_date'] = main.issue_date
-        data['created_by'] = main.created_by
-        data['doc_ref'] = main.doc_ref
-        data['title'] = main.title
-        data['currency'] = main.currency
-        data['total_value_f'] = main.total_value_f
-        data['invoice_to'] = main.invoice_to
-        data['delivery_to'] = main.delivery_to
-        data['css_filename'] = main.css_filename
+        # data['issue_date'] = main.issue_date
+        # data['created_by'] = main.created_by
+        # data['doc_ref'] = main.doc_ref
+        # data['title'] = main.title
+        # data['currency'] = main.currency
+        # data['total_value_f'] = main.total_value_f
+        # data['invoice_to'] = main.invoice_to
+        # data['delivery_to'] = main.delivery_to
+        # data['css_filename'] = main.css_filename
         
-        data['fields'] = []
-        for sof in self.static_optional_fields.all():
-            fld_dict = {}
-            fld_dict['h'] = sof.h
-            fld_dict['body'] = sof.body
-            fld_dict['css_id'] = sof.css_id
-            data['fields'].append(fld_dict)
+        # data['fields'] = []
+        # for sof in self.static_optional_fields.all():
+        #     fld_dict = {}
+        #     fld_dict['h'] = sof.h
+        #     fld_dict['body'] = sof.body
+        #     fld_dict['css_id'] = sof.css_id
+        #     data['fields'].append(fld_dict)
 
-        data['instructions'] = []
-        for instr in self.static_instructions.all():
-            data['instructions'].append(instr.instruction)
+        # data['instructions'] = []
+        # for instr in self.static_instructions.all():
+        #     data['instructions'].append(instr.instruction)
         
-        data['line_items'] = []
-        try:
-            static_line_items_sorted = DocumentStaticLineItem.objects.filter(doc_version=self).order_by('line_number')
-        except DocumentStaticLineItem.DoesNotExist:
-            return
+        # data['line_items'] = []
+        # try:
+        #     static_line_items_sorted = DocumentStaticLineItem.objects.filter(doc_version=self).order_by('line_number')
+        # except DocumentStaticLineItem.DoesNotExist:
+        #     return
 
-        for sli in static_line_items_sorted:
-            li_dict = {}
-            li_dict['quantity'] = sli.quantity
-            li_dict['part_number'] = sli.part_number
-            li_dict['product_description'] = sli.product_description
-            li_dict['origin'] = sli.origin
-            li_dict['list_price_f'] = sli.list_price_f
-            li_dict['unit_price_f'] = sli.unit_price_f
-            li_dict['total_price'] = sli.total_price
-            li_dict['total_price_f'] = sli.total_price_f
-            li_dict['price_list'] = sli.price_list
-            data['line_items'].append(li_dict)
+        # for sli in static_line_items_sorted:
+        #     li_dict = {}
+        #     li_dict['quantity'] = sli.quantity
+        #     li_dict['part_number'] = sli.part_number
+        #     li_dict['product_description'] = sli.product_description
+        #     li_dict['origin'] = sli.origin
+        #     li_dict['list_price_f'] = sli.list_price_f
+        #     li_dict['unit_price_f'] = sli.unit_price_f
+        #     li_dict['total_price'] = sli.total_price
+        #     li_dict['total_price_f'] = sli.total_price_f
+        #     li_dict['price_list'] = sli.price_list
+        #     data['line_items'].append(li_dict)
 
         return data            
 

@@ -98,7 +98,6 @@ def index(request):
         job['agent'] = j.agent.name if j.agent != None else None
         job['currency'] = j.currency
         job['value'] = j.total_value_f()
-        job['admin_warnings'] = j.admin_warnings()
         job['pinned_comments'] = j.get_pinned_comments(request.user, '-created_on')
         job['status'] = j.job_status()
 
@@ -281,34 +280,38 @@ def job(request, job_id):
     if not request.user.is_authenticated:
         return anonymous_user(request)
 
-    my_job = Job.objects.get(id=job_id)
-    item_formset = JobItemFormSet(queryset=JobItem.objects.none(), initial=[{'job':job_id}])
-    user_is_watching = my_job.on_todo_list(request.user)
+    try:
+        my_job = Job.objects.get(id=job_id)
+    except Job.DoesNotExist:
+        return error_page(request, 'Job not found', 404)
+    # item_formset = JobItemFormSet(queryset=JobItem.objects.none(), initial=[{'job':job_id}])
+    # user_is_watching = my_job.on_todo_list(request.user)
 
     # Prepare comment dicts
-    setting_for_order_by = '-created_on'
+    # setting_for_order_by = '-created_on'
 
-    pinned_dict = {}
-    pinned_dict['title'] = 'Pinned'
-    pinned_dict['class_suffix'] = 'pinned'
-    pinned_dict['comments'] = my_job.get_pinned_comments(request.user, setting_for_order_by)
+    # pinned_dict = {}
+    # pinned_dict['title'] = 'Pinned'
+    # pinned_dict['class_suffix'] = 'pinned'
+    # pinned_dict['comments'] = my_job.get_pinned_comments(request.user, setting_for_order_by)
 
-    highlighted_dict = {}
-    highlighted_dict['title'] = 'Highlighted'
-    highlighted_dict['class_suffix'] = 'highlighted'
-    highlighted_dict['comments'] = my_job.get_highlighted_comments(request.user, setting_for_order_by)
+    # highlighted_dict = {}
+    # highlighted_dict['title'] = 'Highlighted'
+    # highlighted_dict['class_suffix'] = 'highlighted'
+    # highlighted_dict['comments'] = my_job.get_highlighted_comments(request.user, setting_for_order_by)
     
-    comment_data = []
-    comment_data.append(pinned_dict)
-    comment_data.append(highlighted_dict)
+    # comment_data = []
+    # comment_data.append(pinned_dict)
+    # comment_data.append(highlighted_dict)
 
     return render(request, 'adminas/job.html', {
-        'job': my_job,
-        'po_form': POForm(initial={'job': my_job.id}),
-        'item_formset': item_formset,
-        'watching': user_is_watching,
-        'num_comments': my_job.comments.all().count(),
-        'comment_data': comment_data
+        # 'job': my_job,
+        # 'po_form': POForm(initial={'job': my_job.id}),
+        # 'item_formset': item_formset,
+        # 'watching': user_is_watching,
+        # 'num_comments': my_job.comments.all().count(),
+        # 'comment_data': comment_data
+        'job': my_job
     })
 
 

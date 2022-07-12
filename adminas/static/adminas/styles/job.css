@@ -56,13 +56,15 @@
 .status-indicator button#price_confirmation_button:hover {
   background: #666;
 }
-.status-indicator.on button {
+.status-indicator.on button,
+.status-indicator.on button#price_confirmation_button {
   color: #0DFA96;
   border: 1px solid #09BA70;
   border-left: 3px solid #0DFA96;
   min-width: 49px;
 }
-.status-indicator.on button:hover {
+.status-indicator.on button:hover,
+.status-indicator.on button#price_confirmation_button:hover {
   background: linear-gradient(335deg, #0AC778 0%, #0DFA96 100%);
   color: black;
   font-weight: bold;
@@ -690,7 +692,7 @@ table.price-comparison .conclusion th, table.price-comparison .conclusion td {
     box-sizing: border-box;
     margin: 0.5rem 0 0 0;
     padding: 0.3rem 0.2rem;
-    border: 1px solid #222;
+    border: 1px solid #141414;
     box-shadow: 0 0 10px 1px rgba(0, 0, 0, 0.35);
   }
   #po_table .ref {
@@ -840,7 +842,7 @@ table.price-comparison .conclusion th, table.price-comparison .conclusion td {
     box-sizing: border-box;
     margin: 0.5rem 0 0 0;
     padding: 0.3rem 0.2rem;
-    border: 1px solid #222;
+    border: 1px solid #141414;
     box-shadow: 0 0 10px 1px rgba(0, 0, 0, 0.35);
   }
   #jobitems_table .ji_id {
@@ -1123,7 +1125,7 @@ table.price-comparison .conclusion th, table.price-comparison .conclusion td {
     box-sizing: border-box;
     margin: 0.5rem 0 0 0.1rem;
     padding: 0.3rem 0.2rem;
-    border: 1px solid #222;
+    border: 1px solid #141414;
     box-shadow: 0 0 10px 1px rgba(0, 0, 0, 0.35);
   }
   #price_check_table .ji_id {
@@ -1147,7 +1149,7 @@ table.price-comparison .conclusion th, table.price-comparison .conclusion td {
     border-radius: 0.3rem;
     position: absolute;
     z-index: 8;
-    top: 0.9rem;
+    top: -1.4rem;
     left: 0;
     max-width: 90%;
   }
