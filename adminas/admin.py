@@ -2,7 +2,7 @@ from django.contrib import admin
 from django import forms
 
 # Register your models here.
-from .models import JobItem, SpecialInstruction, User, Job, Company, Site, Address, Product, Description, Price, PriceList, SlotChoiceList, Slot, ResaleCategory, AgentResaleGroup, PurchaseOrder, DocumentData, ProductionData, DocumentVersion, DocAssignment, JobComment, JobModule, DocumentStaticMainFields, DocumentStaticOptionalFields, DocumentStaticSpecialInstruction, DocumentStaticLineItem
+from .models import JobItem, SpecialInstruction, User, Job, Company, Site, Address, Product, Description, Price, PriceList, SlotChoiceList, Slot, ResaleCategory, AgentResaleGroup, PurchaseOrder, DocumentData, ProductionData, DocumentVersion, DocAssignment, JobComment, JobModule
 
 
 # Job admin page (include PO, JobItem, DocumentData)
@@ -172,42 +172,15 @@ class SpecialInstructionInline(admin.TabularInline):
     extra = 0
 
 
-class DocumentStaticMainFieldsInline(admin.TabularInline):
-    model = DocumentStaticMainFields
-    extra = 0
-
-
-class DocumentStaticOptionalFieldsInline(admin.TabularInline):
-    model = DocumentStaticOptionalFields
-    extra = 0
-
-
-class DocumentStaticSpecialInstructionInline(admin.TabularInline):
-    model = DocumentStaticSpecialInstruction
-    extra = 0
-
-
-class DocumentStaticLineItemInline(admin.TabularInline):
-    model = DocumentStaticLineItem
-    extra = 0
-
 
 class DocumentVersionAdmin(admin.ModelAdmin):
     model = DocumentVersion
+    readonly_fields=('issued_json',)
     inlines = [
         ProductionDataInline,
         DocAssignmentInline,
-        SpecialInstructionInline,
-        DocumentStaticMainFieldsInline,
-        DocumentStaticOptionalFieldsInline,
-        DocumentStaticSpecialInstructionInline,
-        DocumentStaticLineItemInline
+        SpecialInstructionInline
     ]
-
-
-
-
-
 
 
 admin.site.register(User)

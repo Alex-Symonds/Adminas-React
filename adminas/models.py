@@ -15,8 +15,11 @@ from django.db.models.deletion import SET_NULL
 from django.db.models import Sum
 from django.utils import formats
 from django.urls import reverse
+from django.core.serializers.json import DjangoJSONEncoder
 
 from django_countries.fields import CountryField
+
+from django.utils.dateparse import parse_datetime
 
 from adminas.constants import DOCUMENT_TYPES, NUM_BODY_ROWS_ON_EMPTY_DOCUMENT, SUPPORTED_CURRENCIES, SUPPORTED_LANGUAGES, DEFAULT_LANG, INCOTERMS, DOC_CODE_MAX_LENGTH, ERROR_NO_DATA
 from adminas.util import format_money, get_document_available_items, get_plus_prefix, copy_relations_to_new_document_version, debug
@@ -1300,7 +1303,7 @@ class DocumentVersion(AdminAuditTrail):
     document = models.ForeignKey(DocumentData, on_delete=models.CASCADE, related_name='versions')
     version_number = models.IntegerField()
     issue_date = models.DateField(null=True, blank=True)
-
+    issued_json = models.JSONField(encoder=DjangoJSONEncoder, null=True)
 
     # This should be set to False in two situations: version is deleted; version is replaced.
     active = models.BooleanField(default=True)
@@ -1312,6 +1315,9 @@ class DocumentVersion(AdminAuditTrail):
     items = models.ManyToManyField(JobItem, related_name='on_documents', through='DocAssignment')
 
     def summary(self):
+        """
+            General info about the document, which can be used to distinguish it from other document (e.g. in a list of documents)
+        """
         result = {}
         result['doc_version_id'] = self.id
         result['doc_type'] = self.document.doc_type
@@ -1324,6 +1330,9 @@ class DocumentVersion(AdminAuditTrail):
         return result
 
     def is_valid(self):
+        """
+            Check document to ensure the quantities of line items are consistent with the quantities entered
+        """
         doc_assignments = DocAssignment.objects.filter(version=self)
         if doc_assignments.count() > 0:
             for i in DocAssignment.objects.filter(version=self):
@@ -1332,6 +1341,9 @@ class DocumentVersion(AdminAuditTrail):
         return True
 
     def assignment_validity_by_jiid(self):
+        """
+            Dict where each key is a ji_id and each value is a boolean expressing whether the quantities are valid
+        """
         result = {}
 
         for assignment in DocAssignment.objects.filter(version=self):
@@ -1342,42 +1354,41 @@ class DocumentVersion(AdminAuditTrail):
         
         return result
 
+    
 
     def get_display_data_dict(self):
         """
             Retrieve data for populating a document, based on the current state of the database 
         """
-
         data = {}
-        data['fields'] = self.get_doc_fields()
+        data['job_id'] = self.document.job.id
+        data['version_id'] = self.id
 
         data['issue_date'] = self.issue_date if self.issue_date != '' else None
-        data['created_by'] = self.created_by
+        data['created_by'] = self.created_by.id
         data['doc_ref'] = self.document.reference
         data['title'] = dict(DOCUMENT_TYPES).get(self.document.doc_type)
+
+        data['currency'] = self.document.job.currency
+        data['total_value_f'] = self.total_value_f()
+        data['invoice_to'] = self.invoice_to.display_str_newlines()
+        data['delivery_to'] = self.delivery_to.display_str_newlines()
+        data['css_filename'] = f'document_default_{self.document.doc_type.lower()}.css'
+
+        data['fields'] = self.get_doc_fields()
+
+        data['instructions'] = []
+        for instr in self.instructions.all():
+            data['instructions'].append(instr.instruction)
+
+        data['line_items'] = self.get_body_lines()
 
         if self.issue_date != '' and self.issue_date != None:
             data['mode'] = 'issued'
         else:
             data['mode'] = 'preview'
 
-        data['job_id'] = self.document.job.id
-        data['version_id'] = self.id
-
-        data['currency'] = self.document.job.currency
-        data['total_value_f'] = self.total_value_f()
-
-        data['invoice_to'] = self.invoice_to.display_str_newlines()
-        data['delivery_to'] = self.delivery_to.display_str_newlines()
-        
-        data['instructions'] = []
-        for instr in self.instructions.all():
-            data['instructions'].append(instr.instruction)
-        
-        data['line_items'] = self.get_body_lines()
-        data['css_filename'] = f'document_default_{self.document.doc_type.lower()}.css'
-   
-        return data      
+        return data     
 
 
     def get_doc_fields(self):
@@ -1437,117 +1448,25 @@ class DocumentVersion(AdminAuditTrail):
 
         return fields
 
-
     def save_issued_state(self):
         """
-            Save a set of data used to populate a document as strings, so future updates to the database won't retroactively alter documents
+            Save the state of the document at the time it was issued, so that future adjustments to the database
+            don't affect the historical record of the PDF as it was when it was released.
         """
-        data = self.get_display_data_dict()
-
-        new_static_main = DocumentStaticMainFields(
-            doc_version = self,
-            issue_date = self.issue_date,
-            created_by = data['created_by'],
-            doc_ref = data['doc_ref'],
-            title = data['title'],
-            currency = data['currency'],
-            total_value_f = data['total_value_f'],
-            invoice_to = data['invoice_to'],
-            delivery_to = data['delivery_to'],
-            css_filename = data['css_filename']
-        )
-        new_static_main.save()
-
-        for opt_field in data['fields']:
-            new_static_fld = DocumentStaticOptionalFields(
-                doc_version = self,
-                h = opt_field['h'],
-                body = opt_field['body'] if not opt_field['body'] == None else '?',
-                css_id = opt_field['css_id'] if 'css_id' in opt_field else None
-            )
-            new_static_fld.save()
-        
-        for instr in data['instructions']:
-            new_static_instr = DocumentStaticSpecialInstruction(
-                doc_version = self,
-                instruction = instr
-            )
-            new_static_instr.save()
-
-        line_counter = 1
-        for line_item in data['line_items']:
-            new_static_line = DocumentStaticLineItem(
-                doc_version = self,
-                quantity = line_item['quantity'],
-                part_number = line_item['part_number'],
-                product_description = line_item['product_description'],
-                price_list = line_item['price_list'],
-                origin = line_item['origin'],
-                list_price_f = line_item['list_price_f'],
-                unit_price_f = line_item['unit_price_f'],
-                total_price = line_item['total_price'],
-                total_price_f = line_item['total_price_f'],
-                line_number = line_counter
-            )
-            new_static_line.save()
-            line_counter += 1
-
-        return
-
+        self.issued_json = self.get_display_data_dict()
+        self.save()
 
 
     def get_issued_state(self):
         """
-            Data for populating an issued document, based on the "static" records produced when the document was issued.
+            Data for populating an issued document, based on the JSON record produced when the document was issued.
         """
-        #data = {}
+        # Get the stored JSON
         data = self.issued_json
-        data['mode'] = 'issued'
-        # data['job_id'] = self.document.job.id
-        # data['version_id'] = self.id
 
-        # main = self.static_main_fields.all()[0]
-
-        # data['issue_date'] = main.issue_date
-        # data['created_by'] = main.created_by
-        # data['doc_ref'] = main.doc_ref
-        # data['title'] = main.title
-        # data['currency'] = main.currency
-        # data['total_value_f'] = main.total_value_f
-        # data['invoice_to'] = main.invoice_to
-        # data['delivery_to'] = main.delivery_to
-        # data['css_filename'] = main.css_filename
-        
-        # data['fields'] = []
-        # for sof in self.static_optional_fields.all():
-        #     fld_dict = {}
-        #     fld_dict['h'] = sof.h
-        #     fld_dict['body'] = sof.body
-        #     fld_dict['css_id'] = sof.css_id
-        #     data['fields'].append(fld_dict)
-
-        # data['instructions'] = []
-        # for instr in self.static_instructions.all():
-        #     data['instructions'].append(instr.instruction)
-        
-        # data['line_items'] = []
-        # try:
-        #     static_line_items_sorted = DocumentStaticLineItem.objects.filter(doc_version=self).order_by('line_number')
-        # except DocumentStaticLineItem.DoesNotExist:
-        #     return
-
-        # for sli in static_line_items_sorted:
-        #     li_dict = {}
-        #     li_dict['quantity'] = sli.quantity
-        #     li_dict['part_number'] = sli.part_number
-        #     li_dict['product_description'] = sli.product_description
-        #     li_dict['origin'] = sli.origin
-        #     li_dict['list_price_f'] = sli.list_price_f
-        #     li_dict['unit_price_f'] = sli.unit_price_f
-        #     li_dict['total_price'] = sli.total_price
-        #     li_dict['total_price_f'] = sli.total_price_f
-        #     li_dict['price_list'] = sli.price_list
-        #     data['line_items'].append(li_dict)
+        # Convert to other types
+        data['issue_date'] = datetime.datetime.strptime(data['issue_date'], "%Y-%m-%d").date()
+        data['created_by'] = User.objects.get(id = data['created_by'])
 
         return data            
 
@@ -1568,31 +1487,32 @@ class DocumentVersion(AdminAuditTrail):
 
     def get_replacement_version(self, user):
         """ 
-            Make a copy of this DocumentVersion, but with the version number incremented and issue date removed: then deactivate self.
+            Make a copy of this DocumentVersion, but with the version number incremented and issue date/JSON removed: then deactivate self.
 
             Purpose:
             It's beneficial to keep a record of *all* PDFs that have been "released into the wild", regardless of whether or not they're correct.
             If anything, the incorrect ones are particularly valuable, since they can help explain why something or other went horribly wrong.
             To this end, edit-via-replacement is required for issued documents (rather than edit-by-overwrite).
         """
-        r = DocumentVersion(
+        replacement = DocumentVersion(
             created_by = user,
             document = self.document,
             version_number = self.version_number + 1,
             issue_date = None,
             active = True,
+            issued_json = None,
             invoice_to = self.document.job.invoice_to,
             delivery_to = self.document.job.delivery_to
         )
-        r.save()
+        replacement.save()
 
-        copy_relations_to_new_document_version(DocAssignment.objects.filter(version=self), r)
-        copy_relations_to_new_document_version(self.instructions.all(), r)
-        copy_relations_to_new_document_version(self.production_data.all(), r)
+        copy_relations_to_new_document_version(DocAssignment.objects.filter(version=self), replacement)
+        copy_relations_to_new_document_version(self.instructions.all(), replacement)
+        copy_relations_to_new_document_version(self.production_data.all(), replacement)
 
         self.deactivate()
 
-        return r
+        return replacement
 
     def revert_to_previous_version(self):
         """ 
@@ -1708,7 +1628,7 @@ class DocumentVersion(AdminAuditTrail):
         # List of items assigned to this particular document.
         if self.items.all().count() == 0:
             result = []
-            for x in range(0, NUM_BODY_ROWS_ON_EMPTY_DOCUMENT):
+            for _ in range(0, NUM_BODY_ROWS_ON_EMPTY_DOCUMENT):
                 result.append(self.get_empty_body_line())
 
             return result
@@ -1721,7 +1641,7 @@ class DocumentVersion(AdminAuditTrail):
                 main_item['quantity'] = a.quantity
                 main_item['part_number'] = a.item.product.part_number
                 main_item['product_description'] = a.item.product.get_description(self.document.job.language)
-                main_item['origin'] = a.item.product.origin_country
+                main_item['origin'] = a.item.product.origin_country.code
                 main_item['list_price_f'] = format_money(a.item.list_price() / a.item.quantity)
                 main_item['unit_price_f'] = format_money(a.item.selling_price / a.item.quantity)
                 main_item['total_price'] = a.quantity * (a.item.selling_price / a.item.quantity)
@@ -1930,13 +1850,9 @@ class DocumentVersion(AdminAuditTrail):
         """
         return format_money(self.total_value())
 
-    
-
 
     def __str__(self):
         return f'{self.document.doc_type} {self.document.reference} v{self.version_number} dated {self.issue_date}'
-
-
 
 
 
@@ -1961,75 +1877,3 @@ class SpecialInstruction(AdminAuditTrail):
 
     def __str__(self):
         return f'Note on {self.version.document.doc_type} {self.version.document.reference} by {self.created_by.username} on {self.created_on}'
-
-
-class DocumentStaticMainFields(models.Model):
-    """
-        For issued documents. Store all the universal fields as they were at the time the document was issued.
-    """
-    doc_version = models.ForeignKey(DocumentVersion, on_delete=models.CASCADE, related_name='static_main_fields')
-
-    issue_date = models.DateField()
-    created_by = models.CharField(max_length=150) # max_length is from Django's User class
-    doc_ref = models.CharField(max_length=SYSTEM_NAME_LENGTH, blank=True)
-    title = models.CharField(max_length=150)
-    currency = models.CharField(max_length=3, choices=SUPPORTED_CURRENCIES, blank=True)
-    total_value_f = models.TextField(blank=True)
-    invoice_to = models.TextField(blank=True)
-    delivery_to = models.TextField(blank=True)
-    css_filename = models.TextField(blank=True)
-
-    def __str__(self):
-        return f'Static main data for issued document {self.doc_version.document.reference}, version {self.doc_version.version_number} dated {self.doc_version.issue_date}'
-
-
-class DocumentStaticOptionalFields(models.Model):
-    """
-        For issued documents. Store a heading/value/CSS ID set as it was at the time the document was issued.
-    """
-    doc_version = models.ForeignKey(DocumentVersion, on_delete=models.CASCADE, related_name='static_optional_fields')
-
-    h = models.CharField(max_length=SYSTEM_NAME_LENGTH, blank=True)
-    body = models.TextField()
-    css_id = models.CharField(max_length=SYSTEM_NAME_LENGTH, blank=True, null=True)
-
-    def __str__(self):
-        return f'Static optional field ({self.h}) for issued document {self.doc_version.document.reference}, version {self.doc_version.version_number} dated {self.doc_version.issue_date}'
-
-
-class DocumentStaticSpecialInstruction(models.Model):
-    """
-        For issued documents. Store a single special instruction as it was at the time the document was issued.
-    """
-    doc_version = models.ForeignKey(DocumentVersion, on_delete=models.CASCADE, related_name='static_instructions')
-    instruction = models.TextField()
-
-    def __str__(self):
-        return f'Static special instruction for issued document {self.doc_version.document.reference}, version {self.doc_version.version_number} dated {self.doc_version.issue_date}'
-
-
-class DocumentStaticLineItem(models.Model):
-    """
-        For issued documents. Store a single line item as it was at the time the document was issued.
-    """
-    doc_version = models.ForeignKey(DocumentVersion, on_delete=models.CASCADE, related_name='static_line_items')
-
-    quantity = models.TextField(blank=True)
-    part_number = models.CharField(max_length=PART_NUM_LENGTH, blank=True)
-    product_description = models.CharField(max_length=DOCS_ONE_LINER)
-    origin = models.TextField(blank=True)
-    price_list = models.CharField(max_length=SYSTEM_NAME_LENGTH, blank=True)
-    list_price_f = models.TextField(blank=True)
-    unit_price_f = models.TextField(blank=True)
-    total_price = models.TextField(blank=True)
-    total_price_f = models.TextField(blank=True)
-    line_number = models.IntegerField()
-
-    def __str__(self):
-        return f'Static line item #{self.line_number} for issued document {self.doc_version.document.reference}, version {self.doc_version.version_number} dated {self.doc_version.issue_date}'
-
-
-
-
-
-

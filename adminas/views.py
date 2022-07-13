@@ -1464,7 +1464,7 @@ def doc_builder(request):
 
     # Stick doc_obj into a separate variable because it's used a lot
     doc_obj = doc_dict['doc_obj']
-    debug(doc_obj)
+
     if request.method == 'DELETE':
         if doc_obj.issue_date != None:
             return JsonResponse({
