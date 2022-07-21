@@ -237,7 +237,7 @@ async function get_options_from_server(field_id){
                     });
 
     let response_json = await response.json();
-    return response_json['data'];
+    return response_json['opt_list'];
 }
 
 

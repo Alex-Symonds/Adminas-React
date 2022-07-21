@@ -505,7 +505,7 @@ async function backend_create_job_comment(btn, data){
 // Backend (Update): prepare the data and send it off to the server
 async function backend_update_job_comment(btn, data){
     let url = get_jobcomments_url(btn);
-    let response = await fetch(`${url}?id=${btn.dataset.comment_id}`, {
+    let response = await fetch(`${url}&id=${btn.dataset.comment_id}`, {
         method: 'PUT',
         body: JSON.stringify({
             'contents': data['contents'],
@@ -528,8 +528,8 @@ function get_jobcomments_url(ele_inside_comment_div){
     // The URL contains the job ID number, which needs to be handled slightly differently on different pages.
 
     // If the page covers a single job, the single URL is declared as a const in the script tags.
-    if(typeof URL_JOB_COMMENTS !== 'undefined'){
-        return URL_JOB_COMMENTS;
+    if(typeof URL_COMMENTS_WITH_JOB !== 'undefined'){
+        return URL_COMMENTS_WITH_JOB;
     }
     // That won't work on pages covering multiple jobs, so instead the URL is added as a dataset attribute to the comment section container.
     else {
@@ -557,7 +557,7 @@ async function delete_job_comment(btn){
 // Send the data off, then return the response
 async function delete_job_comment_on_server(btn, comment_id){
     let url = get_jobcomments_url(btn);
-    let response = await fetch(`${url}?id=${comment_id}`, {
+    let response = await fetch(`${url}&id=${comment_id}`, {
         method: 'DELETE',
         headers: getDjangoCsrfHeaders(),
         credentials: 'include'
@@ -931,7 +931,8 @@ async function toggle_status(btn, toggled_attribute){
     }
 
     var previous = previous_attr.toLowerCase() === 'true';
-    let response = await update_backend_for_comment_toggle(comment_ele.dataset.comment_id, !previous, toggled_attribute);
+    let url = get_jobcomments_url(btn);
+    let response = await update_backend_for_comment_toggle(url, comment_ele.dataset.comment_id, !previous, toggled_attribute);
     if (response.status != 200){
         resp_dict = await response.json();
         console.log(resp_dict['message']);
@@ -941,14 +942,13 @@ async function toggle_status(btn, toggled_attribute){
     }
 }
 
-async function update_backend_for_comment_toggle(comment_id, new_status, toggled_attribute){
-    return await fetch(`${URL_COMMENT_STATUS}?id=${comment_id}`, {
-        method: 'POST',
-        body: JSON.stringify({
-            'task': 'toggle',
-            'toggle_to': new_status,
-            'mode': toggled_attribute
-        }),
+async function update_backend_for_comment_toggle(url, comment_id, new_status, toggled_attribute){
+    let body_obj = {}
+    body_obj[toggled_attribute] = new_status;
+
+    return await fetch(`${url}&id=${comment_id}`, {
+        method: 'PUT',
+        body: JSON.stringify(body_obj),
         headers: getDjangoCsrfHeaders(),
         credentials: 'include'
     })

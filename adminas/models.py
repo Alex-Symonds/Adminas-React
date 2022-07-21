@@ -19,10 +19,9 @@ from django.core.serializers.json import DjangoJSONEncoder
 
 from django_countries.fields import CountryField
 
-from django.utils.dateparse import parse_datetime
-
-from adminas.constants import DOCUMENT_TYPES, NUM_BODY_ROWS_ON_EMPTY_DOCUMENT, SUPPORTED_CURRENCIES, SUPPORTED_LANGUAGES, DEFAULT_LANG, INCOTERMS, DOC_CODE_MAX_LENGTH, ERROR_NO_DATA
-from adminas.util import format_money, get_document_available_items, get_plus_prefix, copy_relations_to_new_document_version, debug
+from adminas.constants import DOCUMENT_TYPES, ERROR_MESSAGE_KEY, NUM_BODY_ROWS_ON_EMPTY_DOCUMENT, SUPPORTED_CURRENCIES, SUPPORTED_LANGUAGES, DEFAULT_LANG, INCOTERMS, DOC_CODE_MAX_LENGTH, ERROR_NO_DATA, SUCCESS_CODE
+from adminas.util import format_money, get_dict_items_available_for_document, copy_relations_to_new_document_version, debug, update_membership,\
+    is_error, create_document_instructions, create_document_assignment, create_document_instructions, error
 import datetime
 
 from django.db.models import Q
@@ -53,6 +52,13 @@ class DocAssignment(models.Model):
     version = models.ForeignKey('DocumentVersion', on_delete=models.CASCADE)
     item = models.ForeignKey('JobItem', on_delete=models.CASCADE)
     quantity = models.IntegerField()
+
+    def update(self, new_quantity):
+        if int(new_quantity) == self.quantity:
+            return
+
+        self.quantity = min(int(new_quantity), self.max_quantity_excl_self())
+        self.save()
 
     def max_quantity_excl_self(self):
         """
@@ -110,6 +116,12 @@ class Company(AdminAuditTrail):
     name = models.CharField(max_length=SYSTEM_NAME_LENGTH, blank=True)
     currency = models.CharField(max_length=3, choices=SUPPORTED_CURRENCIES, blank=True)
     is_agent = models.BooleanField(default=False)
+
+    def get_dict(self):
+        return {
+            'id': self.id,
+            'display_str': self.name
+        }
 
     def __str__(self):
         if self.name == '':
@@ -229,6 +241,15 @@ class Product(AdminAuditTrail):
 
         return descriptions_qs.order_by('-last_updated')[0].description
 
+    def get_dict(self):
+        return {
+            'id': self.id,
+            'display_str': self.display_str()
+        }
+
+    def display_str(self):
+        return f'[{self.part_number}] {self.name}'
+
     # Some products are incomplete in and of themselves: they have empty "slots" which must be filled with selected options.
     def is_modular(self):
         """
@@ -294,6 +315,12 @@ class PriceList(AdminAuditTrail):
     """
     valid_from = models.DateField()
     name = models.CharField(max_length=SYSTEM_NAME_LENGTH)
+
+    def get_dict(self):
+        return {
+            'id': self.id,
+            'display_str': self.name
+        }
 
     def __str__(self):
         return self.name
@@ -362,21 +389,34 @@ class Slot(models.Model):
 
     def choice_list(self):
         """
-            Cut out the middle man and go straight to the list of valid slot fillers.
+            List of valid slot fillers.
         """
         return self.choice_group.choices.all()
 
-    def fillers_on_job(self, job):
+
+    def get_dict_choice_list(self, price_list, currency):
         """
-            Given a particular Job, return a list of Products *on that Job* which are suitable for filling this Slot.
+            List of valid slot fillers, with prices.
         """
         result = []
-        for product in self.choice_list():
-            product_count = job.quantity_of_product(product)
-            if product_count > 0:
-                result.append(product)
+        for prod in self.choice_list():
+            price_obj = Price.objects.filter(product=prod).filter(price_list=price_list).filter(currency=currency)[0]
+
+            # Create a dict, including a field for sorting purposes
+            choice_dict = {}
+            choice_dict['id'] = prod.id
+            choice_dict['name'] = prod.part_number + ': ' + prod.name
+            choice_dict['price_f'] = currency + ' ' + price_obj.value_f()
+            choice_dict['sort_by'] = price_obj.value
+            result.append(choice_dict)
     
+        # Sort it, then get rid of the otherwise unnecessary "sort_by" field
+        result = sorted(result, key = lambda pr: pr['sort_by'])
+        for d in result:
+            del d['sort_by']
+        
         return result
+
 
     def __str__(self):
         return f'[{self.quantity_required} REQ, {self.quantity_optional} opt] {self.name} for {self.parent.name}'
@@ -407,10 +447,7 @@ class PurchaseOrder(AdminAuditTrail):
     # PO records are not deleted (for audit trail reasons); instead they are deactivated
     active = models.BooleanField(default=True)
 
-    # def value_f(self):
-    #     return format_money(self.value)
-
-    def serialise(self):
+    def get_dict(self):
         result = {}
         result['reference'] = self.reference
         result['date_on_po'] = self.date_on_po
@@ -419,6 +456,29 @@ class PurchaseOrder(AdminAuditTrail):
         result['po_id'] = self.id
         result['currency'] = self.currency
         return result
+
+    def update(self, posted_form):
+        # Check for relevant changes
+        value_has_changed = self.value != posted_form.cleaned_data['value']
+        currency_has_changed = self.currency != posted_form.cleaned_data['currency']   
+
+        # Perform update
+        self.reference = posted_form.cleaned_data['reference']
+        self.date_on_po = posted_form.cleaned_data['date_on_po']
+        self.date_received = posted_form.cleaned_data['date_received']
+        self.currency = posted_form.cleaned_data['currency']
+        self.value = posted_form.cleaned_data['value']
+
+        # Handle knock-on effects
+        if value_has_changed or currency_has_changed:
+            self.job.price_changed()
+
+        self.save()
+
+    def deactivate(self):
+        self.active = False
+        self.save()
+        self.job.price_changed()
 
     def __str__(self):
         return f'{self.reference} from {self.job.invoice_to.site.company.name}'
@@ -457,7 +517,48 @@ class Job(AdminAuditTrail):
     #   || Job.Documents
 
     # || Job.Misc
-    def is_safe_to_delete(self):
+    def get_dict(self):
+        """
+        General purpose dict of (most) fields
+        """
+        result = {}
+        result['agent'] = self.agent.name if self.agent != None else None
+        result['country_name'] = self.country.name
+        result['customer'] = self.customer.name if self.agent != None else None
+        result['delivery_to'] = self.delivery_to.display_str_newlines()
+        result['id'] = self.id
+        result['incoterm_code'] = self.incoterm_code
+        result['incoterm_location'] = self.incoterm_location
+        result['invoice_to'] = self.invoice_to.display_str_newlines()
+        result['language'] = self.language
+        result['name'] = self.name
+        result['payment_terms'] = self.payment_terms
+        result['quote_ref'] = self.quote_ref
+        
+        return result
+
+
+    def update(self, jobform, user):
+        """
+        Update Job via JobForm
+        """
+        self.created_by = user
+        self.name = jobform.cleaned_data['name']
+        self.agent = jobform.cleaned_data['agent']
+        self.customer = jobform.cleaned_data['customer']
+        self.country = jobform.cleaned_data['country']
+        self.language = jobform.cleaned_data['language']
+        self.quote_ref = jobform.cleaned_data['quote_ref']
+        self.currency = jobform.cleaned_data['currency']
+        self.payment_terms = jobform.cleaned_data['payment_terms']
+        self.incoterm_code = jobform.cleaned_data['incoterm_code']
+        self.incoterm_location = jobform.cleaned_data['incoterm_location']
+        self.invoice_to = jobform.cleaned_data['invoice_to']
+        self.delivery_to = jobform.cleaned_data['delivery_to']
+        self.save()
+
+
+    def safe_to_delete(self):
         """
             Determines if this Job can be safely deleted or if it's passed the point of no return (from an administrative perspective).
         """
@@ -482,6 +583,32 @@ class Job(AdminAuditTrail):
         return self in user.todo_list_jobs.all()
 
     ## || Job.Modular
+    def fillers_for_slot(self, slot):
+        """
+            List of Products on this Job which are suitable for filling the given Slot.
+        """
+        result = []
+        for product in slot.choice_list():
+            product_count = self.quantity_of_product(product)
+            if product_count > 0:
+                result.append(product)
+    
+        return result
+
+    def get_dict_slot_fillers(self, slot):
+        """
+            List of Products on this Job which are suitable for filling the given Slot.
+        """
+        prd_list = []
+        for product in self.fillers_for_slot(slot):
+            prd_f = {}
+            prd_f['id'] = product.id
+            prd_f['quantity_total'] = self.quantity_of_product(product)
+            prd_f['quantity_available'] = self.num_unassigned_to_slot(product)
+            prd_f['name'] = product.part_number + ': ' + product.name
+            prd_list.append(prd_f)
+        return prd_list
+
     def quantity_of_product(self, product):
         """
             Modular item support. Count how many of a given Product exists on the Job. (It could be split across multiple line items.)
@@ -530,7 +657,7 @@ class Job(AdminAuditTrail):
         all_comments = JobComment.objects.filter(job=self).filter(Q(created_by=user) | Q(private=False)).order_by(setting_for_order_by)
         result = []
         for c in all_comments:
-            comm = c.serialise(user)
+            comm = c.get_dict(user)
             comm['created_on'] = formats.date_format(comm['created_on'], "DATETIME_FORMAT")
             result.append(comm)
 
@@ -548,7 +675,7 @@ class Job(AdminAuditTrail):
         result = []
         for c in all_comments:
             if c.is_pinned_by(user):
-                result.append(c.serialise(user))
+                result.append(c.get_dict(user))
 
         if(len(result) == 0):
             return None
@@ -564,7 +691,7 @@ class Job(AdminAuditTrail):
         result = []
         for c in all_comments:
             if c.is_highlighted_by(user):
-                result.append(c.serialise(user))
+                result.append(c.get_dict(user))
 
         if(len(result) == 0):
             return None
@@ -818,7 +945,7 @@ class Job(AdminAuditTrail):
             On a new document, this is used to pre-populate "Included" <ul>.
             On existing documents, used to get "excluded, but available" to populate the top of the "Excluded" <ul>.
         """
-        result = get_document_available_items(self.main_item_list(), doc_type)
+        result = get_dict_items_available_for_document(self.main_item_list(), doc_type)
         return result
 
 
@@ -896,7 +1023,7 @@ class JobComment(AdminAuditTrail):
     def is_pinned_by(self, user):
         return user in self.pinned_by.all()
 
-    def serialise(self, user):
+    def get_dict(self, user):
         result = {}
         result['id'] = self.id
         result['user_is_owner'] = self.created_by == user
@@ -908,6 +1035,26 @@ class JobComment(AdminAuditTrail):
         result['pinned'] = self.is_pinned_by(user)
 
         return result
+
+    def update(self, form, user):
+        """
+        Update comment based on a form.
+        """
+        self.contents = form.cleaned_data['contents']
+        self.private = form.cleaned_data['private']
+
+        want_pinned = form.cleaned_data['pinned']
+        want_highlighted = form.cleaned_data['highlighted']
+        update_membership(want_pinned, self.is_pinned_by, user, self.pinned_by)
+        update_membership(want_highlighted, self.is_highlighted_by, user, self.highlighted_by)
+        self.save()
+
+    def update_toggles(self, toggle_details, user):
+        want_pinned = self.is_pinned_by(user) if not 'pinned' in toggle_details else toggle_details['pinned']
+        want_highlighted = self.is_highlighted_by(user) if not 'highlighted' in toggle_details else toggle_details['highlighted']
+        update_membership(want_pinned, self.is_pinned_by, user, self.pinned_by)
+        update_membership(want_highlighted, self.is_highlighted_by, user, self.highlighted_by)
+        self.save()
 
     def __str__(self):
         return f'{self.created_by} on Job {self.job.name} @ {self.created_on}: "{self.contents[:15]}..."'
@@ -937,14 +1084,15 @@ class JobItem(AdminAuditTrail):
     included_with = models.ForeignKey('self', on_delete=models.CASCADE, related_name='includes', null=True, blank=True)
 
     # Method contents:
-    #   || JobItem.Display
+    #   || JobItem.Read
+    #   || JobItem.Update
     #   || JobItem.Documents
     #   || JobItem.Financial
     #   || JobItem.StandardAccessories
     #   || JobItem.Modular
 
-    # || JobItem.Display
-    def serialise(self):
+    # || JobItem.Read
+    def get_dict(self):
         result = {}
 
         # What
@@ -1005,6 +1153,92 @@ class JobItem(AdminAuditTrail):
         # Used on the Records template
         return f'{self.display_str()} @ {self.job.currency}&nbsp;{self.selling_price_f()}'
  
+
+    # || JobItem.Update
+    def safe_to_delete(self):
+        """
+        Checks possible reasons to forbid the deletion of a JobItem.
+        """
+        if not self.quantity_is_ok_for_modular_as_child(0):
+            return error('Forbidden: conflicts with modular item assignments.', 403)
+        
+        if self.on_issued_document():
+            return error('Forbidden: conflicts with issued documents.', 403)
+        
+        return True
+
+    def safe_to_update(self, form):
+        # Determine what's changed
+        product_has_changed = form.cleaned_data['product'] != self.product
+        selling_price_has_changed = form.cleaned_data['selling_price'] != self.selling_price
+        
+        new_quantity = form.cleaned_data['quantity']
+
+        # Module assignments relate to products rather than JobItems, so the product matters:
+        # if a JobItem had 1 x ProductA and was updated to 1 x ProductB, we need to check if 0 x ProductA 
+        # would be acceptable (rather than just going "oh, it's still quantity = 1, so that's fine").
+        updated_product_quantity = 0 if product_has_changed else new_quantity
+
+        # Modular items check: Check that the proposed edit wouldn't leave any other items with empty slots
+        if not self.quantity_is_ok_for_modular_as_child(updated_product_quantity):
+            return error("Update failed: conflicts with modular item assignments.", 403)
+
+        # Modular items check: Check that the proposed edit wouldn't leave itself with unfilled slots
+        if self.product.is_modular() and not product_has_changed and updated_product_quantity > self.quantity:
+            if not self.quantity_is_ok_for_modular_as_parent(updated_product_quantity):
+                return error("Update failed: insufficient items to fill specification.", 403)
+
+        # Issued documents check
+        # If this item appears on an issued document, no updates for any fields that appear on documents.
+        num_on_issued = self.num_required_for_issued_documents()
+        if  num_on_issued > 0 and\
+            (product_has_changed or selling_price_has_changed or new_quantity < num_on_issued):
+            return error("Update failed: issued documents would be altered.", 403)
+
+        return True
+
+
+    def update(self, form):
+        """
+        Update JobItem based on a form.
+        """
+        check = self.safe_to_update(form)
+        if not check == True:
+            return check
+    
+        # Check for relevant changes
+        price_list_has_changed = self.price_list != form.cleaned_data['price_list']
+        product_has_changed = self.product != form.cleaned_data['product']
+        quantity_has_changed = self.quantity != form.cleaned_data['quantity']
+
+        # The modules are happy (from a backend perspective), so save the changes and perform knock-on updates
+        self.quantity = form.cleaned_data['quantity']
+        self.product = form.cleaned_data['product']
+        self.selling_price = form.cleaned_data['selling_price']
+        self.price_list = form.cleaned_data['price_list']
+        self.save()
+        
+        # Handle knock-on effects
+        if product_has_changed:
+            self.reset_standard_accessories()
+
+        elif quantity_has_changed:
+            self.update_standard_accessories_quantities()
+
+        self.job.price_changed()
+
+        return {
+            'refresh_needed': price_list_has_changed or product_has_changed
+        }
+
+    def update_price(self, form):
+        """
+        Update selling price of a JobItem from a form
+        """
+        self.selling_price = form.cleaned_data['selling_price']
+        self.save()
+        self.job.price_changed()
+
 
     # || JobItem.Documents
     def on_issued_document(self):
@@ -1272,6 +1506,37 @@ class JobModule(models.Model):
     slot = models.ForeignKey(Slot, on_delete=models.CASCADE, related_name='usages')
     quantity = models.IntegerField(default=1)
 
+    def max_quantity(self):
+        num_unassigned = self.parent.job.num_unassigned_to_slot(self.child)
+        old_qty_total = self.quantity * self.parent.quantity
+        return num_unassigned + old_qty_total
+
+    def update(self, new_quantity):
+        # Maybe the new qty is the same as the old qty, so there's nothing to be done
+        if new_quantity == self.quantity:
+            return
+
+        # Maybe the user solely entered symbols permitted by 'type=number', but which don't actually result in a number
+        # (e.g. e, +, -)
+        if new_quantity == '' or new_quantity == None:
+            return error("Invalid quantity.", 400)
+        
+        # Maybe the user entered a new qty of 0 or a negative number
+        if new_quantity <= 0:
+            return error("Quantity must be 1 or more", 403)
+        
+        # Maybe the user entered a qty which exceeds the number of unassigned job items on the order
+        new_qty_total = new_quantity * self.parent.quantity
+        max_qty = self.max_quantity()
+        if max_qty < new_qty_total:
+            return error(f"Not enough items on job (max = {max_qty}).", 403)
+
+        # Or maybe, just maybe, they entered an actual valid quantity which we can use
+        self.quantity = new_quantity
+        self.save()
+
+
+
     def __str__(self):
         return f"[{self.parent.pk}] {self.parent.product.name}: {self.slot.name} slot filled by {self.child.name}"
 
@@ -1288,6 +1553,10 @@ class DocumentData(models.Model):
     reference = models.CharField(max_length=SYSTEM_NAME_LENGTH, blank=True)
     doc_type = models.CharField(max_length=DOC_CODE_MAX_LENGTH, choices=DOCUMENT_TYPES, null=True)
     job = models.ForeignKey(Job, on_delete=models.PROTECT, related_name='documents')
+
+    def update(self, reference):
+        self.reference = reference
+        self.save()
 
     def __str__(self):
         return f'{self.doc_type} {self.reference}'
@@ -1329,6 +1598,80 @@ class DocumentVersion(AdminAuditTrail):
 
         return result
 
+    def update(self, user, reference, issue_date, assigned_items, special_instructions, prod_data_form):
+        """
+        Update self, its associated DocumentData and children.
+        """
+        check = self.safe_to_update()
+        if check != True:
+            return check
+
+        # Update parent
+        self.document.update(reference)
+
+        # Update self from Job
+        self.invoice_to = self.document.job.invoice_to
+        self.delivery_to = self.document.job.delivery_to
+
+        # Update children / MTM fields
+        items_outcome = self.update_item_assignments(assigned_items)
+        if is_error(items_outcome):
+            return items_outcome
+
+        self.update_special_instructions(special_instructions, user)
+
+        if prod_data_form != None:
+            self.update_production_dates(prod_data_form)
+
+        self.save()
+        # If the user doesn't want to issue the document, we're done now.
+        if issue_date == None or issue_date == '':
+            return { 'message': "Document saved" }
+
+        # Otherwise try to issue the document, then respond accordingly
+        issue_result = self.issue(issue_date)
+        if is_error(issue_result):
+            return { 'message': f"Document saved, but not issued (Forbidden: {issue_result[ERROR_MESSAGE_KEY]})" }
+        return { 'redirect': reverse('doc_main', kwargs={'doc_id': self.id}) }
+
+
+    def issue(self, issue_date):
+        """
+        Issue the document version.
+        Note: should only be called after ascertaining that the document should be issued.
+        """
+        # Prevent the issue date from being "updated" to nothingness, in the event of someone 
+        # ignoring the above.
+        if issue_date == None or issue_date == '':
+            return error("invalid issue date.", 400)
+
+        check = self.safe_to_issue()
+        if check != True:
+            return check
+
+        self.issue_date = issue_date
+        self.issued_json = self.get_current_data()
+        self.save()
+
+
+    def safe_to_delete(self):
+        if self.is_issued():
+            return error("Forbidden: issued documents can't be deleted", 403)
+        return True
+
+    def safe_to_update(self):
+        if self.is_issued():
+            return error("issued documents can't be updated", 403)
+        return True
+
+    def safe_to_issue(self):
+        if not self.is_valid():
+            return error("invalid item assignments exist.", 403)
+        return True
+
+    def is_issued(self):
+        return self.issue_date != None and self.issue_date != ''
+
     def is_valid(self):
         """
             Check document to ensure the quantities of line items are consistent with the quantities entered
@@ -1353,10 +1696,8 @@ class DocumentVersion(AdminAuditTrail):
                 result[id_as_str] = assignment.quantity_is_valid()
         
         return result
-
     
-
-    def get_display_data_dict(self):
+    def get_current_data(self):
         """
             Retrieve data for populating a document, based on the current state of the database 
         """
@@ -1448,16 +1789,7 @@ class DocumentVersion(AdminAuditTrail):
 
         return fields
 
-    def save_issued_state(self):
-        """
-            Save the state of the document at the time it was issued, so that future adjustments to the database
-            don't affect the historical record of the PDF as it was when it was released.
-        """
-        self.issued_json = self.get_display_data_dict()
-        self.save()
-
-
-    def get_issued_state(self):
+    def get_issued_data(self):
         """
             Data for populating an issued document, based on the JSON record produced when the document was issued.
         """
@@ -1469,7 +1801,6 @@ class DocumentVersion(AdminAuditTrail):
         data['created_by'] = User.objects.get(id = data['created_by'])
 
         return data            
-
 
     def deactivate(self):
         """ 
@@ -1550,8 +1881,6 @@ class DocumentVersion(AdminAuditTrail):
             previous.reactivate()
             return previous
 
-
-
     def item_assignments_clash(self):
         """
             Check that there are no duplications of JobItems across documents of the same type.
@@ -1563,8 +1892,6 @@ class DocumentVersion(AdminAuditTrail):
 
         return False
        
-
-
     def get_included_items(self):
         """
             List of JobItems assigned to this document version.
@@ -1668,7 +1995,7 @@ class DocumentVersion(AdminAuditTrail):
             On a new document, the assumption is that the user is creating the new document to cover the leftover items, so this is used to populate the default "included" list.
             On an existing document, the user has already indicated which items they wish to include, so this is used to populate the top of the "excluded" list.
         """
-        return get_document_available_items(self.document.job.main_item_list(), self.document.doc_type)
+        return get_dict_items_available_for_document(self.document.job.main_item_list(), self.document.doc_type)
 
 
     def get_unavailable_items(self):
@@ -1700,33 +2027,32 @@ class DocumentVersion(AdminAuditTrail):
         return result
 
 
-    def update_item_assignments_and_get_create_list(self, required):
+    def update_item_assignments(self, assignment_obj):
         """
-            Update or delete DocAssignments according to their difference to/absence from the "required" argument (which is a list).
+        Update, delete or create DocAssignments according to the assignment_obj.
 
-            Following each update, the method removes the relevant dict from "required".
-            What remains (and is returned) is a list of new DocAssignments requiring creation, for use elsewhere.
-
-            Note: the "required" argument must be a list of dicts with two fields (id and quantity).
+        Note: the assignment_obj argument must be a dict with a key/value pair for each JobItem,
+        where key = JobItem ID and value = desired quantity to display on this document.
         """
-        for ea in DocAssignment.objects.filter(version=self):
-            found = False
-            for req in required:
-                if 'id' in req and int(req['id']) == ea.item.id:
-                    # Case = UPDATE: assignment already exists. Update the quantity, if necessary, then check this off the to-do list.
-                    found = True
-                    if int(req['quantity']) != ea.quantity:
-                        ea.quantity = min(int(req['quantity']), ea.max_quantity_excl_self())
-                        ea.save()
-                    required.remove(req)
-                    break
-            if not found:
-                # Case = DELETE: existing assignment doesn't appear in the required list.
-                ea.delete()
-        return required
 
+        # Update or delete existing assignments
+        for existing_da in DocAssignment.objects.filter(version=self):
+            new_qty = assignment_obj.pop(str(existing_da.item.id), None)
+            if new_qty == None:
+                return error("Invalid assignment data (UD).", 400)
 
-    def update_special_instructions_and_get_create_list(self, required):
+            if new_qty == 0:
+                existing_da.delete()
+            else:
+                existing_da.update(new_qty)
+        
+        # Create new assignments from remaining key/values in the assignment_obj
+        for key, value in assignment_obj.items():
+            if value > 0:
+                create_document_assignment(self, key, value)
+            
+
+    def update_special_instructions(self, required, user):
         """
             Update or delete SpecialInstructions according to their difference to/absence from the "required" argument (which is a list).
 
@@ -1746,7 +2072,8 @@ class DocumentVersion(AdminAuditTrail):
                     break
             if not found:
                 ei.delete()
-        return required
+
+        create_document_instructions(required, self, user)
 
 
     def update_production_dates(self, form):

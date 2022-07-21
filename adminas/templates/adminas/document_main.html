@@ -20,7 +20,7 @@
 
     <h2>Document</h2>
     <div class="subheading">{{ doc_title }}</div>
-    <a class="return-to-job" href="{% url 'job' doc_version.document.job.id %}">&laquo; return to Job</a>
+    <a class="return-to-job" href="{% url 'job' job_id %}">&laquo; return to Job</a>
    
     
 <div class="document-sections-wrapper">  
@@ -42,13 +42,15 @@
         {% if doc_version.version_number > 1 %}
         <button id="revert_document_btn" class="revert-replace">revert to previous version</button>
         {% endif %}
+
     {% else %} deleted">
         <h3>Deleted</h3>
         <p>To restore, contact an administrator.</p>
     {% endif %}
+
     </section>
 
-    {% if not doc_version.issue_date and doc_version.active and not doc_version.is_valid %}
+    {% if show_validity_warning %}
     <section class="subsection warning">
         <h4>Invalid Item Quantities</h4>
         <p>
@@ -62,12 +64,12 @@
         <h4>General</h4>
         <div class="read_row">
             <label class="row-label" for="id_doc_reference">Reference</label>
-            <div id="id_doc_reference">{{ doc_version.document.reference }}</div>
+            <div id="id_doc_reference">{{ reference }}</div>
             <div class="doc-version">version {{ doc_version.version_number }}</div>
         </div>
 
 
-    {% if doc_version.document.doc_type == 'WO' %}
+    {% if doc_type == 'WO' %}
         <div class="read_row">
             <label class="row-label" for="id_req_prod_date">Requested Completion Date</label>
             <div id="id_req_prod_date">{{ doc_specific.date_requested }}</div>
@@ -98,7 +100,7 @@
             <div class="included-container panel">
                 <h5 class="panel-header">Include</h5>
                 <ul class="included">
-    {% for inc in doc_version.get_included_items %}
+    {% for inc in included_items %}
                     <li {% if inc.invalid_quantity %}class="invalid"{% endif %}>
                         {% if inc.invalid_quantity %}<span class="invalid-icon"><span>quantity is invalid</span></span>{% endif %}
                         <span class="display">{{ inc.display }}</span><span class="name-tag id">{{ inc.jiid }}</span>
@@ -113,7 +115,7 @@
             <div class="excluded-container panel">
                 <h5 class="panel-header">Exclude</h5>
                 <ul class="excluded">
-        {% for excl in doc_version.get_excluded_items %}
+        {% for excl in excluded_items %}
                     <li {% if excl.is_available == False %}class="unavailable"{% endif %}>
                         {% if excl.is_invalid %}<span class="invalid-icon"><span>quantity is invalid</span></span>{% endif %}
                         <span class="display">

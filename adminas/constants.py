@@ -52,3 +52,5 @@ INCOTERMS = [
 ERROR_NO_DATA = "[ERR]"
 
 
+SUCCESS_CODE = 'ok'
+ERROR_MESSAGE_KEY = 'reason'

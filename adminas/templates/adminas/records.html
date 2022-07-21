@@ -63,54 +63,46 @@
         </thead>
         <tbody>
             
-    {% for job in data %}
+    {% for r in records %}
             <tr>
-                <td><a href="{% url 'job' job.id %}">Link</a></td>
+                <td><a href="{% url 'job' r.job_id %}">Link</a></td>
                 <td>
-        {% if user in job.users_monitoring.all %}
+        {% if r.is_todo %}
                     <span class="todo-list-add">on</span>
         {% else %}
-                    <button class="todo-list-add button-primary" data-job_id="{{ job.id }}">+</button>
+                    <button class="todo-list-add button-primary" data-job_id="{{ r.job_id }}">+</button>
         {% endif %}
                 </td>
-                <td>{{ job.name }}</td>
-                <td>{{ job.agent.name }}</td>
-                <td>{{ job.customer.name }}</td>
-                <td>{{ job.country.name }}</td>
-                <td>{{ job.language }}</td>
-                <td>{{ job.created_on|date:"Y-m-d" }}</td>
-                <td>{{ job.currency }}</td>
-                <td>{{ job.invoice_to.site.company.name }}</td>
-                <td>{{ job.quote_ref }}</td>
+                <td>{{ r.name }}</td>
+                <td>{{ r.agent }}</td>
+                <td>{{ r.customer }}</td>
+                <td>{{ r.country }}</td>
+                <td>{{ r.language }}</td>
+                <td>{{ r.created_on|date:"Y-m-d" }}</td>
+                <td>{{ r.currency }}</td>
+                <td>{{ r.invoice_to_name }}</td>
+                <td>{{ r.quote_ref }}</td>
                 <td>
-        {% if job.num_po > 1 %}
+        {% if r.num_po > 1 %}
                     <button class="list-show-btn button-primary-hollow">view</button>  
                     <div class="po records-list panel hide popout">
                         <button class="list-hide-btn close"><span>close</span></button>
                         <h4 class="panel-header">Purchase Orders</h4>
                         <ul>  
-            {% for po in job.po.all %}
-                {% if po.active %}
-                            <li>{{ po.reference }}</li>
-                {% endif %}
+            {% for po in r.po_list %}
+                            <li>{{ po }}</li>
             {% endfor %}
                         </ul>
                     </div>
         {% else %}
-                        {{ job.po.all.0.reference }}
+                        {{ r.po_list.0 }}
         {% endif %}
                 </td>
+                <td>{{ r.total_po_value }}</td>
+                <td>{{ r.incoterm_code }}</td>
+                <td>{{ r.delivery_to_name }}</td>
                 <td>
-        {% if job.total_po_value_f == '[ERR]' %}
-                    0.00
-        {% else %}
-                    {{ job.total_po_value_f }}
-        {% endif %}
-                </td>
-                <td>{{ job.incoterm_code }}</td>
-                <td>{{ job.invoice_to.site.company.name }}</td>
-                <td>
-        {% for item in job.main_item_list %}
+        {% for item in r.item_list %}
             {% if forloop.first %}
                         <button class="list-show-btn button-primary-hollow">view</button>
                         <div class="product records-list panel hide popout">
@@ -118,7 +110,7 @@
                             <h4 class="panel-header">Products</h4>
                             <ul>
             {% endif %}
-                                <li>{{ item.display_str_with_money|safe }}</li>
+                                <li>{{ item|safe }}</li>
             {% if forloop.last %}
                             </ul>
                         </div>

@@ -386,7 +386,7 @@ function JobPriceCheckPriceEditorUI(props){
         <div class="price-checker-edit-window form-like panel popout">
             <CancelButton cancel = { props.cancel }/>
             <h5 class="panel-header">Edit Price</h5>
-            <p>{props.data.quantity} x [{ props.data.part_number }] { props.data.item_name }</p>
+            <p>{props.data.quantity} x [{ props.data.part_number }] { props.data.product_name }</p>
             <div class="price-options-container">
                 <h6>Click new price</h6>
                 <PresetPriceButtonUI    handle_click = { props.handle_list_click }

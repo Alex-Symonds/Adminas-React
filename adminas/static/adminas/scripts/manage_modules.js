@@ -24,6 +24,8 @@ const CLASS_PRODUCT_DESC = 'product_desc';
 const CLASS_FILLER_OPTION = 'bucket-item';
 const CLASS_PARENT_ITEM = 'modular-item-container';
 
+const ID_CREATE_JOBITEM_SUBMIT_BUTTON = 'id_submit_new';
+
 // Add event handlers to elements created by Django
 document.addEventListener('DOMContentLoaded', (e) =>{
 
@@ -108,7 +110,7 @@ async function open_module_slot_filler_popout(e){
     empty_slot_div.after(bucket_div);
     
     // Clear any old error messages
-    remove_module_qty_errors();
+    remove_all_error_eles();
 }
 
 // Module Slot Filler: close the bucket window
@@ -134,10 +136,16 @@ async function create_ele_module_slot_filler(slot_id, parent_id){
     div.classList.add(CSS_GENERIC_FORM_LIKE);
     div.classList.add('popout');
 
-    // Fill with other elements
-    let json_response = await get_list_for_module_slot(slot_id, parent_id, 'jobitems');
-
+    // Add a cancel button, so it can be closed success or fail
     div.append(create_ele_module_filler_cancel_button());
+
+    // Attempt to get list of options from server
+    let json_response = await get_list_for_module_slot(slot_id, parent_id, 'jobitems');
+    if(responded_with_error(json_response)){
+        div.append(get_module_error_ele(json_response[KEY_RESPONSE_ERROR_MSG]));
+        return div;
+    }
+
     div.append(create_ele_module_filler_title(json_response['data'].parent_quantity));
     div = append_existing_jobitems(div, slot_id, parent_id, json_response['data']);
     div.append(create_ele_module_filler_new_jobitem_button(slot_id, parent_id));
@@ -288,7 +296,12 @@ async function get_module_slot_with_new_item_form(slot_id, parent_id){
     div.classList.add('new-slot-filler-inputs');
 
     div.append(create_ele_slot_filler_cancel_btn());
-    div.append(await create_ele_jobitem_module_dropdown(slot_id, parent_id));
+
+    dropdown = await create_ele_jobitem_module_dropdown(slot_id, parent_id);
+    div.append(dropdown);
+    if(is_error_ele(dropdown)){
+        return div;
+    }
 
     let subdiv = document.createElement('div');
     subdiv.classList.add('combo-input-and-button');
@@ -309,8 +322,11 @@ async function create_ele_jobitem_module_dropdown(slot_id, parent_id){
     sel.name = 'product';
 
     let json_response = await get_list_for_module_slot(slot_id, parent_id, 'products');
-    let list_of_valid_options = json_response['data'];
+    if(responded_with_error(json_response)){
+        return get_module_error_ele(json_response[KEY_RESPONSE_ERROR_MSG]);
+    }
 
+    let list_of_valid_options = json_response['data'];
     for(let i=0; i < list_of_valid_options.length; i++){
         var opt_data = list_of_valid_options[i];
         var opt = document.createElement('option');
@@ -322,11 +338,13 @@ async function create_ele_jobitem_module_dropdown(slot_id, parent_id){
     return sel;
 }
 
+
+
 // New JI Form: get a submit button for the form
 function create_ele_slot_filler_submit_btn(slot_id, parent_id){
     let btn = create_generic_ele_submit_button();
 
-    btn.id = 'id_submit_new';
+    btn.id = ID_CREATE_JOBITEM_SUBMIT_BUTTON;
     btn.setAttribute('data-slot', slot_id);
     btn.setAttribute('data-parent', parent_id);
     btn.addEventListener('click', (e) => {
@@ -373,14 +391,28 @@ async function add_new_jobitem_and_jobmodule(e){
     let total_qty =  assignment_qty * parent_ele.dataset.quantity;
     let product_id = form_div.querySelector('select').value;
     let json_resp = await create_new_jobitem_for_module(parent_id, total_qty, product_id);
-    let child_id = json_resp['id'];
+
+    // If that failed, display an error ele and return
+    if(responded_with_error(json_resp)){
+        let target = document.getElementById(ID_CREATE_JOBITEM_SUBMIT_BUTTON);
+        display_module_error(target, json_resp[KEY_RESPONSE_ERROR_MSG]);
+        return;
+    }
 
     // Add a new JobModule on the server. This will return the ID of the JobModule and data about the slot status.
+    let child_id = json_resp['id'];
     let slot_id = e.target.dataset.slot;
     json_resp = await create_jobmodule_on_server(child_id, parent_id, slot_id, assignment_qty);
-    let jobmod_id = json_resp['id'];
+    
+    // If that failed, display an error ele and return
+    if(responded_with_error(json_resp)){
+        let target = document.getElementById(ID_CREATE_JOBITEM_SUBMIT_BUTTON);
+        display_module_error(target, json_resp[KEY_RESPONSE_ERROR_MSG]);
+        return;
+    }
 
     // Create a "filled slot" div.
+    let jobmod_id = json_resp['id'];
     let product_text = get_product_desc_from_select_desc(form_div.querySelector('select'));
     let filled_slot = create_ele_filled_module_slot(`${assignment_qty} x ${product_text}`, assignment_qty, slot_id, parent_id, jobmod_id);
 
@@ -440,28 +472,34 @@ async function create_new_jobitem_for_module(parent_id, qty, product){
 // Assignment (existing JI only): called onClick of one of the existing JobItems in the bucket menu
 async function assign_jobitem_to_slot(e){
     if(e.target.classList.contains(CLASS_FILLER_OPTION)){
-        ele = e.target;
+        var ele = e.target;
     }
     else{
-        ele = e.target.closest(`.${CLASS_FILLER_OPTION}`);
+        var ele = e.target.closest(`.${CLASS_FILLER_OPTION}`);
     }
-
-    let data = await create_jobmodule_on_server(ele.dataset.child, ele.dataset.parent, ele.dataset.slot);
-    let jobmod_id = data['id'];
 
     let bucket_div = e.target.closest('.' + CLASS_MODULE_SLOT_FILLER_POPOUT_MENU);
     let empty_slot = bucket_div.previousSibling;
-    let parent_ele = e.target.closest(`.${CLASS_PARENT_ITEM}`);
 
-    if(typeof jobmod_id !== 'undefined'){
-        let description = `${parent_ele.dataset.quantity} x ${ele.querySelector(`.${CLASS_PRODUCT_DESC}`).innerHTML}`;
-        let filled_slot = create_ele_filled_module_slot(description, 1, ele.dataset.slot, ele.dataset.parent, jobmod_id);
+    let data = await create_jobmodule_on_server(ele.dataset.child, ele.dataset.parent, ele.dataset.slot);
+    if(responded_with_error(data)){
+        display_module_error(empty_slot, data[KEY_RESPONSE_ERROR_MSG]);
 
-        update_slot_status(e.target, data);
-        empty_slot.after(filled_slot);
-        empty_slot.remove();
     } else {
-        display_module_qty_error(empty_slot, '0');
+        let jobmod_id = data['id'];
+        let parent_ele = e.target.closest(`.${CLASS_PARENT_ITEM}`);
+
+        if(typeof jobmod_id === 'undefined'){
+            display_module_error(empty_slot, "Error: module ID is missing");
+
+        } else {
+            let description = `${parent_ele.dataset.quantity} x ${ele.querySelector(`.${CLASS_PRODUCT_DESC}`).innerHTML}`;
+            let filled_slot = create_ele_filled_module_slot(description, 1, ele.dataset.slot, ele.dataset.parent, jobmod_id);
+    
+            update_slot_status(e.target, data);
+            empty_slot.after(filled_slot);
+            empty_slot.remove();
+        } 
     }
 
     bucket_div.remove();
@@ -546,6 +584,13 @@ function create_ele_slot_filler_edit_btn(jobmod_id){
 // Delete Assignment: called onClick by the [x] button on filled slots. Manages removing a JobItem from a slot
 async function remove_jobmodule(e){
     let resp = await unfill_slot_on_server(e);
+
+    if(responded_with_error(resp)){
+        let submit_btn = document.getElementById(ID_EDIT_FORM_SUBMIT_BUTTON);
+        display_module_error(submit_btn, resp[KEY_RESPONSE_ERROR_MSG]);
+        return;
+    }
+
     unfill_slot_on_page(e, resp);
 }
 
@@ -565,12 +610,12 @@ async function unfill_slot_on_server(e){
 // Delete Assignment: Frontend removal of the JobItem from the slot
 function unfill_slot_on_page(e, data){
     let slot_filler = e.target.closest(`.${CLASS_MODULE_SLOT}`);
-
     let empty_slot = create_ele_empty_module_slot(slot_filler.dataset.slot, slot_filler.dataset.parent);
+    
     slot_filler.after(empty_slot);
     update_slot_status(e.target, data);
-
     slot_filler.remove();
+    
     close_edit_mode(e.target);
 }
 
@@ -726,12 +771,12 @@ function close_edit_mode(ele, new_qty){
     }
 
     unhide_all_by_class('edit-icon');
-    remove_module_qty_errors();
+    remove_all_error_eles();
 }
 
 
 // Edit Mode Action: called onclick of the submit button
-function update_module_qty(qty_field){
+async function update_module_qty(qty_field){
     fetch(`${URL_ASSIGNMENTS}`, {
         method: 'PUT',
         body: JSON.stringify({
@@ -742,20 +787,25 @@ function update_module_qty(qty_field){
         headers: getDjangoCsrfHeaders(),
         credentials: 'include'
     })
-    .then(response => response.json())
+    .then(response => get_json_with_status(response))
     .then(data => {
-        if(typeof data['max_qty'] === 'undefined'){
-            update_module_qty_on_page(qty_field, data);
-        } else {
-            display_module_qty_error(qty_field.nextElementSibling, data['max_qty']);
+        if(data.status != 200){
+            display_module_error(qty_field.nextElementSibling, data[KEY_RESPONSE_ERROR_MSG])
+            return;
         }
+
+        update_module_qty_on_page(qty_field, data);
     })
     .catch(error => {
         console.log('Error: ', error)
     });
 }
 
-
+async function get_json_with_status(response){
+    let result = await response.json();
+    result['status'] = response.status;
+    return result;
+}
 
 
 
@@ -775,16 +825,25 @@ function update_module_qty_on_page(qty_field, data){
 }
 
 // Edit Mode: users are not allowed to add new JobItems via edit mode on the module management page. If they try, display a warning.
-function display_module_qty_error(preceding_ele, remaining_qty_str){
-    let error_msg = document.createElement('div');
-    error_msg.classList.add(CLASS_TEMP_ERROR_MSG);
-    error_msg.innerHTML = `Not enough items (${remaining_qty_str} remaining)`;
+function display_module_error(preceding_ele, message){
+    let error_msg = get_module_error_ele(message);
     preceding_ele.after(error_msg);
 }
 
+function get_module_error_ele(message){
+    let ele = document.createElement('div');
+    ele.classList.add(CLASS_TEMP_ERROR_MSG);
+    ele.innerHTML = message;
+    return ele;
+}
+function is_error_ele(ele){
+    return CLASS_TEMP_ERROR_MSG in ele.classList;
+}
+
+
 // Edit Mode: remove the error message. (This is called when opening the bucket menu and when closing edit mode,
 //                                        i.e. when the user indicates they're doing something to fix it)
-function remove_module_qty_errors(){
+function remove_all_error_eles(){
     document.querySelectorAll('.' + CLASS_TEMP_ERROR_MSG).forEach(div => {
         div.remove();
     });

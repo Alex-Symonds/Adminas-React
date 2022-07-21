@@ -182,9 +182,7 @@ function update_document_on_server(issue_date){
             remove_save_warning_ele();
 
             if ('doc_is_valid' in data){
-                console.log('fetch bit is ok');
-                console.log(data);
-                console.log('-------');
+
                 clear_validity_warnings(data);
             }
         }
@@ -200,7 +198,7 @@ function get_document_data_as_dict(issue_date){
     let dict = {};
     dict['reference'] = document.querySelector('#id_doc_reference').value;
     dict['issue_date'] = issue_date;
-    dict['assigned_items'] = get_assigned_items_as_list();
+    dict['assigned_items'] = get_assignment_object(); //get_assigned_items_as_list();
     dict['special_instructions'] = get_special_instructions_as_list();
 
     // Document-type-specific fields. (There's only two at present, so handle it here instead of having a separate function)
@@ -246,6 +244,32 @@ function get_assigned_items_as_list(){
     }
     return assigned_items;
 }
+
+// Run through one of the ULs grabbing each <li> and turning it into a key/value pair
+// (key = jiid; value = quantity)
+function ul_to_assignment_object(ul_ele, want_actual_quantity){
+    let result = {}
+    if(null == ul_ele.querySelector('.' + CLASS_NONE_LI)){
+        Array.from(ul_ele.children).forEach(ele => {
+            if(ele.tagName == 'LI'){
+                id_to_str = String(ele.dataset.jiid);
+                result[id_to_str] = want_actual_quantity ? parseInt(ele.querySelector('.display').innerHTML.match(QTY_RE)[0]) : 0;
+            }
+        });
+    }
+    return result;
+}
+
+
+function get_assignment_object(){
+    let assigned_ul = document.querySelector('#' + ID_INCLUDES_UL);
+    let unassigned_ul = document.querySelector('#' + ID_EXCLUDES_UL);
+    let unassigned_object = ul_to_assignment_object(unassigned_ul, false);
+    let assigned_object = ul_to_assignment_object(assigned_ul, true);
+    return {...unassigned_object, ...assigned_object};
+}
+
+
 
 // Issue and Save: get a list of ID and contents for every SpecialInstruction on the document via the instructions section
 function get_special_instructions_as_list(){

@@ -1651,7 +1651,7 @@ table.price-comparison{
 }
 
 // || Responsive table
-@media screen and (max-width: v.$breakpoint_table_to_rows){
+@media screen and (max-width: 1098px){
 
     #price_check_table{
         // Make it stop behaving like a table
@@ -1927,4 +1927,6 @@ table.price-comparison{
     padding: 0.7rem;
 }
 
-
+.details-toggle{
+    border-bottom: 1px dotted white;
+}

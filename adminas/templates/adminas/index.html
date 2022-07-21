@@ -12,7 +12,6 @@
 
 {% block javascript %}
     <script>
-        const URL_COMMENT_STATUS = '{% url "comment_status" %}';
         const URL_TODO_MANAGEMENT = '{% url "todo_list_management" %}';
     </script>
     <script src="{% static 'adminas/scripts/todo_management.js' %}" type="text/javascript"></script>
@@ -75,7 +74,7 @@
             </section>
 
             
-            <section class="comments" data-url_comments="{% url 'job_comments' job.id %}">
+            <section class="comments" data-url_comments="{% url 'comments' %}?job_id={{ job.id }}">
             {% if job.pinned_comments %}
                 <h5 class="secondary-icon">PINNED</h5>
             {% endif %}

@@ -26,16 +26,16 @@
 {% block body %}
     <h2>Module Management</h2>
     <div class="subheading">
-        Job {{ job.name }} for {{ job.customer.name }}</h2>
+        {{ subheading }}</h2>
     </div>
-    <a class="return-to-job" href="{% url 'job' job.id %}">&laquo; return to Job</a>
+    <a class="return-to-job" href="{% url 'job' job_id %}">&laquo; return to Job</a>
 
 <div class="existing-items-container">
     {% for parent_jobitem in items %}
-    <div id="modular_jobitem_{{ parent_jobitem.id }}" class="panel modular-item-container{% if parent_jobitem.excess_modules_assigned %} excess-modules{% endif %}" data-quantity={{ parent_jobitem.quantity }}>
+    <div id="modular_jobitem_{{ parent_jobitem.id }}" class="panel modular-item-container{% if parent_jobitem.has_excess %} excess-modules{% endif %}" data-quantity={{ parent_jobitem.quantity }}>
         <div class="panel-header">
             <h3>{{ parent_jobitem.quantity }} x {{ parent_jobitem.product }} <span class="name-tag id">{{ parent_jobitem.id }}</span></h3>
-            <div class="desc">{% get_item_description parent_jobitem.product job.language %}</div>
+            <div class="desc">{{ parent_jobitem.description }}</div>
         </div>
 
         {% if parent_jobitem.quantity > 1 %}
@@ -45,40 +45,36 @@
         </p>
         {% endif %}
 
-        {% for slot in parent_jobitem.product.slots.all %}
-            {% get_num_excess parent_jobitem slot as num_excess %}
-        <div class="subsection{% if num_excess > 0 %} excess-modules{% endif %}">
+        {% for slot in parent_jobitem.slots %}
+        <div class="subsection{% if slot.num_excess > 0 %} excess-modules{% endif %}">
             <h4>{{ slot.name }}</h4>
             <div class="modular-slot-container">
                 <div class="spine">
-            {% get_num_assigned_modules parent_jobitem slot as num_assigned %}
                     <div class="slot-info">
-                        <div class="required{% if num_assigned >= slot.quantity_required %} filled{% endif %}">
+                        <div class="required{% if slot.num_assigned >= slot.num_required %} filled{% endif %}">
                             <span class="head">R</span>
-                            <span class="body">{% get_slot_details_string_required parent_jobitem slot%}</span>
+                            <span class="body">{{ slot.status_str_for_required }}</span>
                         </div>
-                        <div class="optional{% if num_assigned >= slot.quantity_required|add:slot.quantity_optional %} filled {% endif %}">
+                        <div class="optional{% if slot.optional_is_full %} filled {% endif %}">
                             <span class="head">O</span>
-                            <span class="body">{% get_slot_details_string_optional parent_jobitem slot%}</span>
+                            <span class="body">{{ slot.status_str_for_optional }}</span>
                         </div>
-            {% if num_excess > 0 %}
-                        <div class="excess"><span class="head">excess</span><span class="body">{{ num_excess }}</span></div>
+            {% if slot.num_excess > 0 %}
+                        <div class="excess"><span class="head">excess</span><span class="body">{{ slot.num_excess }}</span></div>
             {% endif %}
                     </div>
                     <button class="add-slot" data-slot="{{ slot.id }}" data-parent="{{ parent_jobitem.id }}">+ slot</button>
                 </div>
 
                 <div class="contents">
-            {% for existing in parent_jobitem.modules.all %}
-                {% if existing.slot == slot %}
+            {% for filler in slot.fillers %}
                     <div class="module-slot jobitem" data-slot="{{ slot.id }}" data-parent="{{ parent_jobitem.id }}">
-                        <span class="child-desc">{{ existing.quantity }} x {{ existing.child }}</span>
-                        <button class="edit-slot-filler-btn edit-icon" data-jobmod="{{ existing.id }}"><span>edit</span></button>
+                        <span class="child-desc">{{ filler.quantity }} x {{ filler.child }}</span>
+                        <button class="edit-slot-filler-btn edit-icon" data-jobmod="{{ filler.id }}"><span>edit</span></button>
                     </div>
-                {% endif %}
             {% endfor %}
 
-            {% if num_assigned < slot.quantity_required %}
+            {% if slot.num_assigned < slot.num_required %}
                     <div class="module-slot empty" data-slot="{{ slot.id }}" data-parent="{{ parent_jobitem.id }}"><i>Click to fill</i></div>
             {% endif %}
                 </div>

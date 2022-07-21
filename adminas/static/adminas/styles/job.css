@@ -1095,7 +1095,7 @@ table.price-comparison .conclusion th, table.price-comparison .conclusion td {
   padding: 0 1rem;
 }
 
-@media screen and (max-width: 930px) {
+@media screen and (max-width: 1098px) {
   #price_check_table {
     width: 100%;
     margin: 0.3rem 0;
@@ -1273,6 +1273,10 @@ table.price-comparison .conclusion th, table.price-comparison .conclusion td {
   flex-wrap: wrap;
   gap: 0.5rem 0.7rem;
   padding: 0.7rem;
+}
+
+.details-toggle {
+  border-bottom: 1px dotted white;
 }
 
 /*# sourceMappingURL=job.css.map */

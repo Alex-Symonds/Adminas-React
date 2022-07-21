@@ -9,6 +9,7 @@ const CSS_GENERIC_PANEL = 'panel';
 const CSS_GENERIC_PANEL_HEADING = 'panel-header';
 const CSS_GENERIC_FORM_LIKE = 'form-like';
 
+const KEY_RESPONSE_ERROR_MSG = 'error';
 
 // When deleting something, check for 204 before attempting to JSON anything.
 async function jsonOr204(response){
@@ -22,6 +23,11 @@ function add_event_listener_if_element_exists(element, called_function){
         element.addEventListener('click', called_function);
     }
 }
+
+function responded_with_error(response_json){
+    return KEY_RESPONSE_ERROR_MSG in response_json;
+}
+
 
 
 // Add comma for thousands separator

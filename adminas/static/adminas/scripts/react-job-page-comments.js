@@ -73,7 +73,7 @@ function JobCommentsUI(props){
     return [
         <section id="job_comments" class="item">
             <h3>Comments</h3>
-            <a href={`${props.actions_comments.url}?page=1`}>See all { num_comments } comments</a>
+            <a href={`${props.actions_comments.url}&page=1`}>See all { num_comments } comments</a>
             <JobCommentsSubsection  actions_comments = { props.actions_comments }
                                     comments = { props.comments }
                                     editor_state = { props.editor_state }
@@ -209,7 +209,7 @@ function CommentContentsFooter(props){
     }
 
     function toggle_comment_from_icon(attributes){
-        const url = `${props.actions_comments.url}?id=${props.comment.id}`;
+        const url = `${props.actions_comments.url}&id=${props.comment.id}`;
         const headers = getFetchHeaders('PUT', attributes);
 
         update_server(url, headers, resp_data => {
@@ -312,7 +312,7 @@ function CommentEditor(props){
     }
 
     const save_comment = () => {
-        const url = `${props.actions_comments.url}?id=${props.comment.id}`;
+        const url = `${props.actions_comments.url}&id=${props.comment.id}`;
         const headers = getFetchHeaders('PUT', state_to_object_be());
         
         update_server(url, headers, resp_data => {
@@ -345,7 +345,7 @@ function CommentEditor(props){
     }
 
     function delete_comment(){
-        const url = `${props.actions_comments.url}?id=${props.comment.id}`;
+        const url = `${props.actions_comments.url}&id=${props.comment.id}`;
         const headers = getFetchHeaders('DELETE', null);
 
         update_server(url, headers, resp_data => {
