@@ -3,7 +3,6 @@ from django.contrib.auth import authenticate, login, logout
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.db import IntegrityError
 from django.urls import reverse
-from django.db.models import Sum, Count, Case, When
 from django.core.paginator import Paginator
 from django.utils import formats
 
@@ -20,7 +19,7 @@ from adminas.forms import   DocumentDataForm, JobForm, POForm, JobItemForm, JobI
 from adminas.constants import DOCUMENT_TYPES, CSS_FORMATTING_FILENAME, HTML_HEADER_FILENAME, HTML_FOOTER_FILENAME, SUPPORTED_CURRENCIES, WO_CARD_CODE, SUCCESS_CODE, ERROR_MESSAGE_KEY
 from adminas.util import anonymous_user, dict_from_json, error_page, debug, get_dict_document_builder_settings,\
     get_dict_job_page_root, get_dict_todo, get_dict_record, get_dict_manage_modules, paginate_from_get, get_customer_via_agent_string, filter_jobs, get_dict_currency, create_jobmodule, get_object, anonymous_user_json, get_param_from_dict, get_value_from_json, get_param_from_get_params, is_error, render_with_error, create_job, create_comment, create_po, create_jobitem, create_document, error, respond_with_error, get_comment, extract_toggle_data
-    
+
 
 
 def login_view(request):
@@ -85,7 +84,7 @@ def index(request):
 
     user = request.user
     jobs = user.todo_list_jobs.all().order_by('-created_on')
-    
+
     jobs_list = []
     for job in jobs:
         jobs_list.append(get_dict_todo(job, user))
@@ -102,7 +101,7 @@ def todo_list_management(request):
     if not request.user.is_authenticated:
         return JsonResponse({
             'message': "You must be logged in to update the to-do list."
-        }, status=400)   
+        }, status=400)
 
     # Try to extract a job and user from the incoming data
     posted_data = dict_from_json(request.body)
@@ -238,7 +237,7 @@ def job(request, job_id):
 
 
 
-    
+
 def comments(request):
     """
         Job Comments page, plus processing for JobComments.
@@ -253,7 +252,7 @@ def comments(request):
             return respond_with_error(comment)
         else:
             comment.delete()
-            return HttpResponse(status=204)   
+            return HttpResponse(status=204)
 
     # User wants to edit an existing job comment
     elif request.method == 'PUT':
@@ -269,19 +268,19 @@ def comments(request):
             comment = get_comment(request, True)
             if is_error(comment):
                 return respond_with_error(comment)
-            
+
             form = get_form_from_request(request, get_comment_form)
             if is_error(form):
                 return respond_with_error(form)
 
             comment.update(form, request.user)
-        
+
         else:
             # Check comment is ok. (Don't need edit access for toggles)
             comment = get_comment(request, False)
             if is_error(comment):
                 return respond_with_error(comment)
-            
+
             # Check incoming data against what we expect from a toggle click
             toggle_details = extract_toggle_data(posted_data)
             if is_error(toggle_details):
@@ -302,12 +301,12 @@ def comments(request):
         comment_form = get_form_from_request(request, get_comment_form)
         if is_error(comment_form):
             return respond_with_error(comment_form)
-        
+
         # Make sure the Job ID is ok
         job = get_object(Job, key = 'job_id', get_params = request.GET)
         if is_error(job):
             respond_with_error(job)
-        
+
         # Create new comment then respond with all the data needed to display a new comment on the page
         comment = create_comment(comment_form, request.user, job)
         data = comment.get_dict(request.user)
@@ -360,11 +359,11 @@ def price_check(request, job_id):
 
         job.price_is_ok = new_status
         job.save()
-        
+
         return JsonResponse({
             'ok': True
         }, status=200)
-   
+
 
 def purchase_order(request):
     """
@@ -385,9 +384,9 @@ def purchase_order(request):
 
 
     elif request.method == 'POST':
-        form = get_form_from_request(request, get_po_form)
+        form = get_form_from_request(request, POForm)
         if is_error(form):
-            return respond_with_error(form)       
+            return respond_with_error(form)
 
         new_po = create_po(request.user, form)
         return JsonResponse({
@@ -396,10 +395,10 @@ def purchase_order(request):
 
 
     elif request.method == 'PUT':
-        form = get_form_from_request(request, get_po_form)
+        form = get_form_from_request(request, POForm)
         if is_error(form):
-            return respond_with_error(form) 
-        
+            return respond_with_error(form)
+
         po = get_object(PurchaseOrder,key = 'id', get_params = request.GET)
         if is_error(po):
             return respond_with_error(po)
@@ -416,19 +415,19 @@ def items(request):
     """
     if not request.user.is_authenticated:
         return anonymous_user(request)
-    
+
     if request.method == 'DELETE':
 
-        ji = get_object(JobItem, key = 'id', get_params = request.GET)
-        if is_error(ji):
-            return respond_with_error(ji)
+        jobitem = get_object(JobItem, key = 'id', get_params = request.GET)
+        if is_error(jobitem):
+            return respond_with_error(jobitem)
 
-        is_safe = ji.safe_to_delete()
+        is_safe = jobitem.safe_to_delete()
         if not is_safe == True:
             return respond_with_error(is_safe)
 
-        ji.job.price_changed()
-        ji.delete()
+        jobitem.job.price_changed()
+        jobitem.delete()
         return JsonResponse({
             'ok': True
         }, status=200)
@@ -436,17 +435,14 @@ def items(request):
 
     # Create one or more new items.
     elif request.method == 'POST':
-        
-        posted_data = dict_from_json(request.body)
-        if is_error(posted_data):
-            return respond_with_error(posted_data)
-        
-        # Case: data is a formset posted from the Job page, which could include multiple JobItems.
-        # This can be distinguished by the presence of the 'form-TOTAL_FORMS' key.
-        if 'form-TOTAL_FORMS' in posted_data:
-            formset = JobItemFormSet(posted_data)
-            if not formset.is_valid():
-                return respond_with_error(invalid_form_error())
+        contains_formset_data = request_contains_formset(request)
+        if is_error(contains_formset_data):
+            return respond_with_error(contains_formset_data)
+
+        elif contains_formset_data:
+            formset = get_form_from_request(request, JobItemFormSet)
+            if is_error(formset):
+                return respond_with_error(formset)
 
             jobitems = []
             for form in formset:
@@ -458,18 +454,14 @@ def items(request):
                 'jobitems': jobitems
             }, status = 200)
 
-        # Case: data is regarding an individual JobItem posted from the module management page.
-        # This can be distinguished by the presence of a 'source_page' key and 'module_management' value.
-        elif 'source_page' in posted_data and posted_data['source_page'] == 'module_management':
-
-            # Throw the incoming data into a JobItemForm, then use it to create the JobItem
-            form = get_jobitem_form(posted_data)
+        else:
+            form = get_form_from_request(request, get_jobitem_form)
             if is_error(form):
                 return respond_with_error(form)
 
-            ji = create_jobitem(request.user, form)
+            jobitem = create_jobitem(request.user, form)
             return JsonResponse({
-                'id': ji.product.id
+                'id': jobitem.product.id
             }, status=200)
 
 
@@ -478,42 +470,43 @@ def items(request):
     #   > Price checker table (selling_price only)
     elif request.method == 'PUT':
 
-        ji = get_object(JobItem, key = 'id', get_params = request.GET)
-        if is_error(ji):
-            return respond_with_error(ji)
+        jobitem = get_object(JobItem, key = 'id', get_params = request.GET)
+        if is_error(jobitem):
+            return respond_with_error(jobitem)
 
-        incoming_data = dict_from_json(request.body)
-        if is_error(incoming_data):
-            return respond_with_error(incoming_data)
-        
         # Check for the presence of something other than selling_price to see how much to update.
         # Presence of a field that isn't selling_price means it's a "full" update
-        if 'product' in incoming_data:
-            form = JobItemEditForm(incoming_data)
-            if not form.is_valid():
-                return invalid_form_error()
-        
-            update_result = ji.update(form)
+        # if 'product' in incoming_data:
+        full_edit_requested = is_full_edit_of_jobitem(request)
+        if is_error(full_edit_requested):
+            return respond_with_error(full_edit_requested)
+
+        elif full_edit_requested:
+            form = get_form_from_request(request, JobItemEditForm)
+            if is_error(form):
+                return respond_with_error(form)
+
+            update_result = jobitem.update(form)
             if is_error(update_result):
                 return respond_with_error(update_result)
-        
+
             return JsonResponse({
                 'ok': "true",
                 'refresh_needed': update_result['refresh_needed']
-            }, status = 200)                        
-        
+            }, status = 200)
+
         # If the not-selling_price field isn't there, assume we're only updating the price
         else:
-            form = JobItemPriceForm(incoming_data)
-            if not form.is_valid():
-                return invalid_form_error()
+            form = get_form_from_request(request, JobItemPriceForm)
+            if is_error(form):
+                return respond_with_error(form)
 
-            ji.update_price(form)
+            jobitem.update_price(form)
 
             return JsonResponse({
                 'ok': True,
                 'reload': 'true'
-            }, status=200)  
+            }, status=200)
 
 
     # User is fiddling with the product dropdown, so send them the description of the current item
@@ -537,11 +530,11 @@ def items(request):
 
     # User wishes to refresh a specific JobItem's data
     elif 'ji_id' in request.GET:
-        ji = get_object(JobItem, key = 'ji_id', get_params = request.GET)
-        if is_error(ji):
-            return respond_with_error(ji)       
+        jobitem = get_object(JobItem, key = 'ji_id', get_params = request.GET)
+        if is_error(jobitem):
+            return respond_with_error(jobitem)
 
-        response_data = ji.get_dict()
+        response_data = jobitem.get_dict()
         response_data['ok'] = True
 
         return JsonResponse(response_data, status=200)
@@ -566,10 +559,10 @@ def manage_modules(request, job_id):
     for ji in job_items:
         if ji.product.is_modular():
             modular_jobitems.append(ji)
-    
+
     if len(modular_jobitems) == 0:
         return error_page('This job has no modular items, so there are no modules to manage.')
- 
+
     data = get_dict_manage_modules(job, modular_jobitems)
 
     return render(request, 'adminas/manage_modules.html', data)
@@ -578,7 +571,7 @@ def manage_modules(request, job_id):
     #     'job': job,
     #     'items': modular_jobitems
     # })
-    
+
 
 def module_assignments(request):
     """
@@ -615,19 +608,15 @@ def module_assignments(request):
         jm_update_result = jobmodule.update(posted_data['qty'])
         if is_error(jm_update_result):
             return respond_with_error(jm_update_result)
-    
+
         return JsonResponse(jobmodule.parent.get_slot_status_dictionary(jobmodule.slot), status=200)
 
 
     # User created a new assignment
-    elif request.method == 'POST': 
-        posted_data = dict_from_json(request.body)
-        if is_error(posted_data):
-            return respond_with_error(posted_data)
-
-        posted_form = JobModuleForm(posted_data)
-        if not posted_form.is_valid():
-            return invalid_form_error()
+    elif request.method == 'POST':
+        posted_form = get_form_from_request(request, JobModuleForm)
+        if is_error(posted_form):
+            return respond_with_error(posted_form)
 
         jobmodule = create_jobmodule(posted_form)
         if is_error(jobmodule):
@@ -641,14 +630,14 @@ def module_assignments(request):
     requested_data = get_param_from_get_params('return', request.GET)
     if is_error(requested_data):
         return respond_with_error(requested_data)
-    
+
     parent = get_object(JobItem, key = 'parent', get_params = request.GET)
     if is_error(parent):
         return respond_with_error(parent)
 
     slot = get_object(Slot, key = 'slot', get_params = request.GET)
     if is_error(slot):
-        return respond_with_error(slot)            
+        return respond_with_error(slot)
 
     if requested_data == 'jobitems':
         data = {}
@@ -681,7 +670,7 @@ def get_data(request):
         address = get_object(Address, key = 'id', get_params = request.GET)
         if is_error(address):
             return respond_with_error(address)
-        
+
         return JsonResponse(address.as_dict(), status=200)
 
     elif data_category == 'select_options_list':
@@ -754,13 +743,13 @@ def get_data(request):
             response_data = job.get_dict()
             response_data['url'] = reverse('edit_job') + '?job=' + str(job.id)
 
-        elif component_name == 'documents': 
+        elif component_name == 'documents':
             doc_list = []
             for doc_version in job.related_documents():
                 doc_list.append(doc_version.summary())
 
             response_data['doc_list'] = doc_list
-        
+
         elif component_name == 'heading':
             response_data['names'] = {
                 'job_name': job.name,
@@ -784,7 +773,7 @@ def records(request):
     """
         Records page.
     """
-    
+
     # Filter jobs according to GET parameters, paginate, then get dict
     filtered_jobs = filter_jobs(request.GET)
 
@@ -833,24 +822,19 @@ def doc_builder(request):
         if is_error(doc_obj):
             return respond_with_error(doc_obj)
 
-        # Stick incoming data into validated forms
-        incoming_data = dict_from_json(request.body)
-        if is_error(incoming_data):
-            return respond_with_error(incoming_data)
+        doc_request_data = get_document_details_from_request(request)
+        if is_error(doc_request_data):
+            return respond_with_error(doc_request_data)
 
-        doc_forms = get_document_forms(incoming_data)
-        if is_error(doc_forms):
-            return respond_with_error(doc_forms)
+        update_result = doc_obj.update(
+                            request.user,\
+                            doc_request_data['doc_data_form'].cleaned_data['reference'],\
+                            doc_request_data['version_form'].cleaned_data['issue_date'],\
+                            doc_request_data['assigned_items'],\
+                            doc_request_data['special_instructions'],\
+                            doc_request_data['prod_data_form']
+                            )
 
-        # Attempt to update the document
-        update_result = doc_obj.update( request.user,\
-                                        doc_forms['doc_data'].cleaned_data['reference'],\
-                                        doc_forms['version'].cleaned_data['issue_date'],\
-                                        incoming_data['assigned_items'],\
-                                        incoming_data['special_instructions'],\
-                                        doc_forms['prod_data'])
-
-        # If the update went horribly wrong, return the error
         if is_error(update_result):
             return respond_with_error(update_result)
 
@@ -865,13 +849,9 @@ def doc_builder(request):
     elif request.method == 'POST':
 
         # Stick incoming data into forms
-        incoming_data = dict_from_json(request.body)
-        if is_error(incoming_data):
-            return respond_with_error(incoming_data)
-
-        doc_forms = get_document_forms(incoming_data)
-        if is_error(doc_forms):
-            return respond_with_error(doc_forms)
+        doc_request_data = get_document_details_from_request(request)
+        if is_error(doc_request_data):
+            return respond_with_error(doc_request_data)
 
         # Obtain job and doc_code from the GET params
         job = get_object(Job, key = 'job', get_params = request.GET)
@@ -883,9 +863,12 @@ def doc_builder(request):
             return doc_code
 
         # Create the new document
-        doc_obj = create_document(  doc_forms['doc_data'], doc_code, job, request.user, doc_forms['version'],\
-                                    incoming_data['assigned_items'], incoming_data['special_instructions'],\
-                                    doc_forms['prod_data'])
+        doc_obj = create_document(  request.user, job, doc_code,\
+                                    doc_request_data['doc_data_form'],
+                                    doc_request_data['version_form'],\
+                                    doc_request_data['assigned_items'],\
+                                    doc_request_data['special_instructions'],\
+                                    doc_request_data['prod_data_form'])
 
         return JsonResponse({
             'redirect': f"{reverse('doc_builder')}?id={doc_obj.id}"
@@ -988,7 +971,7 @@ def document_pdf(request, doc_id):
                                             'enable-local-file-access': True},
                                 )
     return response
-   
+
 
 def document_main(request, doc_id):
     """
@@ -998,7 +981,7 @@ def document_main(request, doc_id):
         return anonymous_user(request)
 
     # Despite mostly being read-only, there are two "emergency" updates allowed: revert and replace
-    if request.method == 'POST':      
+    if request.method == 'POST':
         this_version = get_object(DocumentVersion, id = doc_id)
         if is_error(this_version):
             return respond_with_error(this_version)
@@ -1076,6 +1059,27 @@ def document_main(request, doc_id):
 
 
 
+def request_contains_formset(request):
+    posted_data = dict_from_json(request.body)
+    if is_error(posted_data):
+        return posted_data
+    return 'form-TOTAL_FORMS' in posted_data
+
+
+def is_full_edit_of_jobitem(request):
+    posted_data = dict_from_json(request.body)
+    if is_error(posted_data):
+        return posted_data
+
+    # Check for the presence of any JobItem field other than selling_price
+    # ("partial" edits = selling_price only)
+    return 'product' in posted_data
+
+
+def dict_contains_production_data(dict):
+    return 'req_prod_date' in dict
+
+
 # || Form helpers
 def invalid_form_error():
     return error("Invalid form data.", 400)
@@ -1085,16 +1089,19 @@ def get_form_from_request(request, form_funct):
     dict = dict_from_json(request.body)
     if is_error(dict):
         return dict
+    return get_validated_form(dict, form_funct)
 
-    form_or_err = form_funct(dict)
-    if is_error(form_or_err):
-        return form_or_err
 
-    check = check_form_validity(form_or_err)
+def get_validated_form(dict, form_funct):
+    form = form_funct(dict)
+    if is_error(form):
+        return form
+
+    check = check_form_validity(form)
     if is_error(check):
         return check
-    
-    return form_or_err
+
+    return form
 
 
 def check_form_validity(form):
@@ -1115,19 +1122,16 @@ def get_comment_form(posted_data):
     return comment_form
 
 
-def get_po_form(posted_data):
-    return POForm(posted_data)
-
-def get_jobitem_form(dict):
-    parent = get_object(JobItem, key = 'parent', dict = dict)
+def get_jobitem_form(posted_data):
+    parent = get_object(JobItem, key = 'parent', dict = posted_data)
     if is_error(parent):
         return parent
-    
-    product = get_object(Product, key = 'product', dict = dict)
+
+    product = get_object(Product, key = 'product', dict = posted_data)
     if is_error(product):
         return product
 
-    quantity = get_param_from_dict(key = 'quantity', dict = dict)
+    quantity = get_param_from_dict(key = 'quantity', dict = posted_data)
     if is_error(quantity):
         return quantity
 
@@ -1139,41 +1143,49 @@ def get_jobitem_form(dict):
         'selling_price': product.get_price(parent.job.currency, parent.price_list)
     })
 
-    check = check_form_validity(form)
-    if is_error(check):
-        return check
-
     return form
 
 
-def get_document_forms(incoming_data):
-    
-    doc_data_form = DocumentDataForm({
-        'reference': incoming_data['reference']
-    })
-    version_form = DocumentVersionForm({
-        'issue_date': incoming_data['issue_date']
-    })
+def get_document_details_from_request(request):
+    incoming_data = dict_from_json(request.body)
+    if is_error(incoming_data):
+        return incoming_data
 
-    # Form specific to a certain document type.
-    doctype_specific_fields_exist = False
-    doctype_specific_fields_are_ok = True
-    if 'req_prod_date' in incoming_data:
-        doctype_specific_fields_exist = True
-        prod_data_form = ProductionReqForm({
+    doc_data_form = get_validated_form({
+        'reference': incoming_data['reference']
+    }, DocumentDataForm)
+    if is_error(doc_data_form):
+        return doc_data_form
+
+    version_form = get_validated_form({
+        'issue_date': incoming_data['issue_date']
+    }, DocumentVersionForm)
+    if is_error(version_form):
+        return version_form
+
+    if dict_contains_production_data(incoming_data):
+        prod_data_form = get_validated_form({
             'date_requested': incoming_data['req_prod_date'],
             'date_scheduled': incoming_data['sched_prod_date']
-        })
-        doctype_specific_fields_are_ok = prod_data_form.is_valid()
-    
-    if not (doc_data_form.is_valid() and version_form.is_valid() and (not doctype_specific_fields_exist or doctype_specific_fields_are_ok)):
-        debug(doc_data_form.errors)
-        debug(version_form.errors)
-        debug(prod_data_form.errors)
-        return invalid_form_error()
-    
+        }, ProductionReqForm)
+
+        if is_error(prod_data_form):
+            return prod_data_form
+    else:
+        prod_data_form = None
+
     return {
-        'doc_data': doc_data_form,
-        'version': version_form,
-        'prod_data': None if not doctype_specific_fields_exist else prod_data_form
+        'doc_data_form': doc_data_form,
+        'version_form': version_form,
+        'prod_data_form': prod_data_form,
+        'assigned_items': incoming_data['assigned_items'],
+        'special_instructions': incoming_data['special_instructions']
     }
+
+
+
+
+
+
+
+

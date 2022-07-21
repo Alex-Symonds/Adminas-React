@@ -469,7 +469,7 @@ def create_comment(comment_form, user, job):
     return comment
 
 
-def create_document(data_form, doc_code, job_obj, user, version_form, assigned_items, special_instructions, prod_data_form):
+def create_document(user, job_obj, doc_code, data_form, version_form, assigned_items, special_instructions, prod_data_form):
     """
     Create one new "document", consisting of: the "main" document; version 1 of the document;
     production data (if applicable), item assignments and special instructions.
