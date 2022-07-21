@@ -122,16 +122,15 @@ def get_object(model_class, **kwargs):
         id = kwargs['id']
 
     elif 'key' in kwargs and 'get_params' in kwargs:
-        id_or_error = get_param_from_get_params(kwargs['key'], kwargs['get_params'])
-        if is_error(id_or_error):
-            return id_or_error
-        id = id_or_error['result']
+        id = get_param_from_get_params(kwargs['key'], kwargs['get_params'])
+        if is_error(id):
+            return id
+
 
     elif 'key' in kwargs and 'dict' in kwargs:
-        id_or_error = get_param_from_dict(kwargs['key'], kwargs['posted_data'])
-        if is_error(id_or_error):
-            return id_or_error
-        id = id_or_error['result']
+        id = get_param_from_dict(kwargs['key'], kwargs['posted_data'])
+        if is_error(id):
+            return id
 
     else:
        return invalid_kwargs() 
@@ -218,12 +217,10 @@ def paginate_from_get(sorted_items, get_params, num_per_page = 10):
         paginator = Paginator(sorted_items, num_per_page)
 
         # Get the requested page number (fallback to 1 if this wasn't specified)
-        pagenum_or_err = get_param_from_get_params('page', get_params)
-        if is_error(pagenum_or_err):
+        requested_page_num = get_param_from_get_params('page', get_params)
+        if is_error(requested_page_num):
             requested_page_num = 1
-        else:
-            requested_page_num = pagenum_or_err['result']
-        
+
         return paginator.page(requested_page_num)
 
     return None
@@ -241,11 +238,11 @@ def get_dict_currency(currency_tuple):
 def get_dict_document_builder_settings(get_params):
     result = {}
     if 'id' in get_params:
-        doc_or_err = get_object(adminas.models.DocumentVersion, id = get_params['id'])
-        if is_error(doc_or_err):
-            return doc_or_err
+        doc_obj = get_object(adminas.models.DocumentVersion, id = get_params['id'])
+        if is_error(doc_obj):
+            return doc_obj
 
-        doc_obj = doc_or_err['obj']
+        doc_obj = doc_obj
         if doc_obj.issue_date != None:
             return error("Forbidden: documents which have been issued cannot be updated.", 403)
 
@@ -258,12 +255,12 @@ def get_dict_document_builder_settings(get_params):
 
     elif 'job' in get_params and 'type' in get_params:
         # Prepare variables for new documents (used by POST+CREATE and GET+NEW)
-        job_or_err = get_object(adminas.models.Job, id = get_params['job'])
-        if is_error(job_or_err):
-            return job_or_err
+        job = get_object(adminas.models.Job, id = get_params['job'])
+        if is_error(job):
+            return job
         
         result['doc_obj'] = None
-        result['job_obj'] = job_or_err['obj']
+        result['job_obj'] = job
         result['doc_code'] = get_params['type']
         result['doc_ref'] = ''
         result['doc_title'] = f"Create New {dict(DOCUMENT_TYPES).get(result['doc_code'])}"
@@ -493,13 +490,13 @@ def create_document_assignment(doc_obj, jiid, new_qty):
     """
     Create a document assignment for a jobitem.
     """
-    ji_or_err = get_object(adminas.models.JobItem, id = int(jiid))
-    if is_error(ji_or_err):
+    ji = get_object(adminas.models.JobItem, id = int(jiid))
+    if is_error(ji):
         return error("Invalid assignment data (C).", 400)
 
     assignment = adminas.models.DocAssignment(
         version = doc_obj,
-        item = ji_or_err['obj'],
+        item = ji,
         quantity = int(new_qty)
     )
     assignment.quantity = min(assignment.quantity, assignment.max_quantity_excl_self())

@@ -1082,6 +1082,15 @@ table.price-comparison .conclusion th, table.price-comparison .conclusion td {
   display: block;
   font-style: italic;
   color: #BBB;
+  padding: 0.2rem 0.7rem;
+  background: #141414;
+  border-radius: 0.3rem;
+  text-align: center;
+  position: absolute;
+  z-index: 8;
+  bottom: 1.5rem;
+  left: 0;
+  max-width: 10rem;
 }
 #price_check_table .temp-warning-msg {
   position: absolute;
@@ -1145,12 +1154,7 @@ table.price-comparison .conclusion th, table.price-comparison .conclusion td {
   }
   #price_check_table .description .details {
     padding: 0.2rem 0.4rem;
-    background: #141414;
-    border-radius: 0.3rem;
-    position: absolute;
-    z-index: 8;
-    top: -1.4rem;
-    left: 0;
+    bottom: 1rem;
     max-width: 90%;
   }
   #price_check_table .selling-price-container {
