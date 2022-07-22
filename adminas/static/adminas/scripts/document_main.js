@@ -20,16 +20,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     replace_btn = document.querySelector('#' + ID_DOCUMENT_REPLACEMENT_BTN);
     if(replace_btn != null){
-        replace_btn.addEventListener('click', (e) => {
-            next_or_previous_document_version(e.target, 'replace');
+        replace_btn.addEventListener('click', () => {
+            next_or_previous_document_version('replace');
         });
     }
 
     revert_btn = document.querySelector('#' + ID_DOCUMENT_REVERT_BTN);
     if(revert_btn != null){
 
-        revert_btn.addEventListener('click', (e) => {
-            next_or_previous_document_version(e.target, 'revert');
+        revert_btn.addEventListener('click', () => {
+            next_or_previous_document_version('revert');
         });
 
     }
@@ -37,27 +37,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 // Adjust the version on the server and update the frontend
-function next_or_previous_document_version(btn, taskname){
-    fetch(`${URL_DOC_MAIN}`, {
-        method: 'POST',
-        body: JSON.stringify({
-            'task': taskname
-        }),
-        headers: getDjangoCsrfHeaders(),
-        credentials: 'include'
-    })
+function next_or_previous_document_version(taskname){
+    let fetch_dict = get_fetch_dict('POST', { 'task': taskname });
+
+    fetch(`${URL_DOC_MAIN}`, fetch_dict)
     .then(response => response.json())
     .then(data => {
-        // If the server responds with "redirect", go to the page.
         if ('redirect' in data){
             window.location.href = data['redirect'];
-        // If the server responds with a "message", display it.
-        } else if ('message' in data) {
+
+        } else if(responded_with_error(data)) {
             display_document_response_message(data, document.querySelector('.status-controls'));
-        // If the server falls on its face, display a generic message.   
+
         } else {
             data = {}
-            data['message'] = 'Something went wrong';
+            data[KEY_RESPONSE_ERROR_MSG] = 'Something went wrong';
             display_document_response_message(data, document.querySelector('.status-controls'));
         }
     })

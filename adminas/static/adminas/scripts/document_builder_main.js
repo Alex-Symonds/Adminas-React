@@ -187,22 +187,6 @@ function update_document_on_server(issue_date){
 }
 
 
-// Response message (documents)
-function display_document_response_message(data, anchor_ele){
-    let message_ele = document.querySelector('.' + CLASS_MESSAGE_BOX);
-
-    if(message_ele == null){
-        message_ele = create_message_ele();
-        anchor_ele.append(message_ele);
-    }
-
-    if(responded_with_error(data)){
-        message_ele.innerHTML = `Error: ${data[KEY_RESPONSE_ERROR_MSG]} @ ${get_date_time()}`;
-        return;
-    }
-
-    message_ele.innerHTML = `${data['message']} @ ${get_date_time()}`;
-}
 
 
 // Issue and Save: shared function to grab all the inputs from the page and make a nice JSONable dict

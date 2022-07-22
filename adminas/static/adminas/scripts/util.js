@@ -138,7 +138,14 @@ function wipe_data_from_form(form_ele){
 // CREATE GENERIC DOM ELEMENTS
 // -------------------------------------
 
-// Response message (documents)
+// Response message (general)
+function create_message_ele(){
+    let message_ele = document.createElement('div');
+    message_ele.classList.add(CLASS_MESSAGE_BOX);
+    return message_ele;
+}
+
+// Response message (documents, used by both Builder and Main)
 function display_document_response_message(data, anchor_ele){
     let message_ele = document.querySelector('.' + CLASS_MESSAGE_BOX);
 
@@ -155,12 +162,6 @@ function display_document_response_message(data, anchor_ele){
     message_ele.innerHTML = `${data['message']} @ ${get_date_time()}`;
 }
 
-// Response message (general)
-function create_message_ele(){
-    let message_ele = document.createElement('div');
-    message_ele.classList.add(CLASS_MESSAGE_BOX);
-    return message_ele;
-}
 
 // Forms or "forms". New JI Form, Edit Filled Slot: create a quantity field
 function get_jobitem_qty_field(){

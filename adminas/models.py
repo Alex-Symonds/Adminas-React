@@ -1864,7 +1864,7 @@ class DocumentVersion(AdminAuditTrail):
         previous_qs = DocumentVersion.objects.filter(document=self.document).filter(version_number=self.version_number - 1)
         
         if previous_qs.count() == 0:
-            return None
+            return error('Revert version has failed. There is no previous version.', 400)
         
         previous = previous_qs.order_by('-created_on')[0]
 
@@ -1874,7 +1874,7 @@ class DocumentVersion(AdminAuditTrail):
         # If previous clashes with other documents' item assignments, reactivate self and abort the revert
         if previous.item_assignments_clash():
             self.reactivate()
-            return None
+            return error('Revert version has failed. Some items have been assigned to other documents of the same type.', 409)
 
         # Otherwise, proceed with the revert.
         else:
