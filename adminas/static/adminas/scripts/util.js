@@ -11,6 +11,11 @@ const CSS_GENERIC_FORM_LIKE = 'form-like';
 
 const KEY_RESPONSE_ERROR_MSG = 'error';
 
+function response_is_error(response_json){
+    return 'error' in response_json;
+}
+
+
 // When deleting something, check for 204 before attempting to JSON anything.
 async function jsonOr204(response){
     if(response.status === 204) return 204;

@@ -25,8 +25,15 @@ async function update_address(ele){
 
     if(ele.selectedIndex != 0){
         let json_response = await get_address_from_server(ele.value);
-        let display_address = process_address(json_response);
-        display_div.innerHTML = display_address;
+
+        if(responded_with_error(json_response)){
+            display_div.innerHTML = json_response[KEY_RESPONSE_ERROR_MSG];
+
+        } else {
+            let display_address = process_address(json_response);
+            display_div.innerHTML = display_address;
+        }
+
     } else {
         display_div.innerHTML = '';
     }

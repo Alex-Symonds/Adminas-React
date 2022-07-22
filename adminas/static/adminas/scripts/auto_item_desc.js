@@ -53,17 +53,24 @@ function update_auto_description(e){
 }
 
 function display_auto_description(e, data){
+    const expected_key = 'desc';
     let desc_span = e.target.nextElementSibling;
-    desc_span.innerHTML = data['desc'];
 
-    if(data['desc'].trim() !== ''){
-        if(desc_span.classList.contains('hide')){
+    if(expected_key in data) {
+        desc_span.innerHTML = data[expected_key];
+
+        if(desc_span.classList.contains('hide') && data[expected_key].trim() !== ''){
             desc_span.classList.remove('hide');
-        }
-    } else {
-        if(!desc_span.classList.contains('hide')){
+    
+        } else if(!desc_span.classList.contains('hide') && data[expected_key].trim() === ''){
             desc_span.classList.add('hide');
-        }  
+        }
+
+    } else if(responded_with_error(data)){
+        desc_span.innerHTML = data[KEY_RESPONSE_ERROR_MSG];
+        
+    } else {
+        desc_span.innerHTML = 'Error retrieving description.'
     }
 }
 
