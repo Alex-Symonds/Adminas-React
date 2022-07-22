@@ -167,9 +167,14 @@ def extract_toggle_data(posted_data):
     """
 
     if 'pinned' in posted_data:
-        return posted_data['pinned']
+        return {
+            'pinned': posted_data['pinned']
+        }
+
     if 'highlighted' in posted_data:
-        return posted_data['highlighted']
+        return {
+            'highlighted': posted_data['highlighted']
+        }
 
     return error('Invalid request', 400)
 

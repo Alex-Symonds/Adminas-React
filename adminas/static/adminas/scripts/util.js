@@ -4,6 +4,7 @@
 
 const QTY_RE = /\d+(?=( x ))/g;
 const CLASS_MESSAGE_BOX = 'system-message-box';
+const CLASS_ERROR_MESSAGE = 'temp-warning-msg';
 
 const CSS_GENERIC_PANEL = 'panel';
 const CSS_GENERIC_PANEL_HEADING = 'panel-header';
@@ -63,14 +64,14 @@ function get_last_element(selector){
 }
 
 
-function get_fetch_dict(method, body = None){
+function get_fetch_dict(method, body = null){
     let fetch_dict = {
         method: method,
         headers: getDjangoCsrfHeaders(),
         credentials: 'include'         
     }
 
-    if(body != none){
+    if(body != null){
         fetch_dict.body = JSON.stringify(body);
     }
 
@@ -142,7 +143,25 @@ function wipe_data_from_form(form_ele){
 function create_message_ele(){
     let message_ele = document.createElement('div');
     message_ele.classList.add(CLASS_MESSAGE_BOX);
+
     return message_ele;
+}
+
+function create_dismissable_error(message_str){
+    let error_message_ele = document.createElement('div');
+    error_message_ele.classList.add(CLASS_ERROR_MESSAGE);
+
+    let display_str_ele = document.createElement('div');
+    display_str_ele.innerHTML = message_str;
+    error_message_ele.append(display_str_ele);
+
+    let dismiss_btn = create_generic_ele_cancel_button();
+    dismiss_btn.addEventListener('click', (e) => {
+        e.target.closest(`.${CLASS_ERROR_MESSAGE}`).remove();
+    })
+    error_message_ele.append(dismiss_btn);
+
+    return error_message_ele;
 }
 
 // Response message (documents, used by both Builder and Main)

@@ -41,7 +41,7 @@ const CLASS_PINNED_BTN_ON = 'pinned-status-on';
 const CLASS_PINNED_BTN_OFF = 'pinned-status-off';
 const CLASS_PRIVACY_STATUS = 'privacy-status';
 
-const CLASS_ACCESS_DENIED = 'access-denied';
+const CLASS_ACCESS_DENIED = 'temp-warning-msg';
 
 const CLASS_COMMENT_SECTION = 'comments';
 const CLASS_COMMENTS_CONTAINER = 'comment-container';
@@ -70,6 +70,11 @@ const CLASS_WANT_STREAMLINED = 'streamlined';
 const CLASS_WANT_TOGGLE_H5 = 'toggle-heading';
 const CLASS_WANT_EMPTY_P = 'empty-paragraph';
 const STR_FALLBACK = '???';
+
+// Used to position backend error messages when creating a new comment has failed
+const CLASS_CREATE_COMMENT_CONTAINER = 'create-comments-container';
+
+
 
 // Assign event listeners onload
 document.addEventListener('DOMContentLoaded', () => {
@@ -121,10 +126,6 @@ function open_jobcomment_editor_for_create(btn){
     // Create the form-like for editing a job comment
     var job_comment_form = create_ele_jobcomment_editor(DEFAULT_COMMENT_ID, btn.dataset.form_type !== VALUE_FORM_TYPE_CONTENT_ONLY, TASK_CREATE_COMMENT);
     btn.after(job_comment_form);
-
-    job_comment_form.querySelector(`.${CLASS_SAVE_BTN}`).addEventListener('click', (e) => {
-        create_new_comment(e.target);
-    });
 
     // Hide the buttons that call this function in the (vain?) hope of preventing the user from somehow opening multiple copies of the element.
     visibility_add_comment_btn(false);
@@ -394,7 +395,13 @@ function visibility_add_comment_btn(want_visibility){
 async function save_new_job_comment(btn){
     let data = make_jobcomment_dict(btn);
     let response = await backend_create_job_comment(btn, data);
-    update_job_page_comments_after_create(response);
+
+    if(responded_with_error(response)){
+        update_job_page_comments_after_failed_create(response, btn);
+    }
+    else {
+        update_job_page_comments_after_create(response);
+    }  
 }
 
 // Backend (Update): called onclick of the "save" button on the JobComment form-like
@@ -402,8 +409,8 @@ async function save_updated_job_comment(btn){
     let data = make_jobcomment_dict(btn);
     let response = await backend_update_job_comment(btn, data);
 
-    if('message' in response){
-        update_job_page_comments_after_denied(response['message'], btn.closest('.' + CLASS_INDIVIDUAL_COMMENT_ELE));
+    if(responded_with_error(response)){
+        update_job_page_comments_after_failed_update(response, btn);
     }
     else {
         update_job_page_comments_after_update(response);
@@ -483,18 +490,15 @@ function make_jobcomment_dict_simplified(btn){
 
 // Backend (Create): prepare the data and send it off to the server
 async function backend_create_job_comment(btn, data){
+    let fetch_dict = get_fetch_dict('POST', {
+        'contents': data['contents'],
+        'private': data['private'],
+        'pinned': data['pinned'],
+        'highlighted': data['highlighted']
+    });
     let url = get_jobcomments_url(btn);
-    let response = await fetch(`${url}`, {
-        method: 'POST',
-        body: JSON.stringify({
-            'contents': data['contents'],
-            'private': data['private'],
-            'pinned': data['pinned'],
-            'highlighted': data['highlighted']
-        }),
-        headers: getDjangoCsrfHeaders(),
-        credentials: 'include'
-    })
+
+    let response = await fetch(`${url}`, fetch_dict)
     .catch(error => {
         console.log('Error: ', error);
     });
@@ -550,7 +554,7 @@ async function delete_job_comment(btn){
     if(data === 204){
         update_job_page_comments_after_delete(comment_ele.dataset.comment_id);
     } else {
-        update_job_page_comments_after_denied(data['message'], comment_ele);       
+        update_job_page_comments_after_failed_update(data, btn);       
     }
 }
 
@@ -591,22 +595,42 @@ async function delete_job_comment_on_server(btn, comment_id){
 // Frontend End: following JobComment Create
 // --------------------------------------------------------------------------------------------
 // DOM (Create): main function, managing post-creation frontend changes
-function update_job_page_comments_after_create(response){
+function update_job_page_comments_after_create(response_data){
     close_jobcomment_editor();
 
-    let class_to_find_comment = get_class_to_find_comment(response['id']);
-    add_comment_to_section(class_to_find_comment, CLASS_ALL_COMMENTS_CONTAINER, response);
+    let class_to_find_comment = get_class_to_find_comment(response_data['id']);
+    add_comment_to_section(class_to_find_comment, CLASS_ALL_COMMENTS_CONTAINER, response_data);
 
-    if(response['pinned']){
-        add_comment_to_section(class_to_find_comment, CLASS_PINNED_COMMENTS_CONTAINER, response);
+    if(response_data['pinned']){
+        add_comment_to_section(class_to_find_comment, CLASS_PINNED_COMMENTS_CONTAINER, response_data);
     }
 
-    if(response['highlighted']){
-        add_comment_to_section(class_to_find_comment, CLASS_HIGHLIGHTED_COMMENTS_CONTAINER, response);
+    if(response_data['highlighted']){
+        add_comment_to_section(class_to_find_comment, CLASS_HIGHLIGHTED_COMMENTS_CONTAINER, response_data);
     }
 
     remove_all_jobcomment_warnings();
 }
+
+function update_job_page_comments_after_failed_create(response_data, submit_btn){
+    // Submit button is inside the editor, so use it to find the parent section BEFORE closing.
+    let target_section = submit_btn.closest(`.${CLASS_CREATE_COMMENT_CONTAINER}`);
+    close_jobcomment_editor();
+
+    let open_editor_btn = target_section.querySelector(`.${CLASS_ADD_BUTTON}`);
+    let error_message_ele = create_dismissable_error(response_data[KEY_RESPONSE_ERROR_MSG]);
+
+    open_editor_btn.after(error_message_ele);
+    remove_all_jobcomment_warnings();
+}
+
+
+
+
+
+
+
+
 
 
 // DOM (Create Comment Ele): Make a new comment element.
@@ -834,20 +858,13 @@ function get_comment_privacy_status_ele(){
 // Frontend End: following JobComment Denied
 // --------------------------------------------------------------------------------------------
 // DOM Denied: called by handler function
-function update_job_page_comments_after_denied(response_str, comment_ele){
+function update_job_page_comments_after_failed_update(response_data, btn){
+    let comment_ele = btn.closest('.' + CLASS_INDIVIDUAL_COMMENT_ELE)
     close_jobcomment_editor();
 
     let contents_ele = comment_ele.querySelector('.contents');
-    let access_denied_ele = get_access_denied_ele(response_str);
+    let access_denied_ele = create_dismissable_error(response_data[KEY_RESPONSE_ERROR_MSG]);
     contents_ele.prepend(access_denied_ele);
-}
-
-// DOM Denied: create the message element
-function get_access_denied_ele(response_str){
-    let result = document.createElement('p');
-    result.classList.add(CLASS_ACCESS_DENIED);
-    result.innerHTML = response_str;
-    return result;
 }
 
 

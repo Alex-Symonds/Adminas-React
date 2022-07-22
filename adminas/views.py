@@ -248,6 +248,7 @@ def comments(request):
     # User wants to delete a job comment
     if request.method == 'DELETE':
         comment = get_comment(request, True)
+
         if is_error(comment):
             return respond_with_error(comment)
         else:
@@ -286,7 +287,6 @@ def comments(request):
             if is_error(toggle_details):
                 return respond_with_error(toggle_details)
 
-            comment = comment['comment']
             comment.update_toggles(toggle_details, request.user)
 
         # Report success
@@ -306,6 +306,9 @@ def comments(request):
         job = get_object(Job, key = 'job_id', get_params = request.GET)
         if is_error(job):
             respond_with_error(job)
+
+        test = error('Testing appearance of errors', 400)
+        return respond_with_error(test)
 
         # Create new comment then respond with all the data needed to display a new comment on the page
         comment = create_comment(comment_form, request.user, job)
@@ -1002,17 +1005,13 @@ def document_main(request, doc_id):
                 })
 
             except:
-                return JsonResponse({
-                    'message': 'Replacement failed'
-                }, status=500)
+                return respond_with_error(error('Replacement failed', 500))
 
         elif task == 'revert':
             previous_version = this_version.revert_to_previous_version()
 
-            if previous_version == None:
-                return JsonResponse({
-                    'message': 'Revert version has failed (some items have been assigned to other documents of the same type)'
-                }, status=405)
+            if is_error(previous_version):
+                return respond_with_error(previous_version)
 
             else:
                 # While we're /generally/ deactivating document versions instead of .delete()ing them, it'd be nice if misclicks didn't result in

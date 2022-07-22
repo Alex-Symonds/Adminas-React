@@ -1059,6 +1059,18 @@ nav li a:hover {
   box-shadow: 0 0 1rem 1.5rem rgba(0, 0, 0, 0.4);
 }
 
+.create-comments-container {
+  display: block;
+  width: 100%;
+}
+
+.all-comments .create-comments-container {
+  margin: 0 0 0 0;
+}
+.all-comments .create-comments-container .job-comment-cu-container {
+  margin: 0 0 1rem 0;
+}
+
 .job-comment-cu-container {
   background: #444;
   padding: 2px 5px 0;
@@ -1093,7 +1105,8 @@ nav li a:hover {
 .job-comment-cu-container .checkbox-container input {
   margin: 1px 0 0 7px;
 }
-.job-comment-cu-container .checkbox-container #id_private_checkbox, .job-comment-cu-container .checkbox-container #id_pinned_checkbox {
+.job-comment-cu-container .checkbox-container #id_private_checkbox,
+.job-comment-cu-container .checkbox-container #id_pinned_checkbox {
   margin-right: 1.9rem;
 }
 

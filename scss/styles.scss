@@ -1368,6 +1368,20 @@ nav{
     }
 }
 
+.create-comments-container{
+    display: block;
+    width: 100%;
+}
+.all-comments{
+    .create-comments-container{
+        margin: 0 0 0 0;
+    
+        .job-comment-cu-container{
+            margin: 0 0 1rem 0;
+        }
+    }
+}
+
 .job-comment-cu-container{
     background: v.$c_tone_02;
     padding: 2px 5px 0;
@@ -1406,7 +1420,8 @@ nav{
         input{
             margin: 1px 0 0 7px;
         }
-        #id_private_checkbox, #id_pinned_checkbox{
+        #id_private_checkbox,
+        #id_pinned_checkbox{
             margin-right: 1.9rem;
         }
 
@@ -1525,3 +1540,5 @@ nav{
         }        
     }
 }
+
+
