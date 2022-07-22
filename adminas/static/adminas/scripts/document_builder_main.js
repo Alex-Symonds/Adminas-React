@@ -152,21 +152,16 @@ function update_document_on_server(issue_date){
 
     // DOC_ID 0 = creating a new document, so the server needs to know the Job ID and doc type
     if(DOC_ID == '0'){
-        var URL = `${URL_DOCBUILDER}?job=${JOB_ID}&type=${DOC_CODE}`;
-        var method = 'POST';
+        var get_params = `job=${JOB_ID}&type=${DOC_CODE}`;
+        var fetch_dict = get_fetch_dict('POST', dict);
 
     // DOC_ID not 0 = updating an existing document, so the ID alone is sufficient
     } else {
-        var URL = `${URL_DOCBUILDER}?id=${DOC_ID}`;
-        var method = 'PUT';
+        var get_params = `id=${DOC_ID}`;
+        var fetch_dict = get_fetch_dict('PUT', dict);
     }
 
-    fetch(URL, {
-        method: method,
-        body: JSON.stringify(dict),
-        headers: getDjangoCsrfHeaders(),
-        credentials: 'include'
-    })
+    fetch(`${URL_DOCBUILDER}?${get_params}`, fetch_dict)
     .then(response => response.json())
     .then(data => {
 
@@ -182,7 +177,6 @@ function update_document_on_server(issue_date){
             remove_save_warning_ele();
 
             if ('doc_is_valid' in data){
-
                 clear_validity_warnings(data);
             }
         }
@@ -193,12 +187,30 @@ function update_document_on_server(issue_date){
 }
 
 
+// Response message (documents)
+function display_document_response_message(data, anchor_ele){
+    let message_ele = document.querySelector('.' + CLASS_MESSAGE_BOX);
+
+    if(message_ele == null){
+        message_ele = create_message_ele();
+        anchor_ele.append(message_ele);
+    }
+
+    if(responded_with_error(data)){
+        message_ele.innerHTML = `Error: ${data[KEY_RESPONSE_ERROR_MSG]} @ ${get_date_time()}`;
+        return;
+    }
+
+    message_ele.innerHTML = `${data['message']} @ ${get_date_time()}`;
+}
+
+
 // Issue and Save: shared function to grab all the inputs from the page and make a nice JSONable dict
 function get_document_data_as_dict(issue_date){
     let dict = {};
     dict['reference'] = document.querySelector('#id_doc_reference').value;
     dict['issue_date'] = issue_date;
-    dict['assigned_items'] = get_assignment_object(); //get_assigned_items_as_list();
+    dict['assigned_items'] = get_docitems_assignment_object();
     dict['special_instructions'] = get_special_instructions_as_list();
 
     // Document-type-specific fields. (There's only two at present, so handle it here instead of having a separate function)
@@ -227,47 +239,32 @@ function get_document_data_as_dict(issue_date){
     return dict;
 }
 
-// Issue and Save: get a list of ID and quantity for every JobItem included on this document via the "includes" <ul>
-function get_assigned_items_as_list(){
-    let assigned_items = [];
+// Issue and Save: get an object with a key for each JobItem ID and a value indicating the desired assignment quantity
+function get_docitems_assignment_object(){
+    // JobItems can be split, so the same one can appear in both included and excluded lists. 
+    // When that happens, the quantity from the included entry is the one that's needed.
+    // The backend uses the 0 quantities to determine which existing assignments should be deleted.
     let assigned_ul = document.querySelector('#' + ID_INCLUDES_UL);
-
-    if(null == assigned_ul.querySelector('.' + CLASS_NONE_LI)){
-        Array.from(assigned_ul.children).forEach(ele => {
-            if(ele.tagName == 'LI'){
-                let d = {}
-                d['quantity'] = ele.querySelector('.display').innerHTML.match(QTY_RE)[0];
-                d['id'] = ele.dataset.jiid;
-                assigned_items.push(d);
-            }
-        });
-    }
-    return assigned_items;
+    let unassigned_ul = document.querySelector('#' + ID_EXCLUDES_UL);
+    let unassigned_object = ul_to_partial_docitems_assignment_object(unassigned_ul, true);
+    let assigned_object = ul_to_partial_docitems_assignment_object(assigned_ul, false);
+    return {...unassigned_object, ...assigned_object};
 }
 
-// Run through one of the ULs grabbing each <li> and turning it into a key/value pair
-// (key = jiid; value = quantity)
-function ul_to_assignment_object(ul_ele, want_actual_quantity){
+// Issue and Save: use a <ul> to generate an object with a key for each JobItem ID and the value being the desired assignment quantity
+function ul_to_partial_docitems_assignment_object(ul_ele, force_0_quantity){
     let result = {}
     if(null == ul_ele.querySelector('.' + CLASS_NONE_LI)){
         Array.from(ul_ele.children).forEach(ele => {
             if(ele.tagName == 'LI'){
                 id_to_str = String(ele.dataset.jiid);
-                result[id_to_str] = want_actual_quantity ? parseInt(ele.querySelector('.display').innerHTML.match(QTY_RE)[0]) : 0;
+                result[id_to_str] = force_0_quantity ? 0 : parseInt(ele.querySelector('.display').innerHTML.match(QTY_RE)[0]);
             }
         });
     }
     return result;
 }
 
-
-function get_assignment_object(){
-    let assigned_ul = document.querySelector('#' + ID_INCLUDES_UL);
-    let unassigned_ul = document.querySelector('#' + ID_EXCLUDES_UL);
-    let unassigned_object = ul_to_assignment_object(unassigned_ul, false);
-    let assigned_object = ul_to_assignment_object(assigned_ul, true);
-    return {...unassigned_object, ...assigned_object};
-}
 
 
 
@@ -293,13 +290,10 @@ function get_special_instructions_as_list(){
 // Display a warning window, then send the request to the server.
 function delete_document(){
     let delete_confirmed = confirm('Deleting a document cannot be undone except by a system administrator. Are you sure?');
-
     if(delete_confirmed){
-        fetch(`${URL_DOCBUILDER}?id=${DOC_ID}`,{
-            method: 'DELETE',
-            headers: getDjangoCsrfHeaders(),
-            credentials: 'include'         
-        })
+
+        let fetch_dict = get_fetch_dict('DELETE');
+        fetch(`${URL_DOCBUILDER}?id=${DOC_ID}`, fetch_dict)
         .then(response => response.json())
         .then(data => {
             if ('redirect' in data){
@@ -311,6 +305,7 @@ function delete_document(){
         .catch(error => {
             console.log('Error: ', error)
         })
+
     }
 }
 

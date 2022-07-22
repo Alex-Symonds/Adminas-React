@@ -11,10 +11,6 @@ const CSS_GENERIC_FORM_LIKE = 'form-like';
 
 const KEY_RESPONSE_ERROR_MSG = 'error';
 
-function response_is_error(response_json){
-    return 'error' in response_json;
-}
-
 
 // When deleting something, check for 204 before attempting to JSON anything.
 async function jsonOr204(response){
@@ -65,6 +61,22 @@ function get_last_element(selector){
     let arr_id = elements.length - 1;
     return elements[arr_id];
 }
+
+
+function get_fetch_dict(method, body = None){
+    let fetch_dict = {
+        method: method,
+        headers: getDjangoCsrfHeaders(),
+        credentials: 'include'         
+    }
+
+    if(body != none){
+        fetch_dict.body = JSON.stringify(body);
+    }
+
+    return fetch_dict;
+}
+
 
 // Taken from Django documentation for CSRF handling.
 function getDjangoCsrfHeaders(){
@@ -133,6 +145,11 @@ function display_document_response_message(data, anchor_ele){
     if(message_ele == null){
         message_ele = create_message_ele();
         anchor_ele.append(message_ele);
+    }
+
+    if(responded_with_error(data)){
+        message_ele.innerHTML = `Error: ${data[KEY_RESPONSE_ERROR_MSG]} @ ${get_date_time()}`;
+        return;
     }
 
     message_ele.innerHTML = `${data['message']} @ ${get_date_time()}`;
