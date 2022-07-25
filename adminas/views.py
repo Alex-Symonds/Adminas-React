@@ -156,6 +156,9 @@ def edit_job(request):
         if is_error(job_to_delete):
             return render_with_error(request, job_to_delete)
 
+        test = error('Testing appearance of errors', 400)
+        return respond_with_error(test)
+
         if job_to_delete.safe_to_delete():
             job_to_delete.delete()
             return HttpResponse(status = 204)
