@@ -687,8 +687,6 @@ def get_data(request):
                 response_data[key_options_list].append(c.get_dict())
 
         elif select_name == 'agents':
-            test = error('Testing appearance of errors', 400)
-            return respond_with_error(test)
             jobs = Job.objects.values('agent').distinct()
             relevant_companies = Company.objects.filter(id__in=jobs).order_by('name')
             for c in relevant_companies:
