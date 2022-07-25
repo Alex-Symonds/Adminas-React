@@ -105,8 +105,8 @@ function JobToDoIndicator(props){
         var headers = getFetchHeaders(method, {'job_id': props.job_id});
 
         update_server(url, headers, resp_data => {
-            if('message' in resp_data){
-                console.log('Error: ', resp_data.message);
+            if(responded_with_error(resp_data)){
+                console.log('Error: ', get_error_message(resp_data));
             }
             if(resp_data.status === 'ok'){
                 setTodo(todo_now);
