@@ -801,11 +801,7 @@ async function update_module_qty(qty_field){
     });
 }
 
-async function get_json_with_status(response){
-    let result = await response.json();
-    result['status'] = response.status;
-    return result;
-}
+
 
 
 

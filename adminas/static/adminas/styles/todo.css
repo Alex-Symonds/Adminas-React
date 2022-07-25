@@ -71,5 +71,10 @@ p.empty-section-notice {
   margin-bottom: 0.3rem;
   color: #f4f4f4;
 }
+.panel.job .temp-warning-msg {
+  position: absolute;
+  right: 0;
+  top: 2rem;
+}
 
 /*# sourceMappingURL=todo.css.map */

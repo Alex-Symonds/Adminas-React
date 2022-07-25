@@ -128,7 +128,7 @@ def get_object(model_class, **kwargs):
 
 
     elif 'key' in kwargs and 'dict' in kwargs:
-        id = get_param_from_dict(kwargs['key'], kwargs['posted_data'])
+        id = get_param_from_dict(kwargs['key'], kwargs['dict'])
         if is_error(id):
             return id
 
