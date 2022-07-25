@@ -307,8 +307,6 @@ def comments(request):
         if is_error(job):
             respond_with_error(job)
 
-        test = error('Testing appearance of errors', 400)
-        return respond_with_error(test)
 
         # Create new comment then respond with all the data needed to display a new comment on the page
         comment = create_comment(comment_form, request.user, job)

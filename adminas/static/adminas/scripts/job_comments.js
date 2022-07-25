@@ -613,17 +613,29 @@ function update_job_page_comments_after_create(response_data){
 }
 
 function update_job_page_comments_after_failed_create(response_data, submit_btn){
-    // Submit button is inside the editor, so use it to find the parent section BEFORE closing.
-    let target_section = submit_btn.closest(`.${CLASS_CREATE_COMMENT_CONTAINER}`);
+    let create_comment_container = submit_btn.closest(`.${CLASS_CREATE_COMMENT_CONTAINER}`);
     close_jobcomment_editor();
-
-    let open_editor_btn = target_section.querySelector(`.${CLASS_ADD_BUTTON}`);
-    let error_message_ele = create_dismissable_error(response_data[KEY_RESPONSE_ERROR_MSG]);
-
-    open_editor_btn.after(error_message_ele);
     remove_all_jobcomment_warnings();
+    
+    let error_message_ele = create_dismissable_error(response_data[KEY_RESPONSE_ERROR_MSG]);
+    add_error_comment_creation(error_message_ele, create_comment_container);
 }
 
+
+function add_error_comment_creation(error_message_ele, button_container){
+    // Places the error ele between the "open editor" button and the container for existing comments.
+    let parent_ele = button_container.parentElement;
+    let comments_container = parent_ele.querySelector(`.${CLASS_COMMENTS_CONTAINER}`);
+    let button_container_index = get_ele_index(button_container, parent_ele);
+    let comments_container_index = get_ele_index(comments_container, parent_ele);
+
+    let open_editor_btn = button_container.querySelector(`.${CLASS_ADD_BUTTON}`);
+    if(comments_container_index < button_container_index && comments_container_index != -1){
+        open_editor_btn.before(error_message_ele);
+        return;
+    }
+    open_editor_btn.after(error_message_ele);
+}
 
 
 

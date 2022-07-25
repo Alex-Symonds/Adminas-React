@@ -134,6 +134,26 @@ function wipe_data_from_form(form_ele){
 }
 
 
+// Used to determine the order in which elements appear within a parent
+function get_ele_index(target_child, parent){
+    let index = -1;
+
+    if(!target_child || !parent){
+        return index;
+    }
+
+    let children = parent.children;
+    let children_arr = [...children];
+    for(let i = 0; i < children_arr.length; ++i){
+        if(children_arr[i] == target_child){
+            index = i;
+            break;
+        }
+    }
+
+    return index;
+}
+
 
 // -------------------------------------
 // CREATE GENERIC DOM ELEMENTS
