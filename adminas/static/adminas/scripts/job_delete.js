@@ -3,7 +3,6 @@
 */
 
 const ID_DELETE_JOB_BTN = 'delete_job_btn';
-// const CLASS_ERROR_MESSAGE = 'error-message';
 
 document.addEventListener('DOMContentLoaded', () => {
     let delete_btn = document.getElementById(ID_DELETE_JOB_BTN);
@@ -51,15 +50,3 @@ function display_delete_failed_message(message){
     let error_message = create_dismissable_error(message);
     delete_btn.after(error_message);
 }
-
-// function get_job_delete_failed_error_message(message){
-//     let ele = document.createElement('div');
-//     ele.innerHTML = message;
-//     ele.classList.add(CLASS_ERROR_MESSAGE);
-//     ele.addEventListener('click', (e) => {
-//         self = e.target;
-//         parent = self.parentElement;
-//         parent.removeChild(self);
-//     });
-//     return ele;
-// }
