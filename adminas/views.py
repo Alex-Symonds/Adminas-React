@@ -257,8 +257,6 @@ def comments(request):
 
     # User wants to edit an existing job comment
     elif request.method == 'PUT':
-        test = error('Testing appearance of errors', 400)
-        return respond_with_error(test)
         posted_data = dict_from_json(request.body)
         if is_error(posted_data):
             return respond_with_error(posted_data)

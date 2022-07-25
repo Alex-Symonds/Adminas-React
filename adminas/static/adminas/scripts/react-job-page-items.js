@@ -881,8 +881,8 @@ function JobItemsCreator(props){
         const headers = getFetchHeaders('POST', state_to_object_be());
 
         update_server(url, headers, resp_data => {
-            if('error' in resp_data){
-                backend_error.set(resp_data.error);
+            if(responded_with_error(resp_data)){
+                backend_error.set(get_error_message(resp_data));
                 return;
             }
             if('ok' in resp_data){
@@ -1103,8 +1103,8 @@ function JobItemEditor(props){
         var headers = getFetchHeaders('PUT', state_to_object_be());
 
         update_server(url, headers, resp_data => {
-            if('message' in resp_data){
-                backend_error.set(resp_data.message);
+            if(responded_with_error(resp_data)){
+                backend_error.set(get_error_message(resp_data));
             } else if('ok' in resp_data){
                 // Check if the server thinks the edit means a full refresh of the JobItem is required.
                 // If so, refresh the entire JobItem from the BE
@@ -1126,8 +1126,8 @@ function JobItemEditor(props){
         fetch(url)
         .then(response => response.json())
         .then(resp_data => {
-            if('error' in resp_data){
-                backend_error.set(resp_json.error);
+            if(responded_with_error(resp_data)){
+                backend_error.set(get_error_message(resp_data));
                 return;
             }
 
@@ -1175,8 +1175,8 @@ function JobItemEditor(props){
         var headers = getFetchHeaders('DELETE', null);
 
         update_server(url, headers, resp_data => {
-            if('message' in resp_data){
-                backend_error.set(resp_data.message);
+            if(responded_with_error(resp_data)){
+                backend_error.set(get_error_message(resp_data));
             }
 
             if('ok' in resp_data){
@@ -1239,6 +1239,7 @@ function JobItemSharedFormFields(props){
         fetch(url)
         .then(response => response.json())
         .then(resp_data => {
+            // This is only a "nice to have", so if there's an error then desired behaviour = don't display anything
             if('desc' in resp_data){
                 setDescription(resp_data.desc)
             }
