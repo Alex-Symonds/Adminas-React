@@ -12,6 +12,19 @@
         || Generic functions for updating states
 */
 
+const KEY_RESPONSE_ERROR_MSG = 'error';
+
+function responded_with_error(response_json){
+    if(typeof response_json != "object"){
+        return false;
+    }
+    return KEY_RESPONSE_ERROR_MSG in response_json;
+}
+
+function get_error_message(response_json){
+    return response_json[KEY_RESPONSE_ERROR_MSG];
+}
+
 
 
 // || Strings and Formatting

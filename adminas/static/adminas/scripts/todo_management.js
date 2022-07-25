@@ -7,11 +7,8 @@ const CLASS_ADD_JOB_BTN = 'todo-list-add';
 const ID_PREFIX_JOB_PANEL = 'todo_panel_job_';
 const CLASS_TODO_ERROR_MSG = 'todo-error-message';
 
-// todo list helpers
 const CLASS_JOB_PANEL_DETAILS = 'job-details';
 
-// const CLASS_TOGGLE_TODO_PRESENCE = 'todo-list-toggle';
-// const CLASS_STATUS_INDICATOR = 'status-indicator';
 
 document.addEventListener('DOMContentLoaded', () => {
 
@@ -28,29 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
             add_to_todo_list(btn);
         });
     });
-
-    // Job page has a status indicator which shows "on" or "off": user clicks on/off to toggle
-    // document.querySelectorAll('.' + CLASS_TOGGLE_TODO_PRESENCE).forEach(btn => {
-    //     btn.addEventListener('click', () => {
-    //         toggle_todo_list(btn);
-    //     })
-    // })
 });
-
-
-
-
-// Toggle: main function called by clicking on/off
-function toggle_todo_list(btn){
-    if(btn.dataset.on_todo_list === 'true'){
-        remove_from_todo_list(btn);
-    }
-    else {
-        add_to_todo_list(btn);
-    }
-}
-
-
 
 
 
@@ -111,11 +86,6 @@ function add_to_todo_list(btn){
 // Remove: main function called by the fetch block to conditionally handle frontend updates
 function update_frontend_after_removal(btn, data){
     // // If request came from an on/off toggle, run the function to change on to off
-    // if(btn.classList.contains(CLASS_TOGGLE_TODO_PRESENCE)){
-    //     update_todo_indicator_with_toggle(btn, false);
-    // }
-    // // If request came from a close panel button, run the function to remove the panel
-    // else 
     if(btn.classList.contains(CLASS_REMOVE_JOB_BTN)){
         remove_job_panel_from_todo_list(data['id']);
     }  
@@ -125,10 +95,6 @@ function update_frontend_after_removal(btn, data){
 // Add: main function called by the fetch block to conditionally handle frontend updates
 function update_frontend_after_add(btn){
     // If request came from an on/off toggle, run the function to change off to on
-    // if(btn.classList.contains(CLASS_TOGGLE_TODO_PRESENCE)){
-    //     update_todo_indicator_with_toggle(btn, true);
-    // }
-    // else 
     if(btn.classList.contains(CLASS_ADD_JOB_BTN)){
         replace_todo_add_btn_with_on(btn);
     } 
@@ -153,7 +119,7 @@ function display_todo_error_on_job_panel(message, job_id){
 
 // Remove via Job panel: get rid of the error messages so they don't stay there for ever
 function clear_todo_error_from_job_panels(){
-    document.querySelectorAll('.' + CLASS_TODO_ERROR_MSG).forEach(ele => {
+    document.querySelectorAll('.' + CLASS_ERROR_MESSAGE).forEach(ele => {
         ele.remove();
     });
 }
@@ -180,57 +146,3 @@ function replace_todo_add_btn_with_on(btn){
     btn.before(span);
     btn.remove();
 }
-
-
-
-
-
-
-
-
-// Toggle via Indicator: use the button to find the indicator ele, then update both
-// function update_todo_indicator_with_toggle(btn, is_on_todo_list){   
-//     let indicator_ele = btn.closest(`.${CLASS_STATUS_INDICATOR}`);
-//     update_todo_toggle_btn(btn, is_on_todo_list);
-//     update_todo_toggle_status_ele(indicator_ele, is_on_todo_list);
-//     return;
-// }
-
-// // Toggle via Indicator: update the button
-// function update_todo_toggle_btn(btn, is_on){
-//     if(btn !== null){
-//         let display_str = 'off';
-//         if(is_on){
-//             display_str = 'on';
-//         }
-
-//         btn.innerHTML = display_str;
-//         if(btn.hasAttribute('data-on_todo_list')){
-//             btn.setAttribute('data-on_todo_list', is_on.toString());
-//         } 
-//     }  
-// }
-
-// Toggle via Indicator: update the indicator
-// function update_todo_toggle_status_ele(indicator_ele, is_on){
-//     if(indicator_ele !== null){
-//         const on_class = 'on';
-//         const off_class = 'off';
-
-//         let wanted_class = off_class;
-//         let unwanted_class = on_class;
-//         if(is_on){
-//             wanted_class = on_class;
-//             unwanted_class = off_class;
-//         }
-
-//         if(indicator_ele.classList.contains(unwanted_class)){
-//             indicator_ele.classList.remove(unwanted_class);
-//         }
-
-//         if(!indicator_ele.classList.contains(wanted_class)){
-//             indicator_ele.classList.add(wanted_class);
-//         }
-//     }
-//     return;      
-// }

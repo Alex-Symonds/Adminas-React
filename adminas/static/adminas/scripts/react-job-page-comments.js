@@ -213,8 +213,8 @@ function CommentContentsFooter(props){
         const headers = getFetchHeaders('PUT', attributes);
 
         update_server(url, headers, resp_data => {
-            if('message' in resp_data){
-                backend_error.set(resp_data.message);
+            if(responded_with_error(resp_data)){
+                backend_error.set(get_error_message(resp_data));
             }
             else if('ok' in resp_data){
                 props.actions_comments.update_f(props.comment.id, attributes);
@@ -316,8 +316,8 @@ function CommentEditor(props){
         const headers = getFetchHeaders('PUT', state_to_object_be());
         
         update_server(url, headers, resp_data => {
-            if('message' in resp_data){
-                setBackendError(resp_data.message);
+            if(responded_with_error(resp_data)){
+                backend_error.set(get_error_message(resp_data));
             }
             else if('ok' in resp_data){
                 props.actions_comments.update_f(props.comment.id, state_to_object_fe());
@@ -352,8 +352,8 @@ function CommentEditor(props){
             if(resp_data === 204){
                 props.actions_comments.delete_f(props.comment.id);
             }
-            else if('message' in resp_data){
-                backend_error.set(resp_data.message);
+            else if(responded_with_error(resp_data)){
+                backend_error.set(get_error_message(resp_data));
             }
             else {
                 backend_error.set('Delete failed');
