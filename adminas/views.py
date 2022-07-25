@@ -568,10 +568,6 @@ def manage_modules(request, job_id):
 
     return render(request, 'adminas/manage_modules.html', data)
 
-    # return render(request, 'adminas/manage_modules.html', {
-    #     'job': job,
-    #     'items': modular_jobitems
-    # })
 
 
 def module_assignments(request):
@@ -675,39 +671,43 @@ def get_data(request):
         return JsonResponse(address.as_dict(), status=200)
 
     elif data_category == 'select_options_list':
+        key_options_list = 'opt_list'
+
         select_name = get_param_from_get_params('name', request.GET)
         if is_error(select_name):
             return respond_with_error(select_name)
 
         response_data = {}
-        response_data['opt_list'] = []
+        response_data[key_options_list] = []
 
         if select_name == 'customers':
             jobs = Job.objects.values('customer').distinct()
             relevant_companies = Company.objects.filter(id__in=jobs).order_by('name')
             for c in relevant_companies:
-                response_data['opt_list'].append(c.get_dict())
+                response_data[key_options_list].append(c.get_dict())
 
         elif select_name == 'agents':
+            test = error('Testing appearance of errors', 400)
+            return respond_with_error(test)
             jobs = Job.objects.values('agent').distinct()
             relevant_companies = Company.objects.filter(id__in=jobs).order_by('name')
             for c in relevant_companies:
-                response_data['opt_list'].append(c.get_dict())
+                response_data[key_options_list].append(c.get_dict())
 
         elif select_name == 'price_lists':
             price_lists = PriceList.objects.all().order_by('-valid_from')
             for prl in price_lists:
-                response_data['opt_list'].append(prl.get_dict())
+                response_data[key_options_list].append(prl.get_dict())
 
         elif select_name == 'currencies':
             for currency in SUPPORTED_CURRENCIES:
                 cur_dict = get_dict_currency(currency)
-                response_data['opt_list'].append(cur_dict)
+                response_data[key_options_list].append(cur_dict)
 
         elif select_name == 'products':
             products = Product.objects.filter(available=True).order_by('part_number')
             for product in products:
-                response_data['opt_list'].append(product.get_dict())
+                response_data[key_options_list].append(product.get_dict())
 
         return JsonResponse(response_data, status=200)
 

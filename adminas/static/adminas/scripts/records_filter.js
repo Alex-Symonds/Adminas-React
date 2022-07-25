@@ -206,6 +206,8 @@ function create_ele_dateinput(id_suffix){
 
 // Open Filter Options: Body component
 async function create_filter_option_select(FILTER_SETTINGS){
+    const key_options_list = 'opt_list';
+
     let ele = create_filter_option_base(FILTER_SETTINGS);
 
     let select_ele = document.createElement('select');
@@ -217,27 +219,39 @@ async function create_filter_option_select(FILTER_SETTINGS){
     default_option.innerHTML = '---------';
     select_ele.append(default_option);
 
-    let list_of_options = await get_options_from_server(FILTER_SETTINGS.id);
-    for(let i = 0; i < list_of_options.length; i++){
-        var new_option = document.createElement('option');
-        new_option.value = list_of_options[i].id;
-        new_option.innerHTML = list_of_options[i].display_str;
-        select_ele.append(new_option);
+    let response_data = await get_options_from_server(FILTER_SETTINGS.id);
+    if(responded_with_error(response_data)){
+        var select_error_ele = create_dismissable_error(response_data[KEY_RESPONSE_ERROR_MSG]);
+        ele.append(select_error_ele);
+    }
+    else if(!(key_options_list in response_data)){
+        var select_error_ele = create_dismissable_error('Error: failed to retrieve options.');
+        ele.append(select_error_ele);
+    }
+    else{
+
+        let list_of_options = response_data[key_options_list];
+        for(let i = 0; i < list_of_options.length; i++){
+            var new_option = document.createElement('option');
+            new_option.value = list_of_options[i].id;
+            new_option.innerHTML = list_of_options[i].display_str;
+            select_ele.append(new_option);
+        }
+    
+        ele.append(select_ele);
     }
 
-    ele.append(select_ele);
     return ele;
 }
 
-// Open Filter Options: Query server for the list of valid options for each select
+// Open Filter Options: Query server for the list of valid options for a select
 async function get_options_from_server(field_id){
     let response = await fetch(`${URL_SELECT_OPTIONS}?type=select_options_list&name=${field_id}s`)
                     .catch(error => {
                         console.log('Error: ', error)
                     });
 
-    let response_json = await response.json();
-    return response_json['opt_list'];
+    return await response.json();
 }
 
 

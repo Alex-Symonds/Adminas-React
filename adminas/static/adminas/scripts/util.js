@@ -19,6 +19,12 @@ async function jsonOr204(response){
     return await response.json();
 }
 
+async function get_json_with_status(response){
+    let result = await response.json();
+    result['status'] = response.status;
+    return result;
+}
+
 // Avoid JS errors on conditionally displayed elements
 function add_event_listener_if_element_exists(element, called_function){
     if(element !== null){
@@ -27,6 +33,9 @@ function add_event_listener_if_element_exists(element, called_function){
 }
 
 function responded_with_error(response_json){
+    if(typeof response_json != "object"){
+        return false;
+    }
     return KEY_RESPONSE_ERROR_MSG in response_json;
 }
 

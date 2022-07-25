@@ -34,7 +34,7 @@
                 padding: 0 0 0.2rem;
                 font-size: 0.9rem;
                 font-style: italic;
-                color: v.$c_tone_06;
+                //color: v.$c_tone_06;  // This makes the "close" button on errors show the hover span at all times
             }
     
             fieldset{
