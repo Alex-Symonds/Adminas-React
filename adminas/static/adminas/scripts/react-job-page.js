@@ -98,9 +98,7 @@ function JobPage(){
         fetch(url_for_page_load(URL_GET_DATA, job_id, 'documents'))
         .then(response => response.json())
         .then(resp_data => {
-            if(typeof resp_data.doc_list !== 'undefined'){
-                setDocs(resp_data.doc_list)
-            }
+            set_if_ok(resp_data, 'doc_list', setDocs);
         })
         .catch(error => console.log(error));
     }
@@ -228,31 +226,29 @@ function get_documents_data_object(URL_DOCS, doc_list, doc_quantities, total_qua
 function item_quantity_has_changed(items_list, item_id, item_attributes){
     // item_attributes should contain one of two things:
     //  1) an object with one key/value pair for each alteration the user just made (occurs for straightforward alterations)
-    //  2) an object containing a complete set of JobItem properties (occurs when alterations had side effects, so just replace the whole thing)
-    // 
-    // We can distinguish between cases #1 and #2 by looking for the "ji_id" key: ji_id can't be altered by the user, so if that field 
-    // appears in item_attributes, we know it's a case #2 / complete set.
+    //  2) an object containing a complete set of JobItem properties (occurs when alterations had side effects, so it's easier to just replace the whole thing)
 
-    // Case #1: quantity didn't change
+    // Attributes Type #1, quantity didn't change (i.e. the only circumstances under which "quantity" won't be in item_attributes)
     if(!('quantity' in item_attributes)){
         return false;
     }
 
-    // Case #1: quantity DID change
+    // Attributes Type #1, quantity DID change
+    // Note: ji_id was chosen for this check because: a) it's a field that exists in Type #2 attributes and not in Type #1;
+    // b) it's a database key with no other use, so hopefully it's the least likely property to ever be added to Type #1 in future.
     if(!('ji_id' in item_attributes)){
         return true;
     }
 
-    // Case #2: compare the new quantity in item_attributes with the existing quantity in the state
+    // Attributes Type #2: compare the new quantity in item_attributes with the existing quantity in the state
     const new_quantity = item_attributes.quantity;
 
     var index = items_list.findIndex(i => i.ji_id === parseInt(item_id));
     if(index === -1){
-        // Fallback to true: prefer an unnecessary fetch to telling the user everything is ok when it isn't
+        // Fallback to true: better an unnecessary fetch to telling the user everything is ok when it isn't
         return true;
     }
     const old_quantity = items_list[index].quantity;
-
     return parseInt(old_quantity) !== parseInt(new_quantity);
 }
 
