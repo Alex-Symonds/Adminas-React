@@ -67,8 +67,8 @@ function PriceAcceptanceToggle(props){
         });
 
         update_server(url, headers, resp_data => {
-            if('error' in resp_data){
-                console.log(`Error: ${resp_data.error}`);
+            if(responded_with_error(resp_data)){
+                console.log(`Error: ${get_error_message(resp_data)}`);
             }
             else if('ok' in resp_data){
                 props.price_accepted_state.set(is_accepted_now);
@@ -360,12 +360,11 @@ function JobPriceCheckPriceEditor(props){
         const headers = getFetchHeaders('PUT', new_attributes);
 
         update_server(props.url_with_id, headers, resp_data => {
-            if('message' in resp_data){
-                props.backend_error.set(resp_data.message);
+            if(responded_with_error(resp_data)){
+                props.backend_error.set(get_error_message(resp_data));
                 props.editor.off();
             }
             else if('ok' in resp_data){
-                props.backend_error.set('test much longer backend error which is waffling on about why something is not working and stuff');
                 props.update_item(new_attributes);
                 props.editor.off();
             }
