@@ -320,7 +320,7 @@ function getCookie(name) {
 // Send data to the server
 const update_server = (url, headers, handle_response) => {
     fetch(url, headers)
-    .then(response => jsonOr204(response))
+    .then(response => jsonWithStatus(response))
     .then(resp_json => {
         handle_response(resp_json);
     })
@@ -335,8 +335,43 @@ async function jsonOr204(response){
     return await response.json();
 }
 
+const KEY_HTTP_CODE = 'http_code';
+async function jsonWithStatus(response){
+    if(response.status !== 204){
+        var response_data = await response.json();
+    } else {
+        var response_data = {};
+    }
+    response_data[KEY_HTTP_CODE] = response.status;
+    return response_data;
+}
+
+function get_status_from_json(json_data){
+    const ERROR = -1;
+    if(typeof json_data !== 'object') return ERROR;
+    if(!(KEY_HTTP_CODE in json_data)) return ERROR;
+    return json_data[KEY_HTTP_CODE];
+}
+
+function get_data_from_json(json_data){
+    return delete json_data[KEY_HTTP_CODE];
+}
+
+function status_is_good(json_data, expected_response_code = null){
+    const status = get_status_from_json(json_data);
+    if(status === -1){
+        return false;
+    }
+
+    if(expected_response_code === null){
+        return status === 200 || status === 201 || status === 204;
+    }
+    return status === expected_response_code;
+}
+
+
 // Identify when the backend responded with a home-made error; extract the message for display
-const KEY_RESPONSE_ERROR_MSG = 'error';
+//const KEY_RESPONSE_ERROR_MSG = 'error';
 function responded_with_error(response_json){
     if(typeof response_json != "object"){
         return false;

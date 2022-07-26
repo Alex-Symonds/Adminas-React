@@ -123,7 +123,7 @@ def todo_list_management(request):
         return JsonResponse({
             'status': 'ok',
             'id': posted_data['job_id']
-        }, status = 200)
+        }, status = 200) # either change this to 204 or change <JobToDoIndicator /> to 200
 
     elif request.method == 'PUT':
         if not job in user.todo_list_jobs.all():
@@ -253,7 +253,7 @@ def comments(request):
             return respond_with_error(comment)
         else:
             comment.delete()
-            return HttpResponse(status=204)
+            return HttpResponse(status = 204)
 
     # User wants to edit an existing job comment
     elif request.method == 'PUT':
@@ -377,9 +377,7 @@ def purchase_order(request):
             return respond_with_error(po)
 
         po.deactivate()
-        return JsonResponse({
-            'ok': True
-        }, status = 200)
+        return HttpResponse(status = 204)
 
 
     elif request.method == 'POST':
@@ -403,9 +401,7 @@ def purchase_order(request):
             return respond_with_error(po)
 
         po.update(form)
-        return JsonResponse({
-            'id': po.id
-        }, status = 200)
+        return HttpResponse(status = 204)
 
 
 def items(request):
@@ -427,9 +423,7 @@ def items(request):
 
         jobitem.job.price_changed()
         jobitem.delete()
-        return JsonResponse({
-            'ok': True
-        }, status = 200)
+        return HttpResponse(status = 204)
 
 
     # Create one or more new items.
@@ -449,8 +443,7 @@ def items(request):
                 jobitems.append(new_ji.get_dict())
 
             return JsonResponse({
-                'ok': True,
-                'jobitems': jobitems
+                'id_list': jobitems
             }, status = 201)
 
         else:

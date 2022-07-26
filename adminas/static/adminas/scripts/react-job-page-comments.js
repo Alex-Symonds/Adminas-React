@@ -216,7 +216,7 @@ function CommentContentsFooter(props){
             if(responded_with_error(resp_data)){
                 backend_error.set(get_error_message(resp_data));
             }
-            else if('ok' in resp_data){
+            else if(status_is_good(resp_data, 200)){
                 props.actions_comments.update_f(props.comment.id, attributes);
             }
         });
@@ -319,7 +319,7 @@ function CommentEditor(props){
             if(responded_with_error(resp_data)){
                 backend_error.set(get_error_message(resp_data));
             }
-            else if('ok' in resp_data){
+            else if(status_is_good(resp_data, 200)){
                 props.actions_comments.update_f(props.comment.id, state_to_object_fe());
                 props.editor.off();
             }
@@ -349,7 +349,7 @@ function CommentEditor(props){
         const headers = getFetchHeaders('DELETE', null);
 
         update_server(url, headers, resp_data => {
-            if(resp_data === 204){
+            if(status_is_good(resp_data, 204)){
                 props.actions_comments.delete_f(props.comment.id);
             }
             else if(responded_with_error(resp_data)){

@@ -325,32 +325,62 @@ function JobPoEditor(props){
     const [backendError, setBackendError] = React.useState(null);
     const backend_error = get_backend_error_object(backendError, setBackendError);
 
-    const save_po = () => {
-        const url = props.data.po_id === null ? actionUrl : `${actionUrl}?id=${props.data.po_id}`;
-        const method = props.data.po_id === null ? 'POST' : 'PUT';
+    // const OLDsave_po = () => {
+    //     const url = props.data.po_id === null ? actionUrl : `${actionUrl}?id=${props.data.po_id}`;
+    //     const method = props.data.po_id === null ? 'POST' : 'PUT';
 
+    //     const headers = getFetchHeaders(method, state_to_object_be());
+
+    //     update_server(url, headers, resp_data => {
+    //         if(responded_with_error(resp_data)){
+    //             backend_error.set(get_error_message(resp_data));
+    //         }
+    //         if('id' in resp_data){
+    //             // props.po_id = null when we're creating a new PO. The new PO
+    //             // will need to know the ID from the BE, so include that
+    //             if(props.data.po_id === null){
+    //                 var attributes = state_to_object_fe();
+    //                 attributes.po_id = resp_data.id;
+    //                 props.state_submit(attributes);
+    //             }
+    //             // Otherwise it's an existing PO, so just send the new state.
+    //             else {
+    //                 props.state_submit(state_to_object_fe());
+    //             }
+    //             props.editor.off();
+    //         }
+    //     });
+    // };
+
+    const save_po = () => {
+        if(props.data.po_id === null){
+            save_po_on_be('POST', 201, actionUrl, (resp_data) => {
+                var attributes = state_to_object_fe();
+                attributes.po_id = resp_data.id;
+                props.state_submit(attributes);
+            });
+
+        } else {
+            save_po_on_be('PUT', 204, `${actionUrl}?id=${props.data.po_id}`, () => {
+                props.state_submit(state_to_object_fe());
+            });
+        }
+    };
+
+    function save_po_on_be(method, expected_response_code, url, update_po_state){
         const headers = getFetchHeaders(method, state_to_object_be());
 
         update_server(url, headers, resp_data => {
             if(responded_with_error(resp_data)){
                 backend_error.set(get_error_message(resp_data));
             }
-            if('id' in resp_data){
-                // props.po_id = null when we're creating a new PO. The new PO
-                // will need to know the ID from the BE, so include that
-                if(props.data.po_id === null){
-                    var attributes = state_to_object_fe();
-                    attributes.po_id = resp_data.id;
-                    props.state_submit(attributes);
-                }
-                // Otherwise it's an existing PO, so just send the new state.
-                else {
-                    props.state_submit(state_to_object_fe());
-                }
+            if(status_is_good(resp_data, expected_response_code)){
+                update_po_state(resp_data);
                 props.editor.off();
             }
         });
-    };
+    }
+
 
     const delete_po = () => {
         const url = `${actionUrl}?id=${props.data.po_id}`;

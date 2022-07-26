@@ -883,11 +883,10 @@ function JobItemsCreator(props){
         update_server(url, headers, resp_data => {
             if(responded_with_error(resp_data)){
                 backend_error.set(get_error_message(resp_data));
-                return;
             }
-            if('ok' in resp_data){
+            else if(status_is_good(resp_data, 201)){
                 // The server's response will include an object with all the fields for newly created item/s
-                props.actions_items.create_f(resp_data.jobitems);
+                props.actions_items.create_f(resp_data.id_list);
                 props.editor.off();
             }
         })
@@ -1105,7 +1104,8 @@ function JobItemEditor(props){
         update_server(url, headers, resp_data => {
             if(responded_with_error(resp_data)){
                 backend_error.set(get_error_message(resp_data));
-            } else if('ok' in resp_data){
+            }
+            else if(status_is_good(resp_data, 200)){
                 // Check if the server thinks the edit means a full refresh of the JobItem is required.
                 // If so, refresh the entire JobItem from the BE
                 if('refresh_needed' in resp_data && resp_data.refresh_needed == true){
@@ -1178,8 +1178,7 @@ function JobItemEditor(props){
             if(responded_with_error(resp_data)){
                 backend_error.set(get_error_message(resp_data));
             }
-
-            if('ok' in resp_data){
+            else if(status_is_good(resp_data, 204)){
                 props.delete_item(props.data.ji_id);
                 props.editor.off();
             }
