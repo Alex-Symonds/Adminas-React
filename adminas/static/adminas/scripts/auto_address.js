@@ -27,7 +27,7 @@ async function update_address(ele){
         let json_response = await get_address_from_server(ele.value);
 
         if(responded_with_error(json_response)){
-            display_div.innerHTML = json_response[KEY_RESPONSE_ERROR_MSG];
+            display_div.innerHTML = get_error_message(json_response);
 
         } else {
             let display_address = process_address(json_response);

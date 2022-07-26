@@ -221,7 +221,7 @@ async function create_filter_option_select(FILTER_SETTINGS){
 
     let response_data = await get_options_from_server(FILTER_SETTINGS.id);
     if(responded_with_error(response_data)){
-        var select_error_ele = create_dismissable_error(response_data[KEY_RESPONSE_ERROR_MSG]);
+        var select_error_ele = create_dismissable_error(response_data);
         ele.append(select_error_ele);
     }
     else if(!(key_options_list in response_data)){

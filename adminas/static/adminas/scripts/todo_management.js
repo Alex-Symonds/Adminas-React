@@ -44,7 +44,7 @@ function remove_from_todo_list(btn){
     .then(data => {
         clear_todo_error_from_job_panels();
         if(responded_with_error(data)){
-            if(!display_todo_error_on_job_panel(data[KEY_RESPONSE_ERROR_MSG], btn.dataset.job_id)){
+            if(!display_todo_error_on_job_panel(data, btn.dataset.job_id)){
                 alert(message);
             }
         } else if('id' in data){
@@ -69,7 +69,7 @@ function add_to_todo_list(btn){
     .then(response => response.json())
     .then(data => {
         if(responded_with_error(data)){
-            alert(data[KEY_RESPONSE_ERROR_MSG]);
+            alert(get_error_message(data));
         } else {
             update_frontend_after_add(btn);
         }
@@ -107,10 +107,10 @@ function update_frontend_after_add(btn){
 
 
 // Remove via Job panel: attempt to display an error message inside a Job panel and report if it worked
-function display_todo_error_on_job_panel(message, job_id){
+function display_todo_error_on_job_panel(error_obj, job_id){
     active_ele = document.querySelector(`#${ID_PREFIX_JOB_PANEL}${job_id}`);
     if(active_ele){
-        msg_ele = create_dismissable_error(message);
+        msg_ele = create_dismissable_error(error_obj);
         active_ele.prepend(msg_ele);
         return true;
     }

@@ -26,7 +26,7 @@ function delete_job(){
             window.location.href = '/';
         }
         else{
-            display_delete_failed_message(data[KEY_RESPONSE_ERROR_MSG]);
+            display_delete_failed_message(data);
         }
     })
     .catch(error => {
@@ -34,7 +34,7 @@ function delete_job(){
     });
 }
 
-function display_delete_failed_message(message){
+function display_delete_failed_message(error_obj){
     // If there's an existing error message with the same error, do nothing
     let err_msg = document.querySelector(`.${CLASS_ERROR_MESSAGE}`);
     if (err_msg != null && err_msg.getElementsByTagName('DIV')[0].innerHTML == message){
@@ -47,6 +47,6 @@ function display_delete_failed_message(message){
         err_msg.remove();
     }
     let delete_btn = document.getElementById(ID_DELETE_JOB_BTN);
-    let error_message = create_dismissable_error(message);
+    let error_message = create_dismissable_error(error_obj);
     delete_btn.after(error_message);
 }

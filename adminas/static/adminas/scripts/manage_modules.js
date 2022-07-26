@@ -142,7 +142,7 @@ async function create_ele_module_slot_filler(slot_id, parent_id){
     // Attempt to get list of options from server
     let json_response = await get_list_for_module_slot(slot_id, parent_id, 'jobitems');
     if(responded_with_error(json_response)){
-        div.append(get_module_error_ele(json_response[KEY_RESPONSE_ERROR_MSG]));
+        div.append(get_module_error_ele(json_response));
         return div;
     }
 
@@ -323,7 +323,7 @@ async function create_ele_jobitem_module_dropdown(slot_id, parent_id){
 
     let json_response = await get_list_for_module_slot(slot_id, parent_id, 'products');
     if(responded_with_error(json_response)){
-        return get_module_error_ele(json_response[KEY_RESPONSE_ERROR_MSG]);
+        return get_module_error_ele(json_response);
     }
 
     let list_of_valid_options = json_response['data'];
@@ -395,7 +395,7 @@ async function add_new_jobitem_and_jobmodule(e){
     // If that failed, display an error ele and return
     if(responded_with_error(json_resp)){
         let target = document.getElementById(ID_CREATE_JOBITEM_SUBMIT_BUTTON);
-        display_module_error(target, json_resp[KEY_RESPONSE_ERROR_MSG]);
+        display_module_error(target, json_resp);
         return;
     }
 
@@ -407,7 +407,7 @@ async function add_new_jobitem_and_jobmodule(e){
     // If that failed, display an error ele and return
     if(responded_with_error(json_resp)){
         let target = document.getElementById(ID_CREATE_JOBITEM_SUBMIT_BUTTON);
-        display_module_error(target, json_resp[KEY_RESPONSE_ERROR_MSG]);
+        display_module_error(target, json_resp);
         return;
     }
 
@@ -483,7 +483,7 @@ async function assign_jobitem_to_slot(e){
 
     let data = await create_jobmodule_on_server(ele.dataset.child, ele.dataset.parent, ele.dataset.slot);
     if(responded_with_error(data)){
-        display_module_error(empty_slot, data[KEY_RESPONSE_ERROR_MSG]);
+        display_module_error(empty_slot, data);
 
     } else {
         let jobmod_id = data['id'];
@@ -587,7 +587,7 @@ async function remove_jobmodule(e){
 
     if(responded_with_error(resp)){
         let submit_btn = document.getElementById(ID_EDIT_FORM_SUBMIT_BUTTON);
-        display_module_error(submit_btn, resp[KEY_RESPONSE_ERROR_MSG]);
+        display_module_error(submit_btn, resp);
         return;
     }
 
@@ -790,7 +790,7 @@ async function update_module_qty(qty_field){
     .then(response => get_json_with_status(response))
     .then(data => {
         if(data.status != 200){
-            display_module_error(qty_field.nextElementSibling, data[KEY_RESPONSE_ERROR_MSG])
+            display_module_error(qty_field.nextElementSibling, data);
             return;
         }
 
@@ -821,15 +821,15 @@ function update_module_qty_on_page(qty_field, data){
 }
 
 // Edit Mode: users are not allowed to add new JobItems via edit mode on the module management page. If they try, display a warning.
-function display_module_error(preceding_ele, message){
-    let error_msg = get_module_error_ele(message);
+function display_module_error(preceding_ele, error_obj){
+    let error_msg = get_module_error_ele(error_obj);
     preceding_ele.after(error_msg);
 }
 
-function get_module_error_ele(message){
+function get_module_error_ele(error_obj){
     let ele = document.createElement('div');
     ele.classList.add(CLASS_TEMP_ERROR_MSG);
-    ele.innerHTML = message;
+    ele.innerHTML = get_error_message(error_obj);
     return ele;
 }
 function is_error_ele(ele){

@@ -176,12 +176,12 @@ function create_message_ele(){
     return message_ele;
 }
 
-function create_dismissable_error(message_str){
+function create_dismissable_error(error_dict){
     let error_message_ele = document.createElement('div');
     error_message_ele.classList.add(CLASS_ERROR_MESSAGE);
 
     let display_str_ele = document.createElement('div');
-    display_str_ele.innerHTML = message_str;
+    display_str_ele.innerHTML = get_error_message(error_dict);
     error_message_ele.append(display_str_ele);
 
     let dismiss_btn = create_generic_ele_cancel_button();
@@ -203,7 +203,7 @@ function display_document_response_message(data, anchor_ele){
     }
 
     if(responded_with_error(data)){
-        message_ele.innerHTML = `Error: ${data[KEY_RESPONSE_ERROR_MSG]} @ ${get_date_time()}`;
+        message_ele.innerHTML = `Error: ${get_error_message(data)} @ ${get_date_time()}`;
         return;
     }
 

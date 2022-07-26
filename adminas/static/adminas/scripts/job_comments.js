@@ -617,7 +617,7 @@ function update_job_page_comments_after_failed_create(response_data, submit_btn)
     close_jobcomment_editor();
     remove_all_jobcomment_warnings();
     
-    let error_message_ele = create_dismissable_error(response_data[KEY_RESPONSE_ERROR_MSG]);
+    let error_message_ele = create_dismissable_error(response_data);
     add_error_comment_creation(error_message_ele, create_comment_container);
 }
 
@@ -875,7 +875,7 @@ function update_job_page_comments_after_failed_update(response_data, btn){
     close_jobcomment_editor();
 
     let contents_ele = comment_ele.querySelector('.contents');
-    let access_denied_ele = create_dismissable_error(response_data[KEY_RESPONSE_ERROR_MSG]);
+    let access_denied_ele = create_dismissable_error(response_data);
     contents_ele.prepend(access_denied_ele);
 }
 

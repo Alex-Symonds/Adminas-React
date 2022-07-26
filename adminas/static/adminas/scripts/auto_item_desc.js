@@ -67,7 +67,7 @@ function display_auto_description(e, data){
         }
 
     } else if(responded_with_error(data)){
-        desc_span.innerHTML = data[KEY_RESPONSE_ERROR_MSG];
+        desc_span.innerHTML = get_error_message(data);
         
     } else {
         desc_span.innerHTML = 'Error retrieving description.'

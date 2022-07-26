@@ -123,7 +123,7 @@ def todo_list_management(request):
         return JsonResponse({
             'status': 'ok',
             'id': posted_data['job_id']
-        }, status=200)
+        }, status = 200)
 
     elif request.method == 'PUT':
         if not job in user.todo_list_jobs.all():
@@ -132,12 +132,12 @@ def todo_list_management(request):
 
         return JsonResponse({
             'status': 'ok'
-        }, status=200)
+        }, status = 201)
 
     # Return a generic failure message if this was a POST or GET
     return JsonResponse({
         'message': "Failed to update to-do list."
-    }, status=400)
+    }, status = 400)
 
 
 
@@ -306,14 +306,13 @@ def comments(request):
         if is_error(job):
             respond_with_error(job)
 
-
         # Create new comment then respond with all the data needed to display a new comment on the page
         comment = create_comment(comment_form, request.user, job)
         data = comment.get_dict(request.user)
         data['job_id'] = job.id
         data['created_on'] = formats.date_format(comment.created_on, "DATETIME_FORMAT")
 
-        return JsonResponse(data, status=200)
+        return JsonResponse(data, status = 201)
 
     # GET
     # Begin by getting the general purpose info for the heading and subheading.
@@ -362,7 +361,7 @@ def price_check(request, job_id):
 
         return JsonResponse({
             'ok': True
-        }, status=200)
+        }, status = 200)
 
 
 def purchase_order(request):
@@ -380,7 +379,7 @@ def purchase_order(request):
         po.deactivate()
         return JsonResponse({
             'ok': True
-        }, status=200)
+        }, status = 200)
 
 
     elif request.method == 'POST':
@@ -391,7 +390,7 @@ def purchase_order(request):
         new_po = create_po(request.user, form)
         return JsonResponse({
             'id': new_po.id
-        }, status=200)
+        }, status = 201)
 
 
     elif request.method == 'PUT':
@@ -406,7 +405,7 @@ def purchase_order(request):
         po.update(form)
         return JsonResponse({
             'id': po.id
-        }, status=200)
+        }, status = 200)
 
 
 def items(request):
@@ -430,7 +429,7 @@ def items(request):
         jobitem.delete()
         return JsonResponse({
             'ok': True
-        }, status=200)
+        }, status = 200)
 
 
     # Create one or more new items.
@@ -452,7 +451,7 @@ def items(request):
             return JsonResponse({
                 'ok': True,
                 'jobitems': jobitems
-            }, status = 200)
+            }, status = 201)
 
         else:
             form = get_form_from_request(request, get_jobitem_form)
@@ -462,7 +461,7 @@ def items(request):
             jobitem = create_jobitem(request.user, form)
             return JsonResponse({
                 'id': jobitem.product.id
-            }, status=200)
+            }, status = 201)
 
 
     # Updates can be called from two places:
@@ -506,7 +505,7 @@ def items(request):
             return JsonResponse({
                 'ok': True,
                 'reload': 'true'
-            }, status=200)
+            }, status = 200)
 
 
     # User is fiddling with the product dropdown, so send them the description of the current item
@@ -526,7 +525,7 @@ def items(request):
         return JsonResponse({
             'desc': description,
             'ok': True
-        }, status=200)
+        }, status = 200)
 
     # User wishes to refresh a specific JobItem's data
     elif 'ji_id' in request.GET:
@@ -537,7 +536,7 @@ def items(request):
         response_data = jobitem.get_dict()
         response_data['ok'] = True
 
-        return JsonResponse(response_data, status=200)
+        return JsonResponse(response_data, status = 200)
 
 
 
@@ -588,7 +587,7 @@ def module_assignments(request):
         slot = jobmodule.slot
         jobmodule.delete()
 
-        return JsonResponse(parent.get_slot_status_dictionary(slot), status=200)
+        return JsonResponse(parent.get_slot_status_dictionary(slot), status = 200)
 
 
     # User has edited a module (= they changed the quantity, since any other changes are handled via delete-then-recreate)
@@ -605,7 +604,7 @@ def module_assignments(request):
         if is_error(jm_update_result):
             return respond_with_error(jm_update_result)
 
-        return JsonResponse(jobmodule.parent.get_slot_status_dictionary(jobmodule.slot), status=200)
+        return JsonResponse(jobmodule.parent.get_slot_status_dictionary(jobmodule.slot), status = 200)
 
 
     # User created a new assignment
@@ -620,7 +619,7 @@ def module_assignments(request):
 
         data_dict = jobmodule.parent.get_slot_status_dictionary(jobmodule.slot)
         data_dict['id'] = jobmodule.id
-        return JsonResponse(data_dict, status=201)
+        return JsonResponse(data_dict, status = 201)
 
     # GET
     requested_data = get_param_from_get_params('return', request.GET)
@@ -645,7 +644,7 @@ def module_assignments(request):
 
     return JsonResponse({
         'data': data
-    }, status=200)
+    }, status = 200)
 
 
 
@@ -667,7 +666,7 @@ def get_data(request):
         if is_error(address):
             return respond_with_error(address)
 
-        return JsonResponse(address.as_dict(), status=200)
+        return JsonResponse(address.as_dict(), status = 200)
 
     elif data_category == 'select_options_list':
         key_options_list = 'opt_list'
@@ -706,7 +705,7 @@ def get_data(request):
             for product in products:
                 response_data[key_options_list].append(product.get_dict())
 
-        return JsonResponse(response_data, status=200)
+        return JsonResponse(response_data, status = 200)
 
     elif data_category == 'urls':
         job = get_object(Job, key = 'job_id', get_params = request.GET)
@@ -717,7 +716,7 @@ def get_data(request):
         response_data['po_url'] = reverse('purchase_order')
         response_data['price_acceptance_url'] = reverse('price_check', kwargs={'job_id': job.id})
 
-        return JsonResponse(response_data, status=200)
+        return JsonResponse(response_data, status = 200)
 
     # Packages of data for various React components on the Job page
     elif data_category == 'page_load':
@@ -764,7 +763,7 @@ def get_data(request):
         else:
             return respond_with_error(error("Invalid component name.", 400))
 
-        return JsonResponse(response_data, status=200)
+        return JsonResponse(response_data, status = 200)
 
 
 def records(request):
@@ -813,7 +812,7 @@ def doc_builder(request):
 
         return JsonResponse({
             'redirect': reverse('job', kwargs={'job_id': doc_obj.document.job.id})
-        })
+        }, status = 200)
 
     elif request.method == 'PUT':
         doc_obj = get_object(DocumentVersion, key = 'id', get_params = request.GET)
@@ -870,7 +869,7 @@ def doc_builder(request):
 
         return JsonResponse({
             'redirect': f"{reverse('doc_builder')}?id={doc_obj.id}"
-        }, status=200)
+        }, status = 201)
 
 
     # Get page settings based on GET params
@@ -997,7 +996,7 @@ def document_main(request, doc_id):
                 new_version = this_version.get_replacement_version(request.user)
                 return JsonResponse({
                     'redirect': f'{reverse("doc_builder")}?id={new_version.pk}'
-                })
+                }, status = 201)
 
             except:
                 return respond_with_error(error('Replacement failed', 500))
@@ -1019,7 +1018,7 @@ def document_main(request, doc_id):
 
                 return JsonResponse({
                     'redirect': reverse('doc_main', kwargs={'doc_id': previous_version.pk})
-                }, status=200)
+                }, status = 200)
 
         return respond_with_error(error("Invalid GET parameters.", 400))
 
