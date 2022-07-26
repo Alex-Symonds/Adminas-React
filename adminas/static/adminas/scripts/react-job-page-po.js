@@ -332,8 +332,8 @@ function JobPoEditor(props){
         const headers = getFetchHeaders(method, state_to_object_be());
 
         update_server(url, headers, resp_data => {
-            if('message' in resp_data){
-                backend_error.set(resp_data.message);
+            if(responded_with_error(resp_data)){
+                backend_error.set(get_error_message(resp_data));
             }
             if('id' in resp_data){
                 // props.po_id = null when we're creating a new PO. The new PO
@@ -357,12 +357,12 @@ function JobPoEditor(props){
         const headers = getFetchHeaders('DELETE', null);
 
         update_server(url, headers, resp_data => {
-            if('ok' in resp_data){
+            if(responded_with_error(resp_data)){
+                backend_error.set(get_error_message(resp_data));
+            }
+            else if('ok' in resp_data){
                 props.state_delete();
                 props.editor.off();
-            }
-            else if('message' in resp_data){
-                backend_error.set(resp_data['message']);
             }
         });
     };

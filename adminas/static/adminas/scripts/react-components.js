@@ -12,20 +12,6 @@
         || Generic functions for updating states
 */
 
-const KEY_RESPONSE_ERROR_MSG = 'error';
-
-function responded_with_error(response_json){
-    if(typeof response_json != "object"){
-        return false;
-    }
-    return KEY_RESPONSE_ERROR_MSG in response_json;
-}
-
-function get_error_message(response_json){
-    return response_json[KEY_RESPONSE_ERROR_MSG];
-}
-
-
 
 // || Strings and Formatting
 function nbsp(){
@@ -347,6 +333,19 @@ const update_server = (url, headers, handle_response) => {
 async function jsonOr204(response){
     if(response.status === 204) return 204;
     return await response.json();
+}
+
+// Identify when the backend responded with a home-made error; extract the message for display
+const KEY_RESPONSE_ERROR_MSG = 'error';
+function responded_with_error(response_json){
+    if(typeof response_json != "object"){
+        return false;
+    }
+    return KEY_RESPONSE_ERROR_MSG in response_json;
+}
+
+function get_error_message(response_json){
+    return response_json[KEY_RESPONSE_ERROR_MSG];
 }
 
 // React component to display a warning message when the backend didn't like something about the user's request
