@@ -352,16 +352,14 @@ def price_check(request, job_id):
         if is_error(job):
             return respond_with_error(job)
 
-        new_status = get_value_from_json(request.body)
+        new_status = get_value_from_json(request.body, 'new_status')
         if is_error(new_status):
             return respond_with_error(new_status)
 
         job.price_is_ok = new_status
         job.save()
 
-        return JsonResponse({
-            'ok': True
-        }, status = 200)
+        return HttpResponse(status = 204)
 
 
 def purchase_order(request):
@@ -495,10 +493,7 @@ def items(request):
 
             jobitem.update_price(form)
 
-            return JsonResponse({
-                'ok': True,
-                'reload': 'true'
-            }, status = 200)
+            return HttpResponse(status = 204)
 
 
     # User is fiddling with the product dropdown, so send them the description of the current item

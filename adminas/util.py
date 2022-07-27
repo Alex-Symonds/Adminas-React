@@ -82,12 +82,11 @@ def dict_from_json(json_data):
 
 
 def get_value_from_json(json_data, key):
-
     dict = dict_from_json(json_data)
     if is_error(dict):
         return dict
 
-    result = get_param_from_dict(dict, key)
+    result = get_param_from_dict(key, dict)
     if is_error(result):
         return result
     return result

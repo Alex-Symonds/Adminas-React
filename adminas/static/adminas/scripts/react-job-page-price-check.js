@@ -70,7 +70,7 @@ function PriceAcceptanceToggle(props){
             if(responded_with_error(resp_data)){
                 console.log(`Error: ${get_error_message(resp_data)}`);
             }
-            else if('ok' in resp_data){
+            else if(status_is_good(resp_data, 204)){
                 props.price_accepted_state.set(is_accepted_now);
             }
         });
@@ -364,7 +364,7 @@ function JobPriceCheckPriceEditor(props){
                 props.backend_error.set(get_error_message(resp_data));
                 props.editor.off();
             }
-            else if('ok' in resp_data){
+            else if(status_is_good(resp_data, 204)){
                 props.update_item(new_attributes);
                 props.editor.off();
             }
