@@ -99,9 +99,7 @@ def todo_list_management(request):
         API only. Process changes to the to-do list.
     """
     if not request.user.is_authenticated:
-        return JsonResponse({
-            'message': "You must be logged in to update the to-do list."
-        }, status=400)
+        return anonymous_user_json()
 
     # Try to extract a job and user from the incoming data
     posted_data = dict_from_json(request.body)
@@ -116,6 +114,7 @@ def todo_list_management(request):
 
     # Handle the request
     if request.method == 'DELETE':
+
         if job in user.todo_list_jobs.all():
             user.todo_list_jobs.remove(job)
             user.save()
@@ -345,7 +344,7 @@ def price_check(request, job_id):
         API only. Process the Job page's "selling price is {NOT }CONFIRMED" indicator/button
     """
     if not request.user.is_authenticated:
-        return respond_with_error(error('You must be logged in to perform this task.', 401))
+        return anonymous_user_json()
 
     if request.method == 'PUT':
         job = get_object(Job, id = job_id)
@@ -481,7 +480,6 @@ def items(request):
                 return respond_with_error(update_result)
 
             return JsonResponse({
-                'ok': "true",
                 'refresh_needed': update_result['refresh_needed']
             }, status = 200)
 
@@ -511,8 +509,7 @@ def items(request):
         description= product.get_description(job.language)
 
         return JsonResponse({
-            'desc': description,
-            'ok': True
+            'desc': description
         }, status = 200)
 
     # User wishes to refresh a specific JobItem's data
@@ -521,10 +518,7 @@ def items(request):
         if is_error(jobitem):
             return respond_with_error(jobitem)
 
-        response_data = jobitem.get_dict()
-        response_data['ok'] = True
-
-        return JsonResponse(response_data, status = 200)
+        return JsonResponse(jobitem.get_dict(), status = 200)
 
 
 
@@ -1064,7 +1058,6 @@ def dict_contains_production_data(dict):
 # || Form helpers
 def invalid_form_error():
     return error("Invalid form data.", 400)
-
 
 def get_form_from_request(request, form_funct):
     dict = dict_from_json(request.body)

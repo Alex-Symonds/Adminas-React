@@ -213,12 +213,19 @@ function CommentContentsFooter(props){
         const headers = getFetchHeaders('PUT', attributes);
 
         update_server(url, headers, resp_data => {
-            if(responded_with_error(resp_data)){
-                backend_error.set(get_error_message(resp_data));
-            }
-            else if(status_is_good(resp_data, 200)){
+            if(status_is_good(resp_data, 200)){
                 props.actions_comments.update_f(props.comment.id, attributes);
             }
+            else {
+                backend_error.set(get_error_message(resp_data));
+            }
+
+            // if(responded_with_error(resp_data)){
+            //     backend_error.set(get_error_message(resp_data));
+            // }
+            // else if(status_is_good(resp_data, 200)){
+            //     props.actions_comments.update_f(props.comment.id, attributes);
+            // }
         });
     }
 
@@ -316,13 +323,22 @@ function CommentEditor(props){
         const headers = getFetchHeaders('PUT', state_to_object_be());
         
         update_server(url, headers, resp_data => {
-            if(responded_with_error(resp_data)){
-                backend_error.set(get_error_message(resp_data));
-            }
-            else if(status_is_good(resp_data, 200)){
+            if(status_is_good(resp_data, 200)){
                 props.actions_comments.update_f(props.comment.id, state_to_object_fe());
                 props.editor.off();
             }
+            else {
+                backend_error.set(get_error_message(resp_data));
+            }
+
+
+            // if(responded_with_error(resp_data)){
+            //     backend_error.set(get_error_message(resp_data));
+            // }
+            // else if(status_is_good(resp_data, 200)){
+            //     props.actions_comments.update_f(props.comment.id, state_to_object_fe());
+            //     props.editor.off();
+            // }
         });
     };
 

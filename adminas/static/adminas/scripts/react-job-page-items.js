@@ -881,13 +881,13 @@ function JobItemsCreator(props){
         const headers = getFetchHeaders('POST', state_to_object_be());
 
         update_server(url, headers, resp_data => {
-            if(responded_with_error(resp_data)){
-                backend_error.set(get_error_message(resp_data));
-            }
-            else if(status_is_good(resp_data, 201)){
+            if(status_is_good(resp_data, 201)){
                 // The server's response will include an object with all the fields for newly created item/s
                 props.actions_items.create_f(resp_data.id_list);
                 props.editor.off();
+            }
+            else {
+                backend_error.set(get_error_message(resp_data));
             }
         })
     }
@@ -1102,10 +1102,7 @@ function JobItemEditor(props){
         var headers = getFetchHeaders('PUT', state_to_object_be());
 
         update_server(url, headers, resp_data => {
-            if(responded_with_error(resp_data)){
-                backend_error.set(get_error_message(resp_data));
-            }
-            else if(status_is_good(resp_data, 200)){
+            if(status_is_good(resp_data, 200)){
                 // Check if the server thinks the edit means a full refresh of the JobItem is required.
                 // If so, refresh the entire JobItem from the BE
                 if('refresh_needed' in resp_data && resp_data.refresh_needed == true){
@@ -1117,6 +1114,9 @@ function JobItemEditor(props){
                     props.editor.off();
                 }   
             }
+            else{
+                backend_error.set(get_error_message(resp_data));
+            }
         });
     };
 
@@ -1126,15 +1126,12 @@ function JobItemEditor(props){
         fetch(url)
         .then(response => response.json())
         .then(resp_data => {
-            if(responded_with_error(resp_data)){
-                backend_error.set(get_error_message(resp_data));
-                return;
-            }
-
-            if('ok' in resp_data){
-                delete resp_data.ok;
+            if(status_is_good(resp_data, 200)){
                 props.update_item(props.data.ji_id, resp_data);
                 props.editor.off();
+            }
+            else{
+                backend_error.set(get_error_message(resp_data));
             }
         })
         .catch(error => console.log(error))
@@ -1175,12 +1172,12 @@ function JobItemEditor(props){
         var headers = getFetchHeaders('DELETE', null);
 
         update_server(url, headers, resp_data => {
-            if(responded_with_error(resp_data)){
-                backend_error.set(get_error_message(resp_data));
-            }
-            else if(status_is_good(resp_data, 204)){
+            if(status_is_good(resp_data, 204)){
                 props.delete_item(props.data.ji_id);
                 props.editor.off();
+            }
+            else {
+                backend_error.set(get_error_message(resp_data));
             }
         });
     }

@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from django.http import JsonResponse
+from django.http import HttpResponse, JsonResponse
 import adminas.models
 from adminas.constants import ERROR_NO_DATA, DOCUMENT_TYPES, SUCCESS_CODE, ERROR_MESSAGE_KEY
 import json
@@ -31,7 +31,7 @@ def is_error(result_or_err):
     return ERROR_MESSAGE_KEY in result_or_err
 
 
-def respond_with_error(details):
+def OLD_respond_with_error(details):
     """
     JsonResponse based on a dict
     """
@@ -41,6 +41,15 @@ def respond_with_error(details):
         'message': details[ERROR_MESSAGE_KEY],
         'error': details[ERROR_MESSAGE_KEY]
     }, status = details['status']) 
+
+
+def respond_with_error(details):
+    if(details['status'] == 403 or details['status'] == 409):
+        return JsonResponse({
+            'error': details[ERROR_MESSAGE_KEY]
+        }, status = details['status'])
+
+    return HttpResponse(status = details['status'])
 
 
 def render_with_error(request, details):
@@ -94,7 +103,7 @@ def get_value_from_json(json_data, key):
 
 def get_param_from_dict(key, posted_data):
     if not key in posted_data:
-        return error(f'{key} not found', 400)
+        return error(f'{key} not found', 404)
     return posted_data[key]
     
     
@@ -102,7 +111,7 @@ def get_param_from_get_params(key, get_params):
     fallback_get = '-----'
     result = get_params.get(key, fallback_get)
     if result == fallback_get:
-        return error(f'{key} not found.', 400)    
+        return error(f'{key} not found.', 404)    
     return result
 
 

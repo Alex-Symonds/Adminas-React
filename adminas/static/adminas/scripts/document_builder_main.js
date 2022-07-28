@@ -152,40 +152,46 @@ function update_document_on_server(issue_date){
 
     // DOC_ID 0 = creating a new document, so the server needs to know the Job ID and doc type
     if(DOC_ID == '0'){
-        var get_params = `job=${JOB_ID}&type=${DOC_CODE}`;
-        var fetch_dict = get_fetch_dict('POST', dict);
+        update_document_on_server_fetch('POST', 201, dict, `job=${JOB_ID}&type=${DOC_CODE}`);
 
     // DOC_ID not 0 = updating an existing document, so the ID alone is sufficient
     } else {
-        var get_params = `id=${DOC_ID}`;
-        var fetch_dict = get_fetch_dict('PUT', dict);
+        update_document_on_server('PUT', 200, dict, `id=${DOC_ID}`);
     }
+}
 
-    fetch(`${URL_DOCBUILDER}?${get_params}`, fetch_dict)
-    .then(response => response.json())
+function update_document_on_server_fetch(method, expected_response_code, data, get_params){
+    var request_options = get_request_options(method, data);
+
+    fetch(`${URL_DOCBUILDER}?${get_params}`, request_options)
+    .then(response => get_json_with_status(response))
     .then(data => {
 
         // If the document was successfully issued, it can no longer be edited, so the server
         // will want to redirect the user back to the read-only document page.
-        if ('redirect' in data){
+        if (status_is_ok(data, expected_response_code) && 'redirect' in data){
             window.location.href = data['redirect'];
 
         // Otherwise the user can stay on this page and continue editing if they like. Get rid 
         // of the "unsaved changes" warning and notify the user about whatever just happened.
-        } else {
-            display_document_response_message(data, document.querySelector('.status-controls'));
+        }
+        else if(status_is_ok(data, expected_response_code)){
+            display_document_response_message(data);
             remove_save_warning_ele();
 
             if ('doc_is_valid' in data){
                 clear_validity_warnings(data);
             }
         }
+        else {
+            let error = create_error();
+            display_document_response_message(error);
+        }
     })
     .catch(error => {
         console.log('Error: ', error)
     });
 }
-
 
 
 
@@ -276,14 +282,19 @@ function delete_document(){
     let delete_confirmed = confirm('Deleting a document cannot be undone except by a system administrator. Are you sure?');
     if(delete_confirmed){
 
-        let fetch_dict = get_fetch_dict('DELETE');
-        fetch(`${URL_DOCBUILDER}?id=${DOC_ID}`, fetch_dict)
+        let request_options = get_request_options('DELETE');
+        fetch(`${URL_DOCBUILDER}?id=${DOC_ID}`, request_options)
         .then(response => response.json())
         .then(data => {
-            if ('redirect' in data){
+            if('redirect' in data){
                 window.location.href = data['redirect'];
-            } else {
+            }
+            else if(responded_with_error(data)){
                 display_document_response_message(data);
+            }
+            else {
+                let error = create_error('Delete failed.');
+                display_document_response_message(error);
             }
         })
         .catch(error => {

@@ -1864,7 +1864,7 @@ class DocumentVersion(AdminAuditTrail):
         previous_qs = DocumentVersion.objects.filter(document=self.document).filter(version_number=self.version_number - 1)
         
         if previous_qs.count() == 0:
-            return error('Revert version has failed. There is no previous version.', 400)
+            return error('Revert version has failed. There is no previous version.', 404)
         
         previous = previous_qs.order_by('-created_on')[0]
 

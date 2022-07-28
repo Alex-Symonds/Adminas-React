@@ -141,11 +141,16 @@ async function create_ele_module_slot_filler(slot_id, parent_id){
 
     // Attempt to get list of options from server
     let json_response = await get_list_for_module_slot(slot_id, parent_id, 'jobitems');
-    if(responded_with_error(json_response)){
+    
+    if(!status_is_good(json_response)){
+        if(!responded_with_error(json_response)){
+            json_response = create_error('Failed to load menu.');
+        }
+
         div.append(get_module_error_ele(json_response));
         return div;
     }
-
+    
     div.append(create_ele_module_filler_title(json_response['data'].parent_quantity));
     div = append_existing_jobitems(div, slot_id, parent_id, json_response['data']);
     div.append(create_ele_module_filler_new_jobitem_button(slot_id, parent_id));
@@ -322,10 +327,13 @@ async function create_ele_jobitem_module_dropdown(slot_id, parent_id){
     sel.name = 'product';
 
     let json_response = await get_list_for_module_slot(slot_id, parent_id, 'products');
-    if(responded_with_error(json_response)){
+    if(!status_is_good(json_response, 200)){
+        if(!responded_with_error(json_response)){
+            json_response = create_error('Failed to load dropdown.');
+        }
         return get_module_error_ele(json_response);
     }
-
+    
     let list_of_valid_options = json_response['data'];
     for(let i=0; i < list_of_valid_options.length; i++){
         var opt_data = list_of_valid_options[i];
@@ -393,7 +401,10 @@ async function add_new_jobitem_and_jobmodule(e){
     let json_resp = await create_new_jobitem_for_module(parent_id, total_qty, product_id);
 
     // If that failed, display an error ele and return
-    if(responded_with_error(json_resp)){
+    if(!status_is_good(json_resp)){
+        if(!responded_with_error(json_resp)){
+            json_resp = create_error('Failed to add item.');
+        }
         let target = document.getElementById(ID_CREATE_JOBITEM_SUBMIT_BUTTON);
         display_module_error(target, json_resp);
         return;
@@ -405,7 +416,10 @@ async function add_new_jobitem_and_jobmodule(e){
     json_resp = await create_jobmodule_on_server(child_id, parent_id, slot_id, assignment_qty);
     
     // If that failed, display an error ele and return
-    if(responded_with_error(json_resp)){
+    if(!status_is_good(json_resp)){
+        if(!responded_with_error(json_resp)){
+            json_resp = create_error('Failed to fill slot.');
+        }
         let target = document.getElementById(ID_CREATE_JOBITEM_SUBMIT_BUTTON);
         display_module_error(target, json_resp);
         return;
@@ -431,17 +445,14 @@ function get_product_desc_from_select_desc(select_ele){
 
 // New JI Form Action: POST new JI info to the server
 async function create_new_jobitem_for_module(parent_id, qty, product){
-    let response = await fetch(`${URL_ITEMS}`, {
-        method: 'POST',
-        body: JSON.stringify({
-            'source_page': 'module_management',
-            'quantity': qty,
-            'product': product,
-            'parent': parent_id
-        }),
-        headers: getDjangoCsrfHeaders(),
-        credentials: 'include'
-    })
+    let request_options = get_request_options('POST', {
+        'source_page': 'module_management',
+        'quantity': qty,
+        'product': product,
+        'parent': parent_id
+    });
+
+    let response = await fetch(`${URL_ITEMS}`, request_options)
     .catch(error => {
         console.log('Error: ', error);
     })
@@ -482,10 +493,13 @@ async function assign_jobitem_to_slot(e){
     let empty_slot = bucket_div.previousSibling;
 
     let data = await create_jobmodule_on_server(ele.dataset.child, ele.dataset.parent, ele.dataset.slot);
-    if(responded_with_error(data)){
+    if(!status_is_good(data)){
+        if(!responded_with_error(data)){
+            data = create_error('Failed to assign item to slot.');
+        }
         display_module_error(empty_slot, data);
-
-    } else {
+    }
+    else {
         let jobmod_id = data['id'];
         let parent_ele = e.target.closest(`.${CLASS_PARENT_ITEM}`);
 
@@ -508,17 +522,14 @@ async function assign_jobitem_to_slot(e){
 
 // Assignment: create a new JobModule on the server, storing the relationship between the parent, slot, and child
 async function create_jobmodule_on_server(child_id, parent_id, slot_id, quantity=1){ 
-    let response = await fetch(`${URL_ASSIGNMENTS}`, {
-        method: 'POST',
-        body: JSON.stringify({
-            'parent': parent_id,
-            'child': child_id,
-            'slot': slot_id,
-            'quantity': quantity
-        }),
-        headers: getDjangoCsrfHeaders(),
-        credentials: 'include'
-    })
+    let request_options = get_request_options('POST', {
+        'parent': parent_id,
+        'child': child_id,
+        'slot': slot_id,
+        'quantity': quantity
+    });
+
+    let response = await fetch(`${URL_ASSIGNMENTS}`, request_options)
     .catch(error => {
         console.log('Error: ', error);
     });
@@ -585,7 +596,10 @@ function create_ele_slot_filler_edit_btn(jobmod_id){
 async function remove_jobmodule(e){
     let resp = await unfill_slot_on_server(e);
 
-    if(responded_with_error(resp)){
+    if(!status_is_good(resp)){
+        if(!responded_with_error(resp)){
+            resp = create_error('Failed to empty slot.');
+        }
         let submit_btn = document.getElementById(ID_EDIT_FORM_SUBMIT_BUTTON);
         display_module_error(submit_btn, resp);
         return;
@@ -596,11 +610,9 @@ async function remove_jobmodule(e){
 
 // Delete Assignment: Backend removal of the JobItem from the slot
 async function unfill_slot_on_server(e){
-    let resp = await fetch(`${URL_ASSIGNMENTS}?id=${e.target.dataset.jobmod}`, {
-        method: 'DELETE',
-        headers: getDjangoCsrfHeaders(),
-        credentials: 'include'
-    })
+    let request_options = get_request_options('DELETE');
+
+    let resp = await fetch(`${URL_ASSIGNMENTS}?id=${e.target.dataset.jobmod}`, request_options)
     .catch(error => {
         console.log('Error: ', error);
     })
@@ -777,19 +789,16 @@ function close_edit_mode(ele, new_qty){
 
 // Edit Mode Action: called onclick of the submit button
 async function update_module_qty(qty_field){
-    fetch(`${URL_ASSIGNMENTS}`, {
-        method: 'PUT',
-        body: JSON.stringify({
-            'qty': qty_field.value,
-            'prev_qty': qty_field.dataset.prev_qty,
-            'id': qty_field.dataset.id
-        }),
-        headers: getDjangoCsrfHeaders(),
-        credentials: 'include'
-    })
+    let request_options = get_request_options('PUT', {
+        'qty': qty_field.value,
+        'prev_qty': qty_field.dataset.prev_qty,
+        'id': qty_field.dataset.id
+    });
+
+    fetch(`${URL_ASSIGNMENTS}`, request_options)
     .then(response => get_json_with_status(response))
     .then(data => {
-        if(data.status != 200){
+        if(get_status_from_json(data) != 200){
             display_module_error(qty_field.nextElementSibling, data);
             return;
         }

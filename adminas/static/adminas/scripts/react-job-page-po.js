@@ -367,16 +367,16 @@ function JobPoEditor(props){
         }
     };
 
-    function save_po_on_be(method, expected_response_code, url, update_po_state){
+    function save_po_on_be(method, expected_response_code, url, update_po_state_funct){
         const headers = getFetchHeaders(method, state_to_object_be());
 
         update_server(url, headers, resp_data => {
-            if(responded_with_error(resp_data)){
-                backend_error.set(get_error_message(resp_data));
-            }
             if(status_is_good(resp_data, expected_response_code)){
-                update_po_state(resp_data);
+                update_po_state_funct(resp_data);
                 props.editor.off();
+            }
+            else{
+                backend_error.set(get_error_message(resp_data));
             }
         });
     }
@@ -387,12 +387,12 @@ function JobPoEditor(props){
         const headers = getFetchHeaders('DELETE', null);
 
         update_server(url, headers, resp_data => {
-            if(responded_with_error(resp_data)){
-                backend_error.set(get_error_message(resp_data));
-            }
-            else if('ok' in resp_data){
+            if(status_is_good(resp_data, 204)){
                 props.state_delete();
                 props.editor.off();
+            }
+            else{
+                backend_error.set(get_error_message(resp_data));
             }
         });
     };

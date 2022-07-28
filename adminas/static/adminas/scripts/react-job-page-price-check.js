@@ -67,11 +67,11 @@ function PriceAcceptanceToggle(props){
         });
 
         update_server(url, headers, resp_data => {
-            if(responded_with_error(resp_data)){
-                console.log(`Error: ${get_error_message(resp_data)}`);
-            }
-            else if(status_is_good(resp_data, 204)){
+            if(status_is_good(resp_data, 204)){
                 props.price_accepted_state.set(is_accepted_now);
+            }
+            else {
+                alert(`Error: ${get_error_message(resp_data)}`);
             }
         });
     }
@@ -360,12 +360,12 @@ function JobPriceCheckPriceEditor(props){
         const headers = getFetchHeaders('PUT', new_attributes);
 
         update_server(props.url_with_id, headers, resp_data => {
-            if(responded_with_error(resp_data)){
-                props.backend_error.set(get_error_message(resp_data));
+            if(status_is_good(resp_data, 204)){
+                props.update_item(new_attributes);
                 props.editor.off();
             }
-            else if(status_is_good(resp_data, 204)){
-                props.update_item(new_attributes);
+            else {
+                props.backend_error.set(get_error_message(resp_data));
                 props.editor.off();
             }
         });

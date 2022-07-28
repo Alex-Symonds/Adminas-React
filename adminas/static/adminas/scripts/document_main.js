@@ -38,21 +38,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Adjust the version on the server and update the frontend
 function next_or_previous_document_version(taskname){
-    let fetch_dict = get_fetch_dict('POST', { 'task': taskname });
+    let request_options = get_request_options('POST', { 'task': taskname });
 
-    fetch(`${URL_DOC_MAIN}`, fetch_dict)
+    fetch(`${URL_DOC_MAIN}`, request_options)
     .then(response => response.json())
     .then(data => {
-        if ('redirect' in data){
+        if('redirect' in data){
             window.location.href = data['redirect'];
-
-        } else if(responded_with_error(data)) {
-            display_document_response_message(data, document.querySelector('.status-controls'));
-
-        } else {
-            data = {}
-            data[KEY_RESPONSE_ERROR_MSG] = 'Something went wrong';
-            display_document_response_message(data, document.querySelector('.status-controls'));
+        }
+        else {
+            if(!responded_with_error(data)) {
+                data = create_error('Something went wrong');
+            }
+            display_document_response_message(data);
         }
     })
     .catch(error => {

@@ -11,7 +11,7 @@ const CSS_GENERIC_PANEL_HEADING = 'panel-header';
 const CSS_GENERIC_FORM_LIKE = 'form-like';
 
 const KEY_RESPONSE_ERROR_MSG = 'error';
-
+const KEY_HTTP_CODE = 'http_code';
 
 // When deleting something, check for 204 before attempting to JSON anything.
 async function jsonOr204(response){
@@ -21,8 +21,30 @@ async function jsonOr204(response){
 
 async function get_json_with_status(response){
     let result = await response.json();
-    result['status'] = response.status;
+    result[KEY_HTTP_CODE] = response.status;
     return result;
+}
+
+function get_data_from_json(json_data){
+    return delete json_data[KEY_HTTP_CODE];
+}
+function get_status_from_json(json_data){
+    const ERROR = -1;
+    if(typeof json_data !== 'object') return ERROR;
+    if(!(KEY_HTTP_CODE in json_data)) return ERROR;
+    return json_data[KEY_HTTP_CODE];
+}
+
+function status_is_good(response_data, expected_response_code = null){
+    const status = get_status_from_json(response_data);
+    if(status === -1){
+        return false;
+    }
+
+    if(expected_response_code === null){
+        return status === 200 || status === 201 || status === 204;
+    }
+    return status === expected_response_code;  
 }
 
 // Avoid JS errors on conditionally displayed elements
@@ -37,6 +59,17 @@ function responded_with_error(response_json){
         return false;
     }
     return KEY_RESPONSE_ERROR_MSG in response_json;
+}
+
+function create_error(message){
+    // Create something that will pass the "responded_with_error" test.
+    let result = {};
+    result[KEY_RESPONSE_ERROR_MSG] = message;
+    return result;
+}
+
+function get_message_from_error(error_obj){
+    return error_obj[KEY_RESPONSE_ERROR_MSG];
 }
 
 
@@ -72,19 +105,19 @@ function get_last_element(selector){
     return elements[arr_id];
 }
 
-
-function get_fetch_dict(method, body = null){
-    let fetch_dict = {
+// previously "get_fetch_dict"
+function get_request_options(method, body = null){
+    let request_options = {
         method: method,
         headers: getDjangoCsrfHeaders(),
         credentials: 'include'         
     }
 
     if(body != null){
-        fetch_dict.body = JSON.stringify(body);
+        request_options.body = JSON.stringify(body);
     }
 
-    return fetch_dict;
+    return request_options;
 }
 
 
@@ -176,12 +209,12 @@ function create_message_ele(){
     return message_ele;
 }
 
-function create_dismissable_error(error_dict){
+function create_dismissable_error(error_obj){
     let error_message_ele = document.createElement('div');
     error_message_ele.classList.add(CLASS_ERROR_MESSAGE);
 
     let display_str_ele = document.createElement('div');
-    display_str_ele.innerHTML = get_error_message(error_dict);
+    display_str_ele.innerHTML = get_error_message(error_obj);
     error_message_ele.append(display_str_ele);
 
     let dismiss_btn = create_generic_ele_cancel_button();
@@ -194,7 +227,8 @@ function create_dismissable_error(error_dict){
 }
 
 // Response message (documents, used by both Builder and Main)
-function display_document_response_message(data, anchor_ele){
+function display_document_response_message(data){
+    let anchor_ele = document.querySelector('.status-controls');
     let message_ele = document.querySelector('.' + CLASS_MESSAGE_BOX);
 
     if(message_ele == null){

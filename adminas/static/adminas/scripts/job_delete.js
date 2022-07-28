@@ -15,18 +15,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 function delete_job(){
-    fetch(URL_DELETE_JOB, {
-        method: 'DELETE',
-        headers: getDjangoCsrfHeaders(),
-        credentials: 'include'
-    })
-    .then(response => jsonOr204(response))
+    let request_options = get_request_options('DELETE');
+
+    fetch(URL_DELETE_JOB, request_options)
+    .then(response => get_json_with_status(response))
     .then(data => {
-        if(data === 204){
+        if(get_status_from_json(data) === 204){
             window.location.href = '/';
         }
-        else{
+        else if(responded_with_error(data)){
             display_delete_failed_message(data);
+        }
+        else {
+            let error = create_error('Delete failed.');
+            display_delete_failed_message(error);
         }
     })
     .catch(error => {
@@ -36,17 +38,19 @@ function delete_job(){
 
 function display_delete_failed_message(error_obj){
     // If there's an existing error message with the same error, do nothing
-    let err_msg = document.querySelector(`.${CLASS_ERROR_MESSAGE}`);
-    if (err_msg != null && err_msg.getElementsByTagName('DIV')[0].innerHTML == message){
+    let message = get_message_from_error(error_obj);
+
+    let existing_ele = document.querySelector(`.${CLASS_ERROR_MESSAGE}`);
+    if (existing_ele != null && existing_ele.getElementsByTagName('DIV')[0].innerHTML == message){
         return;
     }
 
     // Clear out the old error message, if there is one, then replace with a
     // shiny new error message.
-    if (err_msg != null){
-        err_msg.remove();
+    if (existing_ele != null){
+        existing_ele.remove();
     }
     let delete_btn = document.getElementById(ID_DELETE_JOB_BTN);
-    let error_message = create_dismissable_error(error_obj);
-    delete_btn.after(error_message);
+    let error_message_ele = create_dismissable_error(error_obj);
+    delete_btn.after(error_message_ele);
 }

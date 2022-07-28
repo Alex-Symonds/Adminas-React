@@ -335,9 +335,9 @@ async function jsonOr204(response){
     return await response.json();
 }
 
-const KEY_HTTP_CODE = 'http_code';
 async function jsonWithStatus(response){
-    if(response.status !== 204){
+    const content_type = response.headers.get("content-type");
+    if(content_type && content_type.indexOf("application/json") !== -1){
         var response_data = await response.json();
     } else {
         var response_data = {};
@@ -351,10 +351,6 @@ function get_status_from_json(json_data){
     if(typeof json_data !== 'object') return ERROR;
     if(!(KEY_HTTP_CODE in json_data)) return ERROR;
     return json_data[KEY_HTTP_CODE];
-}
-
-function get_data_from_json(json_data){
-    return delete json_data[KEY_HTTP_CODE];
 }
 
 function status_is_good(json_data, expected_response_code = null){
@@ -379,8 +375,45 @@ function responded_with_error(response_json){
     return KEY_RESPONSE_ERROR_MSG in response_json;
 }
 
+function responded_with_error_reason(response_json){
+    if(typeof response_json != "object"){
+        return false;
+    }
+    return KEY_RESPONSE_ERROR_MSG in response_json;
+}
+
 function get_error_message(response_json){
-    return response_json[KEY_RESPONSE_ERROR_MSG];
+
+    // Handle cases where this is called because the server returned an
+    // unexpected success code.
+    if(status_is_good(response_json)){
+        return 'Page refresh recommended.';
+    }
+
+    // Handle actual error codes.
+    const status = get_status_from_json(response_json);
+    switch(status){
+        case 400:
+            return 'Invalid inputs.';
+        case 401:
+            return 'You must be logged in.';
+        case 403:
+            if(responded_with_error_reason(response_json)){
+                return response_json[KEY_RESPONSE_ERROR_MSG];
+            }
+            return 'Request was forbidden by the server.'
+        case 404:
+            return "Requested information was not found."
+        case 409:
+            if(responded_with_error_reason(response_json)){
+                return response_json[KEY_RESPONSE_ERROR_MSG];
+            }
+            return 'Request clashed with information on server. (The server won.)'
+        case 500:
+            return 'A server error has occurred.';
+        default:
+            return 'Error: something went wrong.'
+    }
 }
 
 // React component to display a warning message when the backend didn't like something about the user's request

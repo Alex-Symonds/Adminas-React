@@ -490,7 +490,7 @@ function make_jobcomment_dict_simplified(btn){
 
 // Backend (Create): prepare the data and send it off to the server
 async function backend_create_job_comment(btn, data){
-    let fetch_dict = get_fetch_dict('POST', {
+    let request_options = get_request_options('POST', {
         'contents': data['contents'],
         'private': data['private'],
         'pinned': data['pinned'],
@@ -498,7 +498,7 @@ async function backend_create_job_comment(btn, data){
     });
     let url = get_jobcomments_url(btn);
 
-    let response = await fetch(`${url}`, fetch_dict)
+    let response = await fetch(`${url}`, request_options)
     .catch(error => {
         console.log('Error: ', error);
     });
@@ -509,17 +509,14 @@ async function backend_create_job_comment(btn, data){
 // Backend (Update): prepare the data and send it off to the server
 async function backend_update_job_comment(btn, data){
     let url = get_jobcomments_url(btn);
-    let response = await fetch(`${url}&id=${btn.dataset.comment_id}`, {
-        method: 'PUT',
-        body: JSON.stringify({
-            'contents': data['contents'],
-            'private': data['private'],
-            'pinned': data['pinned'],
-            'highlighted': data['highlighted']
-        }),
-        headers: getDjangoCsrfHeaders(),
-        credentials: 'include'
-    })
+    let request_options = get_request_options('PUT', {
+        'contents': data['contents'],
+        'private': data['private'],
+        'pinned': data['pinned'],
+        'highlighted': data['highlighted']
+    });
+
+    let response = await fetch(`${url}&id=${btn.dataset.comment_id}`, request_options)
     .catch(error => {
         console.log('Error: ', error);
     });
@@ -561,11 +558,9 @@ async function delete_job_comment(btn){
 // Send the data off, then return the response
 async function delete_job_comment_on_server(btn, comment_id){
     let url = get_jobcomments_url(btn);
-    let response = await fetch(`${url}&id=${comment_id}`, {
-        method: 'DELETE',
-        headers: getDjangoCsrfHeaders(),
-        credentials: 'include'
-    })
+    let request_options = get_request_options('DELETE');
+
+    let response = await fetch(`${url}&id=${comment_id}`, request_options)
     .catch(error => {
         console.log('Error: ', error);
     })
@@ -974,13 +969,10 @@ async function toggle_status(btn, toggled_attribute){
 async function update_backend_for_comment_toggle(url, comment_id, new_status, toggled_attribute){
     let body_obj = {}
     body_obj[toggled_attribute] = new_status;
+    
+    let request_options = get_request_options('PUT', body_obj);
 
-    return await fetch(`${url}&id=${comment_id}`, {
-        method: 'PUT',
-        body: JSON.stringify(body_obj),
-        headers: getDjangoCsrfHeaders(),
-        credentials: 'include'
-    })
+    return await fetch(`${url}&id=${comment_id}`, request_options)
     .catch(error => {
         console.log('Error: ', error);
     });
