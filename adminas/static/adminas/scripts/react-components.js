@@ -236,7 +236,7 @@ const useFetch = url => {
             const my_fetch = await fetch(url)
             .then(response => response.json())
             .then(resp_json => {
-                if(responded_with_error(resp_json)){
+                if(!status_is_good(resp_json)){
                     setError(get_error_message(resp_json));
                 }
                 setData(resp_json);

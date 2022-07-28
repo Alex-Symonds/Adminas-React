@@ -219,13 +219,6 @@ function CommentContentsFooter(props){
             else {
                 backend_error.set(get_error_message(resp_data));
             }
-
-            // if(responded_with_error(resp_data)){
-            //     backend_error.set(get_error_message(resp_data));
-            // }
-            // else if(status_is_good(resp_data, 200)){
-            //     props.actions_comments.update_f(props.comment.id, attributes);
-            // }
         });
     }
 
@@ -330,15 +323,6 @@ function CommentEditor(props){
             else {
                 backend_error.set(get_error_message(resp_data));
             }
-
-
-            // if(responded_with_error(resp_data)){
-            //     backend_error.set(get_error_message(resp_data));
-            // }
-            // else if(status_is_good(resp_data, 200)){
-            //     props.actions_comments.update_f(props.comment.id, state_to_object_fe());
-            //     props.editor.off();
-            // }
         });
     };
 
@@ -368,12 +352,10 @@ function CommentEditor(props){
             if(status_is_good(resp_data, 204)){
                 props.actions_comments.delete_f(props.comment.id);
             }
-            else if(responded_with_error(resp_data)){
+            else{
                 backend_error.set(get_error_message(resp_data));
             }
-            else {
-                backend_error.set('Delete failed');
-            }
+
         });
     }
 
