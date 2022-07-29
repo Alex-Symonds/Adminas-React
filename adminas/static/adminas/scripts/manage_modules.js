@@ -26,6 +26,8 @@ const CLASS_PARENT_ITEM = 'modular-item-container';
 
 const ID_CREATE_JOBITEM_SUBMIT_BUTTON = 'id_submit_new';
 
+const CLASS_EDITOR_SLOT_FILLER_QUANTITY = 'editor-slot-filler-quantity';
+
 // Add event handlers to elements created by Django
 document.addEventListener('DOMContentLoaded', (e) =>{
 
@@ -628,67 +630,140 @@ function unfill_slot_on_page(e, data){
 // Edit mode for filled slots
 // -----------------------------------------------------------------------------
 // Edit Filled Slot: Called onClick of the [edit] button on a filled slot
+// function OLD_edit_mode_slot_filler_qty(e){
+//     // Find the "main" slot div and the span with the display text
+//     let filler_div = e.target.closest('.module-slot');
+//     let desc_span = filler_div.querySelector('.child-desc');
+
+//     // Prep values, then call a function to generate a suitable edit-mode form
+//     let jobmod_id = e.target.dataset.jobmod;
+//     let filler_text = desc_span.innerHTML;
+//     let re = QTY_RE;
+//     let qty_form = create_ele_slot_filler_edit_field(jobmod_id, filler_text, re);
+
+//     // Add the qty form and a cancel button in front of the display text span, then edit the display text to remove the qty
+//     desc_span.before(get_cancel_edit_btn());
+//     desc_span.before(create_ele_qty_and_submit(qty_form, desc_span.innerHTML, jobmod_id));
+//     desc_span.innerHTML = filler_text.replace(re, '');
+
+//     // Hide all the edit and remove buttons
+//     filler_div.classList.add(CSS_CLASS_EDIT_MODE_SLOT);
+//     desc_span.classList.add('hide');
+//     hide_all_by_class('edit-icon');
+//     hide_all_by_class(CLASS_REMOVE_SLOT_FILLER_BTN);
+// }
+
 function edit_mode_slot_filler_qty(e){
     // Find the "main" slot div and the span with the display text
     let filler_div = e.target.closest('.module-slot');
     let desc_span = filler_div.querySelector('.child-desc');
 
-    // Prep values, then call a function to generate a suitable edit-mode form
+    // Prep values, then call a function to generate a suitable edit-mode form and add it to the page
     let jobmod_id = e.target.dataset.jobmod;
-    let filler_text = desc_span.innerHTML;
-    let re = QTY_RE;
-    let qty_form = create_ele_slot_filler_edit_field(jobmod_id, filler_text, re);
-
-    // Add the qty form and a cancel button in front of the display text span, then edit the display text to remove the qty
-    desc_span.before(get_cancel_edit_btn());
-    desc_span.before(create_ele_qty_and_submit(qty_form, desc_span.innerHTML, jobmod_id));
-    desc_span.innerHTML = filler_text.replace(re, '');
+    let qty_and_desc = desc_span.innerHTML;
+    filler_div.prepend(create_editor_slot_filler_quantity(jobmod_id, qty_and_desc));
 
     // Hide all the edit and remove buttons
+    desc_span.innerHTML = qty_and_desc.replace(QTY_RE, '');
     filler_div.classList.add(CSS_CLASS_EDIT_MODE_SLOT);
     desc_span.classList.add('hide');
     hide_all_by_class('edit-icon');
     hide_all_by_class(CLASS_REMOVE_SLOT_FILLER_BTN);
 }
 
+function create_editor_slot_filler_quantity(jobmod_id, filler_text){
+    let result = document.createElement('div');
+    result.classList.add(CLASS_EDITOR_SLOT_FILLER_QUANTITY);
 
-function create_ele_qty_and_submit(qty_ele, str, jobmod_id){
-    let ele = document.createElement('span');
-    ele.classList.add('combo-input-and-button');
+    result.append(get_cancel_edit_btn());
+    result.append(create_ele_slot_filler_editor_description(filler_text));
+    result.append(get_slot_filler_remove_btn(jobmod_id));
+    result.append(create_ele_slot_filler_editor_quantity_and_submit(jobmod_id, filler_text));
 
-    let span = document.createElement('span');
-    let re = /^.+( x )/;
-
-    let txt = document.createTextNode(str.trim().replace(re, ''));
-    span.append(txt);
-
-    span.append(get_slot_filler_remove_btn(jobmod_id));
-
-
-    ele.append(span);
-    ele.append(qty_ele);
-    ele.append(get_qty_submit_btn());
-
-    return ele;
+    return result;
 }
 
+function remove_quantity_from_description(description){
+    let re_qty_x = /^.+( x )/;
+    return description.trim().replace(re_qty_x, '');
+}
 
-// Edit mode: create a "form" for editting the qty
-function create_ele_slot_filler_edit_field(jobmod_id, filler_text, re){
-    let fld = get_jobitem_qty_field();
+function create_ele_slot_filler_editor_description(description){
+    let result = document.createElement('span');
+    result.classList.add('desc');
 
-    fld.value = filler_text.match(re);
-    fld.setAttribute('data-id', jobmod_id);
-    fld.setAttribute('data-prev_qty', filler_text.match(re));
+    result.innerHTML = remove_quantity_from_description(description);
 
-    fld.addEventListener('keydown', (e) => {
+    return result;
+}
+
+function create_ele_slot_filler_editor_quantity_and_submit(jobmod_id, filler_text){
+    let result = document.createElement('span');
+    result.classList.add('combo-input-and-button');
+
+    result.append(create_ele_slot_filler_editor_quantity_field(jobmod_id, filler_text));
+    result.append(get_qty_submit_btn());
+
+    return result;
+}
+
+function create_ele_slot_filler_editor_quantity_field(jobmod_id, filler_text){
+    let result = get_jobitem_qty_field();
+
+    result.value = filler_text.match(QTY_RE);
+    result.setAttribute('data-id', jobmod_id);
+    result.setAttribute('data-prev_qty', filler_text.match(QTY_RE));
+
+    result.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') {
             update_module_qty(e.target);
         }
     });
 
-    return fld;
+    return result;
 }
+
+
+
+
+
+
+// function create_ele_qty_and_submit(qty_ele, str, jobmod_id){
+//     let ele = document.createElement('span');
+//     ele.classList.add('combo-input-and-button');
+
+//     let span = document.createElement('span');
+//     let re = /^.+( x )/;
+
+//     let txt = document.createTextNode(str.trim().replace(re, ''));
+//     span.append(txt);
+
+//     span.append(get_slot_filler_remove_btn(jobmod_id));
+
+//     ele.append(span);
+//     ele.append(qty_ele);
+//     ele.append(get_qty_submit_btn());
+
+//     return ele;
+// }
+
+
+// Edit mode: create a "form" for editting the qty
+// function create_ele_slot_filler_edit_field(jobmod_id, filler_text, re_quantity_number){
+//     let fld = get_jobitem_qty_field();
+
+//     fld.value = filler_text.match(re_quantity_number);
+//     fld.setAttribute('data-id', jobmod_id);
+//     fld.setAttribute('data-prev_qty', filler_text.match(re_quantity_number));
+
+//     fld.addEventListener('keydown', (e) => {
+//         if (e.key === 'Enter') {
+//             update_module_qty(e.target);
+//         }
+//     });
+
+//     return fld;
+// }
 
 
 // Edit mode: submit button for the "form"
@@ -745,11 +820,10 @@ function close_edit_mode(ele, new_qty){
         qty_txt = new_qty;
     }
 
-    let form_like_ele = filler_div.querySelector('.combo-input-and-button');
-    form_like_ele.remove();
-
-    let cancel_btn = filler_div.querySelector('.close-edit-mode');   
-    cancel_btn.remove();
+    let editor_formlike = filler_div.querySelector(`.${CLASS_EDITOR_SLOT_FILLER_QUANTITY}`);
+    if(editor_formlike){
+        editor_formlike.remove();
+    }
 
     let desc_span = filler_div.querySelector('.child-desc');
     desc_span.innerHTML = qty_txt + desc_span.innerHTML;
@@ -778,7 +852,7 @@ async function update_module_qty(qty_field){
     .then(response => get_json_with_status(response))
     .then(data => {
         if(get_status_from_json(data) != 200){
-            display_module_error(qty_field.nextElementSibling, data);
+            display_module_error(qty_field.parentElement, data);
             return;
         }
 

@@ -116,25 +116,45 @@
 .modular-item-container .modular-slot-container .contents .module-slot .child-desc {
   margin-top: 3px;
 }
-.modular-item-container .modular-slot-container .contents .module-slot .combo-input-and-button .temp-warning-msg {
-  position: absolute;
-  top: 3.1rem;
-  z-index: 3;
+.modular-item-container .modular-slot-container .contents .module-slot .editor-slot-filler-quantity {
+  display: grid;
+  grid-template-rows: auto min-content min-content;
+  grid-template-columns: auto min-content min-content;
+  grid-template-areas: "desc remove close" "formy formy formy" "error error error";
 }
-.modular-item-container .modular-slot-container .contents .module-slot .combo-input-and-button span {
-  display: flex;
-  align-items: center;
-  margin-bottom: 0.3rem;
+.modular-item-container .modular-slot-container .contents .module-slot .editor-slot-filler-quantity .close {
+  grid-area: close;
 }
-.modular-item-container .modular-slot-container .contents .module-slot .combo-input-and-button .delete-panel {
-  display: inline-block;
-  float: none;
-  height: 22px;
-  width: 24px;
-  margin-left: 1rem;
+.modular-item-container .modular-slot-container .contents .module-slot .editor-slot-filler-quantity .delete-panel {
+  grid-area: remove;
 }
-.modular-item-container .modular-slot-container .contents .module-slot .combo-input-and-button .delete-panel span {
-  display: block;
+.modular-item-container .modular-slot-container .contents .module-slot .editor-slot-filler-quantity .close,
+.modular-item-container .modular-slot-container .contents .module-slot .editor-slot-filler-quantity .delete-panel {
+  margin-top: -3px;
+  margin-right: -3px;
+  z-index: 1;
+}
+.modular-item-container .modular-slot-container .contents .module-slot .editor-slot-filler-quantity .close:hover span,
+.modular-item-container .modular-slot-container .contents .module-slot .editor-slot-filler-quantity .delete-panel:hover span {
+  top: -18px;
+  right: 18px;
+}
+.modular-item-container .modular-slot-container .contents .module-slot .editor-slot-filler-quantity .combo-input-and-button {
+  grid-area: formy;
+  flex-flow: row nowrap;
+}
+.modular-item-container .modular-slot-container .contents .module-slot .editor-slot-filler-quantity .combo-input-and-button input {
+  width: 100%;
+  max-width: 6.2rem;
+}
+.modular-item-container .modular-slot-container .contents .module-slot .editor-slot-filler-quantity .desc {
+  grid-area: desc;
+  padding: 0 0.2rem 0.3rem 0;
+}
+.modular-item-container .modular-slot-container .contents .module-slot .editor-slot-filler-quantity .temp-warning-msg {
+  grid-area: error;
+  margin-left: 0;
+  max-width: 100%;
 }
 .modular-item-container .modular-slot-container .contents .module-slot.editing, .modular-item-container .modular-slot-container .contents .module-slot.new-slot-filler-inputs {
   background: #666;
@@ -142,10 +162,6 @@
 }
 .modular-item-container .modular-slot-container .contents .module-slot.new-slot-filler-inputs .combo-input-and-button {
   margin-top: 0.3rem;
-}
-.modular-item-container .modular-slot-container .contents .module-slot .close {
-  margin-top: -3px;
-  margin-right: -3px;
 }
 .modular-item-container .modular-slot-container .contents .empty {
   padding-top: 0.5rem;
@@ -171,11 +187,6 @@
     max-width: 100%;
     z-index: 2;
     box-shadow: 0px 0px 15px 8px #0f0f0f;
-  }
-  .modular-item-container .modular-slot-container .contents .module-slot .delete-panel {
-    position: absolute;
-    top: 5px;
-    right: 35px;
   }
 }
 .module-bucket-container {

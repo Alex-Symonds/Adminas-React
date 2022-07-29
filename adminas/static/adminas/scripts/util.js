@@ -149,20 +149,23 @@ function get_error_message_from_response(response_json){
 }
 
 function get_error_message(error_info, task_failed_string = null){
-    // Preference order:
-    //      1) If error_info is a string, it means "just display THIS". So do that.
-    //      2) High priority status code error messages (200, 201, 204, 401, 403, 409)
-    //      3) "[Specific task] has failed.", if that's available
-    //      4) Low priority status code error messages (other codes)
-    //      5) Fallback option
+    /*
+        Pick out the best error message under the circumstances.
+        Preference = 
+            1) Error message override (expressed via passing in a string instead of an object for error_info)
+            2) Helpful error message ("ok on server, but refresh the page", "log in first", "forbidden because it's on an issued document")
+            3) Message specifying which task has gone wrong (if one has been passed in)
+            4) Vague, generic error message purely based on the response code ("Invalid input.", "Server error.")
+            5) Fallback message
+    */
+
 
     if(typeof error_info == 'string'){
         return error_info;
     }
     else if(typeof error_info == 'object'){
 
-        if(task_failed_string != null){
-
+        if(task_failed_string !== null){
             let task_string_has_priority = true;
             if('status' in error_info){
                 task_string_has_priority = !error_message_has_high_priority(error_info['status']);
@@ -172,11 +175,10 @@ function get_error_message(error_info, task_failed_string = null){
                 return task_failed_string;
             }
         }
-        else{
-            return get_error_message_from_response(error_info);
-        }
+
+        return get_error_message_from_response(error_info);
     }
-    else if(task_failed_string != null){
+    else if(task_failed_string !== null){
         return task_failed_string;
     }
 

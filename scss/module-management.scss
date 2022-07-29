@@ -141,32 +141,81 @@
                     margin-top: 3px;
                 }
 
-                .combo-input-and-button{
+                .editor-slot-filler-quantity{
+                    display: grid;
+                    grid-template-rows: auto min-content min-content;
+                    grid-template-columns: auto min-content min-content;
+                    grid-template-areas: 
+                        "desc remove close"
+                        "formy formy formy"
+                        "error error error"
+                    ;
 
-                    .temp-warning-msg{
-                        position: absolute;
-                        top: 3.1rem;
-                        z-index: 3;
+                    .close{
+                        grid-area: close;
                     }
-
-                    span{
-                        display: flex;
-                        align-items:center;
-                        margin-bottom: 0.3rem;
-                    }
-
                     .delete-panel{
-                        display: inline-block;
-                        float: none;
-                        height: 22px;
-                        width: 24px;
-                        margin-left: 1rem;
-                        
-                        span{
-                            display: block;
+                        grid-area: remove;
+                    }
+                    .close,
+                    .delete-panel{
+                        margin-top: -3px;
+                        margin-right: -3px;
+                        z-index: 1;
+
+                        &:hover span{
+                            top: -18px;
+                            right: 18px;
                         }
                     }
+
+                    .combo-input-and-button{
+                        grid-area: formy;
+                        flex-flow: row nowrap;
+
+                        input{
+                            width: 100%;
+                            max-width: 6.2rem;
+                        }
+                    }
+                    .desc{
+                        grid-area: desc;
+                        padding: 0 0.2rem 0.3rem 0;
+                    }
+                    .temp-warning-msg{
+                        grid-area: error;
+                        margin-left: 0;
+                        max-width: 100%;
+                    }
+
                 }
+
+                // .combo-input-and-button{
+
+                //     .temp-warning-msg{
+                //         position: absolute;
+                //         top: 3.1rem;
+                //         z-index: 3;
+                //     }
+
+                //     span{
+                //         display: flex;
+                //         align-items:center;
+                //         margin-bottom: 0.3rem;
+                //     }
+
+                //     .delete-panel{
+                //         display: inline-block;
+                //         float: none;
+                //         height: 22px;
+                //         width: 24px;
+                //         margin-left: 1rem;
+                        
+                //         span{
+                //             display: block;
+                //         }
+                //     }
+                // }
 
                 &.editing,
                 &.new-slot-filler-inputs{
@@ -180,10 +229,10 @@
                     }
                 }
 
-                .close{
-                    margin-top: -3px;
-                    margin-right: -3px;
-                }
+                // .close{
+                //     margin-top: -3px;
+                //     margin-right: -3px;
+                // }
             }
 
             .empty{
@@ -219,11 +268,11 @@
             box-shadow: 0px 0px 15px 8px rgb(15,15,15);
         }
 
-        .delete-panel{
-            position: absolute;
-            top: 5px;
-            right: 35px;
-        }
+        // .delete-panel{
+        //     position: absolute;
+        //     top: 5px;
+        //     right: 35px;
+        // }
     } 
 }
 
