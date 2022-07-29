@@ -69,8 +69,8 @@
                 <div class="contents">
             {% for filler in slot.fillers %}
                     <div class="module-slot jobitem" data-slot="{{ slot.id }}" data-parent="{{ parent_jobitem.id }}">
-                        <span class="child-desc">{{ filler.quantity }} x {{ filler.child }}</span>
                         <button class="edit-slot-filler-btn edit-icon" data-jobmod="{{ filler.id }}"><span>edit</span></button>
+                        <span class="child-desc">{{ filler.quantity }} x {{ filler.child }}</span> 
                     </div>
             {% endfor %}
 

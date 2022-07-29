@@ -531,9 +531,10 @@ function create_ele_filled_module_slot(description, quantity, slot_id, parent_id
 
     div.setAttribute('data-slot', slot_id);
     div.setAttribute('data-parent', parent_id);
-
-    div.append(create_ele_slot_filler_desc_span(description, quantity));
+    
     div.append(create_ele_slot_filler_edit_btn(jobmod_id));
+    div.append(create_ele_slot_filler_desc_span(description, quantity));
+    
     return div;
 }
 
