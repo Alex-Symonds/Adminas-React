@@ -289,7 +289,6 @@ def comments(request):
 
         # Report success
         data = comment.get_dict(request.user)  # For Vanilla JS pages, which will use this to populate the edited comment element
-        data['ok'] = True   # For React, which just needs the ok to call its various "setWhatever()"s
         return JsonResponse(data, status = 200)
 
 
@@ -334,7 +333,7 @@ def comments(request):
         'job': job.get_dict(),
         'pinned': job.get_pinned_comments(request.user, setting_for_order_by),
         'highlighted': job.get_highlighted_comments(request.user, setting_for_order_by),
-        'all_comments': page.object_list,
+        'all_comments': None if page == None else page.object_list,
         'page_data': page
     })
 
@@ -1105,7 +1104,7 @@ def get_jobitem_form(posted_data):
     if is_error(product):
         return product
 
-    quantity = get_param_from_dict(key = 'quantity', dict = posted_data)
+    quantity = get_param_from_dict('quantity', posted_data)
     if is_error(quantity):
         return quantity
 

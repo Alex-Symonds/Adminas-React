@@ -53,7 +53,30 @@ def respond_with_error(details):
 
 
 def render_with_error(request, details):
-    return error_page(request, details[ERROR_MESSAGE_KEY], details['status'])
+    status = details['status']
+
+    message = "Error: something went wrong."
+
+    if status == 400:
+        message = "Invalid inputs."
+    elif status == 401:
+        message = 'You must be logged in.'
+    elif status == 403:
+        if(ERROR_MESSAGE_KEY in details):
+            message = details[ERROR_MESSAGE_KEY]
+        else:
+            message = 'Request was forbidden by the server.'
+    elif status == 404:
+        message = "Requested information was not found."
+    elif status == 409:
+        if(ERROR_MESSAGE_KEY in details):
+            message = details[ERROR_MESSAGE_KEY]
+        else:
+            message = 'Request clashed with information on server. (The server won.)'
+    elif status == 500:
+        message = 'A server error has occurred.'
+
+    return error_page(request, message, details['status'])
 
 
 def error_page(request, message, error_code):
@@ -614,9 +637,7 @@ def create_jobmodule(form):
         return error("Not enough items available.", 403)
     
     new_jm.save()
-    return {
-        'jm': new_jm
-    }
+    return new_jm
 
 
 def create_po(user, posted_form):

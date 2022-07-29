@@ -1512,15 +1512,17 @@ class JobModule(models.Model):
         return num_unassigned + old_qty_total
 
     def update(self, new_quantity):
-        # Maybe the new qty is the same as the old qty, so there's nothing to be done
-        if new_quantity == self.quantity:
-            return
-
         # Maybe the user solely entered symbols permitted by 'type=number', but which don't actually result in a number
         # (e.g. e, +, -)
         if new_quantity == '' or new_quantity == None:
             return error("Invalid quantity.", 400)
         
+        new_quantity = int(new_quantity)
+
+        # Maybe the new qty is the same as the old qty, so there's nothing to be done
+        if new_quantity == self.quantity:
+            return
+
         # Maybe the user entered a new qty of 0 or a negative number
         if new_quantity <= 0:
             return error("Quantity must be 1 or more", 403)

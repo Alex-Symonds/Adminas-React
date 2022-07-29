@@ -142,6 +142,13 @@
                 }
 
                 .combo-input-and-button{
+
+                    .temp-warning-msg{
+                        position: absolute;
+                        top: 3.1rem;
+                        z-index: 3;
+                    }
+
                     span{
                         display: flex;
                         align-items:center;
@@ -161,7 +168,8 @@
                     }
                 }
 
-                &.editing, &.new-slot-filler-inputs{
+                &.editing,
+                &.new-slot-filler-inputs{
                     background: v.$c_tone_03;
                     border-color: v.$c_tone_04; 
                 }

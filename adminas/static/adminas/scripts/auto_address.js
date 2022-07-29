@@ -26,14 +26,14 @@ async function update_address(ele){
     if(ele.selectedIndex != 0){
         let json_response = await get_address_from_server(ele.value);
 
-        if(responded_with_error(json_response)){
-            display_div.innerHTML = get_error_message(json_response);
-
-        } else {
+        if(status_is_good(json_response)){
             let display_address = process_address(json_response);
             display_div.innerHTML = display_address;
         }
-
+        else{
+            display_div.innerHTML = get_error_message(json_response);
+        }
+        
     } else {
         display_div.innerHTML = '';
     }
@@ -45,7 +45,7 @@ async function get_address_from_server(address_id){
     .catch(error => {
         console.log('Error: ', error);
     })
-    return await response.json();
+    return await get_json_with_status(response);
 }
 
 // Address Lookup: replace commas in the address with new lines; append region, postcode and country

@@ -394,27 +394,27 @@ function visibility_add_comment_btn(want_visibility){
 // Backend (Create): called onclick of the "save" button on the JobComment form-like
 async function save_new_job_comment(btn){
     let data = make_jobcomment_dict(btn);
-    let response = await backend_create_job_comment(btn, data);
+    let response_data = await backend_create_job_comment(btn, data);
 
-    if(responded_with_error(response)){
-        update_job_page_comments_after_failed_create(response, btn);
+    if(status_is_good(response_data, 201)){
+        update_job_page_comments_after_create(response_data);
     }
     else {
-        update_job_page_comments_after_create(response);
-    }  
+        update_job_page_comments_after_failed_create(response_data, btn);
+    }
 }
 
 // Backend (Update): called onclick of the "save" button on the JobComment form-like
 async function save_updated_job_comment(btn){
     let data = make_jobcomment_dict(btn);
-    let response = await backend_update_job_comment(btn, data);
+    let response_data = await backend_update_job_comment(btn, data);
 
-    if(responded_with_error(response)){
-        update_job_page_comments_after_failed_update(response, btn);
+    if(status_is_good(response_data, 200)){
+        update_job_page_comments_after_update(response_data);
     }
     else {
-        update_job_page_comments_after_update(response);
-    }    
+        update_job_page_comments_after_failed_update(response_data, btn);
+    }
 }
 
 // Backend (Create&Update): Get a dict of comment info from the appropriate comment type
@@ -503,7 +503,7 @@ async function backend_create_job_comment(btn, data){
         console.log('Error: ', error);
     });
 
-    return await response.json();
+    return await get_json_with_status(response);
 }
 
 // Backend (Update): prepare the data and send it off to the server
@@ -521,7 +521,7 @@ async function backend_update_job_comment(btn, data){
         console.log('Error: ', error);
     });
 
-    return await response.json();
+    return await get_json_with_status(response);
 }
 
 // Backend (all): determine the URL for Job Comments
@@ -548,7 +548,7 @@ function get_jobcomments_url(ele_inside_comment_div){
 async function delete_job_comment(btn){
     let comment_ele = btn.closest('.' + CLASS_INDIVIDUAL_COMMENT_ELE);
     let data = await delete_job_comment_on_server(btn, comment_ele.dataset.comment_id);
-    if(data === 204){
+    if(status_is_good(data, 204)){
         update_job_page_comments_after_delete(comment_ele.dataset.comment_id);
     } else {
         update_job_page_comments_after_failed_update(data, btn);       
@@ -565,7 +565,7 @@ async function delete_job_comment_on_server(btn, comment_id){
         console.log('Error: ', error);
     })
 
-    return await jsonOr204(response);
+    return await get_json_with_status(response);
 }
 
 
@@ -956,13 +956,12 @@ async function toggle_status(btn, toggled_attribute){
 
     var previous = previous_attr.toLowerCase() === 'true';
     let url = get_jobcomments_url(btn);
-    let response = await update_backend_for_comment_toggle(url, comment_ele.dataset.comment_id, !previous, toggled_attribute);
-    if (response.status != 200){
-        resp_dict = await response.json();
-        console.log(resp_dict['message']);
-    }
-    else {
+    let response_data = await update_backend_for_comment_toggle(url, comment_ele.dataset.comment_id, !previous, toggled_attribute);
+    if(status_is_good(response_data, 200)){
         update_frontend_for_comment_toggle(comment_ele, !previous, toggled_attribute);
+    }
+    else{
+        alert(get_error_message(response_data));
     }
 }
 
@@ -973,6 +972,7 @@ async function update_backend_for_comment_toggle(url, comment_id, new_status, to
     let request_options = get_request_options('PUT', body_obj);
 
     return await fetch(`${url}&id=${comment_id}`, request_options)
+    .then(response => get_json_with_status(response))
     .catch(error => {
         console.log('Error: ', error);
     });

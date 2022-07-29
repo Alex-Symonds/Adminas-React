@@ -167,25 +167,23 @@ function update_document_on_server_fetch(method, expected_response_code, data, g
     .then(response => get_json_with_status(response))
     .then(data => {
 
-        // If the document was successfully issued, it can no longer be edited, so the server
-        // will want to redirect the user back to the read-only document page.
-        if (status_is_ok(data, expected_response_code) && 'redirect' in data){
-            window.location.href = data['redirect'];
+        if(status_is_ok(data, expected_response_code)){
+            // If the document was just issued, no more editing is permitted, so redirect to the main page.
+            if('redirect' in data){
+                window.location.href = data['redirect'];
+            }
+            // Otherwise, update this page so the user can continue working.
+            else{
+                display_document_response_message(data);
+                remove_save_warning_ele();
 
-        // Otherwise the user can stay on this page and continue editing if they like. Get rid 
-        // of the "unsaved changes" warning and notify the user about whatever just happened.
-        }
-        else if(status_is_ok(data, expected_response_code)){
-            display_document_response_message(data);
-            remove_save_warning_ele();
-
-            if ('doc_is_valid' in data){
-                clear_validity_warnings(data);
+                if ('doc_is_valid' in data){
+                    clear_validity_warnings(data);
+                }
             }
         }
         else {
-            let error = create_error();
-            display_document_response_message(error);
+            display_document_response_message(data);
         }
     })
     .catch(error => {
@@ -284,17 +282,13 @@ function delete_document(){
 
         let request_options = get_request_options('DELETE');
         fetch(`${URL_DOCBUILDER}?id=${DOC_ID}`, request_options)
-        .then(response => response.json())
+        .then(response => get_json_with_status(response))
         .then(data => {
-            if('redirect' in data){
+            if(status_is_good(data) && 'redirect' in data){
                 window.location.href = data['redirect'];
             }
-            else if(responded_with_error(data)){
+            else{
                 display_document_response_message(data);
-            }
-            else {
-                let error = create_error('Delete failed.');
-                display_document_response_message(error);
             }
         })
         .catch(error => {

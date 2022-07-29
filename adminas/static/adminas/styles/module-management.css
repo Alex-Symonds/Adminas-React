@@ -116,6 +116,11 @@
 .modular-item-container .modular-slot-container .contents .module-slot .child-desc {
   margin-top: 3px;
 }
+.modular-item-container .modular-slot-container .contents .module-slot .combo-input-and-button .temp-warning-msg {
+  position: absolute;
+  top: 3.1rem;
+  z-index: 3;
+}
 .modular-item-container .modular-slot-container .contents .module-slot .combo-input-and-button span {
   display: flex;
   align-items: center;

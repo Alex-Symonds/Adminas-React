@@ -141,13 +141,8 @@ async function create_ele_module_slot_filler(slot_id, parent_id){
 
     // Attempt to get list of options from server
     let json_response = await get_list_for_module_slot(slot_id, parent_id, 'jobitems');
-    
     if(!status_is_good(json_response)){
-        if(!responded_with_error(json_response)){
-            json_response = create_error('Failed to load menu.');
-        }
-
-        div.append(get_module_error_ele(json_response));
+        div.append(get_module_error_ele(json_response, 'Failed to load.'));
         return div;
     }
     
@@ -204,7 +199,7 @@ async function get_list_for_module_slot(slot_id, parent_id, list_type){
     .catch(error => {
         console.log('Error: ', error);
     });
-    return await response.json();
+    return await get_json_with_status(response);
 }
 
 
@@ -328,10 +323,7 @@ async function create_ele_jobitem_module_dropdown(slot_id, parent_id){
 
     let json_response = await get_list_for_module_slot(slot_id, parent_id, 'products');
     if(!status_is_good(json_response, 200)){
-        if(!responded_with_error(json_response)){
-            json_response = create_error('Failed to load dropdown.');
-        }
-        return get_module_error_ele(json_response);
+        return get_module_error_ele(json_response, 'Failed to load dropdown.');
     }
     
     let list_of_valid_options = json_response['data'];
@@ -398,15 +390,12 @@ async function add_new_jobitem_and_jobmodule(e){
     let assignment_qty = form_div.querySelector('input[name="qty"]').value
     let total_qty =  assignment_qty * parent_ele.dataset.quantity;
     let product_id = form_div.querySelector('select').value;
-    let json_resp = await create_new_jobitem_for_module(parent_id, total_qty, product_id);
-
+    
     // If that failed, display an error ele and return
-    if(!status_is_good(json_resp)){
-        if(!responded_with_error(json_resp)){
-            json_resp = create_error('Failed to add item.');
-        }
+    let json_resp = await create_new_jobitem_for_module(parent_id, total_qty, product_id);
+    if(!status_is_good(json_resp, 201)){
         let target = document.getElementById(ID_CREATE_JOBITEM_SUBMIT_BUTTON);
-        display_module_error(target, json_resp);
+        display_module_error(target, json_resp, 'Failed to add new item to job.');
         return;
     }
 
@@ -417,11 +406,8 @@ async function add_new_jobitem_and_jobmodule(e){
     
     // If that failed, display an error ele and return
     if(!status_is_good(json_resp)){
-        if(!responded_with_error(json_resp)){
-            json_resp = create_error('Failed to fill slot.');
-        }
         let target = document.getElementById(ID_CREATE_JOBITEM_SUBMIT_BUTTON);
-        display_module_error(target, json_resp);
+        display_module_error(target, json_resp, 'Failed to fill slot.');
         return;
     }
 
@@ -457,7 +443,7 @@ async function create_new_jobitem_for_module(parent_id, qty, product){
         console.log('Error: ', error);
     })
 
-    return await response.json();
+    return await get_json_with_status(response);
 }
 
 
@@ -494,10 +480,7 @@ async function assign_jobitem_to_slot(e){
 
     let data = await create_jobmodule_on_server(ele.dataset.child, ele.dataset.parent, ele.dataset.slot);
     if(!status_is_good(data)){
-        if(!responded_with_error(data)){
-            data = create_error('Failed to assign item to slot.');
-        }
-        display_module_error(empty_slot, data);
+        display_module_error(empty_slot, data, 'Failed to assign item to slot.');
     }
     else {
         let jobmod_id = data['id'];
@@ -534,8 +517,7 @@ async function create_jobmodule_on_server(child_id, parent_id, slot_id, quantity
         console.log('Error: ', error);
     });
 
-    let resp_json = await response.json();
-    return resp_json;
+    return await get_json_with_status(response);
 }
 
 
@@ -597,11 +579,8 @@ async function remove_jobmodule(e){
     let resp = await unfill_slot_on_server(e);
 
     if(!status_is_good(resp)){
-        if(!responded_with_error(resp)){
-            resp = create_error('Failed to empty slot.');
-        }
         let submit_btn = document.getElementById(ID_EDIT_FORM_SUBMIT_BUTTON);
-        display_module_error(submit_btn, resp);
+        display_module_error(submit_btn, resp, 'Failed to empty slot.');
         return;
     }
 
@@ -616,7 +595,7 @@ async function unfill_slot_on_server(e){
     .catch(error => {
         console.log('Error: ', error);
     })
-    return await resp.json();
+    return await get_json_with_status(resp);
 }
 
 // Delete Assignment: Frontend removal of the JobItem from the slot
@@ -830,20 +809,23 @@ function update_module_qty_on_page(qty_field, data){
 }
 
 // Edit Mode: users are not allowed to add new JobItems via edit mode on the module management page. If they try, display a warning.
-function display_module_error(preceding_ele, error_obj){
-    let error_msg = get_module_error_ele(error_obj);
+function display_module_error(preceding_ele, error_info, task_failed_string = null){
+    let error_msg = get_module_error_ele(error_info, task_failed_string);
     preceding_ele.after(error_msg);
 }
 
-function get_module_error_ele(error_obj){
+function get_module_error_ele(error_info, task_failed_string = null){
     let ele = document.createElement('div');
     ele.classList.add(CLASS_TEMP_ERROR_MSG);
-    ele.innerHTML = get_error_message(error_obj);
+    ele.innerHTML = get_error_message(error_info, task_failed_string);
     return ele;
 }
+
 function is_error_ele(ele){
     return CLASS_TEMP_ERROR_MSG in ele.classList;
 }
+
+
 
 
 // Edit Mode: remove the error message. (This is called when opening the bucket menu and when closing edit mode,

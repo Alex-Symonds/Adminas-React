@@ -19,15 +19,16 @@ async function jsonOr204(response){
     return await response.json();
 }
 
-async function get_json_with_status(response){
+async function OLDget_json_with_status(response){
     let result = await response.json();
     result[KEY_HTTP_CODE] = response.status;
     return result;
 }
 
-function get_data_from_json(json_data){
-    return delete json_data[KEY_HTTP_CODE];
-}
+// function get_data_from_json(json_data){
+//     return delete json_data[KEY_HTTP_CODE];
+// }
+
 function get_status_from_json(json_data){
     const ERROR = -1;
     if(typeof json_data !== 'object') return ERROR;
@@ -35,8 +36,19 @@ function get_status_from_json(json_data){
     return json_data[KEY_HTTP_CODE];
 }
 
-function status_is_good(response_data, expected_response_code = null){
-    const status = get_status_from_json(response_data);
+async function get_json_with_status(response){
+    const content_type = response.headers.get("content-type");
+    if(content_type && content_type.indexOf("application/json") !== -1){
+        var response_data = await response.json();
+    } else {
+        var response_data = {};
+    }
+    response_data[KEY_HTTP_CODE] = response.status;
+    return response_data;
+}
+
+function status_is_good(json_data, expected_response_code = null){
+    const status = get_status_from_json(json_data);
     if(status === -1){
         return false;
     }
@@ -44,8 +56,148 @@ function status_is_good(response_data, expected_response_code = null){
     if(expected_response_code === null){
         return status === 200 || status === 201 || status === 204;
     }
-    return status === expected_response_code;  
+    return status === expected_response_code;
 }
+
+
+// Identify when the backend responded with a home-made error; extract the message for display
+function responded_with_error_reason(response_json){
+    if(typeof response_json != "object"){
+        return false;
+    }
+    return KEY_RESPONSE_ERROR_MSG in response_json;
+}
+
+// function get_error_message(response_json){
+
+//     // Handle cases where this is called because the server returned an
+//     // unexpected success code.
+//     if(status_is_good(response_json)){
+//         return 'Page refresh recommended.';
+//     }
+
+//     // Handle actual error codes.
+//     const status = get_status_from_json(response_json);
+//     switch(status){
+//         case 400:
+//             return 'Invalid inputs.';
+//         case 401:
+//             return 'You must be logged in.';
+//         case 403:
+//             if(responded_with_error_reason(response_json)){
+//                 return response_json[KEY_RESPONSE_ERROR_MSG];
+//             }
+//             return 'Request was forbidden by the server.'
+//         case 404:
+//             return "Requested information was not found."
+//         case 409:
+//             if(responded_with_error_reason(response_json)){
+//                 return response_json[KEY_RESPONSE_ERROR_MSG];
+//             }
+//             return 'Request clashed with information on server. (The server won.)'
+//         case 500:
+//             return 'A server error has occurred.';
+//         default:
+//             return 'Error: something went wrong.'
+//     }
+// }
+
+
+
+
+
+// Identify when the backend responded with a home-made error; extract the message for display
+function responded_with_error_reason(response_json){
+    if(typeof response_json != "object"){
+        return false;
+    }
+    return KEY_RESPONSE_ERROR_MSG in response_json;
+}
+
+function get_error_message_from_response(response_json){
+
+    // Handle cases where this is called because the server returned an
+    // unexpected success code.
+    if(status_is_good(response_json)){
+        return 'Page refresh recommended.';
+    }
+
+    // Handle actual error codes.
+    const status = get_status_from_json(response_json);
+    switch(status){
+        case 400:
+            return 'Invalid inputs.';
+        case 401:
+            return 'You must be logged in.';
+        case 403:
+            if(responded_with_error_reason(response_json)){
+                return response_json[KEY_RESPONSE_ERROR_MSG];
+            }
+            return 'Request was forbidden by the server.';
+        case 404:
+            return "Requested information was not found.";
+        case 409:
+            if(responded_with_error_reason(response_json)){
+                return response_json[KEY_RESPONSE_ERROR_MSG];
+            }
+            return 'Request clashed with information on server. (The server won.)'
+        case 500:
+            return 'A server error has occurred.';
+        default:
+            return 'Error: something went wrong.';
+    }
+}
+
+function get_error_message(error_info, task_failed_string = null){
+    // Preference order:
+    //      1) If error_info is a string, it means "just display THIS". So do that.
+    //      2) High priority status code error messages (200, 201, 204, 401, 403, 409)
+    //      3) "[Specific task] has failed.", if that's available
+    //      4) Low priority status code error messages (other codes)
+    //      5) Fallback option
+
+    if(typeof error_info == 'string'){
+        return error_info;
+    }
+    else if(typeof error_info == 'object'){
+
+        if(task_failed_string != null){
+
+            let task_string_has_priority = true;
+            if('status' in error_info){
+                task_string_has_priority = !error_message_has_high_priority(error_info['status']);
+            }
+
+            if(task_string_has_priority){
+                return task_failed_string;
+            }
+        }
+        else{
+            return get_error_message_from_response(error_info);
+        }
+    }
+    else if(task_failed_string != null){
+        return task_failed_string;
+    }
+
+    return 'Error: something went wrong.';
+}
+
+function error_message_has_high_priority(response_code){
+    // If everything is fine on the server and it just returned a slightly different "good"
+    // code to the one expected (e.g. 200 instead of 201) then we want to display the
+    // "everything's ok, just refresh the page" message and not anything error-y.
+    if(status_is_good(response_json)){
+        return true;
+    }
+
+    // These codes tend to return messages on which the user can act (e.g. "log in"; 
+    // "this clashes with another document"), so prefer these
+    return response_code == 401 || response_code == 403 || response_code == 409;
+}
+
+
+
 
 // Avoid JS errors on conditionally displayed elements
 function add_event_listener_if_element_exists(element, called_function){
@@ -236,12 +388,22 @@ function display_document_response_message(data){
         anchor_ele.append(message_ele);
     }
 
-    if(responded_with_error(data)){
-        message_ele.innerHTML = `Error: ${get_error_message(data)} @ ${get_date_time()}`;
-        return;
+    let message_str;
+    if(typeof data === 'string'){
+        message_str = data;
+    }
+    else if('message' in data){
+        message_str = data['message'];
+    }
+    else if(responded_with_error_reason(data)){
+        message_str = `Error: ${get_error_message(data)} @ ${get_date_time()}`;
+    }  
+    else {
+        message_str = 'Something happened';
     }
 
-    message_ele.innerHTML = `${data['message']} @ ${get_date_time()}`;
+    message_ele.innerHTML = `${message_str} @ ${get_date_time()}`;
+    
 }
 
 

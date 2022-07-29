@@ -41,15 +41,12 @@ function next_or_previous_document_version(taskname){
     let request_options = get_request_options('POST', { 'task': taskname });
 
     fetch(`${URL_DOC_MAIN}`, request_options)
-    .then(response => response.json())
+    .then(response => get_json_with_status(response))
     .then(data => {
         if('redirect' in data){
             window.location.href = data['redirect'];
         }
         else {
-            if(!responded_with_error(data)) {
-                data = create_error('Something went wrong');
-            }
             display_document_response_message(data);
         }
     })

@@ -23,12 +23,8 @@ function delete_job(){
         if(get_status_from_json(data) === 204){
             window.location.href = '/';
         }
-        else if(responded_with_error(data)){
+        else if(!status_is_good(data)){
             display_delete_failed_message(data);
-        }
-        else {
-            let error = create_error('Delete failed.');
-            display_delete_failed_message(error);
         }
     })
     .catch(error => {
