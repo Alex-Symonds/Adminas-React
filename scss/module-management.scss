@@ -190,49 +190,70 @@
 
                 }
 
-                // .combo-input-and-button{
-
-                //     .temp-warning-msg{
-                //         position: absolute;
-                //         top: 3.1rem;
-                //         z-index: 3;
-                //     }
-
-                //     span{
-                //         display: flex;
-                //         align-items:center;
-                //         margin-bottom: 0.3rem;
-                //     }
-
-                //     .delete-panel{
-                //         display: inline-block;
-                //         float: none;
-                //         height: 22px;
-                //         width: 24px;
-                //         margin-left: 1rem;
-                        
-                //         span{
-                //             display: block;
-                //         }
-                //     }
-                // }
-
                 &.editing,
                 &.new-slot-filler-inputs{
                     background: v.$c_tone_03;
                     border-color: v.$c_tone_04; 
                 }
 
+                // &.new-slot-filler-inputs{
+                //     .combo-input-and-button{
+                //         margin-top: 0.3rem;
+                //     }
+                // }
                 &.new-slot-filler-inputs{
-                    .combo-input-and-button{
-                        margin-top: 0.3rem;
+
+
+                    display: grid;
+                    grid-template-columns: auto min-content;
+                    grid-template-rows: auto auto auto auto;
+                    grid-template-areas:
+                        "title close"
+                        "dropdown dropdown"
+                        "quantity quantity"
+                        "error error"
+                    ;
+                    gap: 0.3rem;
+
+                    h5{
+                        grid-area: title;
+                        margin: 0;
+                        padding: 0.3rem;
+                        font-size: 1rem;
                     }
+
+                    .close{
+                        grid-area: close;
+                        margin-top: -3px;
+                        margin-right: -3px;
+                        z-index: 1;
+
+                        &:hover span{
+                            top: -18px;
+                            right: 18px;
+                        }
+                    }
+
+                    select{
+                        grid-area: dropdown;
+                        width: 100%;
+                    }
+
+                    .combo-input-and-button{
+                        grid-area: quantity;
+                        flex-flow: row nowrap;
+                        input{
+                            width: 100%;
+                            max-width: 6.2rem;
+                        }
+                    }
+
+                    .temp-warning-msg{
+                        grid-area: error;
+                    }
+
                 }
 
-                // .close{
-                //     margin-top: -3px;
-                //     margin-right: -3px;
-                // }
             }
 
             .empty{

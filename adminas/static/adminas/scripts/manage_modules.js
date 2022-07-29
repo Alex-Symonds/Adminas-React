@@ -297,6 +297,10 @@ async function get_module_slot_with_new_item_form(slot_id, parent_id){
     div.classList.add(CLASS_MODULE_SLOT);
     div.classList.add('new-slot-filler-inputs');
 
+    let heading = document.createElement('H5');
+    heading.innerHTML = 'Fill slot with new item';
+    div.append(heading);
+
     div.append(create_ele_slot_filler_cancel_btn());
 
     dropdown = await create_ele_jobitem_module_dropdown(slot_id, parent_id);
@@ -531,7 +535,7 @@ function create_ele_filled_module_slot(description, quantity, slot_id, parent_id
 
     div.setAttribute('data-slot', slot_id);
     div.setAttribute('data-parent', parent_id);
-    
+
     div.append(create_ele_slot_filler_edit_btn(jobmod_id));
     div.append(create_ele_slot_filler_desc_span(description, quantity));
     

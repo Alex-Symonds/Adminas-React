@@ -160,8 +160,43 @@
   background: #666;
   border-color: #888;
 }
+.modular-item-container .modular-slot-container .contents .module-slot.new-slot-filler-inputs {
+  display: grid;
+  grid-template-columns: auto min-content;
+  grid-template-rows: auto auto auto auto;
+  grid-template-areas: "title close" "dropdown dropdown" "quantity quantity" "error error";
+  gap: 0.3rem;
+}
+.modular-item-container .modular-slot-container .contents .module-slot.new-slot-filler-inputs h5 {
+  grid-area: title;
+  margin: 0;
+  padding: 0.3rem;
+  font-size: 1rem;
+}
+.modular-item-container .modular-slot-container .contents .module-slot.new-slot-filler-inputs .close {
+  grid-area: close;
+  margin-top: -3px;
+  margin-right: -3px;
+  z-index: 1;
+}
+.modular-item-container .modular-slot-container .contents .module-slot.new-slot-filler-inputs .close:hover span {
+  top: -18px;
+  right: 18px;
+}
+.modular-item-container .modular-slot-container .contents .module-slot.new-slot-filler-inputs select {
+  grid-area: dropdown;
+  width: 100%;
+}
 .modular-item-container .modular-slot-container .contents .module-slot.new-slot-filler-inputs .combo-input-and-button {
-  margin-top: 0.3rem;
+  grid-area: quantity;
+  flex-flow: row nowrap;
+}
+.modular-item-container .modular-slot-container .contents .module-slot.new-slot-filler-inputs .combo-input-and-button input {
+  width: 100%;
+  max-width: 6.2rem;
+}
+.modular-item-container .modular-slot-container .contents .module-slot.new-slot-filler-inputs .temp-warning-msg {
+  grid-area: error;
 }
 .modular-item-container .modular-slot-container .contents .empty {
   padding-top: 0.5rem;
