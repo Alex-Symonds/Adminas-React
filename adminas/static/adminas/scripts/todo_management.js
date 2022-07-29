@@ -32,23 +32,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Remove from To-Do List: backend, then conditional frontend response
 function remove_from_todo_list(btn){
-    fetch(`${URL_TODO_MANAGEMENT}`, {
-        method: 'DELETE',
-        body: JSON.stringify({
-            'job_id': btn.dataset.job_id
-        }),
-        headers: getDjangoCsrfHeaders(),
-        credentials: 'include'
-    })
-    .then(response => response.json())
+    let request_options = get_request_options('DELETE', {
+        'job_id': btn.dataset.job_id
+    });
+
+    fetch(`${URL_TODO_MANAGEMENT}`, request_options)
+    .then(response => get_json_with_status(response))
     .then(data => {
         clear_todo_error_from_job_panels();
-        if(responded_with_error(data)){
+        if(!status_is_good(data)){
             if(!display_todo_error_on_job_panel(data, btn.dataset.job_id)){
-                alert(message);
+                alert(get_error_message(data));
             }
-        } else if('id' in data){
-            update_frontend_after_removal(btn, data);
+        } else {
+            update_frontend_after_removal(btn, btn.dataset.job_id);
         }
     })
     .catch(error => {
@@ -58,17 +55,14 @@ function remove_from_todo_list(btn){
 
 // Add to To-Do List: backend, then conditional frontend response
 function add_to_todo_list(btn){
-    fetch(`${URL_TODO_MANAGEMENT}`, {
-        method: 'PUT',
-        body: JSON.stringify({
-            'job_id': btn.dataset.job_id
-        }),
-        headers: getDjangoCsrfHeaders(),
-        credentials: 'include'
-    })
-    .then(response => response.json())
+    let request_options = get_request_options('PUT', {
+        'job_id': btn.dataset.job_id
+    });
+
+    fetch(`${URL_TODO_MANAGEMENT}`, request_options)
+    .then(response => get_json_with_status(response))
     .then(data => {
-        if(responded_with_error(data)){
+        if(!status_is_good(data, 201)){
             alert(get_error_message(data));
         } else {
             update_frontend_after_add(btn);
@@ -84,10 +78,9 @@ function add_to_todo_list(btn){
 
 
 // Remove: main function called by the fetch block to conditionally handle frontend updates
-function update_frontend_after_removal(btn, data){
-    // // If request came from an on/off toggle, run the function to change on to off
+function update_frontend_after_removal(btn, job_id){
     if(btn.classList.contains(CLASS_REMOVE_JOB_BTN)){
-        remove_job_panel_from_todo_list(data['id']);
+        remove_job_panel_from_todo_list(job_id);
     }  
 }
 

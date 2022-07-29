@@ -220,16 +220,11 @@ async function create_filter_option_select(FILTER_SETTINGS){
     select_ele.append(default_option);
 
     let response_data = await get_options_from_server(FILTER_SETTINGS.id);
-    if(responded_with_error(response_data)){
-        var select_error_ele = create_dismissable_error(response_data);
-        ele.append(select_error_ele);
-    }
-    else if(!(key_options_list in response_data)){
-        var select_error_ele = create_dismissable_error('Error: failed to retrieve options.');
+    if(!status_is_good(response_data, 200)){
+        var select_error_ele = create_dismissable_error(response_data, 'Error: failed to load dropdown.');
         ele.append(select_error_ele);
     }
     else{
-
         let list_of_options = response_data[key_options_list];
         for(let i = 0; i < list_of_options.length; i++){
             var new_option = document.createElement('option');
@@ -251,7 +246,7 @@ async function get_options_from_server(field_id){
                         console.log('Error: ', error)
                     });
 
-    return await response.json();
+    return await get_json_with_status(response);
 }
 
 

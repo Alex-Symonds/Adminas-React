@@ -4,6 +4,13 @@
         || Modular items
         || Pop-up "bucket" menu
 */
+.existing-items-container {
+  display: flex;
+  flex-flow: row wrap;
+  align-items: flex-start;
+  padding-bottom: 1rem;
+}
+
 .excess-modules {
   border: 2px solid #cc00ff;
 }

@@ -293,10 +293,6 @@
   }
 }
 .existing-items-container {
-  display: flex;
-  flex-flow: row wrap;
-  align-items: flex-start;
-  padding-bottom: 1rem;
   border-bottom: 1px solid #222;
   width: 100%;
 }
@@ -365,30 +361,6 @@
   font-size: 0.9rem;
   width: 3rem;
   padding: 0.15rem 0.5rem;
-}
-
-.combo-input-and-button {
-  margin: 0;
-  display: flex;
-  flex-flow: row wrap;
-  align-items: stretch;
-}
-.combo-input-and-button span {
-  display: block;
-  margin: 0 0 0.2rem 0;
-  min-width: 100%;
-}
-.combo-input-and-button input {
-  margin: 0;
-  border-top-right-radius: 0;
-  border-bottom-right-radius: 0;
-}
-.combo-input-and-button button {
-  margin: 0;
-  font-size: 0.9rem;
-  width: 3.5rem;
-  border-top-left-radius: 0;
-  border-bottom-left-radius: 0;
 }
 
 .price-checker-edit-window {
