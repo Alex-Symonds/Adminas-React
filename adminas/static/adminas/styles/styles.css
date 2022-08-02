@@ -178,6 +178,13 @@ article {
     margin: 0 auto 0;
   }
 }
+.existing-items-container {
+  display: flex;
+  flex-flow: row wrap;
+  align-items: flex-start;
+  padding-bottom: 1rem;
+}
+
 nav ul {
   display: flex;
   flex-direction: row;

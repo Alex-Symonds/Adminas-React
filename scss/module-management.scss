@@ -7,23 +7,18 @@
         || Pop-up "bucket" menu
 */
 
-.existing-items-container{
-    display: flex;
-    flex-flow: row wrap;
-    align-items: flex-start;
-
-    padding-bottom: 1rem;
-}
-
 // || Panel formatting
-.excess-modules{
-    border: 2px solid v.$c_flag_special;
-}
+
 
 // || Modular item layout and formatting
 .modular-item-container{
     margin-top: 2rem;
     padding-bottom: 1rem;
+
+    &.excess-modules{
+        border: 1px solid v.$c_flag_special_bright;
+        box-shadow: 0 0 10px 1px rgba(v.$c_flag_special_bright, 60%);
+    }
 
     .subsection{
         position: relative;
@@ -33,7 +28,11 @@
         border-right: 1px solid v.$c_tone_03;
 
         &.excess-modules{
-            border: 2px solid v.$c_flag_special;
+            border-left: 2px solid v.$c_flag_special;
+
+            h4{
+                background-color: v.$c_flag_special_dark;
+            }
         }
     }
 
@@ -290,12 +289,6 @@
             z-index: 2;
             box-shadow: 0px 0px 15px 8px rgb(15,15,15);
         }
-
-        // .delete-panel{
-        //     position: absolute;
-        //     top: 5px;
-        //     right: 35px;
-        // }
     } 
 }
 
@@ -310,14 +303,30 @@
 
     .bucket-options-container{
         display: flex;
+        flex-wrap: wrap;
         padding-bottom: 10px;
         border-bottom: 1px solid #DDD;
 
         .bucket-item{
             display: block;
-            border-radius: 10px;
-            padding: 2px 10px;
+            border-radius: 8px;
+            padding: 4px 8px;
             margin: 8px;
+            max-width: 40%;
+
+            .availability{
+                display: block;
+                margin: 4px 0 0;
+                padding: 3px 0 0;
+
+                font-size: 0.75rem;
+                font-style: normal;
+            
+                border-top: 1px solid v.$c_tone_04;
+                color: v.$c_txt_main;
+
+                width: auto;
+            }
         }
     
         .bucket-item.jobitem{
@@ -328,14 +337,24 @@
             &:hover{
                 background: v.$c_tone_04;
                 border-color: v.$c_tone_05;
+
+                .availability{
+                    border-color: v.$c_tone_05;
+                }
             }
         }
     
         .bucket-item.jobitem_usedup{
             background: v.$c_tone_02;
             border: 1px solid v.$c_tone_03;
-            color: v.$c_tone_03;
+            color: v.$c_tone_04;
             font-style: italic;
+
+            .availability{
+                border-color: v.$c_tone_03;
+                color: v.$c_tone_04;
+                font-style: italic;
+            }
         }
 
     }

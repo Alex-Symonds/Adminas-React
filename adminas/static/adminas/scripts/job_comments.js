@@ -60,7 +60,7 @@ const VALUE_FORM_TYPE_FULL = 'full';
 const VALUE_FORM_TYPE_CONTENT_ONLY = 'content-only';
 const CLASS_HOVER_PARENT = 'hover-parent';
 
-const CLASS_JOB_PANEL = 'job-panel';
+const CLASS_JOB_PANEL = 'panel.job';
 const ID_PREFIX_JOB_PANEL_ON_TODO_LIST = 'todo_panel_job_';
 
 const CLASS_JOB_IDENTIFIER_PANEL = 'job-identifier-pane';
@@ -70,6 +70,9 @@ const CLASS_WANT_STREAMLINED = 'streamlined';
 const CLASS_WANT_TOGGLE_H5 = 'toggle-heading';
 const CLASS_WANT_EMPTY_P = 'empty-paragraph';
 const STR_FALLBACK = '???';
+
+const KEY_COMMENT_OWNERSHIP_STRING = 'footer_str';
+
 
 // Used to position backend error messages when creating a new comment has failed
 const CLASS_CREATE_COMMENT_CONTAINER = 'create-comments-container';
@@ -384,20 +387,19 @@ function visibility_add_comment_btn(want_visibility){
 
 
 
-
-
-
-
 // --------------------------------------------------------------------------------------------
 // Backend (Create, Update)
 // --------------------------------------------------------------------------------------------
 // Backend (Create): called onclick of the "save" button on the JobComment form-like
 async function save_new_job_comment(btn){
-    let data = make_jobcomment_dict(btn);
+    let data = get_comment_obj_for_backend_from_editor(btn);
     let response_data = await backend_create_job_comment(btn, data);
 
     if(status_is_good(response_data, 201)){
-        update_job_page_comments_after_create(response_data);
+        data['id'] = response_data['id'];
+        data[KEY_COMMENT_OWNERSHIP_STRING] = `You on ${response_data['created_on']}`;
+        data['job_id'] = get_job_id_for_comments(btn);
+        update_job_page_comments_after_create(data); 
     }
     else {
         update_job_page_comments_after_failed_create(response_data, btn);
@@ -406,39 +408,55 @@ async function save_new_job_comment(btn){
 
 // Backend (Update): called onclick of the "save" button on the JobComment form-like
 async function save_updated_job_comment(btn){
-    let data = make_jobcomment_dict(btn);
+    let data = get_comment_obj_for_backend_from_editor(btn);
     let response_data = await backend_update_job_comment(btn, data);
 
-    if(status_is_good(response_data, 200)){
-        update_job_page_comments_after_update(response_data);
+    if(status_is_good(response_data, 204)){
+        data['id'] = btn.dataset.comment_id;
+        data[KEY_COMMENT_OWNERSHIP_STRING] = get_ownership_string_from_existing_comment(btn);
+        data['job_id'] = get_job_id_for_comments(btn);
+        update_job_page_comments_after_update(data);
     }
     else {
         update_job_page_comments_after_failed_update(response_data, btn);
     }
 }
 
-// Backend (Create&Update): Get a dict of comment info from the appropriate comment type
-function make_jobcomment_dict(btn){
+function get_ownership_string_from_existing_comment(editor_save_btn){
+    let comment_ele = editor_save_btn.closest(`.${CLASS_INDIVIDUAL_COMMENT_ELE}`);
+    let ownership_ele = comment_ele.querySelector(`.${CLASS_COMMENT_OWNERSHIP}`);
+    return ownership_ele.innerHTML;
+}
+
+
+// Backend (Create&Update): Get an obj of comment info from the appropriate comment type
+function get_comment_obj_for_backend_from_editor(btn){
     if(btn.dataset.form_type == VALUE_FORM_TYPE_CONTENT_ONLY){
-        return make_jobcomment_dict_simplified(btn);   
+        return get_comment_obj_for_backend_from_simplified_editor(btn);   
     }
     else {
-        return make_jobcomment_dict_with_settings();
+        return get_comment_obj_for_backend_from_full_editor();
     }    
 }
 
+function get_default_comment_settings(){
+    // Set "default statuses" for use on new comments.
+    // "private = true" is a safer default than the alternative.
+    // "pinned" and "highlighted" are for users to set, they default to false.
+    return {
+        'contents': document.getElementById(ID_COMMENT_TEXTAREA).value,
+        'private': true,
+        'pinned': false,
+        'highlighted': false
+    };
+}
+
 // Backend (Create&Update): Creates a dict with job comment info, based on a comment with checkbox settings
-function make_jobcomment_dict_with_settings(){
-    let result = {};
+function get_comment_obj_for_backend_from_full_editor(){
 
-    // Set defaults appropriate to the "with settings" form.
-    result['contents'] = document.getElementById(ID_COMMENT_TEXTAREA).value;
-    result['private'] = true;
-    result['pinned'] = false;
-    result['highlighted'] = false;
+    // Default settings = populates contents and assigns fallbacks for the checkboxes
+    let result = get_default_comment_settings();
 
-    // Replace defaults with checkbox contents, if there are any.
-    // This will happen to all comments submitted via the "full" form (i.e. Job page and Job Comments page)
     let private_checkbox = document.getElementById(ID_COMMENT_CHECKBOX_PRIVATE);
     if(private_checkbox != null){
         result['private'] = private_checkbox.checked;
@@ -457,25 +475,16 @@ function make_jobcomment_dict_with_settings(){
     return result;
 }
 
-// Backend (Create&Update): Creates a dict with job comment info, based on a comment lacking checkboxes
-function make_jobcomment_dict_simplified(btn){
-    // The Plan for the variables which are set by checkboxes in the "full" version:
-    //      On a new comment, set default status toggles.
-    //      On an existing comment, preserve the existing status toggles.
+// Backend (Create&Update): Creates a dict with job comment info, based on a comment editor which lacks checkboxes
+function get_comment_obj_for_backend_from_simplified_editor(btn){
 
-    let result = {};
-    result['contents'] = document.getElementById(ID_COMMENT_TEXTAREA).value;
-
-    // Set the "default statuses" for use on new comments.
-    //  >>  "pinned = true" because presently the simplified form is only used to create new comments on the todo list, where only pinned comments are displayed.
-    //  >>  "private = true" is a safer default than the alternative.
-    //  >>  "highlight = false" because only the user should be allowed to set highlighted to "true"
-    result['private'] = true;
+    // Note: reason for pinned = true.
+    // The simplified form is only used to create a new comment from the todo list, where only pinned comments appear. 
+    // This means "pinned = true" is the more sensible default for the new comments.
+    let result = get_default_comment_settings();
     result['pinned'] = true;
-    result['highlighted'] = false;
 
-    // If the user is editing an existing comment, the button will be inside a comment div with the existing settings stored as attributes.
-    // Replace the defaults with those, if they exist.
+    // Overwrite the defaults with existing settings if the user is updating an existing comment
     let comment_ele = btn.closest(`.${CLASS_INDIVIDUAL_COMMENT_ELE}`);
     if(comment_ele != null){
         result['private'] = comment_ele.dataset.is_private.toLowerCase() == 'true';
@@ -490,41 +499,37 @@ function make_jobcomment_dict_simplified(btn){
 
 // Backend (Create): prepare the data and send it off to the server
 async function backend_create_job_comment(btn, data){
-    let request_options = get_request_options('POST', {
-        'contents': data['contents'],
-        'private': data['private'],
-        'pinned': data['pinned'],
-        'highlighted': data['highlighted']
-    });
-    let url = get_jobcomments_url(btn);
-
-    let response = await fetch(`${url}`, request_options)
-    .catch(error => {
-        console.log('Error: ', error);
-    });
-
-    return await get_json_with_status(response);
+    return await update_backend_comment(btn, data, 'POST');
 }
 
 // Backend (Update): prepare the data and send it off to the server
 async function backend_update_job_comment(btn, data){
+    return await update_backend_comment(btn, data, 'PUT', `id=${btn.dataset.comment_id}`);
+}
+
+// Backend (Create & Update)
+async function update_backend_comment(btn, data, method, get_params = null){
     let url = get_jobcomments_url(btn);
-    let request_options = get_request_options('PUT', {
+    let request_options = get_request_options(method, get_backend_comment_data(data));
+
+    let get_params_str = '';
+    if(get_params !== null){
+        get_params_str = `&${get_params}`;
+    }
+
+    return await update_backend(`${url}${get_params_str}`, request_options);
+}
+
+function get_backend_comment_data(data){
+    return {
         'contents': data['contents'],
         'private': data['private'],
         'pinned': data['pinned'],
         'highlighted': data['highlighted']
-    });
-
-    let response = await fetch(`${url}&id=${btn.dataset.comment_id}`, request_options)
-    .catch(error => {
-        console.log('Error: ', error);
-    });
-
-    return await get_json_with_status(response);
+    }
 }
 
-// Backend (all): determine the URL for Job Comments
+// Backend (all): determine the URL/Job ID for Job Comments
 function get_jobcomments_url(ele_inside_comment_div){
     // The URL contains the job ID number, which needs to be handled slightly differently on different pages.
 
@@ -539,6 +544,18 @@ function get_jobcomments_url(ele_inside_comment_div){
     }
 }
 
+function get_job_id_for_comments(ele_in_job_panel){
+    if(typeof JOB_ID !== 'undefined'){
+        return JOB_ID;
+    }
+
+    let job_panel = ele_in_job_panel.closest(`.${CLASS_JOB_PANEL}`);
+    if(job_panel !== null){
+        return job_panel.dataset.job_id;
+    }
+    
+    return -1;
+}
 
 
 // --------------------------------------------------------------------------------------------
@@ -559,13 +576,7 @@ async function delete_job_comment(btn){
 async function delete_job_comment_on_server(btn, comment_id){
     let url = get_jobcomments_url(btn);
     let request_options = get_request_options('DELETE');
-
-    let response = await fetch(`${url}&id=${comment_id}`, request_options)
-    .catch(error => {
-        console.log('Error: ', error);
-    })
-
-    return await get_json_with_status(response);
+    return await update_backend(`${url}&id=${comment_id}`, request_options);
 }
 
 
@@ -590,18 +601,18 @@ async function delete_job_comment_on_server(btn, comment_id){
 // Frontend End: following JobComment Create
 // --------------------------------------------------------------------------------------------
 // DOM (Create): main function, managing post-creation frontend changes
-function update_job_page_comments_after_create(response_data){
+function update_job_page_comments_after_create(comment_obj){
     close_jobcomment_editor();
 
-    let class_to_find_comment = get_class_to_find_comment(response_data['id']);
-    add_comment_to_section(class_to_find_comment, CLASS_ALL_COMMENTS_CONTAINER, response_data);
+    let class_to_find_comment = get_class_to_find_comment(comment_obj['id']);
+    add_comment_to_section(class_to_find_comment, CLASS_ALL_COMMENTS_CONTAINER, comment_obj);
 
-    if(response_data['pinned']){
-        add_comment_to_section(class_to_find_comment, CLASS_PINNED_COMMENTS_CONTAINER, response_data);
+    if(comment_obj['pinned']){
+        add_comment_to_section(class_to_find_comment, CLASS_PINNED_COMMENTS_CONTAINER, comment_obj);
     }
 
-    if(response_data['highlighted']){
-        add_comment_to_section(class_to_find_comment, CLASS_HIGHLIGHTED_COMMENTS_CONTAINER, response_data);
+    if(comment_obj['highlighted']){
+        add_comment_to_section(class_to_find_comment, CLASS_HIGHLIGHTED_COMMENTS_CONTAINER, comment_obj);
     }
 
     remove_all_jobcomment_warnings();
@@ -747,11 +758,11 @@ function create_ele_comment_controls(is_pinned){
 // DOM (Create Comment): JobComment div with the user, timestamp and privacy status inside
 function create_ele_comment_ownership(data_dict){
     let result = document.createElement('div');
-    result.classList.add('ownership');
+    result.classList.add(CLASS_COMMENT_OWNERSHIP);
    
     let str = 'Unknown user at unknown time';
-    if('footer_str' in data_dict){
-        str = data_dict['footer_str'];
+    if(KEY_COMMENT_OWNERSHIP_STRING in data_dict){
+        str = data_dict[KEY_COMMENT_OWNERSHIP_STRING];
     }
     else if('created_by' in data_dict && 'created_on' in data_dict){
         str = `${data_dict['created_by']} on ${data_dict['created_on']}`; 
@@ -787,13 +798,13 @@ function update_job_page_comments_after_update(response){
     // Remove the edit form
     close_jobcomment_editor();
 
-    // The user could've updated a status that affects where/how many times the comment appears on the page, so handle that next
-    update_comment_presence_in_all_filtered_sections(response);
-
-    // Update all remaining copies of this comment to reflect the changes the user just made
+    // Update any copies of this comment on the page to reflect the changes the user just made
     document.querySelectorAll(`.${CLASS_PREFIX_FOR_COMMENT_ID}${response['id']}`).forEach(ele =>{
         update_comment_ele(response, ele);
     });
+
+    // The user could've updated a status that affects where/how many times the comment appears on the page, so handle that next
+    update_comment_presence_in_all_filtered_sections(response);
 }
 
 // DOM (Update): Loop through all "special" comment sections, ensuring the updated comment appears where it should.
@@ -979,20 +990,10 @@ async function update_backend_for_comment_toggle(url, comment_id, new_status, to
 }
 
 function update_frontend_for_comment_toggle(comment_ele, new_status, toggled_attribute){
-    // Depending on toggle status and which page we're on, there could be multiple instances of the
-    // same comment displayed on the page: all will need to be updated following a toggle.
-    // To avoid worrying about which specific sections are currently visible, we will find the comments
-    // via a special class shared by all instances of the same comment.
+
     let class_to_find_comment = get_class_to_find_comment(comment_ele.dataset.comment_id);
 
-    // Some pages display comments in sections based on a particular status being true (e.g. highlighted comments).
-    // If a section-relevant status was just toggled to false, the comment should be removed from that section.
-    // Handle the removal first to avoid wasting time on unnecessary updates.
-    if(!new_status){
-        remove_comment_from_section(class_to_find_comment, toggled_attribute);
-    }
-
-    // Look for instances of the comment still remaining on the page and update them.
+    // Look for instances of this comment on the page and update them all
     document.querySelectorAll(`.${class_to_find_comment}`).forEach(comment_ele => {
         if('pinned' == toggled_attribute){
             update_frontend_comment_pinned_status(comment_ele, new_status);
@@ -1002,10 +1003,12 @@ function update_frontend_for_comment_toggle(comment_ele, new_status, toggled_att
         }
     });
 
-    // If a section-relevant status was toggled to true, a copy of the comment should be added to the section.
-    // We'll aim to do that by copying an updated comment to that section now.
+    // Handle the presence of the comment in the status-relevant sections.
     if(new_status){
         add_comment_to_section(class_to_find_comment, toggled_attribute);
+    }
+    else if(!new_status){
+        remove_comment_from_section(class_to_find_comment, toggled_attribute);
     }
 }
 
@@ -1018,12 +1021,7 @@ function get_comment_data_from_ele(ele){
     result['private'] = ele.dataset.is_private.toLowerCase() == 'true';
     result['pinned'] = ele.dataset.is_pinned.toLowerCase() == 'true';
     result['highlighted'] = ele.dataset.is_highlighted.toLowerCase() == 'true';
-
-    let job_panel = ele.closest(`.${CLASS_JOB_PANEL}`);
-    if(job_panel != null){
-        result['job_id'] = job_panel.id.replace(ID_PREFIX_JOB_PANEL_ON_TODO_LIST, '');
-    }
-
+    result['job_id'] = get_job_id_for_comments(ele);
     return result;
 }
 
@@ -1078,33 +1076,47 @@ function update_frontend_comment_private_status(comment_ele, is_private){
 
 
 
-function add_comment_to_section(class_to_find_comment, section_name, comment_data=null){
+
+function add_comment_handle_missing_comment_data(data, class_to_find_comment){
+    if(data !== null){
+        return data;
+    }
+
+    let existing_comment = document.querySelector(`.${class_to_find_comment}`);
+    if(existing_comment !== null){
+        return get_comment_data_from_ele(existing_comment);
+    }
+
+    return null;
+}
+
+
+function add_comment_to_section(class_to_find_comment, section_name, comment_data = null){
     // Some pages display a subset of the possible comment sections, so begin by checking if the target section even exists on this page.
     let all_section_instances = document.querySelectorAll(`.${CLASS_COMMENTS_CONTAINER}.${section_name}`);
     if(all_section_instances.length == 0){
         return;
     }
 
-    // The backend doesn't return a full data dict in response to toggling a single status on a comment, so there might not be any comment data.
+    // The backend doesn't return data in response to toggling a single status on a comment, so there might not be any comment data.
     // In that case look for an existing copy of the comment in another section and extract comment data from there.
+    comment_data = add_comment_handle_missing_comment_data(comment_data, class_to_find_comment);
     if(comment_data === null){
-        let existing_comment = document.querySelector(`.${class_to_find_comment}`);
-        if(existing_comment !== null){
-            comment_data = get_comment_data_from_ele(existing_comment);
-        }
-        else {
-            // No data, no comment. Give up.
-            return;
-        }
+        return;
     }
 
     // If there are multiple Jobs on the page, there could be multiple sections of the same type on the page. Find the correct section.
     let section_ele = all_section_instances[0];
     if(all_section_instances.length > 1){
-        if('job_id' in comment_data){
+        if('job_id' in comment_data && 'job_id' !== -1){
             let id_to_find_job_panel = `${ID_PREFIX_JOB_PANEL_ON_TODO_LIST}${comment_data['job_id']}`;
             let job_panel = document.getElementById(id_to_find_job_panel);
-            section_ele = job_panel.querySelector(`.${CLASS_COMMENTS_CONTAINER}.${section_name}`);
+            if(job_panel !== null){
+                section_ele = job_panel.querySelector(`.${CLASS_COMMENTS_CONTAINER}.${section_name}`);
+            }
+            if(section_ele === null){
+                return;
+            }
         }
         else {
             // Give up. Better for the user to reload the page than stick a comment in a random incorrect section.
@@ -1125,8 +1137,6 @@ function add_comment_to_section(class_to_find_comment, section_name, comment_dat
 
     // Adding that comment might've affected the emptiness of this section, so sort out the emptiness paragraph if it did.
     handle_section_emptiness(section_ele, section_name);
-
-    return;
 }
 
 function remove_comment_from_section(class_to_find_comment, section_name){

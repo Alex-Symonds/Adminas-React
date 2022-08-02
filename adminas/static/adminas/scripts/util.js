@@ -13,6 +13,26 @@ const CSS_GENERIC_FORM_LIKE = 'form-like';
 const KEY_RESPONSE_ERROR_MSG = 'error';
 const KEY_HTTP_CODE = 'http_code';
 
+
+async function update_backend(url, request_options){
+    let response = await fetch(url, request_options)
+    .catch(error => {
+        console.log('Error: ', error);
+    });
+
+    return await get_json_with_status(response);
+}
+
+async function query_backend(url){
+    let response = await fetch(url)
+    .catch(error => {
+        console.log('Error: ', error);
+    });
+
+    return await get_json_with_status(response); 
+}
+
+
 // When deleting something, check for 204 before attempting to JSON anything.
 async function jsonOr204(response){
     if(response.status === 204) return 204;
@@ -148,7 +168,7 @@ function get_error_message_from_response(response_json){
     }
 }
 
-function get_error_message(error_info, task_failed_string = null){
+function get_error_message(error_info, task_failure_string = null){
     /*
         Pick out the best error message under the circumstances.
         Preference = 
@@ -165,21 +185,21 @@ function get_error_message(error_info, task_failed_string = null){
     }
     else if(typeof error_info == 'object'){
 
-        if(task_failed_string !== null){
+        if(task_failure_string !== null){
             let task_string_has_priority = true;
             if('status' in error_info){
                 task_string_has_priority = !error_message_has_high_priority(error_info['status']);
             }
 
             if(task_string_has_priority){
-                return task_failed_string;
+                return task_failure_string;
             }
         }
 
         return get_error_message_from_response(error_info);
     }
-    else if(task_failed_string !== null){
-        return task_failed_string;
+    else if(task_failure_string !== null){
+        return task_failure_string;
     }
 
     return 'Error: something went wrong.';
@@ -197,6 +217,8 @@ function error_message_has_high_priority(response_code){
     // "this clashes with another document"), so prefer these
     return response_code == 401 || response_code == 403 || response_code == 409;
 }
+
+
 
 
 
@@ -363,12 +385,12 @@ function create_message_ele(){
     return message_ele;
 }
 
-function create_dismissable_error(error_obj){
+function create_dismissable_error(error_obj, task_failure_string = null){
     let error_message_ele = document.createElement('div');
     error_message_ele.classList.add(CLASS_ERROR_MESSAGE);
 
     let display_str_ele = document.createElement('div');
-    display_str_ele.innerHTML = get_error_message(error_obj);
+    display_str_ele.innerHTML = get_error_message(error_obj, task_failure_string);
     error_message_ele.append(display_str_ele);
 
     let dismiss_btn = create_generic_ele_cancel_button();

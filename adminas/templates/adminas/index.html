@@ -30,7 +30,7 @@
     <h3>To-do List</h3>
     <div id="id_todo_list_container">
         {% for job in data %}
-        <article id="todo_panel_job_{{ job.id }}" class="panel job">
+        <article id="todo_panel_job_{{ job.id }}" class="panel job" data-job_id="{{ job.id }}">
             <section class="job-details">
                 <button class="todo-list-remove delete-panel" data-job_id="{{ job.id }}"><span>remove</span></button>
                 <a href="{% url 'job' job.id %}">

@@ -4,20 +4,13 @@
         || Modular items
         || Pop-up "bucket" menu
 */
-.existing-items-container {
-  display: flex;
-  flex-flow: row wrap;
-  align-items: flex-start;
-  padding-bottom: 1rem;
-}
-
-.excess-modules {
-  border: 2px solid #cc00ff;
-}
-
 .modular-item-container {
   margin-top: 2rem;
   padding-bottom: 1rem;
+}
+.modular-item-container.excess-modules {
+  border: 1px solid #eb9dff;
+  box-shadow: 0 0 10px 1px rgba(235, 157, 255, 0.6);
 }
 .modular-item-container .subsection {
   position: relative;
@@ -27,7 +20,10 @@
   border-right: 1px solid #666;
 }
 .modular-item-container .subsection.excess-modules {
-  border: 2px solid #cc00ff;
+  border-left: 2px solid #cc00ff;
+}
+.modular-item-container .subsection.excess-modules h4 {
+  background-color: #9600ec;
 }
 .modular-item-container .modular-slot-container {
   display: grid;
@@ -241,14 +237,26 @@
 }
 .module-bucket-container .bucket-options-container {
   display: flex;
+  flex-wrap: wrap;
   padding-bottom: 10px;
   border-bottom: 1px solid #DDD;
 }
 .module-bucket-container .bucket-options-container .bucket-item {
   display: block;
-  border-radius: 10px;
-  padding: 2px 10px;
+  border-radius: 8px;
+  padding: 4px 8px;
   margin: 8px;
+  max-width: 40%;
+}
+.module-bucket-container .bucket-options-container .bucket-item .availability {
+  display: block;
+  margin: 4px 0 0;
+  padding: 3px 0 0;
+  font-size: 0.75rem;
+  font-style: normal;
+  border-top: 1px solid #888;
+  color: #F6F6F6;
+  width: auto;
 }
 .module-bucket-container .bucket-options-container .bucket-item.jobitem {
   background: #666;
@@ -259,10 +267,18 @@
   background: #888;
   border-color: #AAA;
 }
+.module-bucket-container .bucket-options-container .bucket-item.jobitem:hover .availability {
+  border-color: #AAA;
+}
 .module-bucket-container .bucket-options-container .bucket-item.jobitem_usedup {
   background: #444;
   border: 1px solid #666;
-  color: #666;
+  color: #888;
+  font-style: italic;
+}
+.module-bucket-container .bucket-options-container .bucket-item.jobitem_usedup .availability {
+  border-color: #666;
+  color: #888;
   font-style: italic;
 }
 .module-bucket-container p {

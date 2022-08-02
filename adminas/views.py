@@ -119,24 +119,18 @@ def todo_list_management(request):
             user.todo_list_jobs.remove(job)
             user.save()
 
-        return JsonResponse({
-            'status': 'ok',
-            'id': posted_data['job_id']
-        }, status = 200) # either change this to 204 or change <JobToDoIndicator /> to 200
+        return HttpResponse(status = 204)
 
     elif request.method == 'PUT':
         if not job in user.todo_list_jobs.all():
             user.todo_list_jobs.add(job)
             user.save()
 
-        return JsonResponse({
-            'status': 'ok'
-        }, status = 201)
+        return HttpResponse(status = 201)
 
     # Return a generic failure message if this was a POST or GET
-    return JsonResponse({
-        'message': "Failed to update to-do list."
-    }, status = 400)
+    error_obj = error("Invalid HTTP verb", 405)
+    return respond_with_error(error_obj)
 
 
 
@@ -275,12 +269,10 @@ def comments(request):
             comment.update(form, request.user)
 
         else:
-            # Check comment is ok. (Don't need edit access for toggles)
             comment = get_comment(request, False)
             if is_error(comment):
                 return respond_with_error(comment)
 
-            # Check incoming data against what we expect from a toggle click
             toggle_details = extract_toggle_data(posted_data)
             if is_error(toggle_details):
                 return respond_with_error(toggle_details)
@@ -288,8 +280,7 @@ def comments(request):
             comment.update_toggles(toggle_details, request.user)
 
         # Report success
-        data = comment.get_dict(request.user)  # For Vanilla JS pages, which will use this to populate the edited comment element
-        return JsonResponse(data, status = 200)
+        return HttpResponse(status = 204)
 
 
     # User wants the create a comment
@@ -306,11 +297,10 @@ def comments(request):
 
         # Create new comment then respond with all the data needed to display a new comment on the page
         comment = create_comment(comment_form, request.user, job)
-        data = comment.get_dict(request.user)
-        data['job_id'] = job.id
-        data['created_on'] = formats.date_format(comment.created_on, "DATETIME_FORMAT")
-
-        return JsonResponse(data, status = 201)
+        return JsonResponse({
+            'id': comment.id,
+            'created_on': formats.date_format(comment.created_on, "DATETIME_FORMAT")
+        }, status = 201)
 
     # GET
     # Begin by getting the general purpose info for the heading and subheading.
@@ -358,6 +348,9 @@ def price_check(request, job_id):
         job.save()
 
         return HttpResponse(status = 204)
+    
+    error_obj = error('Invalid HTTP verb', 405)
+    return respond_with_error(error_obj)
 
 
 def purchase_order(request):
@@ -428,7 +421,7 @@ def items(request):
         if is_error(contains_formset_data):
             return respond_with_error(contains_formset_data)
 
-        elif contains_formset_data:
+        if contains_formset_data:
             formset = get_form_from_request(request, JobItemFormSet)
             if is_error(formset):
                 return respond_with_error(formset)
@@ -442,15 +435,14 @@ def items(request):
                 'id_list': jobitems
             }, status = 201)
 
-        else:
-            form = get_form_from_request(request, get_jobitem_form)
-            if is_error(form):
-                return respond_with_error(form)
+        form = get_form_from_request(request, get_jobitem_form)
+        if is_error(form):
+            return respond_with_error(form)
 
-            jobitem = create_jobitem(request.user, form)
-            return JsonResponse({
-                'id': jobitem.product.id
-            }, status = 201)
+        jobitem = create_jobitem(request.user, form)
+        return JsonResponse({
+            'id': jobitem.product.id
+        }, status = 201)
 
 
     # Updates can be called from two places:
@@ -567,8 +559,7 @@ def module_assignments(request):
         parent = jobmodule.parent
         slot = jobmodule.slot
         jobmodule.delete()
-
-        return JsonResponse(parent.get_slot_status_dictionary(slot), status = 200)
+        return HttpResponse(status = 204)
 
 
     # User has edited a module (= they changed the quantity, since any other changes are handled via delete-then-recreate)
@@ -585,8 +576,7 @@ def module_assignments(request):
         if is_error(jm_update_result):
             return respond_with_error(jm_update_result)
 
-        return JsonResponse(jobmodule.parent.get_slot_status_dictionary(jobmodule.slot), status = 200)
-
+        return HttpResponse(status = 204)
 
     # User created a new assignment
     elif request.method == 'POST':
@@ -598,34 +588,23 @@ def module_assignments(request):
         if is_error(jobmodule):
             return respond_with_error(jobmodule)
 
-        data_dict = jobmodule.parent.get_slot_status_dictionary(jobmodule.slot)
-        data_dict['id'] = jobmodule.id
-        return JsonResponse(data_dict, status = 201)
+        return JsonResponse({
+            'id': jobmodule.id
+        }, status = 201)
 
     # GET
-    requested_data = get_param_from_get_params('return', request.GET)
-    if is_error(requested_data):
-        return respond_with_error(requested_data)
-
-    parent = get_object(JobItem, key = 'parent', get_params = request.GET)
+    parent = get_object(JobItem, key = 'parent_id', get_params = request.GET)
     if is_error(parent):
         return respond_with_error(parent)
 
-    slot = get_object(Slot, key = 'slot', get_params = request.GET)
+    slot = get_object(Slot, key = 'slot_id', get_params = request.GET)
     if is_error(slot):
         return respond_with_error(slot)
+    
+    response_dict = parent.get_slot_status_dictionary(slot)
+    return JsonResponse(response_dict, status = 200)
 
-    if requested_data == 'jobitems':
-        data = {}
-        data['parent_quantity'] = parent.quantity
-        data['options'] = parent.job.get_dict_slot_fillers(slot)
 
-    elif requested_data == 'products':
-        data = slot.get_dict_choice_list(parent.price_list, parent.job.currency)
-
-    return JsonResponse({
-        'data': data
-    }, status = 200)
 
 
 
@@ -686,7 +665,33 @@ def get_data(request):
             for product in products:
                 response_data[key_options_list].append(product.get_dict())
 
+
+        elif select_name == 'slot_options_jobitems':
+            parent = get_object(JobItem, key = 'parent', get_params = request.GET)
+            if is_error(parent):
+                return respond_with_error(parent)
+
+            slot = get_object(Slot, key = 'slot', get_params = request.GET)
+            if is_error(slot):
+                return respond_with_error(slot)
+
+            response_data[key_options_list] = parent.job.get_dict_slot_fillers(slot)
+            response_data['parent_quantity'] = parent.quantity
+
+
+        elif select_name == 'slot_options_products':
+            parent = get_object(JobItem, key = 'parent', get_params = request.GET)
+            if is_error(parent):
+                return respond_with_error(parent)
+
+            slot = get_object(Slot, key = 'slot', get_params = request.GET)
+            if is_error(slot):
+                return respond_with_error(slot)
+
+            response_data[key_options_list] = slot.get_dict_choice_list(parent.price_list, parent.job.currency)
+
         return JsonResponse(response_data, status = 200)
+
 
     elif data_category == 'urls':
         job = get_object(Job, key = 'job_id', get_params = request.GET)

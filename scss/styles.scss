@@ -200,6 +200,13 @@ article{
     } 
 }
 
+.existing-items-container{
+    display: flex;
+    flex-flow: row wrap;
+    align-items: flex-start;
+
+    padding-bottom: 1rem;
+}
 
 
 
