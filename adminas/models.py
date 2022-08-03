@@ -603,9 +603,9 @@ class Job(AdminAuditTrail):
         for product in self.fillers_for_slot(slot):
             prd_f = {}
             prd_f['id'] = product.id
-            prd_f['quantity_total'] = self.quantity_of_product(product)
-            prd_f['quantity_available'] = self.num_unassigned_to_slot(product)
             prd_f['name'] = product.part_number + ': ' + product.name
+            prd_f['quantity_available'] = self.num_unassigned_to_slot(product)
+            prd_f['quantity_total'] = self.quantity_of_product(product)
             prd_list.append(prd_f)
         return prd_list
 

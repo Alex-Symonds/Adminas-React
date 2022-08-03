@@ -441,7 +441,7 @@ def items(request):
 
         jobitem = create_jobitem(request.user, form)
         return JsonResponse({
-            'id': jobitem.product.id
+            'id': jobitem.id
         }, status = 201)
 
 
@@ -484,32 +484,12 @@ def items(request):
 
             return HttpResponse(status = 204)
 
+    # GET
+    jobitem = get_object(JobItem, key = 'ji_id', get_params = request.GET)
+    if is_error(jobitem):
+        return respond_with_error(jobitem)
 
-    # User is fiddling with the product dropdown, so send them the description of the current item
-    # in the language chosen for this job.
-    if 'product_id' in request.GET:
-
-        job = get_object(Job, key = 'job_id', get_params = request.GET)
-        if is_error(job):
-            return respond_with_error(job)
-
-        product = get_object(Product, key = 'product_id', get_params = request.GET)
-        if is_error(product):
-            return respond_with_error(product)
-
-        description= product.get_description(job.language)
-
-        return JsonResponse({
-            'desc': description
-        }, status = 200)
-
-    # User wishes to refresh a specific JobItem's data
-    elif 'ji_id' in request.GET:
-        jobitem = get_object(JobItem, key = 'ji_id', get_params = request.GET)
-        if is_error(jobitem):
-            return respond_with_error(jobitem)
-
-        return JsonResponse(jobitem.get_dict(), status = 200)
+    return JsonResponse(jobitem.get_dict(), status = 200)
 
 
 
@@ -627,6 +607,21 @@ def get_data(request):
             return respond_with_error(address)
 
         return JsonResponse(address.as_dict(), status = 200)
+
+    elif data_category == 'product_description':
+        job = get_object(Job, key = 'job_id', get_params = request.GET)
+        if is_error(job):
+            return respond_with_error(job)
+
+        product = get_object(Product, key = 'product_id', get_params = request.GET)
+        if is_error(product):
+            return respond_with_error(product)
+
+        description= product.get_description(job.language)
+
+        return JsonResponse({
+            'desc': description
+        }, status = 200)
 
     elif data_category == 'select_options_list':
         key_options_list = 'opt_list'

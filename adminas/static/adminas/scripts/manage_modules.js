@@ -9,9 +9,9 @@
         || Constants
         || General Support
         || Adding extra empty slots
-        || Menu for filling a slot with existing JobItems, with a button to instead open a form for adding a new JobItem        
-        || "Form" to create a new JobItem and fill the slot with it
-        || Assigning a JobItem to a slot
+        || Menu for filling a slot with products from existing JobItems, with a button to instead open a form for adding a new JobItem        
+        || "Form" to create a new JobItem and fill the slot with its product
+        || Assigning a product to a slot
         || Editor for slot fillers (quantity / delete)
         || Deleting an assignment
         || Slot Status Indicators
@@ -124,7 +124,7 @@ function create_ele_module_slot_empty(){
 
 
 
-// || Menu for filling a slot with existing JobItems, with a button to instead open a form for adding a new JobItem 
+// || Menu for filling a slot with products from existing JobItems, with a button to instead open a form for adding a new JobItem 
 async function open_module_slot_filler_menu(e){
     let anchor_ele = find_anchor_ele_module_slot_filler_menu(e.target);
 
@@ -212,8 +212,8 @@ function create_ele_module_slot_filler_menu_existing_items(json_data){
     let option_bucket = document.createElement('div');
     option_bucket.classList.add('bucket-options-container');
     for(var i=0; i < existing_ji.length; i++){
-        var ji_option_div = create_ele_module_slot_filler_menu_existing_option(existing_ji[i], parseInt(json_data['parent_quantity']));
-        option_bucket.append(ji_option_div);
+        var existing_options_ele = create_ele_module_slot_filler_menu_existing_option(existing_ji[i], parseInt(json_data['parent_quantity']));
+        option_bucket.append(existing_options_ele);
     }
     return option_bucket;
 }
@@ -226,8 +226,8 @@ async function get_list_for_module_slot(slot_id, parent_id, list_type){
 
 
 function create_ele_module_slot_filler_menu_existing_option(data, qty){
-    var ji_option_div = document.createElement('div');
-    ji_option_div.classList.add(CLASS_OPTION_EXISTING_ITEM);
+    var existing_option_ele = document.createElement('div');
+    existing_option_ele.classList.add(CLASS_OPTION_EXISTING_ITEM);
 
     const key_id = 'id';
     const key_name = 'name';
@@ -235,24 +235,24 @@ function create_ele_module_slot_filler_menu_existing_option(data, qty){
     const key_qty_total = 'quantity_total';
     const required_fields = [key_id, key_name, key_qty_available, key_qty_total];
     if(!required_fields_are_present(data, required_fields)){
-        ji_option_div.innerHTML = 'Error: failed to load';
-        return ji_option_div;
+        existing_option_ele.innerHTML = 'Error: failed to load';
+        return existing_option_ele;
     }
 
-    ji_option_div.setAttribute('data-child', data[key_id]);
+    existing_option_ele.setAttribute('data-child', data[key_id]);
     if(qty > parseInt(data[key_qty_available])){
-        ji_option_div.classList.add('jobitem_usedup');
+        existing_option_ele.classList.add('jobitem_usedup');
 
     } else {
-        ji_option_div.classList.add('jobitem');
-        ji_option_div.addEventListener('click', (e) =>{
-            assign_existing_jobitem_to_slot(e);
+        existing_option_ele.classList.add('jobitem');
+        existing_option_ele.addEventListener('click', (e) =>{
+            assign_existing_jobitem_product_to_slot(e);
         });
     }
 
-    ji_option_div.append(create_ele_module_slot_filler_menu_existing_option_jobitem_name(data[key_name]));
-    ji_option_div.append(create_ele_module_slot_filler_menu_existing_option_quantity_available(data[key_qty_available], data[key_qty_total]));
-    return ji_option_div;
+    existing_option_ele.append(create_ele_module_slot_filler_menu_existing_option_jobitem_name(data[key_name]));
+    existing_option_ele.append(create_ele_module_slot_filler_menu_existing_option_quantity_available(data[key_qty_available], data[key_qty_total]));
+    return existing_option_ele;
 }
 
 
@@ -288,7 +288,7 @@ function create_ele_module_slot_filler_menu_new_jobitem_btn(){
 
 
 
-// || "Form" to create a new JobItem and fill the slot with it
+// || "Form" to create a new JobItem and fill the slot with its product
 async function open_module_slot_new_jobitem_form(e){
     let bucket_div = e.target.closest('.' + CLASS_MODULE_SLOT_FILLER_POPOUT_MENU);
     let empty_slot = bucket_div.previousSibling;
@@ -379,7 +379,7 @@ function create_ele_module_slot_new_jobitem_form_submit_btn(){
     btn.id = ID_CREATE_JOBITEM_SUBMIT_BUTTON;
 
     btn.addEventListener('click', (e) => {
-        assign_new_jobitem_to_slot(e);
+        assign_new_jobitem_product_to_slot(e);
     });
 
     return btn;
@@ -398,17 +398,27 @@ function create_ele_module_slot_new_jobitem_form_cancel_btn(){
 
 
 
-// || Assigning a JobItem to a slot
-async function assign_new_jobitem_to_slot(e){
+// || Assigning a product to a slot
+async function assign_new_jobitem_product_to_slot(e){
     let id_obj = get_slot_and_parent_ids(e.target);
     let form_div = e.target.closest(`.${CLASS_NEW_ITEMS_CONTAINER}`);
     let assignment_qty = form_div.querySelector('input[name="qty"]').value;
     let error_anchor = form_div.lastChild;
+    let failed_task_string = 'Failed to fill slot. Try refreshing the page.';
     
-    let child_id = await update_server_create_jobitem(e, form_div, id_obj, assignment_qty, error_anchor);
-    if(child_id === null) return;
+    let ji_id = await update_server_create_jobitem(e, form_div, id_obj, assignment_qty, error_anchor);
+    if(ji_id === null) return;
+
+    let jobitem_data = await get_jobitem_data(ji_id, error_anchor, failed_task_string);
+    if(jobitem_data === null) return;
  
-    let jobmod_id = await update_server_create_jobmodule(child_id, id_obj, assignment_qty, error_anchor);
+    const key_product_id = 'product_id';
+    if(jobitem_data[key_product_id] === 'undefined'){
+        add_ele_module_slot_error(error_anchor, failed_task_text);
+        return;
+    }
+
+    let jobmod_id = await update_server_create_jobmodule(jobitem_data[key_product_id], id_obj, assignment_qty, error_anchor);
     if(jobmod_id === null) return;
 
     let product_text = get_product_desc_from_select_desc(form_div.querySelector('select'));
@@ -419,7 +429,19 @@ async function assign_new_jobitem_to_slot(e){
 }
 
 
-async function assign_existing_jobitem_to_slot(e){
+async function get_jobitem_data(ji_id, error_anchor_ele, failed_task_text){
+    let url = `${URL_ITEMS}?ji_id=${ji_id}`;
+    let jobitem_data = await query_backend(url);
+    if(!status_is_good(jobitem_data, 200)){
+        add_ele_module_slot_error(error_anchor_ele, jobitem_data, failed_task_text);
+        return null;
+    }
+    
+    return jobitem_data;
+}
+
+
+async function assign_existing_jobitem_product_to_slot(e){
     let id_obj = get_slot_and_parent_ids(e.target);
     let ji_ele = find_existing_jobitem_ele(e.target);
     let assignment_qty = 1;
@@ -781,7 +803,7 @@ async function update_module_slot_status(ele){
     let error_anchor_ele = ele.closest(`.${CLASS_SLOT_CONTAINER}`).querySelector(`.${CLASS_ADD_SLOT_BUTTON}`);
     let failed_task_text = 'Refresh page to update slot status.';
 
-    let data = get_module_slot_status(ele, error_anchor_ele, failed_task_text);
+    let data = await get_module_slot_status(ele, error_anchor_ele, failed_task_text);
     if(data === null){
         return;
     }
@@ -800,7 +822,7 @@ async function update_module_slot_status(ele){
 }
 
 
-function get_module_slot_status(ele, error_anchor_ele, failed_task_text){
+async function get_module_slot_status(ele, error_anchor_ele, failed_task_text){
     let id_obj = get_slot_and_parent_ids(ele);
     let url = `${URL_ASSIGNMENTS}?parent_id=${id_obj.parent}&slot_id=${id_obj.slot}`;
 

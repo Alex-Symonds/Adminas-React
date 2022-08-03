@@ -1231,11 +1231,11 @@ function JobItemSharedFormFields(props){
 
     function update_product_description(product_id){
         // Note: the server uses the Job ID to determine the correct language for the description
-        var url = `${props.URL_ITEMS}?job_id=${props.job_id}&product_id=${product_id}`;
+        var url = `${props.URL_GET_DATA}?type=product_description&product_id=${product_id}&job_id=${props.job_id}`;
         fetch(url)
         .then(response => response.json())
         .then(resp_data => {
-            // This is only a "nice to have", so if there's an error then desired behaviour = don't display anything
+            // This feature is only a "nice to have", so if there's an error then desired behaviour = don't display anything
             if('desc' in resp_data){
                 setDescription(resp_data.desc)
             }
