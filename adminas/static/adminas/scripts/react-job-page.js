@@ -77,7 +77,7 @@ function JobPage(){
     // Updating states: Documents
     function update_doc_state(item_id, item_attributes){
         /*
-        This function decides whether to update the validity status of documents from the backend, then does so (if applicable).
+        This function decides whether to update the validity status of documents from the backend.
 
         A document is considered "invalid" if it contains one or more line items which have been overcommitted,
         e.g. order confirmations show 5 x JobItemX, but JobItemX has quantity = 3.

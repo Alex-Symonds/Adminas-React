@@ -882,14 +882,28 @@ function JobItemsCreator(props){
 
         update_server(url, headers, resp_data => {
             if(status_is_good(resp_data, 201)){
-                // The server's response will include an object with all the fields for newly created item/s
-                props.actions_items.create_f(resp_data.id_list);
-                props.editor.off();
+                if(typeof resp_data.id_list !== 'undefined'){
+
+                    let id_list_str = resp_data.id_list.join('.');
+                    const get_url = `${url}?ji_id_list=${id_list_str}`;
+                    const get_headers = getFetchHeaders('GET', null);
+
+                    update_server(get_url, get_headers, resp_data => {
+                        if(status_is_good(resp_data, 200)){
+                            props.actions_items.create_f(resp_data.jobitems);
+                            props.editor.off();
+                        }
+                        else {
+                            backend_error.set(get_error_message(resp_data));
+                        }
+                    });
+
+                }
             }
             else {
                 backend_error.set(get_error_message(resp_data));
             }
-        })
+        });
     }
 
     // Arrange the formset state info such that Django will understand it

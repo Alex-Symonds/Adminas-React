@@ -429,7 +429,8 @@ def items(request):
             jobitems = []
             for form in formset:
                 new_ji = create_jobitem(request.user, form)
-                jobitems.append(new_ji.get_dict())
+                # jobitems.append(new_ji.get_dict())
+                jobitems.append(new_ji.id)
 
             return JsonResponse({
                 'id_list': jobitems
@@ -485,6 +486,26 @@ def items(request):
             return HttpResponse(status = 204)
 
     # GET
+    ji_id_list_get_string = get_param_from_get_params('ji_id_list', request.GET)
+    if not is_error(ji_id_list_get_string):
+        ji_id_list = ji_id_list_get_string.split('.')
+        if len(ji_id_list) <= 0:
+            my_error = error("Invalid item list", 400)
+            return respond_with_error(my_error)
+        
+        jobitems = []
+        for ji_id in ji_id_list:
+
+            ji_obj = get_object(JobItem, id = ji_id)
+            if is_error(ji_obj):
+                return respond_with_error(ji_obj)
+
+            jobitems.append(ji_obj.get_dict())
+        
+        return JsonResponse({
+            'jobitems': jobitems
+        }, status = 200)
+
     jobitem = get_object(JobItem, key = 'ji_id', get_params = request.GET)
     if is_error(jobitem):
         return respond_with_error(jobitem)
