@@ -156,7 +156,7 @@ function update_document_on_server(issue_date){
 
     // DOC_ID not 0 = updating an existing document, so the ID alone is sufficient
     } else {
-        update_document_on_server('PUT', 200, dict, `id=${DOC_ID}`);
+        update_document_on_server_fetch('PUT', 200, dict, `id=${DOC_ID}`);
     }
 }
 
@@ -167,7 +167,7 @@ function update_document_on_server_fetch(method, expected_response_code, data, g
     .then(response => get_json_with_status(response))
     .then(data => {
 
-        if(status_is_ok(data, expected_response_code)){
+        if(status_is_good(data, expected_response_code)){
             // If the document was just issued, no more editing is permitted, so redirect to the main page.
             if('redirect' in data){
                 window.location.href = data['redirect'];

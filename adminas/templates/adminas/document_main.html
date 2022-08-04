@@ -11,7 +11,7 @@
 
 {% block javascript %}
     <script>
-        const URL_DOC_MAIN = "{% url 'doc_main' doc_version.id %}"
+        const URL_DOC_MAIN = "{% url 'api_issued_documents' %}?doc_id={{doc_version.id}}"
     </script>
     <script src="{% static 'adminas/scripts/document_main.js' %}" type="text/javascript"></script>
 {% endblock %}
@@ -34,7 +34,7 @@
     {% elif doc_version.active %} draft">
         <div class="status-header">
             <h3>Draft (v{{ doc_version.version_number }})</h3>
-            <a class="edit-icon" href="{% url 'doc_builder' %}?id={{ doc_version.id }}"><span>edit</span></a>
+            <a class="edit-icon" href="{% url 'doc_editor_page' %}?id={{ doc_version.id }}"><span>edit</span></a>
         </div>
         
         <a class="filled" href="{% url 'doc_display' doc_version.id %}">preview PDF</a>

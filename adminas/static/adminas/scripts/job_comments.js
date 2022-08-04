@@ -968,7 +968,7 @@ async function toggle_status(btn, toggled_attribute){
     var previous = previous_attr.toLowerCase() === 'true';
     let url = get_jobcomments_url(btn);
     let response_data = await update_backend_for_comment_toggle(url, comment_ele.dataset.comment_id, !previous, toggled_attribute);
-    if(status_is_good(response_data, 200)){
+    if(status_is_good(response_data, 204)){
         update_frontend_for_comment_toggle(comment_ele, !previous, toggled_attribute);
     }
     else{

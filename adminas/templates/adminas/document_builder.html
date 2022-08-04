@@ -14,7 +14,7 @@
         const DOC_CODE = '{{ doc_type }}';
         const DOC_ID = '{{ doc_id }}';
         const JOB_ID = '{{ job_id }}';
-        const URL_DOCBUILDER = "{% url 'doc_builder' %}";
+        const URL_DOCBUILDER = "{% url 'api_draft_documents' %}";
         const URL_DOCMAIN = "{% url 'doc_main' doc_id %}"
         const URL_PREVIEW = "{% url 'doc_display' doc_id %}?mode=preview";
     </script>
@@ -152,7 +152,7 @@
                 {% endif %}
                         </div>
             {% else %}
-                        <span><a href="{% url 'doc_builder' %}?id={{excl.doc_id}}">
+                        <span><a href="{% url 'doc_editor_page' %}?id={{excl.doc_id}}">
                             (on&nbsp;{% if excl.used_by %}{{ excl.used_by }}{% else %}unnamed{% endif %})
                         </a></span>
                         </span>

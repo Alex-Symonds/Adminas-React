@@ -271,7 +271,7 @@ def get_dict_currency(currency_tuple):
     }
 
 
-def get_dict_document_builder_settings(get_params):
+def get_dict_document_editor_settings(get_params):
     result = {}
     if 'id' in get_params:
         doc_obj = get_object(adminas.models.DocumentVersion, id = get_params['id'])
@@ -345,7 +345,7 @@ def get_dict_job_page_root(job):
     Dict for Job page root React component.
     """
     result = {}
-    result['docbuilder_url'] = reverse('doc_builder') + '?job=' + str(job.id)
+    result['docbuilder_url'] = reverse('doc_editor_page') + '?job=' + str(job.id)
 
     result['doc_list'] = []
     for doc_version in job.related_documents():
@@ -356,7 +356,7 @@ def get_dict_job_page_root(job):
         for item in job.main_item_list():
             result['item_list'].append(item.get_dict())
 
-    result['items_url'] = reverse('items')
+    result['items_url'] = reverse('api_items')
 
     result['main'] = {
         'currency': job.currency,
@@ -519,7 +519,10 @@ def create_document(user, job_obj, doc_code, data_form, version_form, assigned_i
 
 def create_document_assignments(doc_version, assigned_items):
       for key, value in assigned_items.items():
-        create_document_assignment(doc_version, key, value)  
+        value_int = int(value)
+        debug(type(value))
+        if value_int > 0:
+            create_document_assignment(doc_version, key, value)  
 
 
 def create_document_assignment(doc_obj, jiid, new_qty):

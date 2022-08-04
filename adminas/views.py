@@ -1,3 +1,10 @@
+# View for Adminas_React
+# Contents:
+#   || Page views
+#   || API views
+#   || Helpers
+#   || Form helpers
+
 from django.shortcuts import render
 from django.contrib.auth import authenticate, login, logout
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
@@ -17,12 +24,15 @@ from adminas.models import  PriceList, User, Job, Address, JobItem, Product, Slo
 from adminas.forms import   DocumentDataForm, JobForm, POForm, JobItemForm, JobItemFormSet, JobItemEditForm, \
                             JobModuleForm, JobItemPriceForm, ProductionReqForm, DocumentVersionForm, JobCommentFullForm
 from adminas.constants import MAX_NUM_FORMS, DOCUMENT_TYPES, CSS_FORMATTING_FILENAME, HTML_HEADER_FILENAME, HTML_FOOTER_FILENAME, SUPPORTED_CURRENCIES, WO_CARD_CODE, SUCCESS_CODE, ERROR_MESSAGE_KEY
-from adminas.util import anonymous_user, dict_from_json, error_page, debug, get_dict_document_builder_settings,\
+from adminas.util import anonymous_user, dict_from_json, error_page, debug, get_dict_document_editor_settings,\
     get_dict_job_page_root, get_dict_todo, get_dict_record, get_dict_manage_modules, paginate_from_get, get_customer_via_agent_string, filter_jobs, get_dict_currency, create_jobmodule, get_object, anonymous_user_json, get_param_from_dict, get_value_from_json, get_param_from_get_params, is_error, render_with_error, create_job, create_comment, create_po, create_jobitem, create_document, error, respond_with_error, get_comment, extract_toggle_data
 
 
-
+# || Page views
 def login_view(request):
+    """
+    Log in page
+    """
     if request.method == 'POST':
 
         # Attempt to sign user in
@@ -43,11 +53,17 @@ def login_view(request):
 
 
 def logout_view(request):
+    """
+    Log out
+    """
     logout(request)
     return HttpResponseRedirect(reverse('index'))
 
 
 def register(request):
+    """
+    Register new user page
+    """
     if request.method == 'POST':
         username = request.POST['username']
         email = request.POST['email']
@@ -94,120 +110,135 @@ def index(request):
     })
 
 
-def todo_list_management(request):
+def document_main_page(request, doc_id):
     """
-        API only. Process changes to the to-do list.
-    """
-    if not request.user.is_authenticated:
-        return anonymous_user_json()
-
-    # Try to extract a job and user from the incoming data
-    posted_data = dict_from_json(request.body)
-    if is_error(posted_data):
-        return respond_with_error(posted_data)
-
-    job = get_object(Job, key = 'job_id', dict = posted_data)
-    if is_error(job):
-        return respond_with_error(job)
-
-    user = request.user
-
-    # Handle the request
-    if request.method == 'DELETE':
-
-        if job in user.todo_list_jobs.all():
-            user.todo_list_jobs.remove(job)
-            user.save()
-
-        return HttpResponse(status = 204)
-
-    elif request.method == 'PUT':
-        if not job in user.todo_list_jobs.all():
-            user.todo_list_jobs.add(job)
-            user.save()
-
-        return HttpResponse(status = 201)
-
-    # Return a generic failure message if this was a POST or GET
-    error_obj = error("Invalid HTTP verb", 405)
-    return respond_with_error(error_obj)
-
-
-
-
-def edit_job(request):
-    """
-        Create/Edit/Delete Job page.
+        The read-only Document page.
     """
     if not request.user.is_authenticated:
         return anonymous_user(request)
 
-    # Delete the Job
-    if request.method == 'DELETE':
+    doc_obj = get_object(DocumentVersion, id = doc_id)
+    if is_error(doc_obj):
+        return respond_with_error(doc_obj)
 
-        job_to_delete = get_object(Job, key = 'delete_id', get_params = request.GET)
-        if is_error(job_to_delete):
-            return render_with_error(request, job_to_delete)
+    doc_title = dict(DOCUMENT_TYPES).get(doc_obj.document.doc_type)
 
-        if job_to_delete.safe_to_delete():
-            job_to_delete.delete()
-            return HttpResponse(status = 204)
+    doc_specific_obj = None
+    if doc_obj.document.doc_type == WO_CARD_CODE:
+        try:
+            doc_specific_obj = ProductionData.objects.filter(version=doc_obj)[0]
+        except:
+            doc_specific_obj = None
 
-        return JsonResponse({
-            'message': "This Job can't be deleted."
-        }, status = 403)
+    return render(request, 'adminas/document_main.html', {
+        'doc_title': doc_title,
+        'doc_id': doc_id,
+        'doc_version': doc_obj,
+        'doc_specific': doc_specific_obj,
+        'doc_type': doc_obj.document.doc_type,
+        'excluded_items': doc_obj.get_excluded_items(),
+        'included_items': doc_obj.get_included_items(),
+        'job_id': doc_obj.document.job.id,
+        'reference': doc_obj.document.reference,
+        'show_validity_error': not doc_obj.issue_date and doc_obj.active and not doc_obj.is_valid(),
+        'special_instructions': doc_obj.instructions.all().order_by('-created_on')
+    })
 
 
-    # POST = form submission = create or edit a Job
-    elif request.method == 'POST':
+def document_pdf(request, doc_id):
+    """
+        Generates a PDF of a given document and displays it in the browser window.
+    """
+    if not request.user.is_authenticated:
+        return anonymous_user(request)
 
-        posted_form = JobForm(request.POST)
-        if not posted_form.is_valid():
-            return error_page(request, 'Invalid form.', 400)
+    # Get the document being PDFed and a context dict of its contents.
+    # Draft docs get the current state; issued get the state as it was when the document was issued.
+    my_doc = DocumentVersion.objects.get(id=doc_id)
 
-        job_id = request.POST['job_id']
-
-        # Handle create
-        if job_id == '0':
-            user = request.user
-            new_job = create_job(posted_form, user)
-            redirect_id = new_job.id
-
-        # Handle update
-        else:
-            job = Job.objects.get(id=job_id)
-            job.update(posted_form, request.user)
-            redirect_id = job.id
-
-        return HttpResponseRedirect(reverse('job', kwargs={'job_id': redirect_id}))
-
-    # GET requests are used in two cases:
-    #   1) Getting a blank form for a new job
-    #   2) Getting a filled form for editing an existing job
-    # We distinguish between these by the presence of a "job" key in the GET params
-    fallback_get = '-'
-    job_id = request.GET.get('job', fallback_get)
-
-    # Handle blank form for a new job
-    if job_id == fallback_get:
-        task_name = 'Create New'
-        job_form = JobForm()
-        job_id = 0
-
-    # Handle filled form for an existing job
+    if my_doc.issue_date == '' or my_doc.issue_date == None:
+        context = my_doc.get_current_data()
     else:
-        job = get_object(Job, id = job_id)
-        if is_error(job):
-            return render_with_error(request, job)
+        context = my_doc.get_issued_data()
 
-        task_name = 'Edit'
-        job_form = JobForm(instance=job)
-        job_id = job.id
+    # Sort out file names/paths
+    context['css_doc_type'] = f'adminas/styles/{context["css_filename"]}'
+    if CSS_FORMATTING_FILENAME != '':
+        context['css_doc_user'] = f'adminas/styles/{CSS_FORMATTING_FILENAME}.css'
+    if HTML_HEADER_FILENAME != '':
+        context['company_header_file'] = f'adminas/pdf/{HTML_HEADER_FILENAME}.html'
+    if HTML_FOOTER_FILENAME != '':
+        context['company_footer_file'] = f'adminas/pdf/{HTML_FOOTER_FILENAME}.html'
 
-    return render(request, 'adminas/edit.html',{
-        'job_form': job_form,
-        'task_name': task_name,
-        'job_id': job_id
+    template_body = f'adminas/pdf/pdf_doc_2_{my_doc.document.doc_type.lower()}_b.html'
+    template_header = f'adminas/pdf/pdf_doc_2_{my_doc.document.doc_type.lower()}_h.html'
+    template_footer = f'adminas/pdf/pdf_doc_2_{my_doc.document.doc_type.lower()}_f.html'
+
+    # Default value is the height of the user's footer
+    margin_bottom_setting = 20
+    if my_doc.document.doc_type == 'WO':
+        margin_bottom_setting = 35
+
+    response = PDFTemplateResponse( request=request,
+                                    template=template_body,
+                                    filename=f"{my_doc.document.doc_type} {my_doc.document.reference}.pdf",
+                                    header_template = template_header,
+                                    footer_template = template_footer,
+                                    context=context,
+                                    show_content_in_browser=True,
+                                    cmd_options={
+                                            'dpi': 77,
+                                            'margin-bottom': margin_bottom_setting,
+                                            "zoom":1,
+                                            'quiet': None,
+                                            'enable-local-file-access': True},
+                                )
+    return response
+
+def document_editor_page(request):
+    """
+        Document Editor page.
+    """
+    settings = get_dict_document_editor_settings(request.GET)
+    if is_error(settings):
+        return render_with_error(request, settings)
+
+    # Prepare additional variables for an existing document
+    doc_obj = settings['doc_obj']
+    if doc_obj != None:
+        included_list = doc_obj.get_included_items()
+        excluded_list = doc_obj.get_excluded_items()
+        special_instructions = doc_obj.instructions.all().order_by('-created_on')
+        version_num = doc_obj.version_number
+
+        # Check for doc_specific fields.
+        if doc_obj.document.doc_type == WO_CARD_CODE:
+            try:
+                doc_specific_obj = ProductionData.objects.filter(version=doc_obj)[0]
+            except:
+                doc_specific_obj = None
+
+    # Prepare additional variables for a blank new document
+    else:
+        included_list = settings['job_obj'].get_items_unassigned_to_doc(settings['doc_code'])
+        excluded_list = settings['job_obj'].get_items_assigned_to_doc(settings['doc_code'])
+        special_instructions = None
+        doc_specific_obj = None
+        version_num = 1
+
+    return render(request, 'adminas/document_builder.html', {
+        'doc_title': settings['doc_title'],
+        'doc_id': doc_obj.id if doc_obj != None else 0,
+        'doc': doc_obj,
+        'is_valid': doc_obj.is_valid() if doc_obj != None else True,
+        'version_number': version_num,
+        'doc_type': settings['doc_code'],
+        'reference': settings['doc_ref'],
+        'job_id': settings['job_obj'].id,
+        'doc_specific': doc_specific_obj,
+        'included_items': included_list,
+        'excluded_items': excluded_list,
+        'special_instructions': special_instructions
     })
 
 
@@ -227,13 +258,115 @@ def job(request, job_id):
     })
 
 
-
-
-
-
-def comments(request):
+def manage_modules(request, job_id):
     """
-        Job Comments page, plus processing for JobComments.
+        Module Management page.
+    """
+    if not request.user.is_authenticated:
+        return anonymous_user(request)
+
+    job = Job.objects.get(id=job_id)
+
+    # Get a list of JobItems in this Job which have modules
+    job_items = JobItem.objects.filter(job=job)
+    modular_jobitems = []
+    for ji in job_items:
+        if ji.product.is_modular():
+            modular_jobitems.append(ji)
+
+    if len(modular_jobitems) == 0:
+        return error_page('This job has no modular items, so there are no modules to manage.')
+
+    data = get_dict_manage_modules(job, modular_jobitems)
+
+    return render(request, 'adminas/manage_modules.html', data)
+
+
+def comments_page(request):
+    job = get_object(Job, key = 'job_id', get_params = request.GET)
+    if is_error(job):
+        return render_with_error(job)
+
+    # Paginate "all comments"
+    # (Assumption: users will only pin/highlight a few comments, so pagination won't be needed there)
+    # (Assertion: if they pin/highlight a bajillion comments, it's their own fault if they have to scroll a lot)
+    setting_for_order_by = '-created_on'
+    all_comments = job.get_all_comments(request.user, setting_for_order_by)
+
+    page = paginate_from_get(all_comments, request.GET)
+    if is_error(page):
+        return render_with_error(page)
+
+    return render(request, 'adminas/job_comments.html', {
+        'customer_via_agent': get_customer_via_agent_string(job),
+        'job': job.get_dict(),
+        'pinned': job.get_pinned_comments(request.user, setting_for_order_by),
+        'highlighted': job.get_highlighted_comments(request.user, setting_for_order_by),
+        'all_comments': None if page == None else page.object_list,
+        'page_data': page
+    })
+
+
+def job_editor_page(request):
+    # Use cases:
+    #   1) Blank form for a new job
+    #   2) Filled form for editing an existing job
+    # We distinguish between these by the presence of a "job" key in the GET params
+    fallback_get = '-'
+    job_id = request.GET.get('job', fallback_get)
+
+    # Settings for a new job with a blank form
+    if job_id == fallback_get:
+        task_name = 'Create New'
+        job_form = JobForm()
+        job_id = 0
+
+    # Setting for an existing job with a filled form
+    else:
+        job = get_object(Job, id = job_id)
+        if is_error(job):
+            return render_with_error(request, job)
+
+        task_name = 'Edit'
+        job_form = JobForm(instance=job)
+        job_id = job.id
+
+
+    return render(request, 'adminas/edit.html',{
+        'job_form': job_form,
+        'task_name': task_name,
+        'job_id': job_id
+    }) 
+
+
+def records(request):
+    """
+        Records page.
+    """
+
+    # Filter jobs according to GET parameters, paginate, then get dict
+    filtered_jobs = filter_jobs(request.GET)
+
+    num_records_per_page = 20
+    paginated = Paginator(filtered_jobs, num_records_per_page)
+    req_page_num = request.GET.get('page', 1)
+    req_page = paginated.page(req_page_num)
+
+    records = [get_dict_record(job, request.user) for job in req_page.object_list]
+
+    return render(request, 'adminas/records.html', {
+        'records': records,
+        'total_count': Job.objects.all().count(),
+        'filter_count': filtered_jobs.count(),
+        'page_data': req_page
+    })
+
+
+
+# || API views
+def api_comments(request):
+    """
+        Processing for JobComments.
     """
     if not request.user.is_authenticated:
         return anonymous_user(request)
@@ -302,100 +435,151 @@ def comments(request):
             'created_on': formats.date_format(comment.created_on, "DATETIME_FORMAT")
         }, status = 201)
 
-    # GET
-    # Begin by getting the general purpose info for the heading and subheading.
-    job = get_object(Job, key = 'job_id', get_params = request.GET)
-    if is_error(job):
-        return render_with_error(job)
-
-    # Paginate "all comments"
-    # (Assumption: users will only pin/highlight a few comments, so pagination won't be needed there)
-    # (Assertion: if they pin/highlight a bajillion comments, it's their own fault if they have to scroll a lot)
-    setting_for_order_by = '-created_on'
-    all_comments = job.get_all_comments(request.user, setting_for_order_by)
-
-    page = paginate_from_get(all_comments, request.GET)
-    if is_error(page):
-        return render_with_error(page)
-
-    return render(request, 'adminas/job_comments.html', {
-        'customer_via_agent': get_customer_via_agent_string(job),
-        'job': job.get_dict(),
-        'pinned': job.get_pinned_comments(request.user, setting_for_order_by),
-        'highlighted': job.get_highlighted_comments(request.user, setting_for_order_by),
-        'all_comments': None if page == None else page.object_list,
-        'page_data': page
-    })
 
 
-def price_check(request, job_id):
+def api_draft_documents(request):
     """
-        API only. Process the Job page's "selling price is {NOT }CONFIRMED" indicator/button
+    Process working documents
     """
+
     if not request.user.is_authenticated:
-        return anonymous_user_json()
-
-    if request.method == 'PUT':
-        job = get_object(Job, id = job_id)
-        if is_error(job):
-            return respond_with_error(job)
-
-        new_status = get_value_from_json(request.body, 'new_status')
-        if is_error(new_status):
-            return respond_with_error(new_status)
-
-        job.price_is_ok = new_status
-        job.save()
-
-        return HttpResponse(status = 204)
-    
-    error_obj = error('Invalid HTTP verb', 405)
-    return respond_with_error(error_obj)
-
-
-def purchase_order(request):
-    """
-        API only. Process purchase orders.
-    """
-    if not request.user.is_authenticated:
-        return anonymous_user_json()
+        return anonymous_user(request)
 
     if request.method == 'DELETE':
-        po = get_object(PurchaseOrder, key ='id', get_params = request.GET)
-        if is_error(po):
-            return respond_with_error(po)
+        doc_obj = get_object(DocumentVersion, key = 'id', get_params = request.GET)
+        if is_error(doc_obj):
+            return respond_with_error(doc_obj)
 
-        po.deactivate()
-        return HttpResponse(status = 204)
+        # Issued documents should not be "delete"-able
+        is_safe = doc_obj.safe_to_delete()
+        if is_error(is_safe):
+            return respond_with_error(is_safe)
 
+        # Deactivate rather than delete (so that accidental deletion can be reversed easily)
+        doc_obj.deactivate()
+        doc_obj.save()
 
-    elif request.method == 'POST':
-        form = get_form_from_request(request, POForm)
-        if is_error(form):
-            return respond_with_error(form)
-
-        new_po = create_po(request.user, form)
         return JsonResponse({
-            'id': new_po.id
-        }, status = 201)
+            'redirect': reverse('job', kwargs={'job_id': doc_obj.document.job.id})
+        }, status = 200)
 
 
     elif request.method == 'PUT':
-        form = get_form_from_request(request, POForm)
-        if is_error(form):
-            return respond_with_error(form)
+        doc_obj = get_object(DocumentVersion, key = 'id', get_params = request.GET)
+        if is_error(doc_obj):
+            return respond_with_error(doc_obj)
 
-        po = get_object(PurchaseOrder,key = 'id', get_params = request.GET)
-        if is_error(po):
-            return respond_with_error(po)
+        doc_request_data = get_document_details_from_request(request)
+        if is_error(doc_request_data):
+            return respond_with_error(doc_request_data)
 
-        po.update(form)
-        return HttpResponse(status = 204)
+        update_result = doc_obj.update(
+                            request.user,\
+                            doc_request_data['doc_data_form'].cleaned_data['reference'],\
+                            doc_request_data['version_form'].cleaned_data['issue_date'],\
+                            doc_request_data['assigned_items'],\
+                            doc_request_data['special_instructions'],\
+                            doc_request_data['prod_data_form']
+                            )
+
+        if is_error(update_result):
+            return respond_with_error(update_result)
+
+        # If we're going back to the editor page, add some validity info for updating the page
+        if 'redirect' not in update_result:
+            update_result['doc_is_valid'] = doc_obj.is_valid()
+            update_result['item_is_valid'] = doc_obj.assignment_validity_by_jiid()
+
+        return JsonResponse(update_result, status = 200)
+
+    # POST
+    elif request.method == 'POST':
+
+        # Stick incoming data into forms
+        doc_request_data = get_document_details_from_request(request)
+        if is_error(doc_request_data):
+            return respond_with_error(doc_request_data)
+
+        # Obtain job and doc_code from the GET params
+        job = get_object(Job, key = 'job', get_params = request.GET)
+        if is_error(job):
+            return job
+
+        doc_code = get_param_from_get_params('type', request.GET)
+        if is_error(doc_code):
+            return doc_code
+
+        # Create the new document
+        doc_obj = create_document(  request.user, job, doc_code,\
+                                    doc_request_data['doc_data_form'],
+                                    doc_request_data['version_form'],\
+                                    doc_request_data['assigned_items'],\
+                                    doc_request_data['special_instructions'],\
+                                    doc_request_data['prod_data_form'])
+
+        return JsonResponse({
+            'redirect': f"{reverse('doc_editor_page')}?id={doc_obj.id}"
+        }, status = 201)
 
 
-def items(request):
+
+def api_issued_documents(request):
     """
-        Process JobItems.
+    Process requests to replace or revert issued documents
+    """
+    if not request.user.is_authenticated:
+        return anonymous_user(request)
+
+    doc_id = get_param_from_get_params('doc_id', request.GET)
+    if request.method == 'POST':
+        this_version = get_object(DocumentVersion, id = doc_id)
+        if is_error(this_version):
+            return respond_with_error(this_version)
+
+        posted_data = dict_from_json(request.body)
+        if is_error(posted_data):
+            return respond_with_error(posted_data)
+
+        task = get_param_from_dict('task', posted_data)
+        if is_error(task):
+            return respond_with_error(task)
+
+        if task == 'replace':
+            try:
+                new_version = this_version.get_replacement_version(request.user)
+                return JsonResponse({
+                    'redirect': f'{reverse("doc_editor_page")}?id={new_version.pk}'
+                }, status = 201)
+
+            except:
+                return respond_with_error(error('Replacement failed', 500))
+
+        elif task == 'revert':
+            previous_version = this_version.revert_to_previous_version()
+
+            if is_error(previous_version):
+                return respond_with_error(previous_version)
+
+            else:
+                # While we're /generally/ deactivating document versions instead of .delete()ing them, it'd be nice if misclicks didn't result in
+                # loads of deactivated documents that nobody ever wanted.
+                # If the user clicks to revert on the same day as the new version was created, we'll assume it was a misclick.
+                if this_version.created_on.date() == datetime.date.today():
+                    this_version.delete()
+                else:
+                    this_version.deactivate()
+
+                return JsonResponse({
+                    'redirect': reverse('doc_main', kwargs={'doc_id': previous_version.pk})
+                }, status = 200)
+
+        return respond_with_error(error("Invalid GET parameters.", 400))
+
+
+
+def api_items(request):
+    """
+        Process JobItems
     """
     if not request.user.is_authenticated:
         return anonymous_user(request)
@@ -429,7 +613,6 @@ def items(request):
             jobitems = []
             for form in formset:
                 new_ji = create_jobitem(request.user, form)
-                # jobitems.append(new_ji.get_dict())
                 jobitems.append(new_ji.id)
 
             return JsonResponse({
@@ -508,37 +691,56 @@ def items(request):
 
 
 
-
-
-
-def manage_modules(request, job_id):
+def api_job(request):
     """
-        Module Management page.
+        Processing for Jobs
     """
     if not request.user.is_authenticated:
         return anonymous_user(request)
 
-    job = Job.objects.get(id=job_id)
+    # Delete the Job
+    if request.method == 'DELETE':
 
-    # Get a list of JobItems in this Job which have modules
-    job_items = JobItem.objects.filter(job=job)
-    modular_jobitems = []
-    for ji in job_items:
-        if ji.product.is_modular():
-            modular_jobitems.append(ji)
+        job_to_delete = get_object(Job, key = 'delete_id', get_params = request.GET)
+        if is_error(job_to_delete):
+            return render_with_error(request, job_to_delete)
 
-    if len(modular_jobitems) == 0:
-        return error_page('This job has no modular items, so there are no modules to manage.')
+        if job_to_delete.safe_to_delete():
+            job_to_delete.delete()
+            return HttpResponse(status = 204)
 
-    data = get_dict_manage_modules(job, modular_jobitems)
-
-    return render(request, 'adminas/manage_modules.html', data)
-
+        return JsonResponse({
+            'message': "This Job can't be deleted."
+        }, status = 403)
 
 
-def module_assignments(request):
+    # POST = form submission = create or edit a Job
+    elif request.method == 'POST':
+
+        posted_form = JobForm(request.POST)
+        if not posted_form.is_valid():
+            return error_page(request, 'Invalid form.', 400)
+
+        job_id = request.POST['job_id']
+
+        # Handle create
+        if job_id == '0':
+            user = request.user
+            new_job = create_job(posted_form, user)
+            redirect_id = new_job.id
+
+        # Handle update
+        else:
+            job = Job.objects.get(id=job_id)
+            job.update(posted_form, request.user)
+            redirect_id = job.id
+
+        return HttpResponseRedirect(reverse('job', kwargs={'job_id': redirect_id}))
+
+
+def api_module_assignments(request):
     """
-        API only. Process Module Assignments
+        Process Module Assignments
     """
 
     if not request.user.is_authenticated:
@@ -601,13 +803,116 @@ def module_assignments(request):
 
 
 
-
-
-
-
-def get_data(request):
+def api_price_acceptance(request, job_id):
     """
-        General-purpose API
+    Process the Job page's "selling price is {NOT }CONFIRMED" indicator/button
+    """
+    if not request.user.is_authenticated:
+        return anonymous_user_json()
+
+    if request.method == 'PUT':
+        job = get_object(Job, id = job_id)
+        if is_error(job):
+            return respond_with_error(job)
+
+        new_status = get_value_from_json(request.body, 'new_status')
+        if is_error(new_status):
+            return respond_with_error(new_status)
+
+        job.price_is_ok = new_status
+        job.save()
+
+        return HttpResponse(status = 204)
+    
+    error_obj = error('Invalid HTTP verb', 405)
+    return respond_with_error(error_obj)
+
+
+
+def api_purchase_order(request):
+    """
+    Process purchase orders.
+    """
+    if not request.user.is_authenticated:
+        return anonymous_user_json()
+
+    if request.method == 'DELETE':
+        po = get_object(PurchaseOrder, key ='id', get_params = request.GET)
+        if is_error(po):
+            return respond_with_error(po)
+
+        po.deactivate()
+        return HttpResponse(status = 204)
+
+
+    elif request.method == 'POST':
+        form = get_form_from_request(request, POForm)
+        if is_error(form):
+            return respond_with_error(form)
+
+        new_po = create_po(request.user, form)
+        return JsonResponse({
+            'id': new_po.id
+        }, status = 201)
+
+
+    elif request.method == 'PUT':
+        form = get_form_from_request(request, POForm)
+        if is_error(form):
+            return respond_with_error(form)
+
+        po = get_object(PurchaseOrder,key = 'id', get_params = request.GET)
+        if is_error(po):
+            return respond_with_error(po)
+
+        po.update(form)
+        return HttpResponse(status = 204)
+
+
+
+def api_todo_list(request):
+    """
+        Process changes to the to-do list.
+    """
+    if not request.user.is_authenticated:
+        return anonymous_user_json()
+
+    # Try to extract a job and user from the incoming data
+    posted_data = dict_from_json(request.body)
+    if is_error(posted_data):
+        return respond_with_error(posted_data)
+
+    job = get_object(Job, key = 'job_id', dict = posted_data)
+    if is_error(job):
+        return respond_with_error(job)
+
+    user = request.user
+
+    # Handle the request
+    if request.method == 'DELETE':
+
+        if job in user.todo_list_jobs.all():
+            user.todo_list_jobs.remove(job)
+            user.save()
+
+        return HttpResponse(status = 204)
+
+    elif request.method == 'PUT':
+        if not job in user.todo_list_jobs.all():
+            user.todo_list_jobs.add(job)
+            user.save()
+
+        return HttpResponse(status = 201)
+
+    # Return a generic failure message if this was a POST or GET
+    error_obj = error("Invalid HTTP verb", 405)
+    return respond_with_error(error_obj)
+
+
+
+def api_data(request):
+    """
+    General-purpose API
     """
     if not request.user.is_authenticated:
         return anonymous_user_json()
@@ -709,8 +1014,8 @@ def get_data(request):
             return respond_with_error(job)
 
         response_data = {}
-        response_data['po_url'] = reverse('purchase_order')
-        response_data['price_acceptance_url'] = reverse('price_check', kwargs={'job_id': job.id})
+        response_data['po_url'] = reverse('api_purchase_order')
+        response_data['price_acceptance_url'] = reverse('api_price_acceptance', kwargs={'job_id': job.id})
 
         return JsonResponse(response_data, status = 200)
 
@@ -728,13 +1033,13 @@ def get_data(request):
         response_data = {}
         if component_name == 'comments':
             setting_for_order_by = '-created_on'
-            response_data['url'] = f"{reverse('comments')}?job_id={job.id}"
+            response_data['url'] = f"{reverse('comments_page')}?job_id={job.id}"
             response_data['username'] = request.user.username
             response_data['comments'] = job.get_all_comments(request.user, setting_for_order_by)
 
         elif component_name == 'details':
             response_data = job.get_dict()
-            response_data['url'] = reverse('edit_job') + '?job=' + str(job.id)
+            response_data['url'] = reverse('job_editor_page') + '?job=' + str(job.id)
 
         elif component_name == 'documents':
             doc_list = []
@@ -753,7 +1058,7 @@ def get_data(request):
             response_data = get_dict_job_page_root(job)
 
         elif component_name == 'todo':
-            response_data['url'] = reverse('todo_list_management')
+            response_data['url'] = reverse('api_todo_list')
             response_data['on_todo'] = job.on_todo_list(request.user)
 
         else:
@@ -762,292 +1067,8 @@ def get_data(request):
         return JsonResponse(response_data, status = 200)
 
 
-def records(request):
-    """
-        Records page.
-    """
 
-    # Filter jobs according to GET parameters, paginate, then get dict
-    filtered_jobs = filter_jobs(request.GET)
-
-    num_records_per_page = 20
-    paginated = Paginator(filtered_jobs, num_records_per_page)
-    req_page_num = request.GET.get('page', 1)
-    req_page = paginated.page(req_page_num)
-
-    records = [get_dict_record(job, request.user) for job in req_page.object_list]
-
-    return render(request, 'adminas/records.html', {
-        'records': records,
-        'total_count': Job.objects.all().count(),
-        'filter_count': filtered_jobs.count(),
-        'page_data': req_page
-    })
-
-
-def doc_builder(request):
-    """
-        Document Builder page.
-    """
-    if not request.user.is_authenticated:
-        return anonymous_user(request)
-
-    if request.method == 'DELETE':
-        doc_obj = get_object(DocumentVersion, key = 'id', get_params = request.GET)
-        if is_error(doc_obj):
-            return respond_with_error(doc_obj)
-
-        # Issued documents should not be "delete"-able
-        is_safe = doc_obj.safe_to_delete()
-        if is_error(is_safe):
-            return respond_with_error(is_safe)
-
-        # Deactivate rather than delete (so that accidental deletion can be reversed easily)
-        doc_obj.deactivate()
-        doc_obj.save()
-
-        return JsonResponse({
-            'redirect': reverse('job', kwargs={'job_id': doc_obj.document.job.id})
-        }, status = 200)
-
-    elif request.method == 'PUT':
-        doc_obj = get_object(DocumentVersion, key = 'id', get_params = request.GET)
-        if is_error(doc_obj):
-            return respond_with_error(doc_obj)
-
-        doc_request_data = get_document_details_from_request(request)
-        if is_error(doc_request_data):
-            return respond_with_error(doc_request_data)
-
-        update_result = doc_obj.update(
-                            request.user,\
-                            doc_request_data['doc_data_form'].cleaned_data['reference'],\
-                            doc_request_data['version_form'].cleaned_data['issue_date'],\
-                            doc_request_data['assigned_items'],\
-                            doc_request_data['special_instructions'],\
-                            doc_request_data['prod_data_form']
-                            )
-
-        if is_error(update_result):
-            return respond_with_error(update_result)
-
-        # If we're going back to the doc_builder page, add some validity info for updating the page
-        if 'redirect' not in update_result:
-            update_result['doc_is_valid'] = doc_obj.is_valid()
-            update_result['item_is_valid'] = doc_obj.assignment_validity_by_jiid()
-
-        return JsonResponse(update_result, status = 200)
-
-    # POST
-    elif request.method == 'POST':
-
-        # Stick incoming data into forms
-        doc_request_data = get_document_details_from_request(request)
-        if is_error(doc_request_data):
-            return respond_with_error(doc_request_data)
-
-        # Obtain job and doc_code from the GET params
-        job = get_object(Job, key = 'job', get_params = request.GET)
-        if is_error(job):
-            return job
-
-        doc_code = get_param_from_get_params('type', request.GET)
-        if is_error(doc_code):
-            return doc_code
-
-        # Create the new document
-        doc_obj = create_document(  request.user, job, doc_code,\
-                                    doc_request_data['doc_data_form'],
-                                    doc_request_data['version_form'],\
-                                    doc_request_data['assigned_items'],\
-                                    doc_request_data['special_instructions'],\
-                                    doc_request_data['prod_data_form'])
-
-        return JsonResponse({
-            'redirect': f"{reverse('doc_builder')}?id={doc_obj.id}"
-        }, status = 201)
-
-
-    # Get page settings based on GET params
-    settings = get_dict_document_builder_settings(request.GET)
-    if is_error(settings):
-        return render_with_error(request, settings)
-
-    # GET response: user could be GETting an existing document or a shiny new blank document
-    # Prepare additional variables for an existing document
-    doc_obj = settings['doc_obj']
-    if doc_obj != None:
-        included_list = doc_obj.get_included_items()
-        excluded_list = doc_obj.get_excluded_items()
-        special_instructions = doc_obj.instructions.all().order_by('-created_on')
-        version_num = doc_obj.version_number
-
-        # Check for doc_specific fields.
-        if doc_obj.document.doc_type == WO_CARD_CODE:
-            try:
-                doc_specific_obj = ProductionData.objects.filter(version=doc_obj)[0]
-            except:
-                doc_specific_obj = None
-
-    # Prepare additional variables for a blank new document
-    else:
-        included_list = settings['job_obj'].get_items_unassigned_to_doc(settings['doc_code'])
-        excluded_list = settings['job_obj'].get_items_assigned_to_doc(settings['doc_code'])
-        special_instructions = None
-        doc_specific_obj = None
-        version_num = 1
-
-    # Pass whichever set of variables to the template
-    return render(request, 'adminas/document_builder.html', {
-        'doc_title': settings['doc_title'],
-        'doc_id': doc_obj.id if doc_obj != None else 0,
-        'doc': doc_obj,
-        'is_valid': doc_obj.is_valid() if doc_obj != None else True,
-        'version_number': version_num,
-        'doc_type': settings['doc_code'],
-        'reference': settings['doc_ref'],
-        'job_id': settings['job_obj'].id,
-        'doc_specific': doc_specific_obj,
-        'included_items': included_list,
-        'excluded_items': excluded_list,
-        'special_instructions': special_instructions
-    })
-
-
-
-def document_pdf(request, doc_id):
-    """
-        Generates a PDF of a given document and displays it in the browser window.
-    """
-    if not request.user.is_authenticated:
-        return anonymous_user(request)
-
-    # Get the document being PDFed and a context dict of its contents.
-    # Draft docs get the current state; issued get the state as it was when the document was issued.
-    my_doc = DocumentVersion.objects.get(id=doc_id)
-
-    if my_doc.issue_date == '' or my_doc.issue_date == None:
-        context = my_doc.get_current_data()
-    else:
-        context = my_doc.get_issued_data()
-
-    # Sort out file names/paths
-    context['css_doc_type'] = f'adminas/styles/{context["css_filename"]}'
-    if CSS_FORMATTING_FILENAME != '':
-        context['css_doc_user'] = f'adminas/styles/{CSS_FORMATTING_FILENAME}.css'
-    if HTML_HEADER_FILENAME != '':
-        context['company_header_file'] = f'adminas/pdf/{HTML_HEADER_FILENAME}.html'
-    if HTML_FOOTER_FILENAME != '':
-        context['company_footer_file'] = f'adminas/pdf/{HTML_FOOTER_FILENAME}.html'
-
-    template_body = f'adminas/pdf/pdf_doc_2_{my_doc.document.doc_type.lower()}_b.html'
-    template_header = f'adminas/pdf/pdf_doc_2_{my_doc.document.doc_type.lower()}_h.html'
-    template_footer = f'adminas/pdf/pdf_doc_2_{my_doc.document.doc_type.lower()}_f.html'
-
-    # Default value is the height of the user's footer
-    margin_bottom_setting = 20
-    if my_doc.document.doc_type == 'WO':
-        margin_bottom_setting = 35
-
-    response = PDFTemplateResponse( request=request,
-                                    template=template_body,
-                                    filename=f"{my_doc.document.doc_type} {my_doc.document.reference}.pdf",
-                                    header_template = template_header,
-                                    footer_template = template_footer,
-                                    context=context,
-                                    show_content_in_browser=True,
-                                    cmd_options={
-                                            'dpi': 77,
-                                            'margin-bottom': margin_bottom_setting,
-                                            "zoom":1,
-                                            'quiet': None,
-                                            'enable-local-file-access': True},
-                                )
-    return response
-
-
-def document_main(request, doc_id):
-    """
-        The read-only Document page.
-    """
-    if not request.user.is_authenticated:
-        return anonymous_user(request)
-
-    # Despite mostly being read-only, there are two "emergency" updates allowed: revert and replace
-    if request.method == 'POST':
-        this_version = get_object(DocumentVersion, id = doc_id)
-        if is_error(this_version):
-            return respond_with_error(this_version)
-
-        posted_data = dict_from_json(request.body)
-        if is_error(posted_data):
-            return respond_with_error(posted_data)
-
-        task = get_param_from_dict('task', posted_data)
-        if is_error(task):
-            return respond_with_error(task)
-
-        if task == 'replace':
-            try:
-                new_version = this_version.get_replacement_version(request.user)
-                return JsonResponse({
-                    'redirect': f'{reverse("doc_builder")}?id={new_version.pk}'
-                }, status = 201)
-
-            except:
-                return respond_with_error(error('Replacement failed', 500))
-
-        elif task == 'revert':
-            previous_version = this_version.revert_to_previous_version()
-
-            if is_error(previous_version):
-                return respond_with_error(previous_version)
-
-            else:
-                # While we're /generally/ deactivating document versions instead of .delete()ing them, it'd be nice if misclicks didn't result in
-                # loads of deactivated documents that nobody ever wanted.
-                # If the user clicks to revert on the same day as the new version was created, we'll assume it was a misclick.
-                if this_version.created_on.date() == datetime.date.today():
-                    this_version.delete()
-                else:
-                    this_version.deactivate()
-
-                return JsonResponse({
-                    'redirect': reverse('doc_main', kwargs={'doc_id': previous_version.pk})
-                }, status = 200)
-
-        return respond_with_error(error("Invalid GET parameters.", 400))
-
-    # GET
-    doc_obj = get_object(DocumentVersion, id = doc_id)
-    if is_error(doc_obj):
-        return respond_with_error(doc_obj)
-
-    doc_title = dict(DOCUMENT_TYPES).get(doc_obj.document.doc_type)
-
-    doc_specific_obj = None
-    if doc_obj.document.doc_type == WO_CARD_CODE:
-        try:
-            doc_specific_obj = ProductionData.objects.filter(version=doc_obj)[0]
-        except:
-            doc_specific_obj = None
-
-    return render(request, 'adminas/document_main.html', {
-        'doc_title': doc_title,
-        'doc_id': doc_id,
-        'doc_version': doc_obj,
-        'doc_specific': doc_specific_obj,
-        'doc_type': doc_obj.document.doc_type,
-        'excluded_items': doc_obj.get_excluded_items(),
-        'included_items': doc_obj.get_included_items(),
-        'job_id': doc_obj.document.job.id,
-        'reference': doc_obj.document.reference,
-        'show_validity_error': not doc_obj.issue_date and doc_obj.active and not doc_obj.is_valid(),
-        'special_instructions': doc_obj.instructions.all().order_by('-created_on')
-    })
-
-
-
+# || Helpers
 def request_contains_formset(request):
     posted_data = dict_from_json(request.body)
     if is_error(posted_data):

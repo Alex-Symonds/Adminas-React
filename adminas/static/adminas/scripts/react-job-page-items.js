@@ -706,7 +706,6 @@ function slot_assignment_data_by_product(item_list){
                 // If the product can't be found, something went wrong
                 var product_key = parent.module_list[midx].product_id.toString();
                 if(!(product_key in result)){
-                    console.log('ERR: Products[] creation, missing product');
                     break;
                 }
                 // Update the product's "num_assigned" and "assignments".
@@ -887,7 +886,7 @@ function JobItemsCreator(props){
                 }
                 else {
                     backend_error.set('Page refresh recommended.');
-                }   
+                }
             }
             else {
                 backend_error.set(get_error_message(resp_data));

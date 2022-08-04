@@ -18,8 +18,8 @@
 {% block javascript %}
     <script>
         const URL_ITEMS = '{% url "items" %}';
-        const URL_ASSIGNMENTS = "{% url 'module_assignments' %}";
-        const URL_GENERAL_API = "{% url 'get_data' %}";
+        const URL_ASSIGNMENTS = "{% url 'api_module_assignments' %}";
+        const URL_GENERAL_API = "{% url 'api_data' %}";
     </script>
     <script src="{% static 'adminas/scripts/manage_modules.js' %}" type="text/javascript"></script>
 {% endblock %}

@@ -1206,19 +1206,15 @@ class JobItem(AdminAuditTrail):
         if not check == True:
             return check
     
-        # Check for relevant changes
-        price_list_has_changed = self.price_list != form.cleaned_data['price_list']
         product_has_changed = self.product != form.cleaned_data['product']
         quantity_has_changed = self.quantity != form.cleaned_data['quantity']
 
-        # The modules are happy (from a backend perspective), so save the changes and perform knock-on updates
         self.quantity = form.cleaned_data['quantity']
         self.product = form.cleaned_data['product']
         self.selling_price = form.cleaned_data['selling_price']
         self.price_list = form.cleaned_data['price_list']
         self.save()
         
-        # Handle knock-on effects
         if product_has_changed:
             self.reset_standard_accessories()
 
@@ -1227,9 +1223,6 @@ class JobItem(AdminAuditTrail):
 
         self.job.price_changed()
 
-        return {
-            'refresh_needed': price_list_has_changed or product_has_changed
-        }
 
     def update_price(self, form):
         """

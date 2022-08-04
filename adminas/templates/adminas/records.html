@@ -12,9 +12,9 @@
 
 {% block javascript %}
     <script>
-        const URL_TODO_MANAGEMENT = "{% url 'todo_list_management' %}";
+        const URL_TODO_MANAGEMENT = "{% url 'api_todo_list' %}";
         const CALLED_BY = 'records';
-        const URL_SELECT_OPTIONS = "{% url 'get_data' %}";
+        const URL_SELECT_OPTIONS = "{% url 'api_data' %}";
         const URL_RECORDS = "{% url 'records' %}";
     </script>
     <script src="{% static 'adminas/scripts/todo_management.js' %}" type="text/javascript"></script>
