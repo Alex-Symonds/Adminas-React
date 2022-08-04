@@ -14,6 +14,7 @@
         const DOC_CODE = '{{ doc_type }}';
         const DOC_ID = '{{ doc_id }}';
         const JOB_ID = '{{ job_id }}';
+        const JOB_URL = "{% url 'job' job_id %}";
         const URL_DOCBUILDER = "{% url 'api_draft_documents' %}";
         const URL_DOCMAIN = "{% url 'doc_main' doc_id %}"
         const URL_PREVIEW = "{% url 'doc_display' doc_id %}?mode=preview";

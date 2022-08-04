@@ -284,8 +284,8 @@ function delete_document(){
         fetch(`${URL_DOCBUILDER}?id=${DOC_ID}`, request_options)
         .then(response => get_json_with_status(response))
         .then(data => {
-            if(status_is_good(data) && 'redirect' in data){
-                window.location.href = data['redirect'];
+            if(status_is_good(data, 204)){
+                window.location.href = JOB_URL;
             }
             else{
                 display_document_response_message(data);
@@ -297,6 +297,7 @@ function delete_document(){
 
     }
 }
+
 
 // Save Warning: if it doesn't already exist, display a message to warn the user of unsaved changes.
 function show_save_warning_ele(){

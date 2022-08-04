@@ -450,18 +450,14 @@ def api_draft_documents(request):
         if is_error(doc_obj):
             return respond_with_error(doc_obj)
 
-        # Issued documents should not be "delete"-able
         is_safe = doc_obj.safe_to_delete()
         if is_error(is_safe):
             return respond_with_error(is_safe)
 
-        # Deactivate rather than delete (so that accidental deletion can be reversed easily)
         doc_obj.deactivate()
         doc_obj.save()
 
-        return JsonResponse({
-            'redirect': reverse('job', kwargs={'job_id': doc_obj.document.job.id})
-        }, status = 200)
+        return HttpResponse(status = 204)
 
 
     elif request.method == 'PUT':
@@ -556,19 +552,10 @@ def api_issued_documents(request):
 
         elif task == 'revert':
             previous_version = this_version.revert_to_previous_version()
-
             if is_error(previous_version):
                 return respond_with_error(previous_version)
 
             else:
-                # While we're /generally/ deactivating document versions instead of .delete()ing them, it'd be nice if misclicks didn't result in
-                # loads of deactivated documents that nobody ever wanted.
-                # If the user clicks to revert on the same day as the new version was created, we'll assume it was a misclick.
-                if this_version.created_on.date() == datetime.date.today():
-                    this_version.delete()
-                else:
-                    this_version.deactivate()
-
                 return JsonResponse({
                     'redirect': reverse('doc_main', kwargs={'doc_id': previous_version.pk})
                 }, status = 200)
@@ -599,7 +586,6 @@ def api_items(request):
         return HttpResponse(status = 204)
 
 
-    # Create one or more new items.
     elif request.method == 'POST':
         contains_formset_data = request_contains_formset(request)
         if is_error(contains_formset_data):
@@ -618,15 +604,16 @@ def api_items(request):
             return JsonResponse({
                 'id_list': jobitems
             }, status = 201)
+        
+        else:
+            form = get_form_from_request(request, get_jobitem_form)
+            if is_error(form):
+                return respond_with_error(form)
 
-        form = get_form_from_request(request, get_jobitem_form)
-        if is_error(form):
-            return respond_with_error(form)
-
-        jobitem = create_jobitem(request.user, form)
-        return JsonResponse({
-            'id': jobitem.id
-        }, status = 201)
+            jobitem = create_jobitem(request.user, form)
+            return JsonResponse({
+                'id': jobitem.id
+            }, status = 201)
 
 
     elif request.method == 'PUT':
@@ -662,7 +649,7 @@ def api_items(request):
 
             return HttpResponse(status = 204)
 
-    # GET
+
     ji_id_list_get_string = get_param_from_get_params('ji_id_list', request.GET)
     if not is_error(ji_id_list_get_string):
         ji_id_list = ji_id_list_get_string.split('.')
@@ -698,7 +685,7 @@ def api_job(request):
     if not request.user.is_authenticated:
         return anonymous_user(request)
 
-    # Delete the Job
+
     if request.method == 'DELETE':
 
         job_to_delete = get_object(Job, key = 'delete_id', get_params = request.GET)
@@ -746,7 +733,7 @@ def api_module_assignments(request):
     if not request.user.is_authenticated:
         return anonymous_user_json()
 
-    # User is deleting a module assignment
+
     if request.method == 'DELETE':
 
         jobmodule = get_object(JobModule, key = 'id', get_params = request.GET)
@@ -759,7 +746,6 @@ def api_module_assignments(request):
         return HttpResponse(status = 204)
 
 
-    # User has edited a module (= they changed the quantity, since any other changes are handled via delete-then-recreate)
     elif request.method == 'PUT':
         posted_data = dict_from_json(request.body)
         if is_error(posted_data):
@@ -775,7 +761,7 @@ def api_module_assignments(request):
 
         return HttpResponse(status = 204)
 
-    # User created a new assignment
+
     elif request.method == 'POST':
         posted_form = get_form_from_request(request, JobModuleForm)
         if is_error(posted_form):
@@ -789,7 +775,7 @@ def api_module_assignments(request):
             'id': jobmodule.id
         }, status = 201)
 
-    # GET
+
     parent = get_object(JobItem, key = 'parent_id', get_params = request.GET)
     if is_error(parent):
         return respond_with_error(parent)
