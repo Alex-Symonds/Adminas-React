@@ -17,6 +17,8 @@ from django.utils import formats
 from django.urls import reverse
 from django.core.serializers.json import DjangoJSONEncoder
 
+import json
+
 from django_countries.fields import CountryField
 
 from adminas.constants import DOCUMENT_TYPES, ERROR_MESSAGE_KEY, NUM_BODY_ROWS_ON_EMPTY_DOCUMENT, SUPPORTED_CURRENCIES, SUPPORTED_LANGUAGES, DEFAULT_LANG, INCOTERMS, DOC_CODE_MAX_LENGTH, ERROR_NO_DATA, SUCCESS_CODE
@@ -60,16 +62,18 @@ class DocAssignment(models.Model):
         self.quantity = min(int(new_quantity), self.max_quantity_excl_self())
         self.save()
 
-    def max_quantity_excl_self(self):
+    def max_quantity_excl_self(self, ignore_draft_docs = False):
         """
             Get the maximum quantity that could be assigned to self.
         """
-        # Get queryset of the other relevant DocAssignments for this JobItem
         assignment_qs = DocAssignment.objects\
                     .filter(item=self.item)\
                     .filter(version__document__doc_type=self.version.document.doc_type)\
                     .filter(version__active=True)\
                     .exclude(id=self.id)
+
+        if ignore_draft_docs:
+            assignment_qs = assignment_qs.exclude(version__issue_date=None).exclude(version__issue_date='')
 
         if assignment_qs.count() == 0:
             qty_assigned = 0
@@ -1845,16 +1849,6 @@ class DocumentVersion(AdminAuditTrail):
             Attempt to revert a replacement DocumentVersion.
 
             Note: this will fail in the event of the older version being incompatible with other currently active documents.
-
-            Example/definition of "incompatible":
-                Obviously duplication of items on documents = bad.
-
-                As soon as the previous version of this document was deactivated, all its JobItems became "available" for assignment to 
-                other documents: someone might've made use of that. The program therefore checks if all the JobItems on the previous version 
-                are still available *now*. If not, the revert fails.
-
-                If the user wishes to proceed with the revert, it is necessary to first deactivate/delete/edit other documents of the same 
-                type such that all items featured on the previous version are available.
         """
         previous_qs = DocumentVersion.objects.filter(document=self.document).filter(version_number=self.version_number - 1)
         
@@ -1863,26 +1857,22 @@ class DocumentVersion(AdminAuditTrail):
         
         previous = previous_qs.order_by('-created_on')[0]
 
-        # Deactivate self in order to "free up" its item assignments before testing for a clash (otherwise "previous" can clash with "self", which would be silly)
         self.deactivate()
-
-        # If previous clashes with other documents' item assignments, reactivate self and abort the revert
-        if previous.item_assignments_clash():
+        if previous.item_assignments_clash_with_issued():
             self.reactivate()
-            return error('Revert version has failed. Some items have been assigned to other documents of the same type.', 409)
-
-        # Otherwise, proceed with the revert.
+            return error('Revert version has failed. Some items have been reassigned to other documents of the same type.', 409)
         else:
+            previous_dict = json.loads(previous.issued_json)
+            self.document.update(previous_dict['doc_ref'])
             previous.reactivate()
             return previous
 
-    def item_assignments_clash(self):
+    def item_assignments_clash_with_issued(self):
         """
-            Check that there are no duplications of JobItems across documents of the same type.
+            Check that there are no duplications of JobItems across issued documents of the same type.
         """
         for assignment in DocAssignment.objects.filter(version=self):
-            if assignment.quantity > assignment.max_quantity_excl_self():
-                debug(f'DocAssignment clash on item {assignment.item.id}: needs {assignment.quantity} but {assignment.max_quantity_excl_self()} available')
+            if assignment.quantity > assignment.max_quantity_excl_self(True):
                 return True
 
         return False
