@@ -883,22 +883,29 @@ function JobItemsCreator(props){
         update_server(url, headers, resp_data => {
             if(status_is_good(resp_data, 201)){
                 if(typeof resp_data.id_list !== 'undefined'){
-
-                    let id_list_str = resp_data.id_list.join('.');
-                    const get_url = `${url}?ji_id_list=${id_list_str}`;
-                    const get_headers = getFetchHeaders('GET', null);
-
-                    update_server(get_url, get_headers, resp_data => {
-                        if(status_is_good(resp_data, 200)){
-                            props.actions_items.create_f(resp_data.jobitems);
-                            props.editor.off();
-                        }
-                        else {
-                            backend_error.set(get_error_message(resp_data));
-                        }
-                    });
-
+                    add_new_items_to_state(resp_data.id_list);
                 }
+                else {
+                    backend_error.set('Page refresh recommended.');
+                }   
+            }
+            else {
+                backend_error.set(get_error_message(resp_data));
+            }
+        });
+    }
+
+    function add_new_items_to_state(id_list){
+        const url = props.actions_items.url;
+        const get_headers = getFetchHeaders('GET', null);
+
+        let id_list_str = id_list.join('.');
+        const get_url = `${url}?ji_id_list=${id_list_str}`;
+
+        update_server(get_url, get_headers, resp_data => {
+            if(status_is_good(resp_data, 200)){
+                props.actions_items.create_f(resp_data.jobitems);
+                props.editor.off();
             }
             else {
                 backend_error.set(get_error_message(resp_data));
@@ -912,7 +919,7 @@ function JobItemsCreator(props){
             'form-TOTAL_FORMS': `${inputFields.length}`,
             'form-INITIAL_FORMS': '0',
             'form-MIN_NUM_FORMS': '0',
-            'form-MAX_NUM_FORMS': '1000'
+            'form-MAX_NUM_FORMS': '50'
         }
 
         for(var index in inputFields){
@@ -960,7 +967,7 @@ function JobItemsCreatorUI(props){
                 <input type="hidden" name="form-TOTAL_FORMS" value={ props.input_fields.length } id="id_form-TOTAL_FORMS" />
                 <input type="hidden" name="form-INITIAL_FORMS" value="0" id="id_form-INITIAL_FORMS" />
                 <input type="hidden" name="form-MIN_NUM_FORMS" value="0" id="id_form-MIN_NUM_FORMS" />
-                <input type="hidden" name="form-MAX_NUM_FORMS" value="1000" id="id_form-MAX_NUM_FORMS" />
+                <input type="hidden" name="form-MAX_NUM_FORMS" value="50" id="id_form-MAX_NUM_FORMS" />
         
                 {props.input_fields.map((data, index) =>
                     <JobItemsCreatorRow     key = { index }
@@ -1068,13 +1075,14 @@ function JobItemsCreatorRowRemoveButton(props){
 
 
 // || JobItem Editor
-// Handle the controlled input states, backend update/deleting and passing results upwards to the itemsList state
 function JobItemEditor(props){
-    // Controlled inputs for editing a single item
     const [quantity, setQuantity] = React.useState(props.data.quantity);
     const [sellingPrice, setSellingPrice] = React.useState(props.data.selling_price);
     const [productId, setProductId] = React.useState(props.data.product_id);
     const [priceListId, setPriceListId] = React.useState(props.data.price_list_id);
+
+    const [backendError, setBackendError] = React.useState(null);
+    const backend_error = get_backend_error_object(backendError, setBackendError);
 
     function update_quantity(e){
         setQuantity(e.target.value);
@@ -1096,7 +1104,6 @@ function JobItemEditor(props){
         price_list_id: get_and_set(priceListId, update_price_list)
     };
 
-    // Handle button clicks
     function handle_submit(e){
         e.preventDefault();
         save_item();
@@ -1106,27 +1113,25 @@ function JobItemEditor(props){
         delete_jobitem();
     }
 
-    // Backend updates
-    const [backendError, setBackendError] = React.useState(null);
-    const backend_error = get_backend_error_object(backendError, setBackendError);
-
-    // Update backend, then update states
     const save_item = () => {
         const url = `${props.URL_ITEMS}?id=${props.data.ji_id}`;
         var headers = getFetchHeaders('PUT', state_to_object_be());
 
         update_server(url, headers, resp_data => {
-            if(status_is_good(resp_data, 200)){
-                // Check if the server thinks the edit means a full refresh of the JobItem is required.
-                // If so, refresh the entire JobItem from the BE
-                if('refresh_needed' in resp_data && resp_data.refresh_needed == true){
+            if(status_is_good(resp_data, 204)){
+
+                // Changes to product and/or price list have knock-on effects on other
+                // fields (e.g. list price, names) so if one of those has changed, 
+                // update the entire item from the backend.
+                let state_fe_obj = state_to_object_fe();
+                if('product_id' in state_fe_obj || 'price_list_id' in state_fe_obj){
                     update_item_from_be();
                 }
-                // Otherwise update the "main" state with the form's state
                 else {
-                    props.update_item(props.data.ji_id, state_to_object_fe());
+                    props.update_item(props.data.ji_id, state_fe_obj);
                     props.editor.off();
-                }   
+                }  
+
             }
             else{
                 backend_error.set(get_error_message(resp_data));
@@ -1138,7 +1143,7 @@ function JobItemEditor(props){
         var url = `${props.URL_ITEMS}?ji_id=${props.data.ji_id}`;
 
         fetch(url)
-        .then(response => response.json())
+        .then(response => get_json_with_status(response))
         .then(resp_data => {
             if(status_is_good(resp_data, 200)){
                 props.update_item(props.data.ji_id, resp_data);
@@ -1151,7 +1156,6 @@ function JobItemEditor(props){
         .catch(error => console.log(error))
     }
 
-    // Arrange the state in a dict, with keys as expected by the backend
     function state_to_object_be(){
         return {
             quantity: quantity,
@@ -1161,8 +1165,6 @@ function JobItemEditor(props){
         }
     }
 
-    // Arrange the state in a dict, with keys as expected by the backend
-    // Note: only those that have changed
     function state_to_object_fe(){
         var result = {}
         if(quantity != props.data.quantity){
@@ -1180,7 +1182,6 @@ function JobItemEditor(props){
         return result;
     }
 
-    // Delete on backend, then update states
     function delete_jobitem(){
         var url = `${props.URL_ITEMS}?id=${props.data.ji_id}`;
         var headers = getFetchHeaders('DELETE', null);
@@ -1196,7 +1197,6 @@ function JobItemEditor(props){
         });
     }
 
-    // Render
     return <JobItemEditorUI backend_error= { backend_error }
                             controlled = { controlled }
                             description = { props.data.description }
@@ -1232,10 +1232,7 @@ function JobItemEditorUI(props){
 }
 
 // || Shared form fields
-// Create and Update both need to display the relevant JobItem fields, so they share this conponent.
 function JobItemSharedFormFields(props){
-
-    // Auto-description: selecting a product in the dropdown should display the full description underneath
     const [description, setDescription] = React.useState(props.description);
 
     function handle_product_change(e){
@@ -1266,7 +1263,6 @@ function JobItemSharedFormFields(props){
 }
 
 function JobItemSharedFormFieldsUI(props){
-    // Set IDs here so that "for" on the label and "id" on the input/select/whatever will always match
     const FFN_QUANTITY = getFormsetFieldNames(props.prefix, 'quantity');
     const FFN_PRODUCT = getFormsetFieldNames(props.prefix, 'product');
     const FFN_SELLING_PRICE = getFormsetFieldNames(props.prefix, 'selling_price');
@@ -1306,15 +1302,15 @@ function JobItemSharedFormFieldsUI(props){
     ]
 }
 
-// The CSS for this has a coloured border on the left. If it has no text inside, it looks a bit odd.
+
 function JobItemAutoDescUI(props){
+    // The CSS for this has a coloured border on the left. If it has no text inside, it looks a bit odd, so remove when not in use.
     if(props.description === '' || props.description === null){
         return null;
     }
     return <span class='desc'>{ props.description }</span>
 }
 
-// Object to help ensure names and IDs remain consistent.
 function getFormsetFieldNames(prefix, fieldName){
     return {
         name: prefix + fieldName,

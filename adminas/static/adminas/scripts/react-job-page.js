@@ -10,14 +10,9 @@
 */
 
 function JobPage(){
-    // Variables from Django
     const job_id = window.JOB_ID;
     const URL_GET_DATA = window.URL_GET_DATA;
 
-    // States fetched from server to begin with
-    // "jobMain" is for data which:
-    //      a) can't be altered on the Job page, so it will only change once (from "empty" to "loaded")
-    //      b) is used by more than one child component
     const [jobMain, setJobMain] = React.useState({
                                         currency: '',
                                         doc_quantities: [],
@@ -30,6 +25,7 @@ function JobPage(){
     const [docList, setDocs] = React.useState([]);
     const [priceAccepted, setPriceAccepted] = React.useState(false);
     
+
     const { data, error, isLoaded } = useFetch(url_for_page_load(URL_GET_DATA, job_id, 'job_page_root'));
     React.useEffect(() => {
         set_if_ok(data, 'item_list', setItemsList);
@@ -42,7 +38,6 @@ function JobPage(){
     }, [data]);
 
 
-    // Updating states: JobItems
     function create_items(new_items){
         var new_items_list = itemsList.concat(new_items);
         setItemsList(new_items_list);
@@ -60,8 +55,6 @@ function JobPage(){
         list_state_delete(itemsList, setItemsList, 'ji_id', item_id);
     }
 
-
-    // Updating states: POs
     function create_po(po_attributes){
         list_state_create_one(setPoList, po_attributes);
     }
@@ -74,11 +67,8 @@ function JobPage(){
         list_state_delete(poList, setPoList, 'po_id', po_id);
     }
 
-    // Updating states: Documents
     function update_doc_state(item_id, item_attributes){
         /*
-        This function decides whether to update the validity status of documents from the backend.
-
         A document is considered "invalid" if it contains one or more line items which have been overcommitted,
         e.g. order confirmations show 5 x JobItemX, but JobItemX has quantity = 3.
 
@@ -103,53 +93,66 @@ function JobPage(){
         .catch(error => console.log(error));
     }
 
-    // State-derived variables used in more than one child branch, so work them out once here
     const total_qty_all_items = itemsList.reduce((prev_total_qty, item) => { return parseInt(item.quantity) + prev_total_qty; }, 0);
     const total_po_value = poList.reduce((prev_total_val, po) => { return parseFloat(po.value) + prev_total_val }, 0);
     const total_items_value = itemsList.reduce((prev_total_val, item) => { return parseFloat(item.selling_price) + prev_total_val }, 0);
     const value_difference_po_vs_items = total_po_value - total_items_value;
 
-    // Objects
-    // Package up related data/methods for convenient passing around as props
     const status_data = get_status_data_object(priceAccepted, poList.length, value_difference_po_vs_items, jobMain.doc_quantities, total_qty_all_items, itemsList);
     const po_data = get_po_data_object(value_difference_po_vs_items, total_items_value, total_po_value, poList);
     const doc_data = get_documents_data_object(urlDocs, docList, jobMain.doc_quantities, total_qty_all_items);
-    
     const actions_items = get_actions_object(urlItems, create_items, update_item, delete_item);
     const actions_po = get_actions_object(null, create_po, update_po, delete_po);
-
     const price_accepted_state = get_and_set(priceAccepted, setPriceAccepted);
 
-    // Display. Handle loading states, then go for the main event.
-    if(error){
+    return <JobPageUI   actions_items = { actions_items }
+                        actions_po = { actions_po }
+                        currency = { jobMain.currency }
+                        data = { data }
+                        doc_data = { doc_data }
+                        error = { error }
+                        isLoaded = { isLoaded }
+                        items_list = { itemsList }
+                        job_id = { job_id }
+                        po_data = { po_data }
+                        po_list = { poList }
+                        price_accepted_state = { price_accepted_state }
+                        status_data = { status_data }
+                        total_selling = { total_items_value }
+                        URL_GET_DATA = { URL_GET_DATA }
+                        URL_MODULE_MANAGEMENT = { jobMain.URL_MODULE_MANAGEMENT }
+                        />
+}
+
+
+function JobPageUI(props){
+    if(props.error){
         <LoadingErrorUI name='page' />
     }
-    else if(!isLoaded || data === null){
+    else if(!props.isLoaded || props.data === null){
         <LoadingUI />
     }
-
     return [
         <div>
-            <JobHeadingSubsectionUI job_id = {job_id}
-                                    status_data = {status_data}
-                                    URL_GET_DATA = {URL_GET_DATA} />
-            <JobContentsUI  actions_items = { actions_items }
-                            actions_po = { actions_po }
-                            currency = {jobMain.currency}
-                            doc_data = { doc_data }
-                            items_list = {itemsList}
-                            job_id = {job_id}
-                            po_data = { po_data }
-                            po_list = { poList }
-                            price_accepted_state = { price_accepted_state }
-                            total_selling = { total_items_value }
-                            URL_GET_DATA = { URL_GET_DATA }
-                            URL_MODULE_MANAGEMENT = { jobMain.URL_MODULE_MANAGEMENT }
+            <JobHeadingSubsectionUI job_id = { props.job_id}
+                                    status_data = { props.status_data}
+                                    URL_GET_DATA = { props.URL_GET_DATA} />
+            <JobContentsUI  actions_items = { props.actions_items }
+                            actions_po = { props.actions_po }
+                            currency = { props.currency}
+                            doc_data = { props.doc_data }
+                            items_list = { props.items_list}
+                            job_id = { props.job_id}
+                            po_data = { props.po_data }
+                            po_list = { props.po_list }
+                            price_accepted_state = { props.price_accepted_state }
+                            total_selling = { props.total_selling }
+                            URL_GET_DATA = { props.URL_GET_DATA }
+                            URL_MODULE_MANAGEMENT = { props.URL_MODULE_MANAGEMENT }
                             />
         </div>
     ]
 }
-
 
 
 function JobContentsUI(props){
@@ -222,25 +225,25 @@ function get_documents_data_object(URL_DOCS, doc_list, doc_quantities, total_qua
     }
 }
 
-// || Helpers
 function item_quantity_has_changed(items_list, item_id, item_attributes){
-    // item_attributes should contain one of two things:
-    //  1) an object with one key/value pair for each alteration the user just made (occurs for straightforward alterations)
-    //  2) an object containing a complete set of JobItem properties (occurs when alterations had side effects, so it's easier to just replace the whole thing)
+    /*
+    Sometimes item_attributes contains key/value pairs of only the fields which have changed, allowing 
+    us to determine if quantity changed by the presence or absence of a 'quantity' key.
+    Sometimes it contains a full set of data, regardless of what changed. Then we need to check the actual 
+    quantity value.
+    */
 
-    // Attributes Type #1, quantity didn't change (i.e. the only circumstances under which "quantity" won't be in item_attributes)
+    // No quantity field = can't be a full set of info, so it must be changes-only where quantity didn't change.
     if(!('quantity' in item_attributes)){
         return false;
     }
 
-    // Attributes Type #1, quantity DID change
-    // Note: ji_id was chosen for this check because: a) it's a field that exists in Type #2 attributes and not in Type #1;
-    // b) it's a database key with no other use, so hopefully it's the least likely property to ever be added to Type #1 in future.
+    // Check for a field which always exists in the full set, but never in the list of changes.
+    // If it's absent, we know this is a list of changes which included quantity: ergo, quantity has changed.
     if(!('ji_id' in item_attributes)){
         return true;
     }
 
-    // Attributes Type #2: compare the new quantity in item_attributes with the existing quantity in the state
     const new_quantity = item_attributes.quantity;
 
     var index = items_list.findIndex(i => i.ji_id === parseInt(item_id));
@@ -249,10 +252,11 @@ function item_quantity_has_changed(items_list, item_id, item_attributes){
         return true;
     }
     const old_quantity = items_list[index].quantity;
+
     return parseInt(old_quantity) !== parseInt(new_quantity);
 }
 
 
 
-// Render it to the page
+
 ReactDOM.render(<JobPage />, document.querySelector(".job-page"));

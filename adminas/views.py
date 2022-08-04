@@ -16,7 +16,7 @@ from adminas.models import  PriceList, User, Job, Address, JobItem, Product, Slo
                             JobModule, ProductionData, DocumentVersion, Company
 from adminas.forms import   DocumentDataForm, JobForm, POForm, JobItemForm, JobItemFormSet, JobItemEditForm, \
                             JobModuleForm, JobItemPriceForm, ProductionReqForm, DocumentVersionForm, JobCommentFullForm
-from adminas.constants import DOCUMENT_TYPES, CSS_FORMATTING_FILENAME, HTML_HEADER_FILENAME, HTML_FOOTER_FILENAME, SUPPORTED_CURRENCIES, WO_CARD_CODE, SUCCESS_CODE, ERROR_MESSAGE_KEY
+from adminas.constants import MAX_NUM_FORMS, DOCUMENT_TYPES, CSS_FORMATTING_FILENAME, HTML_HEADER_FILENAME, HTML_FOOTER_FILENAME, SUPPORTED_CURRENCIES, WO_CARD_CODE, SUCCESS_CODE, ERROR_MESSAGE_KEY
 from adminas.util import anonymous_user, dict_from_json, error_page, debug, get_dict_document_builder_settings,\
     get_dict_job_page_root, get_dict_todo, get_dict_record, get_dict_manage_modules, paginate_from_get, get_customer_via_agent_string, filter_jobs, get_dict_currency, create_jobmodule, get_object, anonymous_user_json, get_param_from_dict, get_value_from_json, get_param_from_get_params, is_error, render_with_error, create_job, create_comment, create_po, create_jobitem, create_document, error, respond_with_error, get_comment, extract_toggle_data
 
@@ -446,23 +446,20 @@ def items(request):
         }, status = 201)
 
 
-    # Updates can be called from two places:
-    #   > JobItem panel (quantity, product, price_list and selling_price)
-    #   > Price checker table (selling_price only)
     elif request.method == 'PUT':
 
         jobitem = get_object(JobItem, key = 'id', get_params = request.GET)
         if is_error(jobitem):
             return respond_with_error(jobitem)
 
-        # Check for the presence of something other than selling_price to see how much to update.
-        # Presence of a field that isn't selling_price means it's a "full" update
-        # if 'product' in incoming_data:
+        # Updates can be called from two places:
+        #   > JobItem panel ("full" edit, i.e. quantity, product, price_list and selling_price)
+        #   > Price checker table (selling_price only)
         full_edit_requested = is_full_edit_of_jobitem(request)
         if is_error(full_edit_requested):
             return respond_with_error(full_edit_requested)
 
-        elif full_edit_requested:
+        if full_edit_requested:
             form = get_form_from_request(request, JobItemEditForm)
             if is_error(form):
                 return respond_with_error(form)
@@ -471,11 +468,8 @@ def items(request):
             if is_error(update_result):
                 return respond_with_error(update_result)
 
-            return JsonResponse({
-                'refresh_needed': update_result['refresh_needed']
-            }, status = 200)
+            return HttpResponse(status = 204)
 
-        # If the not-selling_price field isn't there, assume we're only updating the price
         else:
             form = get_form_from_request(request, JobItemPriceForm)
             if is_error(form):
@@ -489,7 +483,7 @@ def items(request):
     ji_id_list_get_string = get_param_from_get_params('ji_id_list', request.GET)
     if not is_error(ji_id_list_get_string):
         ji_id_list = ji_id_list_get_string.split('.')
-        if len(ji_id_list) <= 0:
+        if len(ji_id_list) <= 0 or len(ji_id_list) > MAX_NUM_FORMS:
             my_error = error("Invalid item list", 400)
             return respond_with_error(my_error)
         
