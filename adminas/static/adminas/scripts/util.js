@@ -259,7 +259,7 @@ function numberWithCommas(num) {
 // Get the date, localised
 function get_date_time(){
     let dt = new Date();
-    let display_dt = dt.toLocaleString();
+    let display_dt = dt.toLocaleString('en-GB');
     return display_dt;
 }
 
@@ -403,7 +403,7 @@ function create_dismissable_error(error_obj, task_failure_string = null){
 }
 
 // Response message (documents, used by both Builder and Main)
-function display_document_response_message(data){
+function display_document_response_message(data, string_is_error = false){
     let anchor_ele = document.querySelector('.status-controls');
     let message_ele = document.querySelector('.' + CLASS_MESSAGE_BOX);
 
@@ -414,16 +414,19 @@ function display_document_response_message(data){
 
     let message_str;
     if(typeof data === 'string'){
+        if(string_is_error) message_ele.classList.add(CLASS_ERROR_MESSAGE);
         message_str = data;
     }
     else if('message' in data){
         message_str = data['message'];
     }
     else if(responded_with_error_reason(data)){
+        message_ele.classList.add(CLASS_ERROR_MESSAGE);
         message_str = `Error: ${get_error_message(data)} @ ${get_date_time()}`;
     }  
     else {
-        message_str = 'Something happened';
+        message_ele.classList.add(CLASS_ERROR_MESSAGE);
+        message_str = 'Something went wrong, try refreshing the page.';
     }
 
     message_ele.innerHTML = `${message_str} @ ${get_date_time()}`;

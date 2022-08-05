@@ -462,6 +462,9 @@ class PurchaseOrder(AdminAuditTrail):
         return result
 
     def update(self, posted_form):
+        """
+        Update purchase order using a form
+        """
         # Check for relevant changes
         value_has_changed = self.value != posted_form.cleaned_data['value']
         currency_has_changed = self.currency != posted_form.cleaned_data['currency']   
@@ -1509,6 +1512,9 @@ class JobModule(models.Model):
         return num_unassigned + old_qty_total
 
     def update(self, new_quantity):
+        """
+        Update JobModule quantity
+        """
         # Maybe the user solely entered symbols permitted by 'type=number', but which don't actually result in a number
         # (e.g. e, +, -)
         if new_quantity == '' or new_quantity == None:
@@ -1599,7 +1605,7 @@ class DocumentVersion(AdminAuditTrail):
 
     def update(self, user, reference, issue_date, assigned_items, special_instructions, prod_data_form):
         """
-        Update self, its associated DocumentData and children.
+        Update DocumentVersion and its associated DocumentData and children
         """
         check = self.safe_to_update()
         if check != True:
@@ -1625,13 +1631,16 @@ class DocumentVersion(AdminAuditTrail):
         self.save()
         # If the user doesn't want to issue the document, we're done now.
         if issue_date == None or issue_date == '':
-            return { 'message': "Document saved" }
+            return True
+            #return { 'message': "Document saved" }
 
         # Otherwise try to issue the document, then respond accordingly
         issue_result = self.issue(issue_date)
         if is_error(issue_result):
-            return { 'message': f"Document saved, but not issued (Forbidden: {issue_result[ERROR_MESSAGE_KEY]})" }
-        return { 'redirect': reverse('doc_main', kwargs={'doc_id': self.id}) }
+            return error(f"Document was not issued ({issue_result[ERROR_MESSAGE_KEY]}), but any other unsaved changes have now been saved.", issue_result['status'])
+            #return { 'message': f"Document saved, but not issued (Forbidden: {issue_result[ERROR_MESSAGE_KEY]})" }
+        #return { 'redirect': reverse('doc_main', kwargs={'doc_id': self.id}) }
+        return True
 
 
     def issue(self, issue_date):
@@ -1642,7 +1651,7 @@ class DocumentVersion(AdminAuditTrail):
         # Prevent the issue date from being "updated" to nothingness, in the event of someone 
         # ignoring the above.
         if issue_date == None or issue_date == '':
-            return error("invalid issue date.", 400)
+            return error("Error: issue date was missing.", 400)
 
         check = self.safe_to_issue()
         if check != True:
@@ -1660,12 +1669,12 @@ class DocumentVersion(AdminAuditTrail):
 
     def safe_to_update(self):
         if self.is_issued():
-            return error("issued documents can't be updated", 403)
+            return error("Forbidden: issued documents can't be updated", 403)
         return True
 
     def safe_to_issue(self):
         if not self.is_valid():
-            return error("invalid item assignments exist.", 403)
+            return error("Forbidden: invalid item assignments exist.", 403)
         return True
 
     def is_issued(self):

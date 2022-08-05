@@ -211,12 +211,9 @@ def document_editor_page(request):
         special_instructions = doc_obj.instructions.all().order_by('-created_on')
         version_num = doc_obj.version_number
 
-        # Check for doc_specific fields.
+        doc_specific_obj = None
         if doc_obj.document.doc_type == WO_CARD_CODE:
-            try:
-                doc_specific_obj = ProductionData.objects.filter(version=doc_obj)[0]
-            except:
-                doc_specific_obj = None
+            doc_specific_obj = ProductionData.objects.filter(version=doc_obj)[0]
 
     # Prepare additional variables for a blank new document
     else:
@@ -445,6 +442,7 @@ def api_draft_documents(request):
     if not request.user.is_authenticated:
         return anonymous_user(request)
 
+
     if request.method == 'DELETE':
         doc_obj = get_object(DocumentVersion, key = 'id', get_params = request.GET)
         if is_error(doc_obj):
@@ -477,16 +475,10 @@ def api_draft_documents(request):
                             doc_request_data['special_instructions'],\
                             doc_request_data['prod_data_form']
                             )
-
         if is_error(update_result):
             return respond_with_error(update_result)
 
-        # If we're going back to the editor page, add some validity info for updating the page
-        if 'redirect' not in update_result:
-            update_result['doc_is_valid'] = doc_obj.is_valid()
-            update_result['item_is_valid'] = doc_obj.assignment_validity_by_jiid()
-
-        return JsonResponse(update_result, status = 200)
+        return HttpResponse(status = 204)
 
     # POST
     elif request.method == 'POST':
@@ -513,9 +505,21 @@ def api_draft_documents(request):
                                     doc_request_data['special_instructions'],\
                                     doc_request_data['prod_data_form'])
 
+        # TODO: send this in the header under "location"
         return JsonResponse({
             'redirect': f"{reverse('doc_editor_page')}?id={doc_obj.id}"
         }, status = 201)
+
+    # GET
+    doc_obj = get_object(DocumentVersion, key = 'id', get_params = request.GET)
+    if is_error(doc_obj):
+        return respond_with_error(doc_obj)
+
+    return JsonResponse({
+        'doc_is_issued': doc_obj.is_issued(),
+        'doc_is_valid': doc_obj.is_valid(),
+        'item_is_valid': doc_obj.assignment_validity_by_jiid()
+    }, status = 200) 
 
 
 

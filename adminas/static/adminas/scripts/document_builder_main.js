@@ -146,7 +146,7 @@ function save_document(){
     update_document_on_server(null);
 }
 
-// Issue and Save: shared function to send the status of the current draft to the server.
+// Shared function for update and create since to the user they're both "save".
 function update_document_on_server(issue_date){
     let dict = get_document_data_as_dict(issue_date);
 
@@ -154,42 +154,84 @@ function update_document_on_server(issue_date){
     if(DOC_ID == '0'){
         update_document_on_server_fetch('POST', 201, dict, `job=${JOB_ID}&type=${DOC_CODE}`);
 
-    // DOC_ID not 0 = updating an existing document, so the ID alone is sufficient
     } else {
-        update_document_on_server_fetch('PUT', 200, dict, `id=${DOC_ID}`);
+        update_document_on_server_fetch('PUT', 204, dict, `id=${DOC_ID}`);
     }
 }
 
-function update_document_on_server_fetch(method, expected_response_code, data, get_params){
+async function update_document_on_server_fetch(method, expected_response_code, data, get_params){
     var request_options = get_request_options(method, data);
-
-    fetch(`${URL_DOCBUILDER}?${get_params}`, request_options)
-    .then(response => get_json_with_status(response))
-    .then(data => {
-
-        if(status_is_good(data, expected_response_code)){
-            // If the document was just issued, no more editing is permitted, so redirect to the main page.
+    let resp_data = await update_backend(`${URL_DOCBUILDER}?${get_params}`, request_options);
+    if(status_is_good(resp_data, expected_response_code)){
+        if(method === 'POST'){
+            // TODO: use the location header to redirect the page instead
             if('redirect' in data){
                 window.location.href = data['redirect'];
             }
-            // Otherwise, update this page so the user can continue working.
-            else{
-                display_document_response_message(data);
-                remove_save_warning_ele();
+        }
+        else if(method === 'PUT'){
+            handle_document_update_success(`${URL_DOCBUILDER}?${get_params}`);
+        }
+    }
+    else {
+        display_document_response_message(resp_data);
+    }
+}
 
-                if ('doc_is_valid' in data){
-                    clear_validity_warnings(data);
-                }
+async function handle_document_update_success(full_url){
+    let resp_data = await query_backend(full_url);
+    if(status_is_good(resp_data, 200)){
+        
+        if('doc_is_issued' in resp_data){
+            if(resp_data['doc_is_issued'] === true){
+                window.location.href = URL_DOCMAIN;
+            }
+
+            remove_save_warning_ele();
+
+            if('doc_is_valid' in resp_data && 'item_is_valid' in resp_data){
+                update_validity_warnings(resp_data['doc_is_valid'], resp_data['item_is_valid']);
+                display_document_response_message('Document saved');
+                return;
             }
         }
-        else {
-            display_document_response_message(data);
-        }
-    })
-    .catch(error => {
-        console.log('Error: ', error)
-    });
+    }
+    display_document_response_message("Page display error: refresh is recommended.", true);
 }
+
+
+
+
+// function OLDupdate_document_on_server_fetch(method, expected_response_code, data, get_params){
+//     var request_options = get_request_options(method, data);
+
+//     fetch(`${URL_DOCBUILDER}?${get_params}`, request_options)
+//     .then(response => get_json_with_status(response))
+//     .then(data => {
+
+//         if(status_is_good(data, expected_response_code)){
+//             // If the document was just issued, no more editing is permitted, so redirect to the main page.
+//             if('redirect' in data){
+//                 window.location.href = data['redirect'];
+//             }
+//             // Otherwise, update this page so the user can continue working.
+//             else{
+//                 display_document_response_message(data);
+//                 remove_save_warning_ele();
+
+//                 if ('doc_is_valid' in data){
+//                     update_validity_warnings(data);
+//                 }
+//             }
+//         }
+//         else {
+//             display_document_response_message(data);
+//         }
+//     })
+//     .catch(error => {
+//         console.log('Error: ', error)
+//     });
+// }
 
 
 
@@ -254,9 +296,6 @@ function ul_to_partial_docitems_assignment_object(ul_ele, force_0_quantity){
 }
 
 
-
-
-// Issue and Save: get a list of ID and contents for every SpecialInstruction on the document via the instructions section
 function get_special_instructions_as_list(){
     let special_instructions = [];
     let container_ele = document.querySelector('.' + CLASS_INSTRUCTIONS_SECTION);
@@ -274,8 +313,6 @@ function get_special_instructions_as_list(){
 }
 
 
-// Delete Document: main function called by clicking the "delete" button.
-// Display a warning window, then send the request to the server.
 function delete_document(){
     let delete_confirmed = confirm('Deleting a document cannot be undone except by a system administrator. Are you sure?');
     if(delete_confirmed){
@@ -299,7 +336,6 @@ function delete_document(){
 }
 
 
-// Save Warning: if it doesn't already exist, display a message to warn the user of unsaved changes.
 function show_save_warning_ele(){
     let existing_unsaved_ele = document.querySelector('.unsaved-changes');
 
@@ -310,7 +346,7 @@ function show_save_warning_ele(){
     }
 }
 
-// Save Warning: display ele. Create an element warning the user about unsaved changes.
+
 function create_unsaved_changes_ele(){
     let div = document.createElement('div');
     div.classList.add('unsaved-changes');
@@ -318,7 +354,7 @@ function create_unsaved_changes_ele(){
     return div;
 }
 
-// Save Warning: remove the warning re. unsaved changes.
+
 function remove_save_warning_ele(){
     let existing_unsaved_ele = document.querySelector('.unsaved-changes');
     if(existing_unsaved_ele != null){
@@ -532,9 +568,9 @@ function create_no_special_instructions_ele(){
 }
 
 // Validity Warnings
-function clear_validity_warnings(data){
-    clear_document_warning(data.doc_is_valid);
-    clear_lineitem_warnings(data.item_is_valid);
+function update_validity_warnings(doc_is_valid, item_validity_list){
+    clear_document_warning(doc_is_valid);
+    clear_lineitem_warnings(item_validity_list);
 }
 
 // Check if the document is valid now and if so, remove the warning and reactivate the issue button 
@@ -546,12 +582,12 @@ function clear_document_warning(is_valid){
 }
 
 // Run through the "included" <li>s, removing the invalid formatting and icon if it's now fixed
-function clear_lineitem_warnings(item_valid_list){
+function clear_lineitem_warnings(item_validity_list){
     const CSS_CLASS_INVALID = 'invalid';
 
     document.querySelectorAll(`.${CSS_CLASS_INVALID}`).forEach((this_li) => {
         const jiid = this_li.dataset.jiid;
-        if(jiid in item_valid_list && item_valid_list[jiid] === true){
+        if(jiid in item_validity_list && item_validity_list[jiid] === true){
             this_li.classList.remove(CSS_CLASS_INVALID);
             this_li.querySelector('.invalid-icon').remove();
         }

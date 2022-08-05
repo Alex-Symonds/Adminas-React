@@ -53,15 +53,22 @@
         width: 100%;
     }
 
+
     .system-message-box{
         width: 98.5%;
         margin: 0.5rem;
 
-        border: 1px solid v.$c_tone_00;
-        border-left: 3px solid v.$c_warning;
-        border-bottom: 1px solid v.$c_accent_secondary_02;
+        border-style: solid;
+        border-width: 1px 1px 1px 3px;
+        border-color: v.$c_tone_00 v.$c_tone_00 v.$c_accent_secondary_02 v.$c_accent_secondary;
 
         background: v.$c_tone_01;
+
+        &.temp-warning-msg{
+            max-width: none;
+            min-height: 0;
+            border-color: v.$c_tone_00 v.$c_tone_00 v.$c_accent_secondary_02 v.$c_warning;
+        }
     }
 
     &.draft .system-message-box{
