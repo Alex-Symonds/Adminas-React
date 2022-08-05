@@ -12,6 +12,7 @@ const CSS_GENERIC_FORM_LIKE = 'form-like';
 
 const KEY_RESPONSE_ERROR_MSG = 'error';
 const KEY_HTTP_CODE = 'http_code';
+const KEY_LOCATION = 'location';
 
 
 async function update_backend(url, request_options){
@@ -64,6 +65,7 @@ async function get_json_with_status(response){
         var response_data = {};
     }
     response_data[KEY_HTTP_CODE] = response.status;
+    response_data[KEY_LOCATION] = response.headers.get("Location");
     return response_data;
 }
 

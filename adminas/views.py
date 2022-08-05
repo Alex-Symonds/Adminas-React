@@ -505,10 +505,10 @@ def api_draft_documents(request):
                                     doc_request_data['special_instructions'],\
                                     doc_request_data['prod_data_form'])
 
-        # TODO: send this in the header under "location"
-        return JsonResponse({
-            'redirect': f"{reverse('doc_editor_page')}?id={doc_obj.id}"
-        }, status = 201)
+        response = HttpResponse()
+        response['Location'] = f"{reverse('doc_editor_page')}?id={doc_obj.id}"
+        response.status_code = 201
+        return response
 
     # GET
     doc_obj = get_object(DocumentVersion, key = 'id', get_params = request.GET)

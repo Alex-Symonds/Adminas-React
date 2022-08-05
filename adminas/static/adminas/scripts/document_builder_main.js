@@ -164,10 +164,7 @@ async function update_document_on_server_fetch(method, expected_response_code, d
     let resp_data = await update_backend(`${URL_DOCBUILDER}?${get_params}`, request_options);
     if(status_is_good(resp_data, expected_response_code)){
         if(method === 'POST'){
-            // TODO: use the location header to redirect the page instead
-            if('redirect' in data){
-                window.location.href = data['redirect'];
-            }
+            window.location.href = resp_data[KEY_LOCATION];
         }
         else if(method === 'PUT'){
             handle_document_update_success(`${URL_DOCBUILDER}?${get_params}`);
