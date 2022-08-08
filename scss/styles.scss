@@ -1214,92 +1214,6 @@ nav{
 
     padding: 2px 5px 0;
 
-    details{
-        padding: 0;
-        border: 1px solid transparent;
-        border-bottom: 1px solid v.$c_tone_03;
-    }
-
-    details,
-    .full-comment-container{
-        border-left: 2px solid transparent;
-    }
-
-    summary,
-    .comment-body{
-        padding: 0 5px 5px 5px;
-        min-height: calc(24px + 8px);
-    }
-
-
-    &.highlighted{
-        details,
-        .full-comment-container{
-            border-left: 2px solid yellow;
-            border-right: none;
-            background: linear-gradient(90deg, rgba(white, 12%) 0%, transparent 100%);
-        }
-
-        .full-comment-container{
-            background: v.$c_tone_03;
-            box-shadow: v.$panel_shadow;
-
-            .comment-body{
-                background: transparent;
-            }
-            .footer{
-                color: v.$c_tone_06;
-            }
-        }
-    }
-
-    details[open]{
-        background: v.$c_tone_03;
-        border: 1px solid v.$c_tone_04;
-        border-left: 1px solid v.$c_tone_04;
-    }
-    details[open] summary {
-        background: v.$c_tone_02;
-        border-bottom: 1px solid transparent;
-        padding-bottom: 5px;
-    }
-
-
-    /* --- full version ---- */
-    .full-comment-container{
-        margin: 1rem 0 0 0;
-
-        background: transparent;
-        border: 1px solid v.$c_tone_02;
-
-        border-top-right-radius: 0.5rem;
-        border-bottom-right-radius: 0.5rem;
-
-        .comment-body{
-            padding: 0.3rem;
-            border-bottom: 1px solid v.$c_tone_02;
-
-            background: v.$g_bg_main;
-            border-top-right-radius: 0.4rem;
-
-            .main{
-                .contents{
-                    display: block;
-                    margin: 0;
-                    padding: 0.3rem;
-                }
-            }
-        }  
-        
-        .footer{
-            margin: 0;
-            padding: 3px;
-            font-size: 0.9rem;
-            color: v.$c_tone_05;
-        }
-
-    }
-
     .main{
         .contents{
             margin: 0;
@@ -1334,28 +1248,7 @@ nav{
     }
 
     .controls{
-
-        .edit-comment{
-            background-image: url(../images/i-edit.svg);
-        }
-
-        .highlighted-toggle{
-            background-image: url(../images/i-highlight.svg);        
-        }
-
-        .pinned-status-on{
-            background-image: url(../images/i-pin-filled.svg);
-        }
-    
-        .pinned-status-off{
-            background-image: url(../images/i-pin-unfilled.svg);
-        }
-
-
-        .edit-comment,
-        .highlighted-toggle,
-        .pinned-status-on,
-        .pinned-status-off{
+        button{
             border: 0;
             border-radius: 13px;
             border: 1px solid transparent;
@@ -1382,13 +1275,34 @@ nav{
             }
 
         }
-        .edit-comment:hover{
-            background-position: 7px 4px;
+
+        .edit-comment{
+            background-image: url(../images/i-edit.svg);
+            
+            &:hover{
+                background-position: 7px 4px;
+            }
         }
 
-        .highlighted-toggle,
-        .pinned-status-on,
+        .highlighted-toggle{
+            background-image: url(../images/i-highlight.svg);
+
+            &:hover{
+                background-position: 4px 4px;
+            }     
+        }
+
+        .pinned-status-on{
+            background-image: url(../images/i-pin-filled.svg);
+
+            &:hover{
+                background-position: 4px 4px;
+            }
+        }
+    
         .pinned-status-off{
+            background-image: url(../images/i-pin-unfilled.svg);
+
             &:hover{
                 background-position: 4px 4px;
             }
@@ -1398,6 +1312,113 @@ nav{
             position: absolute;
             z-index: 3;
             box-shadow: v.$shadow_popout;
+        }
+    }
+
+    .wrapper{
+        border-style: solid;
+        border-width: 1px 1px 1px 2px; // 2px so the "highlighted" border doesn't cause wiggling
+    }
+
+    .comment-body{
+        padding: 0 5px 5px 5px;
+        min-height: calc(24px + 8px); // i.e. to fit the "private" icon, with some padding.
+    }
+
+    details.wrapper{
+        padding: 0;
+        border-color: transparent transparent v.$c_tone_03 transparent;
+
+        // Prevent highlighted's linear-gradient background from making the transparent right 
+        // border grey. Apply here so the 1px shift to the right will be consistent.
+        //border-right: none; 
+
+        &[open]{
+            background: v.$c_tone_03;
+            border-color: v.$c_tone_04;
+            border-left: 1px solid v.$c_tone_04;
+    
+            .comment-body{
+                background: v.$c_tone_02;
+                border-bottom: 1px solid transparent;
+                padding-bottom: 5px;
+            }   
+        }
+    }
+
+    div.wrapper{
+        margin: 1rem 0 0 0;
+
+        background: transparent;
+        border-color: v.$c_tone_02;
+
+        border-top-right-radius: 0.5rem;
+        border-bottom-right-radius: 0.5rem;
+
+        .comment-body{
+            padding: 0.3rem;
+            border-bottom: 1px solid v.$c_tone_02;
+
+            background: v.$g_bg_main;
+            border-top-right-radius: 0.4rem;
+
+            .main{
+                .contents{
+                    display: block;
+                    margin: 0;
+                    padding: 0.3rem;
+                }
+            }
+        }  
+        
+        .footer{
+            margin: 0;
+            padding: 3px;
+            font-size: 0.9rem;
+            color: v.$c_tone_05;
+        }
+    }
+
+    &.highlighted{
+        .wrapper,
+        details.wrapper[open]{
+            border-left-color: yellow;
+        }
+
+        details.wrapper{
+            // 2022-08-08: this causes the wrapper's transparent right border to appear grey.
+            // details.wrapper has a line setting the right border to "none" to avoid this.
+            // If you ever change this, you can also change that.
+            .comment-body{
+                background: linear-gradient(90deg, rgba(white, 12%) 0%, transparent 100%);
+            }
+            
+            &[open]{
+                border-width: 1px 1px 1px 2px;
+                background: transparent;
+
+                .comment-body{
+                    background: linear-gradient(90deg, rgba(white, 12%) 0%, transparent 100%);
+                }
+                
+                .footer{
+                    margin: 0;
+                    padding: 3px;
+                    background: v.$c_tone_03;
+                }
+            }
+        }
+
+        div.wrapper{
+            background: v.$c_tone_03;
+            box-shadow: v.$panel_shadow;
+
+            .comment-body{
+                background: transparent;
+            }
+            .footer{
+                color: v.$c_tone_06;
+            }
         }
     }
 }

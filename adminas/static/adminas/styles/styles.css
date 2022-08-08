@@ -947,71 +947,6 @@ nav li a:hover {
   min-width: 250px;
   max-width: 700px;
   padding: 2px 5px 0;
-  /* --- full version ---- */
-}
-.one-comment details {
-  padding: 0;
-  border: 1px solid transparent;
-  border-bottom: 1px solid #666;
-}
-.one-comment details,
-.one-comment .full-comment-container {
-  border-left: 2px solid transparent;
-}
-.one-comment summary,
-.one-comment .comment-body {
-  padding: 0 5px 5px 5px;
-  min-height: calc(24px + 8px);
-}
-.one-comment.highlighted details,
-.one-comment.highlighted .full-comment-container {
-  border-left: 2px solid yellow;
-  border-right: none;
-  background: linear-gradient(90deg, rgba(255, 255, 255, 0.12) 0%, transparent 100%);
-}
-.one-comment.highlighted .full-comment-container {
-  background: #666;
-  box-shadow: 0 0 10px 1px rgba(0, 0, 0, 0.85);
-}
-.one-comment.highlighted .full-comment-container .comment-body {
-  background: transparent;
-}
-.one-comment.highlighted .full-comment-container .footer {
-  color: #BBB;
-}
-.one-comment details[open] {
-  background: #666;
-  border: 1px solid #888;
-  border-left: 1px solid #888;
-}
-.one-comment details[open] summary {
-  background: #444;
-  border-bottom: 1px solid transparent;
-  padding-bottom: 5px;
-}
-.one-comment .full-comment-container {
-  margin: 1rem 0 0 0;
-  background: transparent;
-  border: 1px solid #444;
-  border-top-right-radius: 0.5rem;
-  border-bottom-right-radius: 0.5rem;
-}
-.one-comment .full-comment-container .comment-body {
-  padding: 0.3rem;
-  border-bottom: 1px solid #444;
-  background: linear-gradient(45deg, #222324 0%, #282829 35%, #383a3a 100%);
-  border-top-right-radius: 0.4rem;
-}
-.one-comment .full-comment-container .comment-body .main .contents {
-  display: block;
-  margin: 0;
-  padding: 0.3rem;
-}
-.one-comment .full-comment-container .footer {
-  margin: 0;
-  padding: 3px;
-  font-size: 0.9rem;
-  color: #AAA;
 }
 .one-comment .main .contents {
   margin: 0;
@@ -1038,22 +973,7 @@ nav li a:hover {
   margin-left: 3px;
   padding-bottom: 3px;
 }
-.one-comment .controls .edit-comment {
-  background-image: url(../images/i-edit.svg);
-}
-.one-comment .controls .highlighted-toggle {
-  background-image: url(../images/i-highlight.svg);
-}
-.one-comment .controls .pinned-status-on {
-  background-image: url(../images/i-pin-filled.svg);
-}
-.one-comment .controls .pinned-status-off {
-  background-image: url(../images/i-pin-unfilled.svg);
-}
-.one-comment .controls .edit-comment,
-.one-comment .controls .highlighted-toggle,
-.one-comment .controls .pinned-status-on,
-.one-comment .controls .pinned-status-off {
+.one-comment .controls button {
   border: 0;
   border-radius: 13px;
   border: 1px solid transparent;
@@ -1065,10 +985,7 @@ nav li a:hover {
   background-size: 16px 16px;
   text-indent: -9999px;
 }
-.one-comment .controls .edit-comment:hover,
-.one-comment .controls .highlighted-toggle:hover,
-.one-comment .controls .pinned-status-on:hover,
-.one-comment .controls .pinned-status-off:hover {
+.one-comment .controls button:hover {
   background-color: #888;
   border: 1px solid #AAA;
   color: #F6F6F6;
@@ -1077,11 +994,27 @@ nav li a:hover {
   animation-fill-mode: forwards;
   animation-name: expand_comment_controls;
 }
+.one-comment .controls .edit-comment {
+  background-image: url(../images/i-edit.svg);
+}
 .one-comment .controls .edit-comment:hover {
   background-position: 7px 4px;
 }
-.one-comment .controls .highlighted-toggle:hover,
-.one-comment .controls .pinned-status-on:hover,
+.one-comment .controls .highlighted-toggle {
+  background-image: url(../images/i-highlight.svg);
+}
+.one-comment .controls .highlighted-toggle:hover {
+  background-position: 4px 4px;
+}
+.one-comment .controls .pinned-status-on {
+  background-image: url(../images/i-pin-filled.svg);
+}
+.one-comment .controls .pinned-status-on:hover {
+  background-position: 4px 4px;
+}
+.one-comment .controls .pinned-status-off {
+  background-image: url(../images/i-pin-unfilled.svg);
+}
 .one-comment .controls .pinned-status-off:hover {
   background-position: 4px 4px;
 }
@@ -1089,6 +1022,81 @@ nav li a:hover {
   position: absolute;
   z-index: 3;
   box-shadow: 0 0 1rem 1.5rem rgba(0, 0, 0, 0.4);
+}
+.one-comment .wrapper {
+  border-style: solid;
+  border-width: 1px 1px 1px 2px;
+}
+.one-comment .comment-body {
+  padding: 0 5px 5px 5px;
+  min-height: calc(24px + 8px);
+}
+.one-comment details.wrapper {
+  padding: 0;
+  border-color: transparent transparent #666 transparent;
+}
+.one-comment details.wrapper[open] {
+  background: #666;
+  border-color: #888;
+  border-left: 1px solid #888;
+}
+.one-comment details.wrapper[open] .comment-body {
+  background: #444;
+  border-bottom: 1px solid transparent;
+  padding-bottom: 5px;
+}
+.one-comment div.wrapper {
+  margin: 1rem 0 0 0;
+  background: transparent;
+  border-color: #444;
+  border-top-right-radius: 0.5rem;
+  border-bottom-right-radius: 0.5rem;
+}
+.one-comment div.wrapper .comment-body {
+  padding: 0.3rem;
+  border-bottom: 1px solid #444;
+  background: linear-gradient(45deg, #222324 0%, #282829 35%, #383a3a 100%);
+  border-top-right-radius: 0.4rem;
+}
+.one-comment div.wrapper .comment-body .main .contents {
+  display: block;
+  margin: 0;
+  padding: 0.3rem;
+}
+.one-comment div.wrapper .footer {
+  margin: 0;
+  padding: 3px;
+  font-size: 0.9rem;
+  color: #AAA;
+}
+.one-comment.highlighted .wrapper,
+.one-comment.highlighted details.wrapper[open] {
+  border-left-color: yellow;
+}
+.one-comment.highlighted details.wrapper .comment-body {
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.12) 0%, transparent 100%);
+}
+.one-comment.highlighted details.wrapper[open] {
+  border-width: 1px 1px 1px 2px;
+  background: transparent;
+}
+.one-comment.highlighted details.wrapper[open] .comment-body {
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.12) 0%, transparent 100%);
+}
+.one-comment.highlighted details.wrapper[open] .footer {
+  margin: 0;
+  padding: 3px;
+  background: #666;
+}
+.one-comment.highlighted div.wrapper {
+  background: #666;
+  box-shadow: 0 0 10px 1px rgba(0, 0, 0, 0.85);
+}
+.one-comment.highlighted div.wrapper .comment-body {
+  background: transparent;
+}
+.one-comment.highlighted div.wrapper .footer {
+  color: #BBB;
 }
 
 .create-comments-container {

@@ -173,8 +173,8 @@ function CommentReaderUI(props){
 
     return [
         <article class={ css_class_list }>
-            <details>
-                <summary>
+            <details class="wrapper">
+                <summary class="comment-body">
                     <CommentContentsMainUI  comment = { props.comment } />
                 </summary>
                 <CommentContentsFooter  actions_comments = { props.actions_comments }
