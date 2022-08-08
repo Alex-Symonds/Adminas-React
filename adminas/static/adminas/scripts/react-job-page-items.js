@@ -1213,8 +1213,6 @@ function JobItemEditorUI(props){
         <div id="container_edit_item" class="panel form-like">
             <CancelButton cancel = { props.editor.off } />
             <h5 class="panel-header">Edit Item</h5>
-            <BackendErrorUI message = { props.backend_error.message }
-                            turn_off_error = { props.backend_error.clear } />
             <JobItemSharedFormFields    controlled = { props.controlled }
                                         description = {props.description}
                                         job_id = {props.job_id}
@@ -1222,6 +1220,8 @@ function JobItemEditorUI(props){
                                         URL_GET_DATA = { props.URL_GET_DATA }
                                         URL_ITEMS = {props.URL_ITEMS}
                                         />
+            <BackendErrorUI message = { props.backend_error.message }
+                            turn_off_error = { props.backend_error.clear } />
             <EditorControls     delete = { props.handle_delete }
                                 submit = { props.handle_submit }
                                 want_delete = { true }

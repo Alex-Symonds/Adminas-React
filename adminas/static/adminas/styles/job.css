@@ -324,6 +324,9 @@
 #container_edit_item {
   width: 96%;
 }
+#container_edit_item .temp-warning-msg {
+  margin-top: 1.2rem;
+}
 
 #po_edit_form {
   width: calc(100% - 1rem);
