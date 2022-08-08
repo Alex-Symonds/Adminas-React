@@ -67,9 +67,10 @@ function JobDocumentsSubsectionUI(props){
 }
 
 function JobDocumentsUnassignedItemsUI(props){
-    if(props.unassigned_qty == null || props.unassigned_qty == 0 || isNaN(props.unassigned_qty)){
+    if(props.unassigned_qty == null || isNaN(props.unassigned_qty) || props.unassigned_qty <= 0){
         return null;
     }
+
     return [
         <div class="status-ele status_warning">
             <span class="icon">

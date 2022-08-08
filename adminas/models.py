@@ -847,13 +847,13 @@ class Job(AdminAuditTrail):
 
         result = 0
         for docv in doc_versions:
-            # Draft document counter
+            # Draft document quantity counter
             if docv.issue_date == None and not want_issued:
-                result += 1
+                result += docv.quantity_of_items()
 
-            # Issued document counter
+            # Issued document quantity counter
             elif not docv.issue_date == None and want_issued:
-                result += 1
+                result += docv.quantity_of_items()
 
         return result
 
@@ -1632,14 +1632,11 @@ class DocumentVersion(AdminAuditTrail):
         # If the user doesn't want to issue the document, we're done now.
         if issue_date == None or issue_date == '':
             return True
-            #return { 'message': "Document saved" }
 
         # Otherwise try to issue the document, then respond accordingly
         issue_result = self.issue(issue_date)
         if is_error(issue_result):
             return error(f"Document was not issued ({issue_result[ERROR_MESSAGE_KEY]}), but any other unsaved changes have now been saved.", issue_result['status'])
-            #return { 'message': f"Document saved, but not issued (Forbidden: {issue_result[ERROR_MESSAGE_KEY]})" }
-        #return { 'redirect': reverse('doc_main', kwargs={'doc_id': self.id}) }
         return True
 
 
@@ -2171,6 +2168,14 @@ class DocumentVersion(AdminAuditTrail):
             Get the total sum of values of all line items on this specific document (formatted string)
         """
         return format_money(self.total_value())
+
+    def quantity_of_items(self):
+        """
+            Get the total sum of quantities of all line items on this specific document
+        """
+        return sum(da.quantity for da in DocAssignment.objects.filter(version=self))
+        
+
 
 
     def __str__(self):
