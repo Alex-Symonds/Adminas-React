@@ -1214,7 +1214,7 @@ nav{
 
     padding: 2px 5px 0;
 
-    details {
+    details{
         padding: 0;
         border: 1px solid transparent;
         border-bottom: 1px solid v.$c_tone_03;
@@ -1230,6 +1230,7 @@ nav{
         padding: 0 5px 5px 5px;
         min-height: calc(24px + 8px);
     }
+
 
     &.highlighted{
         details,
@@ -1262,6 +1263,7 @@ nav{
         border-bottom: 1px solid transparent;
         padding-bottom: 5px;
     }
+
 
     /* --- full version ---- */
     .full-comment-container{

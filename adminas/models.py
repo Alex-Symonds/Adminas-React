@@ -73,7 +73,7 @@ class DocAssignment(models.Model):
                     .exclude(id=self.id)
 
         if ignore_draft_docs:
-            assignment_qs = assignment_qs.exclude(version__issue_date=None).exclude(version__issue_date='')
+            assignment_qs = assignment_qs.exclude(version__issue_date=None)
 
         if assignment_qs.count() == 0:
             qty_assigned = 0
@@ -1871,7 +1871,8 @@ class DocumentVersion(AdminAuditTrail):
             self.reactivate()
             return error('Revert version has failed. Some items have been reassigned to other documents of the same type.', 409)
         else:
-            previous_dict = json.loads(previous.issued_json)
+            #previous_dict = json.loads(previous.issued_json)
+            previous_dict = previous.issued_json
             self.document.update(previous_dict['doc_ref'])
             previous.reactivate()
             return previous

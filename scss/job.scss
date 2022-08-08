@@ -86,83 +86,6 @@
     }
 }
 
-// || Heading
-// This is used to achieve the appearance of "inserting" the status-indicator inside the h2 formatting
-// .job-heading-with-extra{
-//     // Apply necessary h2 formatting to the container
-//     width: 100%;
-//     padding-bottom: 0.2rem;
-//     border-bottom: 1px solid white;
-
-//     // "Turn off" that formatting from the actual h2, so it's not duplicated, then shrink the h2 so the indicator "fits"
-//     h2{
-//         display: inline-block;
-//         width: auto;
-//         padding: 0;
-//         border-bottom: none;
-//     }
-
-//     // The indicator is a flexbox, so use a wrapper to get some inline-block goodness.
-//     .indicator-wrapper{
-//         display: inline-block;
-//         padding: 0 0 0 0.7rem;
-//     }
-
-//     // Stop the status-indicator from clearing its row; adjust position to fit nicely with the h2 text.
-//     .status-indicator{
-//         width: auto;
-//         margin-top: 0;
-//         position: relative;
-//         top: -0.2rem;
-//     }
-// }
-
-// This works, but shunts the toggle to the right.
-// .job-heading-with-extra{
-//     position: relative;
-//     width: 100%;
-
-//     .status-indicator{
-//         width: auto;
-//         position: absolute;
-//         top: -4px;
-//         right: 0;
-//     }
-// }
-
-
-
-
-
-// || Notifications
-// #admin_info{
-//     position: relative;
-
-//     .admin-info-btn{
-//         margin-top: 0.5rem;
-//         padding: 0.5rem;
-//     }
-
-//     .panel{
-//         position: absolute;
-//         top: 2rem;
-//         left: 0;
-//         z-index: 3;
-//         background: v.$c_tone_02;
-//         color: v.$c_txt_main;
-//         width: fit-content;
-
-//         ul{
-//             margin: 0;
-//             padding: 8px 30px;
-//         }
-
-//         li{
-//             padding: 0.2rem 0;
-//         }
-//     }
-// }
-
 
 
 // || Layout
@@ -275,7 +198,6 @@
         a{
             display: flex;
             justify-content: space-between;
-            //width: 100%;
 
             margin: 0;
             padding: 0 0.9rem 0 0;
@@ -286,7 +208,7 @@
             border-bottom-left-radius: 0.2rem;
             border: 1px solid v.$c_tone_04;
             
-            background: transparent;//v.$c_tone_01;
+            background: transparent;
 
             &:hover{
                 background: v.$c_tone_02;
@@ -300,7 +222,6 @@
             padding: 0.35rem 0.3rem;
 
             font-family: 'Noto Sans', sans-serif;
-            //font-weight: bold;
             font-size: 0.9rem;
             text-align: center;
 
@@ -356,6 +277,10 @@
                 border-color: v.$c_warning;
             }
 
+            .doc-date{
+                color: v.$c_tone_05;
+            }
+
             &:hover{
                 border-color: v.$c_warning_bright;
                 background: v.$c_tone_03;
@@ -373,9 +298,17 @@
             top: 0.15rem;
         }
 
-        .name{
+        span{
             padding: 0.3rem 0.7rem;
+        }
+        .name{
             flex-grow: 2;
+        }
+
+        &.draft .doc-date{
+            font-size: 0.9rem;
+            font-style: italic;
+            color: v.$c_accent_02;
         }
         .num-items{
             color: white;
@@ -389,7 +322,6 @@
         display: flex;
         align-items: center;
         color: v.$c_txt_main;
-        //margin: 3px 5px;
         padding: 0;
         text-decoration: none;
         font-size: 1rem;

@@ -46,10 +46,6 @@ async function OLDget_json_with_status(response){
     return result;
 }
 
-// function get_data_from_json(json_data){
-//     return delete json_data[KEY_HTTP_CODE];
-// }
-
 function get_status_from_json(json_data){
     const ERROR = -1;
     if(typeof json_data !== 'object') return ERROR;
@@ -428,7 +424,7 @@ function display_document_response_message(data, string_is_error = false){
     }  
     else {
         message_ele.classList.add(CLASS_ERROR_MESSAGE);
-        message_str = 'Something went wrong, try refreshing the page.';
+        message_str = 'Something went wrong, try refreshing the page';
     }
 
     message_ele.innerHTML = `${message_str} @ ${get_date_time()}`;

@@ -520,7 +520,6 @@ def create_document(user, job_obj, doc_code, data_form, version_form, assigned_i
 def create_document_assignments(doc_version, assigned_items):
       for key, value in assigned_items.items():
         value_int = int(value)
-        debug(type(value))
         if value_int > 0:
             create_document_assignment(doc_version, key, value)  
 

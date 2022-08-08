@@ -98,6 +98,7 @@ function JobDocumentsListOfDocLinksUI(props){
 
 function JobDocumentsLiUI(props){
     var doc_issue_status_display = props.doc.issue_date == null ? 'D' : 'I';
+    var doc_date_prefix_string = props.doc.issue_date == null ? "" : "issued";
     var doc_date = props.doc.issue_date == null ? props.doc.created_on : props.doc.issue_date;
 
     var css_classes = props.doc.issue_date == null ? 'draft' : 'issued';
@@ -107,7 +108,8 @@ function JobDocumentsLiUI(props){
         <li class={ css_classes }>
             <a href={ props.doc.url }>
                 <span class="icon">{ doc_issue_status_display }</span>
-                <span class="name">{ props.doc.doc_type } { props.doc.reference } dtd { doc_date }</span>
+                <span class="name">{ props.doc.doc_type } { props.doc.reference }</span>
+                <span class="doc-date">{ doc_date_prefix_string } { doc_date }</span>
                 <InvalidIconUI  is_valid = { props.doc.is_valid }/>
             </a>
         </li>

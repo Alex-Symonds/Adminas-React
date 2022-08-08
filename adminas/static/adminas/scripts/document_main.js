@@ -6,51 +6,49 @@
 const ID_DOCUMENT_REPLACEMENT_BTN = 'replace_document_btn';
 const ID_DOCUMENT_REVERT_BTN = 'revert_document_btn';
 
-const CLASS_SPECIAL_INSTRUCTION_EDIT = 'edit-special-instruction-btn';
-const CLASS_SPECIAL_INSTRUCTION_DELETE = 'delete-special-instruction-btn';
-const CLASS_LOCAL_NAV = 'status-controls';
 
-const CLASS_INSTRUCTIONS_SECTION = 'special-instructions';
-
-const CLASS_SHOW_ADD_INSTRUCTION_FORMLIKE = 'special-instruction';
-const CLASS_HIDE_ADD_INSTRUCTION_FORMLIKE = 'close-new-instr';
-
-// Add event listeners
 document.addEventListener('DOMContentLoaded', () => {
 
     replace_btn = document.querySelector('#' + ID_DOCUMENT_REPLACEMENT_BTN);
     if(replace_btn != null){
         replace_btn.addEventListener('click', () => {
-            next_or_previous_document_version('replace');
+            replace_issued_document();
         });
     }
 
     revert_btn = document.querySelector('#' + ID_DOCUMENT_REVERT_BTN);
     if(revert_btn != null){
-
         revert_btn.addEventListener('click', () => {
-            next_or_previous_document_version('revert');
+            revert_issued_document();
         });
-
     }
 });
 
+async function replace_issued_document(){
+    let request_options = get_request_options('POST');
+    let resp_data = await update_backend(`${URL_DOC_MAIN}?doc_id=${DOC_ID}&task=replace`, request_options);
 
-// Adjust the version on the server and update the frontend
-function next_or_previous_document_version(taskname){
-    let request_options = get_request_options('POST', { 'task': taskname });
+    console.log(resp_data);
 
-    fetch(`${URL_DOC_MAIN}`, request_options)
-    .then(response => get_json_with_status(response))
-    .then(data => {
-        if('redirect' in data){
-            window.location.href = data['redirect'];
-        }
-        else {
-            display_document_response_message(data);
-        }
-    })
-    .catch(error => {
-        console.log('Error: ', error)
-    })
+    if(status_is_good(resp_data, 201)){
+        window.location.href = resp_data[KEY_LOCATION];
+    }
+    else {
+        display_document_response_message(resp_data);
+    }
 }
+
+async function revert_issued_document(){
+    let request_options = get_request_options('POST');
+    let resp_data = await update_backend(`${URL_DOC_MAIN}?doc_id=${DOC_ID}&task=revert`, request_options);
+
+    console.log(resp_data);
+
+    if(status_is_good(resp_data, 200)){
+        window.location.href = resp_data[KEY_LOCATION];
+    }
+    else {
+        display_document_response_message(resp_data);
+    }
+}
+

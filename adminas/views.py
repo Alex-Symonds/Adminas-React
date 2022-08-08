@@ -505,10 +505,6 @@ def api_draft_documents(request):
                                     doc_request_data['special_instructions'],\
                                     doc_request_data['prod_data_form'])
 
-        # response = HttpResponse()
-        # response['Location'] = f"{reverse('doc_editor_page')}?id={doc_obj.id}"
-        # response.status_code = 201
-        # return response
         return JsonResponse({
             'id': doc_obj.id
         }, status = 201, headers = {'Location': f"{reverse('doc_editor_page')}?id={doc_obj.id}"})
@@ -539,11 +535,7 @@ def api_issued_documents(request):
         if is_error(this_version):
             return respond_with_error(this_version)
 
-        posted_data = dict_from_json(request.body)
-        if is_error(posted_data):
-            return respond_with_error(posted_data)
-
-        task = get_param_from_dict('task', posted_data)
+        task = get_param_from_get_params('task', request.GET)
         if is_error(task):
             return respond_with_error(task)
 
@@ -551,8 +543,8 @@ def api_issued_documents(request):
             try:
                 new_version = this_version.get_replacement_version(request.user)
                 return JsonResponse({
-                    'redirect': f'{reverse("doc_editor_page")}?id={new_version.pk}'
-                }, status = 201)
+                    'id': new_version.id
+                }, status = 201, headers = {'Location': f"{reverse('doc_editor_page')}?id={new_version.id}"})
 
             except:
                 return respond_with_error(error('Replacement failed', 500))
@@ -562,10 +554,13 @@ def api_issued_documents(request):
             if is_error(previous_version):
                 return respond_with_error(previous_version)
 
-            else:
-                return JsonResponse({
-                    'redirect': reverse('doc_main', kwargs={'doc_id': previous_version.pk})
-                }, status = 200)
+            return JsonResponse({
+                'id': previous_version.id
+            }, status = 200, headers = {'Location': reverse('doc_main', kwargs={'doc_id': previous_version.pk})})
+
+            # return JsonResponse({
+            #     'redirect': reverse('doc_main', kwargs={'doc_id': previous_version.pk})
+            # }, status = 200)
 
         return respond_with_error(error("Invalid GET parameters.", 400))
 

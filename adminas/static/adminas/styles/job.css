@@ -228,6 +228,9 @@
 .job-doc-section li.invalid a .icon {
   border-color: #cf0000;
 }
+.job-doc-section li.invalid a .doc-date {
+  color: #AAA;
+}
 .job-doc-section li.invalid a:hover {
   border-color: red;
   background: #666;
@@ -240,9 +243,16 @@
 .job-doc-section li .invalid-icon {
   top: 0.15rem;
 }
-.job-doc-section li .name {
+.job-doc-section li span {
   padding: 0.3rem 0.7rem;
+}
+.job-doc-section li .name {
   flex-grow: 2;
+}
+.job-doc-section li.draft .doc-date {
+  font-size: 0.9rem;
+  font-style: italic;
+  color: #00c2e0;
 }
 .job-doc-section li .num-items {
   color: white;
