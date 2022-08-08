@@ -25,6 +25,7 @@
 */
 
 
+const CLASS_SPECIAL_INSTRUCTION_EDITOR = 'editing-special-instruction';
 const CLASS_SPECIAL_INSTRUCTION_EDIT = 'edit-special-instruction-btn';
 const CLASS_SPECIAL_INSTRUCTION_DELETE = 'delete-special-instruction-btn';
 const CLASS_LOCAL_NAV = 'status-controls';
@@ -34,6 +35,8 @@ const CLASS_ONE_SPECIAL_INSTRUCTION = 'read_row';
 
 const CLASS_SHOW_ADD_INSTRUCTION_FORMLIKE = 'special-instruction';
 const CLASS_HIDE_ADD_INSTRUCTION_FORMLIKE = 'close-new-instr';
+
+
 
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -70,6 +73,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.querySelector('.add-special-instruction-btn').addEventListener('click', () => {
         add_special_instruction_to_page();
+        hide_all_by_class(CLASS_ADD_NEW_SI);
     });
 
     document.querySelectorAll('.' + CLASS_SPECIAL_INSTRUCTION_EDIT).forEach(btn => {
@@ -351,6 +355,8 @@ function remove_unsaved_changes_ele(){
 
 
 
+
+
 // || Special instructions
 function open_editor_special_instruction(btn){
     let target_div = btn.parentElement;
@@ -364,7 +370,7 @@ function open_editor_special_instruction(btn){
 
 
 function close_editor_special_instruction(btn){
-    let edit_ele = btn.closest('.editing-special-instruction');
+    let edit_ele = btn.closest(`.${CLASS_SPECIAL_INSTRUCTION_EDITOR}`);
     let target_ele = edit_ele.parentElement;
     edit_ele.remove();
 
@@ -376,7 +382,7 @@ function close_editor_special_instruction(btn){
 
 function create_ele_editor_special_instruction(old_str){
     let edit_div = document.createElement('div');
-    edit_div.classList.add('editing-special-instruction');
+    edit_div.classList.add(CLASS_SPECIAL_INSTRUCTION_EDITOR);
     edit_div.classList.add(CSS_GENERIC_PANEL);
     edit_div.classList.add(CSS_GENERIC_FORM_LIKE);
 
@@ -511,7 +517,7 @@ function create_ele_special_instruction_who_and_when_placeholder(){
 
 
 function update_ele_special_instruction(btn){
-    let edit_ele = btn.closest('.editing-special-instruction');
+    let edit_ele = btn.closest(`.${CLASS_SPECIAL_INSTRUCTION_EDITOR}`);
     let input_ele = edit_ele.querySelector('textarea');
     let new_str = input_ele.value;
 
@@ -520,6 +526,7 @@ function update_ele_special_instruction(btn){
     target_ele.innerHTML = new_str;
 
     target_ele.classList.remove('hide');
+
     close_editor_special_instruction(btn);
     show_save_warning_ele();
 }
