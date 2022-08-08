@@ -890,7 +890,7 @@ def api_todo_list(request):
             user.todo_list_jobs.add(job)
             user.save()
 
-        return HttpResponse(status = 201)
+        return HttpResponse(status = 204)
 
     # Return a generic failure message if this was a POST or GET
     error_obj = error("Invalid HTTP verb", 405)

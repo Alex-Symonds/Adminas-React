@@ -40,7 +40,7 @@ function remove_from_todo_list(btn){
     .then(response => get_json_with_status(response))
     .then(data => {
         clear_todo_error_from_job_panels();
-        if(!status_is_good(data)){
+        if(!status_is_good(data, 204)){
             if(!display_todo_error_on_job_panel(data, btn.dataset.job_id)){
                 alert(get_error_message(data));
             }
@@ -62,7 +62,7 @@ function add_to_todo_list(btn){
     fetch(`${URL_TODO_MANAGEMENT}`, request_options)
     .then(response => get_json_with_status(response))
     .then(data => {
-        if(!status_is_good(data, 201)){
+        if(!status_is_good(data, 204)){
             alert(get_error_message(data));
         } else {
             update_frontend_after_add(btn);
