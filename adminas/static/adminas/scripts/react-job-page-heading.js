@@ -102,7 +102,7 @@ function JobToDoIndicator(props){
     function toggle_todo(){
         var todo_now = !todo;
         var method = todo_now ? 'PUT' : 'DELETE';
-        var expected_response_code = todo_now ? 201 : 204;
+        var expected_response_code = 204;
         var headers = getFetchHeaders(method, {'job_id': props.job_id});
 
         update_server(url, headers, resp_data => {
