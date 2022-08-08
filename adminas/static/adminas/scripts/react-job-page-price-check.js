@@ -26,18 +26,27 @@ function JobPriceCheck(props){
 }
 
 function JobPriceCheckUI(props){
+    let contents;
+    if(props.items_list.length == 0){
+        contents = <JobPriceCheckEmptyUI   is_empty = { props.items_list.length == 0 }/>;
+    }
+    else {
+        contents = [
+            <PriceAcceptanceToggle  job_id = { props.job_id }
+                                    price_accepted_state = { props.price_accepted_state }
+                                    URL_GET_DATA = { props.URL_GET_DATA } />,
+            <JobPriceCheckSummaryUI     currency = { props.currency }
+                                        total_selling = { props.total_selling }
+                                        total_list = { props.total_list } />,
+            <JobPriceCheckDetails       items_list = { props.items_list }
+                                        actions_items = { props.actions_items } />
+        ]
+    }
+
     return [
         <section id="price_check_section" class="item">
             <h3>Prices</h3>
-            <JobPriceCheckEmptyUI   is_empty = { props.items_list.length == 0 }/>
-            <PriceAcceptanceToggle  job_id = { props.job_id }
-                                    price_accepted_state = { props.price_accepted_state }
-                                    URL_GET_DATA = { props.URL_GET_DATA } />
-            <JobPriceCheckSummaryUI     currency = { props.currency }
-                                        total_selling = { props.total_selling }
-                                        total_list = { props.total_list } />
-            <JobPriceCheckDetails       items_list = { props.items_list }
-                                        actions_items = { props.actions_items } />
+            { contents }
         </section>
     ]
 }
