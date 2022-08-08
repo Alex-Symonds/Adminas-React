@@ -53,7 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let fields_container_ele = document.querySelector('.document-fields-container');
     if(fields_container_ele != null){
         document.querySelectorAll('input').forEach(input_ele => {
-            input_ele.addEventListener('change', () => {
+            input_ele.addEventListener('input', () => {
                 show_save_warning_ele();
             })
         });
