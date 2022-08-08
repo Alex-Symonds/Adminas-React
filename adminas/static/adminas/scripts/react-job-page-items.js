@@ -307,7 +307,7 @@ function JobItemsDetailsContainer(props){
         props.details_state.set(null);
     }
 
-    const [isExpanded, setIsExpanded] = React.useState(false);
+    const [isExpanded, setIsExpanded] = React.useState(true);
     const expanded_state = get_and_set(isExpanded, setIsExpanded);
 
     const expanded_class = isExpanded ? " expanded" : "";
