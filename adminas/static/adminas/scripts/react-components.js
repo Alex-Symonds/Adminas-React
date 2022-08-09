@@ -260,8 +260,8 @@ function url_for_page_load(main_url, job_id, name){
 }
 
 // Helper function: add the appropriate GET params when requesting a list of options for a <select>
-function url_for_url_list(main_url, job_id){
-    return `${main_url}?job_id=${job_id}&type=urls`;
+function url_for_url_list(main_url){
+    return `${main_url}?type=urls`;
 }
 
 // Helper function. Check if the key appears in the response data and if so, use the setter to set something to it

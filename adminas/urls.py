@@ -21,7 +21,7 @@ urlpatterns = [
     path('api/items', views.api_items, name='api_items'),
     path('api/job', views.api_job, name='api_job'),
     path('api/module_assignments', views.api_module_assignments, name='api_module_assignments'),
+    path('api/price_acceptance', views.api_price_acceptance, name='api_price_acceptance'),
     path('api/purchase_order', views.api_purchase_order, name='api_purchase_order'),
-    path('api/price_acceptance/<int:job_id>', views.api_price_acceptance, name='api_price_acceptance'),
     path('api/todo_list', views.api_todo_list, name='api_todo_list')
 ]

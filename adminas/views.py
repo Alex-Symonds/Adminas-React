@@ -791,7 +791,7 @@ def api_module_assignments(request):
 
 
 
-def api_price_acceptance(request, job_id):
+def api_price_acceptance(request):
     """
     Process the Job page's "selling price is {NOT }CONFIRMED" indicator/button
     """
@@ -799,7 +799,7 @@ def api_price_acceptance(request, job_id):
         return anonymous_user_json()
 
     if request.method == 'PUT':
-        job = get_object(Job, id = job_id)
+        job = get_object(Job, key = 'job_id', get_params = request.GET)
         if is_error(job):
             return respond_with_error(job)
 
@@ -997,13 +997,9 @@ def api_data(request):
 
 
     elif data_category == 'urls':
-        job = get_object(Job, key = 'job_id', get_params = request.GET)
-        if is_error(job):
-            return respond_with_error(job)
-
         response_data = {}
         response_data['po_url'] = reverse('api_purchase_order')
-        response_data['price_acceptance_url'] = reverse('api_price_acceptance', kwargs={'job_id': job.id})
+        response_data['price_acceptance_url'] = reverse('api_price_acceptance')
 
         return JsonResponse(response_data, status = 200)
 

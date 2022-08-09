@@ -61,21 +61,19 @@ function JobPriceCheckEmptyUI(props){
 // || Price acceptance toggle
 function PriceAcceptanceToggle(props){
 
-    // Fetch the URL for toggling the price check on the backend
     const [url, setUrl] = React.useState(null);
     const { data, error, isLoaded } = useFetch(url_for_url_list(props.URL_GET_DATA, props.job_id))
     React.useEffect(() => {
         set_if_ok(data, 'price_acceptance_url', setUrl);
     }, [data]);
 
-    // Handle the user clicking the toggle button
     function toggle_acceptance(){
         let is_accepted_now = !props.price_accepted_state.get;
         var headers = getFetchHeaders('PUT', {
             'new_status': is_accepted_now
         });
 
-        update_server(url, headers, resp_data => {
+        update_server(`${url}?job_id=${props.job_id}`, headers, resp_data => {
             if(status_is_good(resp_data, 204)){
                 props.price_accepted_state.set(is_accepted_now);
             }

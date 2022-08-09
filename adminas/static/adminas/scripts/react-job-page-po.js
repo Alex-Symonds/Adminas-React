@@ -305,7 +305,7 @@ function JobPoEditor(props){
 
     // Fetching the URL for purchase order actions from the BE
     const [actionUrl, setActionUrl] = React.useState('');
-    const { data, error, isLoaded } = useFetch(url_for_url_list(props.URL_GET_DATA, props.job_id));
+    const { data, error, isLoaded } = useFetch(url_for_url_list(props.URL_GET_DATA));
     React.useEffect(() => {
         set_if_ok(data, 'po_url', setActionUrl);
     }, [data]);
