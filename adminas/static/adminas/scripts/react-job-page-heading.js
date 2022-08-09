@@ -49,7 +49,6 @@ function JobHeadingSubsectionUI(props){
 
 // || Heading and Todo Toggle
 function JobHeading(props){
-    // Fetch the names of the Job and the customer from the server
     const [names, setNames] = React.useState({
         job_name: '',
         customer_name: ''
@@ -185,6 +184,7 @@ function list_of_job_statuses(status_data){
     result = result.concat(get_status_items(status_data));
     result = result.concat(get_status_po(status_data));
     result = result.concat(get_status_documents(status_data));
+    result = result.concat(get_status_document_validity(status_data));
     return result;
 }
 
@@ -240,11 +240,10 @@ function get_status_documents(data){
     var result = [];
 
     for(var idx in data.doc_quantities){
-
         var doc = data.doc_quantities[idx];
         var prefix = doc.doc_type + ' ';
-        var issued_qty = parseInt(doc.issued_qty);
-        var draft_qty = parseInt(doc.draft_qty);
+        var issued_qty = parseInt(doc.qty_on_issued);
+        var draft_qty = parseInt(doc.qty_on_draft);
 
         if(data.total_qty_all_items == issued_qty){
             result.push([STATUS_CODE_OK, prefix + "ok"]);
@@ -253,9 +252,28 @@ function get_status_documents(data){
             result.push([STATUS_CODE_ACTION, prefix + "pending"]);
         }
         else{
-            result.push([STATUS_CODE_ACTION, prefix + "missing"]);
+            result.push([STATUS_CODE_ACTION, prefix + "needed"]);
         }
     }
 
     return result;
+}
+
+
+function get_status_document_validity(data){
+    let memo = {};
+    let result = [];
+    for(var idx in data.doc_list){
+        var doc = data.doc_list[idx];
+        var doc_type = doc.doc_type;
+
+        if(!(doc_type in memo)){
+            if(!doc.is_valid){
+                memo[doc_type] = 1;
+                result.push([STATUS_CODE_ACTION, `INVALID ${doc_type}`]);
+            }
+        }
+    }
+    return result;
+
 }

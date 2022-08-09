@@ -729,7 +729,9 @@ class Job(AdminAuditTrail):
         for loop_tuple in DOCUMENT_TYPES:
             doc_type = loop_tuple[0]
             result.append(self.status_doc(doc_type))
-
+            if self.has_invalid_documents(doc_type):
+                result.append((STATUS_CODE_ACTION, f"INVALID {doc_type}"))
+   
         return result
 
 
@@ -759,7 +761,7 @@ class Job(AdminAuditTrail):
             Status strip on Job page. Statuses related to items and specifications.
         """
         if self.items.count() == 0:
-            return [(STATUS_CODE_ACTION, 'No items')]
+            return [(STATUS_CODE_ACTION, 'Has no items')]
 
         result = []
         if self.has_special_modular():
@@ -777,20 +779,20 @@ class Job(AdminAuditTrail):
         """
             Status strip on Job page. Statuses for documents.
         """
-        unassigned_main_items = self.get_items_unassigned_to_doc(doc_type)
-        num_unassigned = len(unassigned_main_items) if unassigned_main_items != None else None
+        qty_on_job = sum(mi.quantity for mi in self.main_item_list()) if self.main_item_list() != None else None
+        if not qty_on_job == None:
+            qty_on_issued = self.document_item_quantities(doc_type, True)
+            qty_on_draft = self.document_item_quantities(doc_type, False)
 
-        # No items on the Job means there can't be any assigned to a doc, so the doc must be missing.
-        # Number of unassigned items = total number of main items, it means nothing has been assigned to anything == doc is missing.
-        if self.main_item_list() == None or len(self.main_item_list()) == 0 or (num_unassigned != None and num_unassigned == len(self.main_item_list())):
-            return (STATUS_CODE_ACTION, f'{doc_type} missing')
+            result = []
+            if qty_on_job == qty_on_issued:
+                return (STATUS_CODE_OK, f'{doc_type} ok')
+            
+            if qty_on_job == qty_on_issued + qty_on_draft:
+                return (STATUS_CODE_ACTION, f'{doc_type} pending')
 
-        # If the number of unassigned documents is 0 and there are no unissued documents, we're done
-        elif num_unassigned != None and num_unassigned == 0 and not self.unissued_documents_exist(doc_type):
-            return (STATUS_CODE_OK, f'{doc_type} ok')
+        return (STATUS_CODE_ACTION, f'{doc_type} needed')
 
-        # Otherwise we're at some sort of middling point
-        return (STATUS_CODE_ACTION, f'{doc_type} pending')
 
 
     def has_special_modular(self):
@@ -864,6 +866,20 @@ class Job(AdminAuditTrail):
                 result += docv.quantity_of_items()
 
         return result
+
+
+    def has_invalid_documents(self, doc_type = None):
+        doc_versions = self.related_documents()
+        if not doc_versions == None and not doc_type == None:
+            doc_versions = doc_versions.filter(document__doc_type=doc_type)
+    
+        if doc_versions == None or doc_versions.count() == 0:
+            return False
+
+        for dv in doc_versions:
+            if not dv.is_valid():
+                return True
+        return False
 
 
     # || Job.Financial
