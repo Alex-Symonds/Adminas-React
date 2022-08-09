@@ -290,16 +290,19 @@ def get_dict_document_editor_settings(get_params):
         return result
 
     elif 'job' in get_params and 'type' in get_params:
-        # Prepare variables for new documents (used by POST+CREATE and GET+NEW)
         job = get_object(adminas.models.Job, id = get_params['job'])
         if is_error(job):
             return job
         
+        doc_code = get_param_from_get_params('type', get_params)
+        if is_error(doc_code):
+            return doc_code
+
         result['doc_obj'] = None
         result['job_obj'] = job
-        result['doc_code'] = get_params['type']
+        result['doc_code'] = doc_code
         result['doc_ref'] = ''
-        result['doc_title'] = f"Create New {dict(DOCUMENT_TYPES).get(result['doc_code'])}"
+        result['doc_title'] = f"Create New {dict(DOCUMENT_TYPES).get(doc_code)}"
         return result
     
     return error("Invalid GET parameters.", 400)
@@ -537,7 +540,7 @@ def create_document_assignment(doc_obj, jiid, new_qty):
         item = ji,
         quantity = int(new_qty)
     )
-    assignment.quantity = min(assignment.quantity, assignment.max_quantity_excl_self())
+    assignment.quantity = min(assignment.quantity, assignment.max_valid_quantity())
     assignment.save()
 
 

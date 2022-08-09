@@ -55,16 +55,18 @@ class DocAssignment(models.Model):
     item = models.ForeignKey('JobItem', on_delete=models.CASCADE)
     quantity = models.IntegerField()
 
+
     def update(self, new_quantity):
         if int(new_quantity) == self.quantity:
             return
 
-        self.quantity = min(int(new_quantity), self.max_quantity_excl_self())
+        self.quantity = min(int(new_quantity), self.max_valid_quantity())
         self.save()
 
-    def max_quantity_excl_self(self, ignore_draft_docs = False):
+
+    def max_valid_quantity(self, exclude_drafts = False):
         """
-            Get the maximum quantity that could be assigned to self.
+        Get the maximum valid quantity that could be assigned to self.
         """
         assignment_qs = DocAssignment.objects\
                     .filter(item=self.item)\
@@ -72,22 +74,30 @@ class DocAssignment(models.Model):
                     .filter(version__active=True)\
                     .exclude(id=self.id)
 
-        if ignore_draft_docs:
+        if exclude_drafts:
             assignment_qs = assignment_qs.exclude(version__issue_date=None)
 
         if assignment_qs.count() == 0:
             qty_assigned = 0
         else:
-            qty_assigned_dict = assignment_qs.aggregate(Sum('quantity'))
-            qty_assigned = qty_assigned_dict['quantity__sum']
+            qty_assigned_agg = assignment_qs.aggregate(Sum('quantity'))
+            qty_assigned = qty_assigned_agg['quantity__sum']
 
-        return self.item.quantity - qty_assigned
+        return max(self.item.quantity - qty_assigned, 0)
 
-    def quantity_is_valid(self):
+
+    def quantity_is_valid(self, exclude_drafts = False):
         """
-            Check if there are still enough of the JobItem on the Job to cover all the document assignments.
+        Check if there are still enough of the JobItem on the Job to cover all the document assignments.
         """
-        return self.max_quantity_excl_self() >= self.quantity
+        return self.max_valid_quantity(exclude_drafts) >= self.quantity
+
+
+    def validated_quantity(self, exclude_drafts = False):
+        """
+        Get the quantity, excluding invalidly assigned items.
+        """
+        return min(self.quantity, self.max_valid_quantity(exclude_drafts))
 
     def __str__(self):
         return f'{self.quantity} x {self.item.product.name} assigned to {self.version.document.doc_type} {self.version.document.reference}'
@@ -315,7 +325,7 @@ class AgentResaleGroup(AdminAuditTrail):
 
 class PriceList(AdminAuditTrail):
     """
-        Name and "valid_from" for a PriceList. Incoming FK from Prices.
+        Name for a PriceList. Incoming FK from Prices.
     """
     valid_from = models.DateField()
     name = models.CharField(max_length=SYSTEM_NAME_LENGTH)
@@ -400,7 +410,7 @@ class Slot(models.Model):
 
     def get_dict_choice_list(self, price_list, currency):
         """
-            List of valid slot fillers, with prices.
+            List of valid slot filler dicts, with price info.
         """
         result = []
         for prod in self.choice_list():
@@ -847,11 +857,9 @@ class Job(AdminAuditTrail):
 
         result = 0
         for docv in doc_versions:
-            # Draft document quantity counter
             if docv.issue_date == None and not want_issued:
                 result += docv.quantity_of_items()
 
-            # Issued document quantity counter
             elif not docv.issue_date == None and want_issued:
                 result += docv.quantity_of_items()
 
@@ -1798,10 +1806,7 @@ class DocumentVersion(AdminAuditTrail):
         """
             Data for populating an issued document, based on the JSON record produced when the document was issued.
         """
-        # Get the stored JSON
         data = self.issued_json
-
-        # Convert to other types
         data['issue_date'] = datetime.datetime.strptime(data['issue_date'], "%Y-%m-%d").date()
         data['created_by'] = User.objects.get(id = data['created_by'])
 
@@ -1868,7 +1873,6 @@ class DocumentVersion(AdminAuditTrail):
             self.reactivate()
             return error('Revert version has failed. Some items have been reassigned to other documents of the same type.', 409)
         else:
-            #previous_dict = json.loads(previous.issued_json)
             previous_dict = previous.issued_json
             self.document.update(previous_dict['doc_ref'])
             previous.reactivate()
@@ -1879,7 +1883,7 @@ class DocumentVersion(AdminAuditTrail):
             Check that there are no duplications of JobItems across issued documents of the same type.
         """
         for assignment in DocAssignment.objects.filter(version=self):
-            if assignment.quantity > assignment.max_quantity_excl_self(True):
+            if not assignment.quantity_is_valid(True):
                 return True
 
         return False
@@ -1898,7 +1902,7 @@ class DocumentVersion(AdminAuditTrail):
                 this_dict = {}
                 this_dict['id'] = a.pk
                 this_dict['jiid'] = a.item.id
-                this_dict['max_available'] = a.max_quantity_excl_self()
+                this_dict['max_available'] = a.max_valid_quantity()
                 this_dict['display'] = a.item.display_str().replace(str(a.item.quantity), str(a.quantity))
                 this_dict['invalid_quantity'] = not a.quantity_is_valid()
                 result.append(this_dict)
@@ -2159,24 +2163,24 @@ class DocumentVersion(AdminAuditTrail):
 
     def total_value(self):
         """
-            Get the total sum of values of all line items on this specific document (value)
+           Total sum of values of all line items on this specific document (value)
         """
         return sum(item['total_price'] for item in self.get_body_lines() if 'total_price' in item)
 
+
     def total_value_f(self):
         """
-            Get the total sum of values of all line items on this specific document (formatted string)
+            Total sum of values of all line items on this specific document (formatted string)
         """
         return format_money(self.total_value())
 
+
     def quantity_of_items(self):
         """
-            Get the total sum of quantities of all line items on this specific document
+            Total sum of valid quantities of all line items on this specific document
         """
-        return sum(da.quantity for da in DocAssignment.objects.filter(version=self))
+        return sum(da.validated_quantity() for da in DocAssignment.objects.filter(version=self))
         
-
-
 
     def __str__(self):
         return f'{self.document.doc_type} {self.document.reference} v{self.version_number} dated {self.issue_date}'
