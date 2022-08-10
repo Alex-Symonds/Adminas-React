@@ -94,11 +94,12 @@ function JobPage(){
     }
 
     const total_qty_all_items = itemsList.reduce((prev_total_qty, item) => { return parseInt(item.quantity) + prev_total_qty; }, 0);
-    const total_po_value = poList.reduce((prev_total_val, po) => { return parseFloat(po.value) + prev_total_val }, 0);
+    const total_po_value = poList.reduce((prev_total_val, po) => { return po.currency == jobMain.currency ? parseFloat(po.value) + prev_total_val : prev_total_val }, 0);
     const total_items_value = itemsList.reduce((prev_total_val, item) => { return parseFloat(item.selling_price) + prev_total_val }, 0);
     const value_difference_po_vs_items = total_po_value - total_items_value;
+    const has_invalid_currency_po = invalid_currency_po_exists(poList, jobMain.currency);
 
-    const status_data = get_status_data_object(priceAccepted, poList.length, value_difference_po_vs_items, jobMain.doc_quantities, total_qty_all_items, itemsList, docList);
+    const status_data = get_status_data_object(priceAccepted, poList.length, value_difference_po_vs_items, jobMain.doc_quantities, total_qty_all_items, itemsList, docList, has_invalid_currency_po);
     const po_data = get_po_data_object(value_difference_po_vs_items, total_items_value, total_po_value, poList);
     const doc_data = get_documents_data_object(urlDocs, docList, jobMain.doc_quantities, total_qty_all_items);
     const actions_items = get_actions_object(urlItems, create_items, update_item, delete_item);
@@ -111,6 +112,7 @@ function JobPage(){
                         data = { data }
                         doc_data = { doc_data }
                         error = { error }
+                        has_invalid_currency_po = { has_invalid_currency_po }
                         isLoaded = { isLoaded }
                         items_list = { itemsList }
                         job_id = { job_id }
@@ -141,6 +143,7 @@ function JobPageUI(props){
                             actions_po = { props.actions_po }
                             currency = { props.currency}
                             doc_data = { props.doc_data }
+                            has_invalid_currency_po = { props.has_invalid_currency_po }
                             items_list = { props.items_list}
                             job_id = { props.job_id}
                             po_data = { props.po_data }
@@ -184,6 +187,7 @@ function JobContentsUI(props){
                         />
                 <JobPriceCheck  actions_items = { props.actions_items }
                                 currency = { props.currency }
+                                has_invalid_currency_po = { props.has_invalid_currency_po }
                                 items_list = { props.items_list }
                                 job_id = { props.job_id }
                                 price_accepted_state = { props.price_accepted_state }
@@ -196,7 +200,7 @@ function JobContentsUI(props){
 }
 
 // || Objects
-function get_status_data_object(price_accepted, po_count, value_difference_po_vs_items, doc_quantities, total_qty_all_items, items_list, doc_list){
+function get_status_data_object(price_accepted, po_count, value_difference_po_vs_items, doc_quantities, total_qty_all_items, items_list, doc_list, has_invalid_currency_po){
     return {
         price_accepted,
         po_count,
@@ -204,16 +208,18 @@ function get_status_data_object(price_accepted, po_count, value_difference_po_vs
         doc_quantities,
         total_qty_all_items,
         items_list,
-        doc_list
+        doc_list,
+        has_invalid_currency_po
     };
 }
 
-function get_po_data_object(value_difference_po_vs_items, total_items_value, total_po_value, po_list){
+function get_po_data_object(value_difference_po_vs_items, total_items_value, total_po_value, po_list, has_invalid_currency_po){
     return {
         difference: value_difference_po_vs_items,
         total_items_value: total_items_value,
         total_po_value: total_po_value,
-        po_list: po_list
+        po_list: po_list,
+        has_invalid_currency_po: has_invalid_currency_po
     };
 }
 
@@ -257,6 +263,16 @@ function item_quantity_has_changed(items_list, item_id, item_attributes){
     return parseInt(old_quantity) !== parseInt(new_quantity);
 }
 
+
+function invalid_currency_po_exists(po_list, job_currency){
+    for(let idx = 0; idx < po_list.length; idx++){
+        let this_po = po_list[idx];
+        if(this_po.currency !== job_currency){
+            return true;
+        }
+    }
+    return false;
+}
 
 
 

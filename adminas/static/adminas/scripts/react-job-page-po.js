@@ -256,7 +256,7 @@ function JobPoReadUI(props){
                 <InvalidIconUI  is_valid = { currency_matches_job }
                                 message = "job has different currency"
                                 />
-                <span>{ props.data.currency + nbsp() + format_money(parseFloat(props.data.value)) }</span>
+                <span class="display-text">{ props.data.currency + nbsp() + format_money(parseFloat(props.data.value)) }</span>
             </td>
             <td class="edit"><button type="button" class="po-edit edit-icon" onClick={ props.editor.on }><span>edit</span></button></td>
         </tr>

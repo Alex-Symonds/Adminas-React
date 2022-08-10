@@ -230,6 +230,9 @@ function get_status_po(data){
     if(data.po_count == 0){
         return [[STATUS_CODE_ACTION, 'PO missing']];
     }
+    else if(data.has_invalid_currency_po === true){
+        return[[STATUS_CODE_ACTION, 'PO currency mismatch']]
+    }
     else if (data.value_difference_po_vs_items != 0){
         return [[STATUS_CODE_ACTION, 'PO discrepancy']];
     }

@@ -98,22 +98,22 @@ function JobDocumentsListOfDocLinksUI(props){
 }
 
 function JobDocumentsLiUI(props){
-    var doc_date_prefix_string = props.doc.issue_date == null ? "" : "issued";
     var doc_date = props.doc.issue_date == null ? props.doc.created_on : props.doc.issue_date;
+    var doc_date_prefix_string = props.doc.issue_date == null ? "" : "issued";
 
     var css_classes = props.doc.issue_date == null ? 'draft' : 'issued';
     css_classes = props.doc.is_valid == true ? css_classes : css_classes + ' invalid';
     
-    var doc_issue_status_display = props.doc.issue_date == null ? 'D' : 'I';
+    var doc_status_icon_contents = props.doc.issue_date == null ? 'D' : 'I';
     if(!props.doc.is_valid){
-        doc_issue_status_display = <InvalidIconUI   is_valid = { props.doc.is_valid }
+        doc_status_icon_contents = <InvalidIconUI   is_valid = { props.doc.is_valid }
                                                     message = "invalid item assignments" />
     }
 
     return [
         <li class={ css_classes }>
             <a href={ props.doc.url }>
-                <span class="icon">{ doc_issue_status_display }</span>
+                <span class="icon">{ doc_status_icon_contents }</span>
                 <div class="doc-details">
                     <span class="name">{ props.doc.doc_type } { props.doc.reference }</span>
                     <span class="doc-date">{ doc_date_prefix_string } { doc_date }</span>

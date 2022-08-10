@@ -751,6 +751,8 @@ class Job(AdminAuditTrail):
         qs = self.related_po()       
         if qs.count() == 0:
             return (STATUS_CODE_ACTION, 'PO missing')
+        elif self.has_invalid_currency_po():
+            return (STATUS_CODE_ACTION, 'PO currency mismatch')
         elif self.total_difference_value_po_vs_line() != 0:
             return (STATUS_CODE_ACTION, 'PO discrepancy')
         return (STATUS_CODE_OK, 'PO ok')
@@ -891,6 +893,13 @@ class Job(AdminAuditTrail):
             self.price_is_ok = False
             self.save()
 
+    def has_invalid_currency_po(self):
+        for po in self.related_po():
+            if not po.currency == self.currency:
+                return True
+        return False
+
+
     def total_value(self):
         """
             Get the total value for this Job (number).
@@ -921,7 +930,7 @@ class Job(AdminAuditTrail):
 
     def total_line_value(self):
         """
-            Get the total JobItem / line item sum for this Job (number).
+            Get the total JobItem / line item sum for this Job.
         """
         order_value = self.items.aggregate(order_value=Sum('selling_price'))['order_value']
         if order_value == None:
@@ -931,15 +940,16 @@ class Job(AdminAuditTrail):
 
     def total_po_value(self):
         """
-            Get the total PO sum for this Job (number).
+            Get the total PO sum for this Job. POs with the 'wrong' currency are excluded.
         """
-        if self.po.filter(active=True).count() > 0:
-            return sum([po.value for po in self.po.filter(active=True)])
+        relevant_pos = self.po.filter(active=True).filter(currency=self.currency)
+        if relevant_pos.count() > 0:
+            return sum([po.value for po in relevant_pos])
         return 0
 
     def total_difference_value_po_vs_line(self):
         """
-            Get the difference between the Job's line item sum and the PO sum (value)
+            Get the difference between the Job's line item sum and the PO sum.
         """
         return self.total_po_value() - self.total_line_value()
 
