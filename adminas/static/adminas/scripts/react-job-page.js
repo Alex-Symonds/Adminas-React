@@ -100,7 +100,7 @@ function JobPage(){
     const has_invalid_currency_po = invalid_currency_po_exists(poList, jobMain.currency);
 
     const status_data = get_status_data_object(priceAccepted, poList.length, value_difference_po_vs_items, jobMain.doc_quantities, total_qty_all_items, itemsList, docList, has_invalid_currency_po);
-    const po_data = get_po_data_object(value_difference_po_vs_items, total_items_value, total_po_value, poList);
+    const po_data = get_po_data_object(value_difference_po_vs_items, total_items_value, total_po_value, poList, has_invalid_currency_po);
     const doc_data = get_documents_data_object(urlDocs, docList, jobMain.doc_quantities, total_qty_all_items);
     const actions_items = get_actions_object(urlItems, create_items, update_item, delete_item);
     const actions_po = get_actions_object(null, create_po, update_po, delete_po);

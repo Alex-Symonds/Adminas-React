@@ -20,6 +20,10 @@ function JobPo(props){
                             job_id =  { props.job_id }
                             URL_GET_DATA = {props.URL_GET_DATA}
                             />
+            <WarningSubsection  message = "All POs should be in the same currency as the job."
+                                show_warning = { props.po_data.has_invalid_currency_po }
+                                title = "Error: Currency Mismatch"
+                                />
             <JobPoDiscrepancyUI currency = { props.currency}
                                 data = { props.po_data }
                                 num_po = { props.num_po } 
