@@ -15,7 +15,8 @@ function JobPriceCheck(props){
     var total_items_list_price = props.items_list.reduce((prev_total_val, item) => { return (parseFloat(item.list_price_each) * parseInt(item.quantity) ) + prev_total_val }, 0);
 
     return <JobPriceCheckUI actions_items = { props.actions_items }
-                            currency = { props.currency } 
+                            currency = { props.currency }
+                            has_invalid_currency_po = { props.has_invalid_currency_po } 
                             items_list = { props.items_list }
                             job_id = { props.job_id }
                             price_accepted_state = { props.price_accepted_state}
@@ -34,12 +35,20 @@ function JobPriceCheckUI(props){
         contents = [
             <PriceAcceptanceToggle  job_id = { props.job_id }
                                     price_accepted_state = { props.price_accepted_state }
-                                    URL_GET_DATA = { props.URL_GET_DATA } />,
+                                    URL_GET_DATA = { props.URL_GET_DATA }
+                                    />,
+            <WarningSubsection      message = { `All list and resale prices below are in the job currency (${ props.currency }). Currency exchange rates have not been applied. For accurate figures, the job and all POs must be in the same currency.` }
+                                    show_warning = { props.has_invalid_currency_po } 
+                                    title = "Caution: PO Currency Mismatch"
+                                    />,
             <JobPriceCheckSummaryUI     currency = { props.currency }
                                         total_selling = { props.total_selling }
-                                        total_list = { props.total_list } />,
-            <JobPriceCheckDetails       items_list = { props.items_list }
-                                        actions_items = { props.actions_items } />
+                                        total_list = { props.total_list }
+                                        />,
+            <JobPriceCheckDetails       actions_items = { props.actions_items }
+                                        currency = { props.currency }
+                                        items_list = { props.items_list }
+                                        />
         ]
     }
 
@@ -50,6 +59,19 @@ function JobPriceCheckUI(props){
         </section>
     ]
 }
+
+function WarningSubsection(props){
+    if(!props.show_warning){
+        return null;
+    }
+    return [
+        <div class="warning subsection">
+            <h4>{ props.title ? props.title : "Warning" }</h4>
+            <p>{ props.message }</p>
+        </div>
+    ]
+}
+
 
 function JobPriceCheckEmptyUI(props){
     if(!props.is_empty){
@@ -130,6 +152,7 @@ function JobPriceCheckDetails(props){
     const editor_state = get_and_set(activeEdit, setActiveEdit);
 
     return <JobPriceCheckDetailsUI  actions_items = { props.actions_items }
+                                    currency = { props.currency }
                                     items_list = { props.items_list }
                                     editor_state = { editor_state }
                                     />
@@ -140,7 +163,7 @@ function JobPriceCheckDetailsUI(props){
         <div class="subsection">
             <h4>Details</h4>
             <table id="price_check_table" class="banded">
-                <JobPriceCheckDetailsTableHeadUI />
+                <JobPriceCheckDetailsTableHeadUI    currency = { props.currency } />
                 <JobPriceCheckDetailsTableBodyUI    actions_items = { props.actions_items }
                                                     active_edit = { props.active_edit }
                                                     items_list = { props.items_list }
@@ -156,8 +179,8 @@ function JobPriceCheckDetailsTableHeadUI(props){
         <thead>
             <tr class="upper-h-row">
                 <th colspan={4}></th>
-                <th colspan={4}>vs. Price List</th>
-                <th colspan={4}>vs. Resale</th>
+                <th colspan={4}>vs. Price List ({ props.currency })</th>
+                <th colspan={4}>vs. Resale ({ props.currency })</th>
             </tr>
             <tr class="lower-h-row">
                 <th>id</th>

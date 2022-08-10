@@ -68,6 +68,18 @@ function InvalidIconUI(props){
     return <div class="invalid-icon"><span>{props.message}</span></div>
 }
 
+function WarningSubsection(props){
+    if(!props.show_warning){
+        return null;
+    }
+    return [
+        <div class="warning subsection">
+            <h4>{ props.title ? props.title : "Warning" }</h4>
+            <p>{ props.message }</p>
+        </div>
+    ]
+}
+
 // || Buttons and Controls
 function SubmitButton(props){
     // Needs submit()
