@@ -197,7 +197,7 @@
 
         a{
             display: flex;
-            justify-content: space-between;
+            justify-content: left;
 
             margin: 0;
             padding: 0 0.9rem 0 0;
@@ -215,9 +215,22 @@
             }
         }
 
+        .doc-details{
+            flex-grow: 2;
+
+            display: flex;
+            flex-flow: wrap;
+            justify-content: space-between;
+
+            max-width: calc(100% - 2rem); // "icon" has width: 1rem; +1rem to roughly cover borders/padding etc.
+        }
+
         .icon{
             display: block;
+
+            min-width: 1rem;
             width: 1rem;
+            max-width: 1rem;
             
             padding: 0.35rem 0.3rem;
 
@@ -296,6 +309,12 @@
 
         .invalid-icon{
             top: 0.15rem;
+            width: 1rem;
+            height: 1rem;
+
+            span{
+                font-size: 0.8rem;
+            }
         }
 
         span{
@@ -303,6 +322,8 @@
         }
         .name{
             flex-grow: 2;
+            max-width: 100%;
+            overflow-wrap: break-word;
         }
 
         &.draft .doc-date{

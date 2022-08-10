@@ -166,7 +166,7 @@
 }
 .job-doc-section li a {
   display: flex;
-  justify-content: space-between;
+  justify-content: left;
   margin: 0;
   padding: 0 0.9rem 0 0;
   text-decoration: none;
@@ -179,9 +179,18 @@
 .job-doc-section li a:hover {
   background: #444;
 }
+.job-doc-section li .doc-details {
+  flex-grow: 2;
+  display: flex;
+  flex-flow: wrap;
+  justify-content: space-between;
+  max-width: calc(100% - 2rem);
+}
 .job-doc-section li .icon {
   display: block;
+  min-width: 1rem;
   width: 1rem;
+  max-width: 1rem;
   padding: 0.35rem 0.3rem;
   font-family: "Noto Sans", sans-serif;
   font-size: 0.9rem;
@@ -242,12 +251,19 @@
 }
 .job-doc-section li .invalid-icon {
   top: 0.15rem;
+  width: 1rem;
+  height: 1rem;
+}
+.job-doc-section li .invalid-icon span {
+  font-size: 0.8rem;
 }
 .job-doc-section li span {
   padding: 0.3rem 0.7rem;
 }
 .job-doc-section li .name {
   flex-grow: 2;
+  max-width: 100%;
+  overflow-wrap: break-word;
 }
 .job-doc-section li.draft .doc-date {
   font-size: 0.9rem;
