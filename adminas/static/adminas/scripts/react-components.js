@@ -3,6 +3,7 @@
 
     Contents:
         || Strings and Formatting
+        || Icons
         || Buttons and Controls
         || Price Comparison Table
         || Select
@@ -60,6 +61,12 @@ function JobItemNameTagSpan(props){
     return <span class="name-tag">{ props.name }</span>
 }
 
+function InvalidIconUI(props){
+    if(props.is_valid){
+        return null;
+    }
+    return <div class="invalid-icon"><span>{props.message}</span></div>
+}
 
 // || Buttons and Controls
 function SubmitButton(props){

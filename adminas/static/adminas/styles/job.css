@@ -640,8 +640,32 @@ table.price-comparison .conclusion th, table.price-comparison .conclusion td {
 #po_table .value {
   text-align: right;
 }
+#po_table .ref {
+  box-sizing: border-box;
+  max-width: 440px;
+}
 #po_table tr {
   position: relative;
+}
+#po_table tr.invalid {
+  border-width: 1px 1px 1px 3px;
+  border-style: solid;
+  border-color: #cf0000 #cf0000 #cf0000 red;
+  background: #2b0000;
+}
+#po_table tr.invalid .invalid-icon {
+  position: relative;
+  top: 0.1rem;
+  width: 1.2rem;
+  height: 1.2rem;
+  margin-right: 0.5rem;
+}
+#po_table tr.invalid .invalid-icon span {
+  left: 26px;
+  right: auto;
+}
+#po_table tr.invalid .value {
+  border-bottom: 1px solid red;
 }
 #po_table .panel {
   position: absolute;
@@ -651,7 +675,7 @@ table.price-comparison .conclusion th, table.price-comparison .conclusion td {
   box-shadow: 0 0 10px 1px rgba(0, 0, 0, 0.85);
 }
 
-@media screen and (max-width: 473px) {
+@media screen and (max-width: 900px) {
   #po_table thead tr {
     position: absolute;
     top: -9999px;
@@ -667,11 +691,11 @@ table.price-comparison .conclusion th, table.price-comparison .conclusion td {
   }
   #po_table tbody tr {
     display: grid;
-    grid-template-columns: 6rem auto auto min-content;
+    grid-template-columns: 6rem 9rem auto min-content;
     grid-template-rows: auto repeat(2, 1.5rem);
     grid-template-areas: "ref ref ref edit" "date_on_po date_received . ." "value value value value";
     min-width: 286px;
-    width: 100%;
+    width: 99%;
     max-width: 450px;
     box-sizing: border-box;
     margin: 0.5rem 0 0 0;
@@ -683,6 +707,8 @@ table.price-comparison .conclusion th, table.price-comparison .conclusion td {
     grid-area: ref;
     font-size: 1.2rem;
     font-weight: bold;
+    max-width: min(400px, 76vw);
+    overflow-wrap: break-word;
   }
   #po_table .ref:before {
     content: "PO #";
@@ -710,6 +736,9 @@ table.price-comparison .conclusion th, table.price-comparison .conclusion td {
   #po_table .value {
     grid-area: value;
     text-align: left;
+  }
+  #po_table tr.invalid .value {
+    border-bottom: none;
   }
   #po_table .edit {
     grid-area: edit;

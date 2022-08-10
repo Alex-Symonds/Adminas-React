@@ -937,8 +937,40 @@ table.price-comparison{
         text-align: right;
     }
 
+    .ref{
+        box-sizing: border-box;
+        max-width: 440px;
+
+    }
+
     tr{
         position: relative;
+
+        &.invalid{
+            border-width: 1px 1px 1px 3px;
+            border-style: solid;
+            border-color: v.$c_warning v.$c_warning v.$c_warning v.$c_warning_bright;
+            background: v.$c_warning_darker;
+
+            .invalid-icon{
+                position: relative;
+                top: 0.1rem;
+
+                width: 1.2rem;
+                height: 1.2rem;
+
+                margin-right: 0.5rem;                
+
+                span{
+                    left: 26px;
+                    right: auto;
+                }
+            }
+
+            .value{
+                border-bottom: 1px solid red;
+            }
+        }
     }
 
     .panel{
@@ -950,7 +982,7 @@ table.price-comparison{
         box-shadow: v.$panel_shadow;
     }
 }
-@media screen and (max-width: 473px){
+@media screen and (max-width: 900px){
 
     #po_table{
         thead tr{
@@ -970,7 +1002,7 @@ table.price-comparison{
 
         tbody tr{
             display: grid;
-            grid-template-columns: 6rem auto auto min-content;
+            grid-template-columns: 6rem 9rem auto min-content;
             grid-template-rows: auto repeat(2, 1.5rem);
             grid-template-areas: 
                 "ref ref ref edit"
@@ -979,7 +1011,7 @@ table.price-comparison{
             ;
 
             min-width: 286px;
-            width: 100%;
+            width: 99%;
             max-width: 450px;
 
             box-sizing: border-box;
@@ -994,14 +1026,17 @@ table.price-comparison{
         .ref{
             grid-area: ref;
 
+            font-size: 1.2rem;
+            font-weight: bold;
+
+            max-width: min(400px, 76vw);
+            overflow-wrap: break-word;
+            
             &:before{
                 content: 'PO #';
                 display: inline-block;
                 padding: 0 0.5rem 0 0;
             }
-
-            font-size: 1.2rem;
-            font-weight: bold;
         }
         .date_on_po{
             grid-area: date_on_po;
@@ -1027,6 +1062,10 @@ table.price-comparison{
             grid-area: value;
             text-align: left;
         }
+        tr.invalid .value{
+            border-bottom: none;
+        }
+
         .edit{
             grid-area: edit;
         }

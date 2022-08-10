@@ -111,15 +111,10 @@ function JobDocumentsLiUI(props){
                 <span class="icon">{ doc_issue_status_display }</span>
                 <span class="name">{ props.doc.doc_type } { props.doc.reference }</span>
                 <span class="doc-date">{ doc_date_prefix_string } { doc_date }</span>
-                <InvalidIconUI  is_valid = { props.doc.is_valid }/>
+                <InvalidIconUI  is_valid = { props.doc.is_valid }
+                                message = "invalid item assignments" />
             </a>
         </li>
     ]
 }
 
-function InvalidIconUI(props){
-    if(props.is_valid){
-        return null;
-    }
-    return <div class="invalid-icon"><span>invalid item assignments</span></div>
-}

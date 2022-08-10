@@ -245,22 +245,21 @@ function JobPoElement(props){
 
 // Element for reading info of a single PO
 function JobPoReadUI(props){
+    let currency_matches_job = props.data.currency === props.currency;
+
     return [
-        <tr>
+        <tr class={currency_matches_job ? null : "invalid"}>
             <td class="ref">{ props.data.reference }</td>
             <td class="date_on_po">{ props.data.date_on_po }</td>
             <td class="date_received">{ props.data.date_received }</td>
-            <td class="value">{ props.currency + nbsp() + format_money(parseFloat(props.data.value)) }</td>
+            <td class="value">
+                <InvalidIconUI  is_valid = { currency_matches_job }
+                                message = "job has different currency"
+                                />
+                <span>{ props.data.currency + nbsp() + format_money(parseFloat(props.data.value)) }</span>
+            </td>
             <td class="edit"><button type="button" class="po-edit edit-icon" onClick={ props.editor.on }><span>edit</span></button></td>
         </tr>
-    ]
-    return [
-        <div class="po-row">
-            <div class="details">
-                <span class="reference">{ props.data.reference }</span> dated <span class="date_on_po">{ props.data.date_on_po }</span> for <span class="currency">{ props.currency }</span> <span class="value">{ format_money(parseFloat(props.data.value)) }</span> (received <span class="date_received">{ props.data.date_received }</span>)
-                <button type="button" class="po-edit edit-icon" onClick={ props.editor.on }><span>edit</span></button>
-            </div>
-        </div>
     ]
 }
 
