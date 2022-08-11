@@ -1,6 +1,6 @@
 /*
     "Main" Document Builder functionality, plus special instructions.
-    (JobItem assignments are in a separate file)
+    (If you're looking for the JobItem assignments, those are in a separate file)
 
     "Main" = 
         > Save document
@@ -36,7 +36,7 @@ const CLASS_ONE_SPECIAL_INSTRUCTION = 'read_row';
 const CLASS_SHOW_ADD_INSTRUCTION_FORMLIKE = 'special-instruction';
 const CLASS_HIDE_ADD_INSTRUCTION_FORMLIKE = 'close-new-instr';
 
-
+const CLASS_UNSAVED_CHANGES = 'unsaved-changes';
 
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -216,7 +216,7 @@ async function update_page_after_successful_save(full_url){
             }
 
             remove_unsaved_changes_ele();
-
+            
             if('doc_is_valid' in resp_data && 'item_is_valid' in resp_data){
                 update_validity_warnings(resp_data['doc_is_valid'], resp_data['item_is_valid']);
                 display_document_response_message('Document saved');
@@ -326,9 +326,11 @@ async function delete_document(){
 
 
 
+
+
 // || Unsaved changes warning
 function show_save_warning_ele(){
-    let existing_unsaved_ele = document.querySelector('.unsaved-changes');
+    let existing_unsaved_ele = document.querySelector(`.${CLASS_UNSAVED_CHANGES}`);
 
     if(existing_unsaved_ele == null){
         let anchor_ele = document.querySelector('.status-controls');
@@ -340,14 +342,14 @@ function show_save_warning_ele(){
 
 function create_unsaved_changes_ele(){
     let div = document.createElement('div');
-    div.classList.add('unsaved-changes');
+    div.classList.add(CLASS_UNSAVED_CHANGES);
     div.innerHTML = 'warning: unsaved changes exist';
     return div;
 }
 
 
 function remove_unsaved_changes_ele(){
-    let existing_unsaved_ele = document.querySelector('.unsaved-changes');
+    let existing_unsaved_ele = document.querySelector(`.${CLASS_UNSAVED_CHANGES}`);
     if(existing_unsaved_ele != null){
         existing_unsaved_ele.remove();
     }
@@ -381,16 +383,21 @@ function close_editor_special_instruction(btn){
 
 
 function create_ele_editor_special_instruction(old_str){
-    let edit_div = document.createElement('div');
-    edit_div.classList.add(CLASS_SPECIAL_INSTRUCTION_EDITOR);
-    edit_div.classList.add(CSS_GENERIC_PANEL);
-    edit_div.classList.add(CSS_GENERIC_FORM_LIKE);
-
+    let edit_div = create_ele_editor_special_instruction_base();
     edit_div.append(create_ele_editor_special_instruction_cancel_button());
     edit_div.append(create_ele_editor_special_instruction_heading());
     edit_div.append(create_ele_editor_special_instruction_input(old_str));
     edit_div.append(create_ele_editor_special_instruction_button_container());
 
+    return edit_div;
+}
+
+
+function create_ele_editor_special_instruction_base(){
+    let edit_div = document.createElement('div');
+    edit_div.classList.add(CLASS_SPECIAL_INSTRUCTION_EDITOR);
+    edit_div.classList.add(CSS_GENERIC_PANEL);
+    edit_div.classList.add(CSS_GENERIC_FORM_LIKE);
     return edit_div;
 }
 
@@ -466,13 +473,18 @@ function add_special_instruction_to_page(){
 
 
 function create_ele_special_instruction(display_str){
-    let main_div = document.createElement('div');
-    main_div.classList.add('read_row');
-
+    let main_div = create_ele_special_instructions_base();
     main_div.append(create_ele_special_instruction_contents(display_str));
     main_div.append(create_ele_special_instruction_edit_btn());
     main_div.append(create_ele_special_instruction_who_and_when_placeholder());
 
+    return main_div;
+}
+
+
+function create_ele_special_instructions_base(){
+    let main_div = document.createElement('div');
+    main_div.classList.add('read_row');
     return main_div;
 }
 
