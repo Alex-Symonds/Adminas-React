@@ -34,19 +34,19 @@
                 <div>{{ job_form.name }}</div>
             </div>
             <div class="form-row">
-                <label>{{ job_form.quote_ref.label }}</label>
+                <label for="{{ job_form.quote_ref.auto_id }}">{{ job_form.quote_ref.label }}</label>
                 <div>{{ job_form.quote_ref }}</div>
             </div>
             <div class="form-row">
-                <label>{{ job_form.agent.label }}</label>
+                <label for="{{ job_form.agent.auto_id }}">{{ job_form.agent.label }}</label>
                 <div>{{ job_form.agent }}</div>
             </div>
             <div class="form-row">
-                <label>{{ job_form.customer.label }}</label>
+                <label for="{{ job_form.customer.auto_id }}">{{ job_form.customer.label }}</label>
                 <div>{{ job_form.customer }}</div>
             </div>
             <div class="form-row">
-                <label>{{ job_form.country.label }}
+                <label for="{{ job_form.country.auto_id }}">{{ job_form.country.label }}
                     <div class="hover-parent">
                         [?]
                         <span class="hover-child">Used for statistical purposes only. Does not affect invoice/delivery addresses.</span>
@@ -55,35 +55,42 @@
                 <div>{{ job_form.country }}</div>
             </div>
             <div class="form-row">
-                <label>{{ job_form.language.label }}</label>
+                <label for="{{ job_form.language.auto_id }}">{{ job_form.language.label }}</label>
                 <div>{{ job_form.language }}</div>
             </div>
 
             <h3>Payment</h3>
             <div class="form-row">
-                <label>{{ job_form.invoice_to.label }}</label>
+                <label for="{{ job_form.invoice_to.auto_id }}">{{ job_form.invoice_to.label }}</label>
                 <div class="address-dropdown">{{ job_form.invoice_to }}</div>
                 <div class="display-address" id="display-addr-invoice"></div>
             </div>
             <div class="form-row">
-                <label>{{ job_form.currency.label }}</label>
+                <label for="{{ job_form.currency.auto_id }}">{{ job_form.currency.label }}</label>
                 <div>{{ job_form.currency }}</div>
             </div>
             <div class="form-row">
-                <label>{{ job_form.payment_terms.label }}</label>
+                <label for="{{ job_form.payment_terms.auto_id }}">{{ job_form.payment_terms.label }}</label>
                 <div>{{ job_form.payment_terms }}</div>
             </div>
 
             <h3>Delivery</h3>
             <div class="form-row">
-                <label>{{ job_form.delivery_to.label }}</label>
+                <label for="{{ job_form.delivery_to.auto_id }}">{{ job_form.delivery_to.label }}</label>
                 <div class="address-dropdown">{{ job_form.delivery_to }}</div>
                 <div class="display-address" id="display-addr-delivery"></div>
             </div>
-            <div class="form-row">
-                <label>Incoterm</label>
-                <div>{{ job_form.incoterm_code }} {{ job_form.incoterm_location }}</div>
-            </div>
+            <fieldset class="form-row">
+                <legend>Incoterm</legend>
+                <div>
+                    <label for="{{ job_form.incoterm_code.auto_id }}">Term</label>
+                    <div>{{ job_form.incoterm_code }}</div>
+                </div>
+                <div>
+                    <label for="{{ job_form.incoterm_location.auto_id }}">Location</label>
+                    <div>{{ job_form.incoterm_location }}</div>
+                </div>
+            </fieldset>
             <hr>
             <input id="submit_btn" type="submit" value="submit">
         </form>

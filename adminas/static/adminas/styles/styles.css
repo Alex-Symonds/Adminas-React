@@ -593,6 +593,18 @@ nav li a:hover {
   margin-left: calc(0.3rem + 6px);
 }
 
+fieldset.form-row {
+  display: flex;
+  flex-flow: wrap;
+  column-gap: 0.2rem;
+  row-gap: 0.4rem;
+  padding: 0.4rem 0.5rem;
+  border-color: #666;
+}
+fieldset.form-row label {
+  margin: 0;
+}
+
 .form-like label,
 .form-like input,
 .form-like select,

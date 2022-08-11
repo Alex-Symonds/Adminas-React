@@ -865,7 +865,6 @@ def api_todo_list(request):
     if not request.user.is_authenticated:
         return anonymous_user_json()
 
-    # Try to extract a job and user from the incoming data
     posted_data = dict_from_json(request.body)
     if is_error(posted_data):
         return respond_with_error(posted_data)
@@ -876,7 +875,6 @@ def api_todo_list(request):
 
     user = request.user
 
-    # Handle the request
     if request.method == 'DELETE':
 
         if job in user.todo_list_jobs.all():
