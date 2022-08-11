@@ -8,7 +8,6 @@ const CLASS_BTN_HIDE_PRODUCT_LIST = 'list-hide-btn';
 const CLASS_PRODUCT_LIST = 'records-list';
 
 
-// Event listeners
 document.addEventListener('DOMContentLoaded', () => {
 
     document.querySelectorAll(`.${CLASS_BTN_SHOW_PRODUCT_LIST}`).forEach(btn => {
@@ -26,7 +25,6 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 
-// Functionality
 function toggle_hide_product_list_panel(btn, want_hide){
     let parent_ele = btn.closest('td');
     let panel_ele = parent_ele.querySelector(`.${CLASS_PRODUCT_LIST}`);

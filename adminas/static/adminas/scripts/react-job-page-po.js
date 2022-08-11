@@ -324,36 +324,8 @@ function JobPoEditor(props){
         delete_po();
     }
 
-    // Backend updates
     const [backendError, setBackendError] = React.useState(null);
     const backend_error = get_backend_error_object(backendError, setBackendError);
-
-    // const OLDsave_po = () => {
-    //     const url = props.data.po_id === null ? actionUrl : `${actionUrl}?id=${props.data.po_id}`;
-    //     const method = props.data.po_id === null ? 'POST' : 'PUT';
-
-    //     const headers = getFetchHeaders(method, state_to_object_be());
-
-    //     update_server(url, headers, resp_data => {
-    //         if(responded_with_error(resp_data)){
-    //             backend_error.set(get_error_message(resp_data));
-    //         }
-    //         if('id' in resp_data){
-    //             // props.po_id = null when we're creating a new PO. The new PO
-    //             // will need to know the ID from the BE, so include that
-    //             if(props.data.po_id === null){
-    //                 var attributes = state_to_object_fe();
-    //                 attributes.po_id = resp_data.id;
-    //                 props.state_submit(attributes);
-    //             }
-    //             // Otherwise it's an existing PO, so just send the new state.
-    //             else {
-    //                 props.state_submit(state_to_object_fe());
-    //             }
-    //             props.editor.off();
-    //         }
-    //     });
-    // };
 
     const save_po = () => {
         if(props.data.po_id === null){
@@ -400,7 +372,6 @@ function JobPoEditor(props){
         });
     };
 
-    // Object with keys appropriate for the state
     function state_to_object_fe(){
         return {
             reference: reference,
@@ -411,7 +382,6 @@ function JobPoEditor(props){
         };   
     }
 
-    // Object with keys appropriate for the backend
     function state_to_object_be(){
         return {
             reference: reference,

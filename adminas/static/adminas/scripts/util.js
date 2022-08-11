@@ -86,43 +86,6 @@ function responded_with_error_reason(response_json){
     return KEY_RESPONSE_ERROR_MSG in response_json;
 }
 
-// function get_error_message(response_json){
-
-//     // Handle cases where this is called because the server returned an
-//     // unexpected success code.
-//     if(status_is_good(response_json)){
-//         return 'Page refresh recommended.';
-//     }
-
-//     // Handle actual error codes.
-//     const status = get_status_from_json(response_json);
-//     switch(status){
-//         case 400:
-//             return 'Invalid inputs.';
-//         case 401:
-//             return 'You must be logged in.';
-//         case 403:
-//             if(responded_with_error_reason(response_json)){
-//                 return response_json[KEY_RESPONSE_ERROR_MSG];
-//             }
-//             return 'Request was forbidden by the server.'
-//         case 404:
-//             return "Requested information was not found."
-//         case 409:
-//             if(responded_with_error_reason(response_json)){
-//                 return response_json[KEY_RESPONSE_ERROR_MSG];
-//             }
-//             return 'Request clashed with information on server. (The server won.)'
-//         case 500:
-//             return 'A server error has occurred.';
-//         default:
-//             return 'Error: something went wrong.'
-//     }
-// }
-
-
-
-
 
 // Identify when the backend responded with a home-made error; extract the message for display
 function responded_with_error_reason(response_json){
