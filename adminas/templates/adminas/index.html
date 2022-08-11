@@ -76,7 +76,8 @@
             
             <section class="comments" data-url_comments="{% url 'api_comments' %}?job_id={{ job.id }}">
             {% if job.pinned_comments %}
-                <h5 class="secondary-icon">PINNED</h5>
+                <h5><span class="hide">Pinned</span></h5>
+                <!-- <h5><img src="../static/adminas/images/i-pin-filled-grey.svg" alt="Pinned" /></h5> -->
             {% endif %}
                 <section class="comment-container pinned streamlined toggle-heading">
             {% for comment in job.pinned_comments %}

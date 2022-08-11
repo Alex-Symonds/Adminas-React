@@ -12,14 +12,14 @@
 }
 
 .comments h5 {
-  margin: 3px 4px;
-  padding: 3px 8px;
-  font-size: 0.75rem;
-  border-radius: 6px;
-  border: 1px solid #888;
-  color: #BBB;
-  width: -moz-fit-content;
-  width: fit-content;
+  margin: 0;
+  height: 1.8rem;
+  border-top: 1px solid #666;
+  background-image: url(../images/i-pin-filled-grey.svg);
+  background-color: #444;
+  background-repeat: no-repeat;
+  background-size: 1rem;
+  background-position: 0.5rem center;
 }
 .comments .add-job-comment-simplified {
   margin: 5px;
@@ -59,7 +59,7 @@ p.empty-section-notice {
 .panel.job .comments {
   border-top: 1px solid #444;
   margin: 0;
-  padding: 0.1rem;
+  padding: 0;
 }
 .panel.job .add-button.comment {
   margin: 3px 5px;

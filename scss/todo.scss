@@ -18,16 +18,16 @@
 // || Pinned comments section
 .comments{
     h5{
-        margin: 3px 4px;
-        padding: 3px 8px;
-        font-size: 0.75rem;
+        margin: 0;
+        height: 1.8rem;
 
-        border-radius: 6px;
-        border: 1px solid v.$c_tone_04;
-        color: v.$c_tone_06;
+        border-top: 1px solid v.$c_tone_03;
 
-        width: -moz-fit-content;
-        width: fit-content;
+        background-image: url(../images/i-pin-filled-grey.svg);
+        background-color: v.$c_tone_02;
+        background-repeat: no-repeat;
+        background-size: 1rem;
+        background-position: 0.5rem center;
     }
 
     .add-job-comment-simplified{
@@ -79,7 +79,7 @@ p.empty-section-notice{
     .comments{
         border-top: 1px solid v.$c_tone_02;
         margin: 0;
-        padding: 0.1rem;
+        padding: 0;
     }
 
     .add-button.comment{

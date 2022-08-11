@@ -672,10 +672,11 @@ function create_ele_new_comment(response, want_streamlined_comment){
     }
     else {
         var details_like_ele = document.createElement('div');
-        details_like_ele.classList.add('full-comment-container');
         var summary_like_div = document.createElement('div');
-        summary_like_div.classList.add('comment-body');
     }
+    
+    details_like_ele.classList.add('wrapper');
+    summary_like_div.classList.add('comment-body');
 
     summary_like_div.append(create_ele_comment_main_contents(response['private'], response['contents']));
     details_like_ele.append(summary_like_div);
@@ -1217,7 +1218,7 @@ function add_new_comment_emptiness_element(comment_section_ele, section_name, cl
     }
 
     if(class_indicating_task === CLASS_WANT_TOGGLE_H5){
-        var ele = create_ele_h5_comment_uppercase(section_name);
+        var ele = create_ele_h5_comment(section_name);
         comment_section_ele.before(ele);
     }
     else if(class_indicating_task === CLASS_WANT_EMPTY_P){
@@ -1228,15 +1229,20 @@ function add_new_comment_emptiness_element(comment_section_ele, section_name, cl
     return;      
 }
 
-function create_ele_h5_comment_uppercase(section_name){        
+function create_ele_h5_comment(section_name){        
     let h5 = document.createElement('h5');
 
+    let span = document.createElement('span');
+    span.classList.add('hide');
+
     if(section_name === STR_FALLBACK){
-        h5.innerHTML = 'COMMENTS';
+        span.innerHTML = 'Comments';
     }
     else{
-        h5.innerHTML = section_name.toUpperCase();
+        span.innerHTML = section_name;
     }
+
+    h5.append(span);
 
     return h5;
 }
