@@ -730,7 +730,7 @@ class Job(AdminAuditTrail):
             doc_type = loop_tuple[0]
             result.append(self.status_doc(doc_type))
             if self.has_invalid_documents(doc_type):
-                result.append((STATUS_CODE_ACTION, f"INVALID {doc_type}"))
+                result.append((STATUS_CODE_ACTION, f"Invalid {doc_type}"))
    
         return result
 
@@ -1136,24 +1136,20 @@ class JobItem(AdminAuditTrail):
     def get_dict(self):
         result = {}
 
-        # What
         result['ji_id'] = self.id
         result['product_id'] = self.product.id
         result['part_number'] = self.product.part_number
         result['product_name'] = self.product.name
         result['description'] = self.product.get_description(self.job.language)
 
-        # How much
         result['quantity'] = self.quantity
         result['selling_price'] = self.selling_price
         result['list_price_each'] = Price.objects.filter(currency=self.job.currency).filter(price_list=self.price_list).get(product=self.product).value
         result['resale_perc'] = self.resale_percentage()
 
-        # Associated price list
         result['price_list_id'] = self.price_list.id
         result['price_list_name'] = self.price_list.name
 
-        # Standard Accessories
         result['standard_accessories'] = []
         for std_acc in self.includes.all():
             sa_dict = {}
@@ -1162,7 +1158,6 @@ class JobItem(AdminAuditTrail):
             sa_dict['product_name'] = std_acc.product.name
             result['standard_accessories'].append(sa_dict)
 
-        # Modular support
         result['is_modular'] = self.product.is_modular()
         result['is_complete'] = self.item_is_complete()
         result['excess_modules'] = self.excess_modules_assigned()
@@ -1209,28 +1204,24 @@ class JobItem(AdminAuditTrail):
         return True
 
     def safe_to_update(self, form):
-        # Determine what's changed
+        # Update is forbidden if it'd result in there not being enough slot filler products on the job to
+        # fulfill all the existing module assignments. This can occur in two ways:
+        #   1) Decreasing the quantity of a slot filling product (or changing the product, which is 
+        #      equivalent to decreasing the quantity of the old product to 0)
+        #   2) Increasing the quantity of modular items with existing slot assignments
         product_has_changed = form.cleaned_data['product'] != self.product
-        selling_price_has_changed = form.cleaned_data['selling_price'] != self.selling_price
-        
         new_quantity = form.cleaned_data['quantity']
+        quantity_current_product = 0 if product_has_changed else new_quantity
 
-        # Module assignments relate to products rather than JobItems, so the product matters:
-        # if a JobItem had 1 x ProductA and was updated to 1 x ProductB, we need to check if 0 x ProductA 
-        # would be acceptable (rather than just going "oh, it's still quantity = 1, so that's fine").
-        updated_product_quantity = 0 if product_has_changed else new_quantity
-
-        # Modular items check: Check that the proposed edit wouldn't leave any other items with empty slots
-        if not self.quantity_is_ok_for_modular_as_child(updated_product_quantity):
+        if not self.quantity_is_ok_for_modular_as_child(quantity_current_product):
             return error("Update failed: conflicts with modular item assignments.", 403)
 
-        # Modular items check: Check that the proposed edit wouldn't leave itself with unfilled slots
-        if self.product.is_modular() and not product_has_changed and updated_product_quantity > self.quantity:
-            if not self.quantity_is_ok_for_modular_as_parent(updated_product_quantity):
+        if not product_has_changed and quantity_current_product > self.quantity and self.product.is_modular():
+            if not self.quantity_is_ok_for_modular_as_parent(quantity_current_product):
                 return error("Update failed: insufficient items to fill specification.", 403)
 
-        # Issued documents check
-        # If this item appears on an issued document, no updates for any fields that appear on documents.
+        # Update is forbidden if it'd alter any field which appears on an issued documents
+        selling_price_has_changed = form.cleaned_data['selling_price'] != self.selling_price
         num_on_issued = self.num_required_for_issued_documents()
         if  num_on_issued > 0 and\
             (product_has_changed or selling_price_has_changed or new_quantity < num_on_issued):
@@ -1249,20 +1240,23 @@ class JobItem(AdminAuditTrail):
     
         product_has_changed = self.product != form.cleaned_data['product']
         quantity_has_changed = self.quantity != form.cleaned_data['quantity']
+        price_list_has_changed = self.price_list != form.cleaned_data['price_list']
 
         self.quantity = form.cleaned_data['quantity']
         self.product = form.cleaned_data['product']
         self.selling_price = form.cleaned_data['selling_price']
         self.price_list = form.cleaned_data['price_list']
         self.save()
+
+        self.job.price_changed()
         
         if product_has_changed:
             self.reset_standard_accessories()
 
-        elif quantity_has_changed:
-            self.update_standard_accessories_quantities()
+        elif quantity_has_changed or price_list_has_changed:
+            self.update_standard_accessories()
 
-        self.job.price_changed()
+        
 
 
     def update_price(self, form):
@@ -1384,18 +1378,22 @@ class JobItem(AdminAuditTrail):
         self.add_standard_accessories()
 
 
-    def update_standard_accessories_quantities(self):
+    def update_standard_accessories(self):
         """
-            Run through existing standard accessory JobItems linked to self and update the quantities.
+            Run through existing standard accessory JobItems linked to self and update the quantities and price lists.
             (For when a user edits the quantity on an existing JobItem, necessitating the same set but more/fewer)
         """
         for stdAcc in self.includes.all():
-            accessory_obj = StandardAccessory.objects.filter(parent=self.product).filter(accessory=stdAcc.product)[0]
-            qty_per_parent = accessory_obj.quantity
+            accessory_data = StandardAccessory.objects.filter(parent=self.product).filter(accessory=stdAcc.product)[0]
+            qty_per_parent = accessory_data.quantity
             if qty_per_parent == None:
                 qty_per_parent = 0
             stdAcc.quantity = self.quantity * qty_per_parent
+
+            stdAcc.price_list = self.price_list
             stdAcc.save()
+
+
 
  
     # || JobItem.Modular

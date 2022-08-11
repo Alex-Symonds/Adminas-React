@@ -37,7 +37,7 @@ function JobPriceCheckUI(props){
                                     price_accepted_state = { props.price_accepted_state }
                                     URL_GET_DATA = { props.URL_GET_DATA }
                                     />,
-            <WarningSubsection      message = { `All list and resale prices below are in the job currency (${ props.currency }). Currency exchange rates have not been applied. For accurate figures, the job and all POs must be in the same currency.` }
+            <WarningSubsection      message = { `The figures below assume all item selling prices are in the job currency, ${ props.currency }. If a selling price is actually in a different currency, the numbers will be inaccurate.` }
                                     show_warning = { props.has_invalid_currency_po } 
                                     title = "Caution: PO Currency Mismatch"
                                     />,
@@ -60,17 +60,7 @@ function JobPriceCheckUI(props){
     ]
 }
 
-function WarningSubsection(props){
-    if(!props.show_warning){
-        return null;
-    }
-    return [
-        <div class="warning subsection">
-            <h4>{ props.title ? props.title : "Warning" }</h4>
-            <p>{ props.message }</p>
-        </div>
-    ]
-}
+
 
 
 function JobPriceCheckEmptyUI(props){

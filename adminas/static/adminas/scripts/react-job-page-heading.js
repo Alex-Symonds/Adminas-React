@@ -273,7 +273,7 @@ function get_status_document_validity(data){
         if(!(doc_type in memo)){
             if(!doc.is_valid){
                 memo[doc_type] = 1;
-                result.push([STATUS_CODE_ACTION, `INVALID ${doc_type}`]);
+                result.push([STATUS_CODE_ACTION, `Invalid ${doc_type}`]);
             }
         }
     }
