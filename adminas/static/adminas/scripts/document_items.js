@@ -5,6 +5,11 @@
     Covers:
         > The split button/s
         > The incl. and excl. buttons
+
+    Contents:
+        || Toggle docitems between included/excluded
+        || Split docitems
+        || Invalid DocItems
 */
 
 
@@ -35,7 +40,6 @@ const CSS_CLASS_INVALID_ICON = 'invalid-icon';
 
 
 
-// Add the event listeners to the split and incl/excl buttons
 document.addEventListener('DOMContentLoaded', () => {
 
     document.querySelectorAll('.' + CLASS_TOGGLE_BTN).forEach(btn => {
@@ -54,12 +58,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
-
-// -------------------------------------------------------------------
-// Toggling doc items between "on this doc" and "not on this doc"
-// -------------------------------------------------------------------
-
-// Toggle docitems: main function, called on click of any incl. or excl. button
+// || Toggle docitems between included/excluded
 function toggle_doc_item(e){
     const docitem_ele = e.target.closest('li');
     const src_ul = docitem_ele.parentElement;
@@ -72,10 +71,9 @@ function toggle_doc_item(e){
     return;
 }
 
-// Toggle docitems: manage moving the <li> and, if necessary, updating the message of intentional emptiness.
+
 function update_both_docitem_ul_for_toggle(dst_ul, src_ul, docitem_ele){
 
-    // Handle invalid docitems
     if(docitem_is_invalid(docitem_ele)){
         if(!fix_invalid_docitem_ele(docitem_ele)){
             docitem_ele.remove();
@@ -88,7 +86,7 @@ function update_both_docitem_ul_for_toggle(dst_ul, src_ul, docitem_ele){
     update_none_li(src_ul, dst_ul);
 }
 
-// Toggle docitems: select the destination ul, based on the source ul
+
 function get_dest_docitem_ul(src_ul){   
     if(src_ul.id === ID_INCLUDES_UL){
         var dst_ul = document.querySelector('#' + ID_EXCLUDES_UL);
@@ -103,29 +101,24 @@ function get_dest_docitem_ul(src_ul){
 }
 
 
-
-
-// Toggle docitems: update the position/content of the docitem li
 function move_docitem_li(dst_ul, src_li){
     // If there's already a li for this item in the destination ul (following a split), 
     // the "move" will consist of updating the quantity displayed in the destination li 
     // and deleting the source li.
-    const dst_li = get_li_with_same_jiid(dst_ul, src_li.dataset.jiid);
+    const dst_li = get_ele_li_with_same_jiid(dst_ul, src_li.dataset.jiid);
     if(dst_li != null){
         merge_into_dst_docitem_li(src_li, dst_li);
-
-    // Otherwise, actually move the source <li> to the destination <ul>
-    // (Remember to update the display text on the incl/excl button.)
-    } else {
-        toggle_btn_str = get_toggle_display_str(dst_ul);
+    }
+    else {
+        let toggle_btn_str = get_toggle_button_display_str(dst_ul);
         src_li.querySelector('.' + CLASS_TOGGLE_BTN).innerHTML = toggle_btn_str;
         dst_ul.append(src_li);
     }
     return;
 }
 
-// Toggle docitems: "reverse" the display text on the incl/excl buttons.
-function get_toggle_display_str(dst_ul){
+
+function get_toggle_button_display_str(dst_ul){
     let display_str = 'toggle';
 
     if(dst_ul.id === ID_EXCLUDES_UL){
@@ -139,18 +132,15 @@ function get_toggle_display_str(dst_ul){
 }
 
 
-
-// Toggle docitems: handle the message of intentional emptiness
 function update_none_li(src_ul, dst_ul){
     // An otherwise empty ul should show one li for "None".
-    // Add it to src if src is now empty; remove it from dst if dst is no longer empty.
     remove_none_li(dst_ul);
     if(!ul_contains_li(src_ul)){
-        src_ul.append(get_none_li());
+        src_ul.append(create_ele_none_li());
     }
 }
 
-// Toggle docitems: remove a message of intentional emptiness
+
 function remove_none_li(ul_ele){
     const none_li = ul_ele.querySelector('.' + CLASS_NONE_LI);
     if(none_li != null){
@@ -158,7 +148,7 @@ function remove_none_li(ul_ele){
     }  
 }
 
-// Toggle docitems: check if the ul has any li elements inside
+
 function ul_contains_li(ul_ele){
     for(i = 0; i < ul_ele.children.length; i++){
         if(ul_ele.children[i].nodeName == 'LI'){
@@ -168,16 +158,16 @@ function ul_contains_li(ul_ele){
     return false;
 }
 
-// Toggle docitems: create a message of intentional emptiness
-function get_none_li(){
+
+function create_ele_none_li(){
     const li = document.createElement('li');
     li.classList.add(CLASS_NONE_LI);
     li.append(document.createTextNode('None'));
     return li;
 }
 
-// Toggle docitems: if there is a li with a particular JobItem ID inside a ul, return it
-function get_li_with_same_jiid(target_ul, jiid){
+
+function get_ele_li_with_same_jiid(target_ul, jiid){
     for(i = 0; i < target_ul.children.length; i++){
         if(target_ul.children[i].dataset.jiid){
             if(jiid == target_ul.children[i].dataset.jiid){
@@ -188,7 +178,7 @@ function get_li_with_same_jiid(target_ul, jiid){
     return null;
 }
 
-// Toggle docitems: if the toggled JobItem was previously split between included and excluded, re-combine it.
+
 function merge_into_dst_docitem_li(src_li, dst_li){
     const dst_span = dst_li.querySelector('.' + CLASS_DISPLAY_SPAN);
     const src_span = src_li.querySelector('.' + CLASS_DISPLAY_SPAN);
@@ -197,7 +187,7 @@ function merge_into_dst_docitem_li(src_li, dst_li){
     return;
 }
 
-// Toggle docitems: combine a "1 x Item" string and a "3 x Item" string into a "4 x Item" string
+
 function get_combined_docitem_text(src_text, dst_text){
     let qty_src = parseInt(src_text.match(QTY_RE)[0]);
     let qty_dst = parseInt(dst_text.match(QTY_RE)[0]);
@@ -208,30 +198,12 @@ function get_combined_docitem_text(src_text, dst_text){
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// ---------------------------------------------------------
-// Split docitems
-// ---------------------------------------------------------
-
-// Split DocItem: main function called by clicking a "<< split >>"" button
+// || Split docitems
 function split_doc_item(e){
     open_docitem_split_window(e.target);
 }
 
-// Split DocItem: Create and place a window to set how to split the docitem
+
 function open_docitem_split_window(split_btn){
     close_docitem_split_window();
 
@@ -242,7 +214,17 @@ function open_docitem_split_window(split_btn){
     hide_all_by_class(CLASS_TOGGLE_BTN);
 }
 
-// Split DocItem Panel: Create the panel
+
+function close_docitem_split_window(){
+    let existing_window = document.querySelector('.' + CLASS_SPLIT_WINDOW);
+    if(existing_window){
+        existing_window.remove();
+    }
+    unhide_all_by_class(CLASS_SPLIT_BTN);
+    unhide_all_by_class(CLASS_TOGGLE_BTN);
+}
+
+
 function create_ele_docitem_split_window(docitem_ele, calling_ul_id){
     let jobitem_id = docitem_ele.dataset.jiid;
 
@@ -251,37 +233,37 @@ function create_ele_docitem_split_window(docitem_ele, calling_ul_id){
     div.classList.add(CSS_GENERIC_FORM_LIKE);
     div.classList.add(CSS_GENERIC_PANEL);
 
-    div.append(create_ele_docitem_split_heading());
+    div.append(create_ele_docitem_split_window_heading());
     if(split_window_needs_invalid_warning(jobitem_id)){
         div.append(create_ele_docitem_invalid_split_warning());
     }
     div.append(create_ele_docitem_desc(jobitem_id));
-    div.append(create_ele_docitem_split_controls(jobitem_id, calling_ul_id, docitem_ele));
-    div.append(create_ele_docitem_split_status_container(jobitem_id));
-    div.append(create_ele_docitem_split_submit_btn());
+    div.append(create_ele_docitem_split_window_controls(jobitem_id, calling_ul_id, docitem_ele));
+    div.append(create_ele_docitem_split_window_status_container(jobitem_id));
+    div.append(create_ele_docitem_split_window_submit_btn());
     
     return div;
 }
 
-// Split DocItem Panel: component, heading
-function create_ele_docitem_split_heading(){
+
+function create_ele_docitem_split_window_heading(){
     let ele = document.createElement('div');
     ele.classList.add(CSS_GENERIC_PANEL_HEADING);
     let heading = document.createElement('h5');
     heading.innerHTML = 'Edit Split';
-    ele.append(create_ele_docitem_split_cancel_btn());
+    ele.append(create_ele_docitem_split_window_cancel_btn());
     ele.append(heading);
     return ele;
 }
 
-// Split DocItem Panel: component, intro paragraph
+
 function create_ele_docitem_desc(jobitem_id){
     let desc = document.createElement('p');
     desc.innerHTML = 'Splitting ' + get_combined_docitem_text_from_jobitem_id(jobitem_id);
     return desc;
 }
 
-// Split DocItem Panel: component, get the text describing the docitem and its total quantity
+
 function get_combined_docitem_text_from_jobitem_id(jobitem_id){
     let inc_text = get_individual_docitem_text_from_jobitem_id(ID_INCLUDES_UL, jobitem_id);
     let exc_text = get_individual_docitem_text_from_jobitem_id(ID_EXCLUDES_UL, jobitem_id);
@@ -295,10 +277,10 @@ function get_combined_docitem_text_from_jobitem_id(jobitem_id){
     }
 }
 
-// Split DocItem Panel: component, get the item display text from one <li>
+
 function get_individual_docitem_text_from_jobitem_id(ul_id, jobitem_id){
     let ul = document.querySelector('#' + ul_id);
-    let li = get_li_with_same_jiid(ul, jobitem_id);
+    let li = get_ele_li_with_same_jiid(ul, jobitem_id);
 
     if(li != null){
         return get_valid_description(li);
@@ -310,9 +292,10 @@ function get_individual_docitem_text_from_jobitem_id(ul_id, jobitem_id){
 
 function split_window_needs_invalid_warning(jobitem_id){
     const includes_ul = document.querySelector('#' + ID_INCLUDES_UL);
-    const docitem_ele = get_li_with_same_jiid(includes_ul, jobitem_id);
+    const docitem_ele = get_ele_li_with_same_jiid(includes_ul, jobitem_id);
     return docitem_is_invalid(docitem_ele);
 }
+
 
 function create_ele_docitem_invalid_split_warning(){
     let result = document.createElement('div');
@@ -328,12 +311,10 @@ function create_ele_docitem_invalid_split_warning(){
 }
 
 
-
-// Split DocItem Panel: component, the bit where you actually click and input things
-function create_ele_docitem_split_controls(jobitem_id, calling_ul_id, docitem_ele){
+function create_ele_docitem_split_window_controls(jobitem_id, calling_ul_id, docitem_ele){
     const div = document.createElement('div');
     div.classList.add(CLASS_SPLIT_DIRECTION_SETTER);
-    div.append(create_ele_docitem_split_direction_div(calling_ul_id));
+    div.append(create_ele_docitem_split_window_direction(calling_ul_id));
 
     if(docitem_is_invalid(docitem_ele)){
         var default_qty = docitem_ele.dataset.max_available;
@@ -346,8 +327,8 @@ function create_ele_docitem_split_controls(jobitem_id, calling_ul_id, docitem_el
     return div;
 }
 
-// Split DocItem Panel: component, the strip where you can set whether the number you input is for included or excluded
-function create_ele_docitem_split_direction_div(called_from){
+
+function create_ele_docitem_split_window_direction(called_from){
     const direction_div = document.createElement('div');
     direction_div.classList.add(CLASS_SPLIT_DIRECTION_STRIP);
 
@@ -374,7 +355,7 @@ function create_ele_docitem_split_direction_div(called_from){
     middle_div.id = ID_SPLIT_WINDOW_DIRECTION;
     middle_div.innerHTML = middle_display_str;
     middle_div.addEventListener('click', (e) => {
-        toggle_docitem_split_controls(e);
+        toggle_docitem_split_window_direction(e);
     });
     direction_div.append(middle_div);
 
@@ -382,7 +363,7 @@ function create_ele_docitem_split_direction_div(called_from){
     return direction_div;
 }
 
-// Split DocItem Panel: component, the input where you enter the quantity you want
+
 function create_ele_docitem_edit_field(default_qty){
     // JobItem quantity fields are usually used in cases where min=1 makes sense.
     // Here, 0 makes sense too, so adjust the min.
@@ -405,18 +386,16 @@ function create_ele_docitem_edit_field(default_qty){
 }
 
 
-
-// Split DocItem Panel: component, the bit that previews the outcome of your split input
-function create_ele_docitem_split_status_container(jobitem_id){
+function create_ele_docitem_split_window_status_container(jobitem_id){
     let container = document.createElement('div');
     container.classList.add(CLASS_SPLIT_STATUS_CONTAINER);
-    container.append(create_ele_docitem_split_category_div(CLASS_SPLIT_PREVIEW_INCLUDES, jobitem_id));
-    container.append(create_ele_docitem_split_category_div(CLASS_SPLIT_PREVIEW_EXCLUDES, jobitem_id));
+    container.append(create_ele_docitem_split_window_category_div(CLASS_SPLIT_PREVIEW_INCLUDES, jobitem_id));
+    container.append(create_ele_docitem_split_window_category_div(CLASS_SPLIT_PREVIEW_EXCLUDES, jobitem_id));
     return container;
 }
 
-// Split DocItem Panel: component, one "side" of the results preview
-function create_ele_docitem_split_category_div(class_name, jobitem_id){
+
+function create_ele_docitem_split_window_category_div(class_name, jobitem_id){
     const div = document.createElement('div');
     div.classList.add(class_name);
     div.classList.add('container');
@@ -434,8 +413,7 @@ function create_ele_docitem_split_category_div(class_name, jobitem_id){
 }
 
 
-// Split DocItem Panel: component, the submit button
-function create_ele_docitem_split_submit_btn(){
+function create_ele_docitem_split_window_submit_btn(){
     let btn = create_generic_ele_submit_button();
     btn.classList.add('full-width-button');
     btn.innerHTML = 'split';
@@ -445,8 +423,8 @@ function create_ele_docitem_split_submit_btn(){
     return btn;
 }
 
-// Split DocItem Panel: component, the cancel button
-function create_ele_docitem_split_cancel_btn(){
+
+function create_ele_docitem_split_window_cancel_btn(){
     let btn = create_generic_ele_cancel_button();
     btn.addEventListener('click', () => {
         close_docitem_split_window();
@@ -454,19 +432,8 @@ function create_ele_docitem_split_cancel_btn(){
     return btn;
 }
 
-// Split DocItem: function to reset the frontend when the split window is closed
-function close_docitem_split_window(){
-    let existing_window = document.querySelector('.' + CLASS_SPLIT_WINDOW);
-    if(existing_window){
-        existing_window.remove();
-    }
-    unhide_all_by_class(CLASS_SPLIT_BTN);
-    unhide_all_by_class(CLASS_TOGGLE_BTN);
-}
 
-
-// Split DocItem Window: function, called by clicking the "__cludes" strip: flips the text to indicate if the input number is for included or excluded
-function toggle_docitem_split_controls(e){
+function toggle_docitem_split_window_direction(e){
     let original_id = e.target.innerHTML;
     let includes_div = document.querySelector('#' + ID_SPLIT_WINDOW_INCLUDES_ARROWS);
     let excludes_div = document.querySelector('#' + ID_SPLIT_WINDOW_EXCLUDES_ARROWS);
@@ -485,7 +452,6 @@ function toggle_docitem_split_controls(e){
 }
 
 
-// Split DocItem Window: function, called by entering a number in the input. Updates the status section accordingly
 function update_split_window(input_fld){
     let controls_state = get_docitem_split_controls_state();
 
@@ -499,7 +465,7 @@ function update_split_window(input_fld){
     set_docitem_split_window(selected_ele, other_ele, total_qty, selected_qty);
 }
 
-// Split DocItem Window: function, flips the __cludes class to the other
+
 function toggle_docitem_membership_id(in_id){
     if(in_id == CLASS_SPLIT_PREVIEW_INCLUDES){
         return CLASS_SPLIT_PREVIEW_EXCLUDES;
@@ -507,7 +473,7 @@ function toggle_docitem_membership_id(in_id){
     return CLASS_SPLIT_PREVIEW_INCLUDES;
 }
 
-// Split DocItem Window: function, checks the current status of the "direction" slip and returns the class
+
 function get_docitem_split_controls_state(){
     let split_controls_ele = document.querySelector('#' + ID_SPLIT_WINDOW_DIRECTION);
     let display_text = split_controls_ele.innerHTML.toLowerCase();
@@ -521,7 +487,7 @@ function get_docitem_split_controls_state(){
     return
 }
 
-// Split DocItem Window: function, updates the two "result preview" values
+
 function set_docitem_split_window(selected_ele, other_ele, total_qty, selected_qty){
     if(selected_qty <= 0){
         selected_ele.innerHTML = 0;
@@ -537,7 +503,7 @@ function set_docitem_split_window(selected_ele, other_ele, total_qty, selected_q
     }
 }
 
-// Split DocItem Window: function, checks both <ul>s for <li>s for this JobItem, extracts the quantity/ies and sums them
+
 function get_total_qty(jiid){
     let result = 0;
 
@@ -550,10 +516,10 @@ function get_total_qty(jiid){
     return result;
 }
 
-// Split DocItem Window: function, find the quantity expressed in a JobItem <li> based on the UL ID and the JobItem ID
+
 function get_docitem_qty(class_name, jiid){
     const ul = document.querySelector('#' + class_name);
-    const docitem_ele = get_li_with_same_jiid(ul, jiid);
+    const docitem_ele = get_ele_li_with_same_jiid(ul, jiid);
 
     if(docitem_is_invalid(docitem_ele)){
         let max_available = parseInt(docitem_ele.dataset.max_available);
@@ -563,7 +529,7 @@ function get_docitem_qty(class_name, jiid){
     return get_docitem_qty_from_li(docitem_ele);
 }
 
-// Split DocItem Window: function, find the quantity expressed in a JobItem <li> based on the <li> element
+
 function get_docitem_qty_from_li(docitem_ele){
     if(docitem_ele != null){
         return parseInt(docitem_ele.querySelector('.' + CLASS_DISPLAY_SPAN).innerHTML.match(QTY_RE)[0])
@@ -572,18 +538,9 @@ function get_docitem_qty_from_li(docitem_ele){
 }
 
 
-
-
-
-
-
-
-// Split DocItem Activity: main function to call to make the split happen
 function process_split_request(calling_ele){
-    // Update the split window, just in case the user didn't trigger an update
     update_split_window(document.querySelector('#id_qty'));
 
-    // Get the JobItem ID and the new incl and excl quantities
     const docitem_li = calling_ele.closest('li');
     const jobitem_id = docitem_li.dataset.jiid;
 
@@ -617,16 +574,15 @@ function process_split_request(calling_ele){
     close_docitem_split_window();
 }
 
-// Split DocItem Activity: handle the <li> and <ul> update in cases where the split set one to quantity = 0.
+
 function process_docitem_split_N_and_0(ul_id_with_0, jobitem_id){
     // Use cases:
     //  1)  ul-to-be-0 has an unwanted <li> in it, which must be moved/merged to the other <ul>
     //  2)  The "calling" docitem is invalid. The user is splitting off N valid items to keep, then disposing of the rest
     //  3)  User decided not to make any changes, but clicked "submit" with the same quantities rather than closing the window
 
-    // Determine if case #1 applies by finding out if ul-to-be-0 has a <li> in it for this JobItem ID
     var src_ul = document.querySelector('#' + ul_id_with_0);
-    const li_to_move = get_li_with_same_jiid(src_ul, jobitem_id);
+    const li_to_move = get_ele_li_with_same_jiid(src_ul, jobitem_id);
 
     // Case #1: Moving/merging a <li> from one <ul> to the other is the job of the toggle function
     // (note: the toggle function has its own handling for invalid docitems, so don't need to worry about that here)
@@ -638,7 +594,7 @@ function process_docitem_split_N_and_0(ul_id_with_0, jobitem_id){
 
     // Determine if Case #2 applies by grabbing the <li> in "includes" (if it exists), since that's the potentially "invalid" one
     var includes_ul = document.querySelector(`#${ID_INCLUDES_UL}`);
-    var includes_li = get_li_with_same_jiid(includes_ul, jobitem_id);
+    var includes_li = get_ele_li_with_same_jiid(includes_ul, jobitem_id);
 
     // Case #2: The splitter enforces valid quantities, so if one <ul> is to contain 0, the other must contain max_available
     // Therefore "splitting off N valid items to keep" = fixing an invalid docitem
@@ -652,25 +608,21 @@ function process_docitem_split_N_and_0(ul_id_with_0, jobitem_id){
     return;
 }
 
-// Split DocItem Activity: handle the <li> and <ul> update in cases where the split set non-0 for both.
+
 function process_docitem_split_N_and_N(incl_value, excl_value, jobitem_id){
     const description = get_combined_docitem_text_from_jobitem_id(jobitem_id);
     process_docitem_split_set_ul(ID_INCLUDES_UL, incl_value, jobitem_id, description);
     process_docitem_split_set_ul(ID_EXCLUDES_UL, excl_value, jobitem_id, description);
 }
 
-// Split DocItem Activity: ensure a given <ul> contains an <li> with quantity N
+
 function process_docitem_split_set_ul(ul_id, new_quantity, jobitem_id, description){
-
-    // Find the <ul> in question and try to find the <li> for this JobItem ID
     const target_ul = document.querySelector('#' + ul_id);
-    const target_li = get_li_with_same_jiid(target_ul, jobitem_id);
+    const target_li = get_ele_li_with_same_jiid(target_ul, jobitem_id);
 
-    // Check if we found the <li> and prepare the new description.
     const have_li = target_li != null;
     let new_display_string = description.replace(QTY_RE, new_quantity);
 
-    // If this <ul> already has an <li> for this JobItem, update it to reflect the new quantity.
     if(have_li){
         let display_span = target_li.querySelector('.' + CLASS_DISPLAY_SPAN);
         display_span.innerHTML = new_display_string;
@@ -681,25 +633,21 @@ function process_docitem_split_set_ul(ul_id, new_quantity, jobitem_id, descripti
             wipe_invalid_formatting(target_li);
         }
     }
-    // If the <ul> lacks a <li> for this JobItem, create one.
     else {
-        let new_li = create_docitem_li(jobitem_id, new_display_string, ul_id);
+        let new_li = create_ele_docitem_li(jobitem_id, new_display_string, ul_id);
         target_ul.append(new_li);
-
-        // It's possible that we just added a <li> to a previously empty <ul>, so remove the message of intentional emptiness if it's there.
         remove_none_li(target_ul);
     }
 }
 
 
-// Split DocItem Support: navigates the DOM to find the "result ele" containing the number chosen by the user
 function get_docitem_split_window_result_ele(result_preview_class){
     let window_div = document.querySelector('.' + CLASS_SPLIT_WINDOW);
     return window_div.querySelector('.' + result_preview_class).querySelector('span');
 }
 
-// Split DocItem Activity: display ele. Create a new DocItem <li>
-function create_docitem_li(jobitem_id, description, ul_id){
+
+function create_ele_docitem_li(jobitem_id, description, ul_id){
     const li = document.createElement('li');
     li.setAttribute('data-jiid', jobitem_id);
 
@@ -748,28 +696,23 @@ function create_docitem_li(jobitem_id, description, ul_id){
 
 
 
-// -------------------------------------------------------------------
-// Support for "invalid" DocItems (i.e. ones where user updates have 
-// resulted in a JobItem being over-booked for draft documents)
-// -------------------------------------------------------------------
 
-// Invalid DocItems: determine if it's invalid
+
+// || Invalid DocItems
 function docitem_is_invalid(docitem_ele){
-    // DocItems must exist in order to be invalid
     if(docitem_ele == null){
         return false;
     }
     return docitem_ele.classList.contains(CSS_CLASS_INVALID_LI);
 }
 
-// Invalid DocItems: given a docitem, work out a valid description for it
+
 function get_valid_description(docitem_ele){
     const display_span = docitem_ele.querySelector('.' + CLASS_DISPLAY_SPAN);
     if(display_span == null){
         return 'Description not found';
     }
     
-    // Handle straightforward valid docitems
     if(!docitem_is_invalid(docitem_ele)){
         return display_span.innerHTML;
     }
@@ -788,20 +731,18 @@ function get_valid_description(docitem_ele){
     return display_span.innerHTML.replace(QTY_RE, max_available);
 }
 
-// Invalid DocItems: given an invalid docitem element, perform all adjustments needed to make it valid
+
 function fix_invalid_docitem_ele(docitem_ele){
-    // Handle cases where it's impossible to fix the docitem_ele (i.e. amount available is 0 or negative)
     if(parseInt(docitem_ele.dataset.max_available) <= 0){
         return false;
     }
 
-    // If it's fixable, fix it
     replace_invalid_description(docitem_ele);
     wipe_invalid_formatting(docitem_ele);
     return true;
 }
 
-// Invalid DocItem Fixing: replace the docitem's description 
+
 function replace_invalid_description(docitem_ele){
     if(element_does_not_exist(docitem_ele)){
         return;
@@ -810,13 +751,13 @@ function replace_invalid_description(docitem_ele){
     display_span.innerHTML = get_valid_description(docitem_ele);
 }
 
-// Invalid DocItem Fixing: remove any/all decorations applied to invalid docitems
+
 function wipe_invalid_formatting(docitem_ele){
     remove_invalid_css(docitem_ele);
     remove_invalid_icon(docitem_ele);
 }
 
-// Invalid DocItem Fixing: remove CSS for invalid docitems
+
 function remove_invalid_css(docitem_ele){
     if(element_does_not_exist(docitem_ele)){
         return;
@@ -825,7 +766,7 @@ function remove_invalid_css(docitem_ele){
     docitem_ele.classList.remove(CSS_CLASS_INVALID_LI); 
 }
 
-// Invalid DocItem Fixing: remove the little warning icon
+
 function remove_invalid_icon(docitem_ele){
     if(element_does_not_exist(docitem_ele)){
         return;

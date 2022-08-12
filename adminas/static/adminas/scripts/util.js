@@ -224,6 +224,16 @@ function get_date_time(){
     return display_dt;
 }
 
+function string_to_boolean(str){
+    if(typeof str !== 'string') return null;
+    if(typeof str === 'boolean') return str;
+
+    let str_lower = str.toLowerCase();
+    if(str_lower === 'true') return true;
+    if(str_lower === 'false') return false;
+    return null;
+}
+
 
 // Obtain the value of the selected option based on the display text
 function index_from_display_text(select_ele, display_text){
@@ -406,6 +416,20 @@ function get_jobitem_qty_field(){
 
     return fld;
 }
+
+
+function create_ele_checkbox(id, want_checked = false){
+    let checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.id = id;
+
+    if(want_checked){
+        checkbox.checked = true;
+    }
+
+    return checkbox;
+}
+
 
 // Create a "panel"
 function create_generic_ele_panel(){
