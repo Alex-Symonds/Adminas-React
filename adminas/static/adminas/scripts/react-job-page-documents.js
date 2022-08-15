@@ -39,7 +39,7 @@ function JobDocumentsSubsection(props){
                                         />
 }
 
-// Look for the current doctype's info in the doc_data and compare its quantities to the total quantity
+
 function get_unassigned_quantity(doc_data, target_doc_type){
     var unassigned_qty = parseInt(doc_data.total_quantity_items);
 
@@ -98,8 +98,8 @@ function JobDocumentsListOfDocLinksUI(props){
 }
 
 function JobDocumentsLiUI(props){
-    var doc_date = props.doc.issue_date == null ? props.doc.created_on : props.doc.issue_date;
     var doc_date_prefix_string = props.doc.issue_date == null ? "" : "issued";
+    var doc_date = props.doc.issue_date == null ? props.doc.created_on : props.doc.issue_date;
 
     var css_classes = props.doc.issue_date == null ? 'draft' : 'issued';
     css_classes = props.doc.is_valid == true ? css_classes : css_classes + ' invalid';

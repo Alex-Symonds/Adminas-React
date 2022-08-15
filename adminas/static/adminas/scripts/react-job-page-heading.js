@@ -17,22 +17,6 @@ const STATUS_CODE_OK = 'status_ok';
 const STATUS_CODE_ACTION = 'status_action';
 const STATUS_CODE_ATTN = 'status_attn';
 
-function job_status_symbol(status_code){
-    switch (status_code){
-        case STATUS_CODE_OK:
-            return 'ok';
-
-        case STATUS_CODE_ATTN:
-            return '!';
-
-        case STATUS_CODE_ACTION:
-            return '?';
-
-        default:
-            return '-';
-    }
-}
-
 
 // || Main section
 function JobHeadingSubsectionUI(props){
@@ -101,11 +85,10 @@ function JobToDoIndicator(props){
     function toggle_todo(){
         var todo_now = !todo;
         var method = todo_now ? 'PUT' : 'DELETE';
-        var expected_response_code = 204;
         var headers = getFetchHeaders(method, {'job_id': props.job_id});
 
         update_server(url, headers, resp_data => {
-            if(status_is_good(resp_data, expected_response_code)){
+            if(status_is_good(resp_data, 204)){
                 setTodo(todo_now);
             }
             else {
@@ -177,6 +160,23 @@ function JobStatusElementUI(props){
 
 
 // Status strip helpers: Determine statuses to go in the strip, based on status_data object.
+function job_status_symbol(status_code){
+    switch (status_code){
+        case STATUS_CODE_OK:
+            return 'ok';
+
+        case STATUS_CODE_ATTN:
+            return '!';
+
+        case STATUS_CODE_ACTION:
+            return '?';
+
+        default:
+            return '-';
+    }
+}
+
+
 function list_of_job_statuses(status_data){
     // Set the order of appearance here.
     var result = [];

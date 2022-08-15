@@ -7,6 +7,7 @@
 
     Contents:
         || Constants
+        || DOMContentLoaded event listeners
         || General Support
         || Adding extra empty slots
         || Menu for filling a slot with products from existing JobItems, with a button to instead open a form for adding a new JobItem        
@@ -19,29 +20,24 @@
 */
 
 // || Constants
-// Used for both creating and locating elements
+const CLASS_ADD_SLOT_BUTTON = 'add-slot';
 const CLASS_EDITOR_SLOT_FILLER_QUANTITY = 'editor-slot-filler-quantity';
+const CLASS_EXCESS_MODULES = 'excess-modules';
+const CLASS_INDICATOR_IS_FULL = 'filled';
 const CLASS_OPTION_EXISTING_ITEM = 'bucket-item';
 const CLASS_MODULE_SLOT_GENERAL = 'module-slot';
+const CLASS_MODULE_SLOT_IN_EDIT_MODE = 'editing';
 const CLASS_MODULE_SLOT_IS_EMPTY = 'empty';
 const CLASS_MODULE_SLOT_FILLER_POPOUT_MENU = 'module-bucket-container';
 const CLASS_NEW_ITEMS_CONTAINER = 'new-slot-filler-inputs';
+const CLASS_PARENT_ITEM_CONTAINER = 'modular-item-container';
 const CLASS_PRODUCT_DESC = 'product_desc';
+const CLASS_SLOT_CONTAINER = 'modular-slot-container';
 const ID_CREATE_JOBITEM_SUBMIT_BUTTON = 'id_submit_new';
 const ID_EDIT_FORM_SUBMIT_BUTTON = 'id_submit_qty_edit';
 
-// Used for finding/identifying elements, but not for creation
-const CLASS_PARENT_ITEM_CONTAINER = 'modular-item-container';
-const CLASS_SLOT_CONTAINER = 'modular-slot-container';
-const CLASS_ADD_SLOT_BUTTON = 'add-slot';
 
-// Used for creating/modifying elements, but not for location
-const CLASS_MODULE_SLOT_IN_EDIT_MODE = 'editing';
-const CLASS_EXCESS_MODULES = 'excess-modules';
-const CLASS_INDICATOR_IS_FULL = 'filled';
-
-
-// Add event handlers to elements created by Django
+// || DOMContentLoaded event listeners
 document.addEventListener('DOMContentLoaded', () => {
 
     document.querySelectorAll('.' + CLASS_MODULE_SLOT_GENERAL + '.' + CLASS_MODULE_SLOT_IS_EMPTY).forEach(div => {
@@ -52,7 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.querySelectorAll(`.${CLASS_ADD_SLOT_BUTTON}`).forEach(div =>{
         div.addEventListener('click', (e) =>{
-            add_ele_empty_module_slot(e);
+            add_ele_module_slot_empty(e);
         })
     });
 
@@ -98,7 +94,7 @@ function required_fields_are_present(data, required_fields_list){
 
 
 // || Adding extra empty slots
-function add_ele_empty_module_slot(e){
+function add_ele_module_slot_empty(e){
     let slot_ele = e.target.closest('.' + CLASS_SLOT_CONTAINER);
     let contents_ele = slot_ele.querySelector('.contents');
     let new_slot = create_ele_module_slot_empty();
@@ -129,8 +125,8 @@ async function open_module_slot_filler_menu(e){
     let anchor_ele = find_anchor_ele_module_slot_filler_menu(e.target);
 
     let id_obj = get_slot_and_parent_ids(e.target);
-    let bucket_div = await create_ele_module_slot_filler_menu(id_obj.slot, id_obj.parent);
-    anchor_ele.after(bucket_div);
+    let menu_ele = await create_ele_module_slot_filler_menu(id_obj.slot, id_obj.parent);
+    anchor_ele.after(menu_ele);
 
     remove_ele_all_errors();
 }
@@ -152,12 +148,7 @@ function find_anchor_ele_module_slot_filler_menu(target){
 
 async function create_ele_module_slot_filler_menu(slot_id, parent_id){
 
-    let div = document.createElement('div');
-    div.classList.add(CLASS_MODULE_SLOT_FILLER_POPOUT_MENU);
-    div.classList.add(CSS_GENERIC_PANEL);
-    div.classList.add(CSS_GENERIC_FORM_LIKE);
-    div.classList.add('popout');
-
+    let div = create_ele_module_slot_filler_menu_base();
     div.append(create_ele_module_slot_filler_menu_cancel_btn());
 
     let json_response = await get_list_for_module_slot(slot_id, parent_id, 'jobitems');
@@ -177,6 +168,16 @@ async function create_ele_module_slot_filler_menu(slot_id, parent_id){
     div.append(create_ele_module_slot_filler_menu_title(json_response[key_parent_quantity]));
     div.append(create_ele_module_slot_filler_menu_existing_items(json_response));
     div.append(create_ele_module_slot_filler_menu_new_jobitem_btn());
+    return div;
+}
+
+
+function create_ele_module_slot_filler_menu_base(){
+    let div = document.createElement('div');
+    div.classList.add(CLASS_MODULE_SLOT_FILLER_POPOUT_MENU);
+    div.classList.add(CSS_GENERIC_PANEL);
+    div.classList.add(CSS_GENERIC_FORM_LIKE);
+    div.classList.add('popout');
     return div;
 }
 
@@ -290,16 +291,16 @@ function create_ele_module_slot_filler_menu_new_jobitem_btn(){
 
 // || "Form" to create a new JobItem and fill the slot with its product
 async function open_module_slot_new_jobitem_form(e){
-    let bucket_div = e.target.closest('.' + CLASS_MODULE_SLOT_FILLER_POPOUT_MENU);
-    let empty_slot = bucket_div.previousSibling;
+    let menu_ele = e.target.closest('.' + CLASS_MODULE_SLOT_FILLER_POPOUT_MENU);
+    let empty_slot = menu_ele.previousSibling;
 
     let id_obj = get_slot_and_parent_ids(e.target);
-    let new_div = await create_ele_module_slot_new_jobitem_form(id_obj.slot, id_obj.parent);
+    let new_jobitem_form = await create_ele_module_slot_new_jobitem_form(id_obj.slot, id_obj.parent);
 
-    empty_slot.after(new_div);
+    empty_slot.after(new_jobitem_form);
 
     empty_slot.remove();
-    bucket_div.remove();
+    menu_ele.remove();
 }
 
 
@@ -401,12 +402,12 @@ function create_ele_module_slot_new_jobitem_form_cancel_btn(){
 // || Assigning a product to a slot
 async function assign_new_jobitem_product_to_slot(e){
     let id_obj = get_slot_and_parent_ids(e.target);
-    let form_div = e.target.closest(`.${CLASS_NEW_ITEMS_CONTAINER}`);
-    let assignment_qty = form_div.querySelector('input[name="qty"]').value;
-    let error_anchor = form_div.lastChild;
+    let new_jobitem_form = e.target.closest(`.${CLASS_NEW_ITEMS_CONTAINER}`);
+    let assignment_qty = new_jobitem_form.querySelector('input[name="qty"]').value;
+    let error_anchor = new_jobitem_form.lastChild;
     let failed_task_string = 'Failed to fill slot. Try refreshing the page.';
     
-    let ji_id = await update_server_create_jobitem(e, form_div, id_obj, assignment_qty, error_anchor);
+    let ji_id = await update_server_create_jobitem(e, new_jobitem_form, id_obj, assignment_qty, error_anchor);
     if(ji_id === null) return;
 
     let jobitem_data = await get_jobitem_data(ji_id, error_anchor, failed_task_string);
@@ -421,11 +422,11 @@ async function assign_new_jobitem_product_to_slot(e){
     let jobmod_id = await update_server_create_jobmodule(jobitem_data[key_product_id], id_obj, assignment_qty, error_anchor);
     if(jobmod_id === null) return;
 
-    let product_text = get_product_desc_from_select_desc(form_div.querySelector('select'));
+    let product_text = get_product_desc_from_select_desc(new_jobitem_form.querySelector('select'));
     let description = `${assignment_qty} x ${product_text}`;
-    add_ele_filled_module_slot(jobmod_id, assignment_qty, description, form_div);
+    add_ele_filled_module_slot(jobmod_id, assignment_qty, description, new_jobitem_form);
 
-    form_div.remove();
+    new_jobitem_form.remove();
 }
 
 
@@ -894,7 +895,6 @@ function update_ele_slot_status_indicator_excess(slot_ele, class_indicator, disp
         return;
 
     } else if(should_exist && does_exist){
-        // Update the text (but not the CSS, so don't get any ideas about reusing the function handling the other status indicators as-is)
         let result_ele = slot_ele.querySelector('.' + class_indicator).querySelector('.body');
         result_ele.innerHTML = display_text;
     }

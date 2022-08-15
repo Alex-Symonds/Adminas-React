@@ -3,14 +3,14 @@
     Comments section on Job page
 
     Contents:
-        || Consts   (these need to match CSS classes)
+        || Consts
         || Main section
         || Subsections
         || Individual Comments
-        || Comment Reader
+        || CommentReader
             Note: the vanilla JS has two types of comments, "collapsable" and "full". "Full" comments don't appear on the Job page,
                   so only "collapsable" has been React-ified
-        || Comment Editor
+        || CommentEditor
 */
 
 // Note: these const strings are currently used for three different things:
@@ -23,8 +23,6 @@ const HIGHLIGHTED_STRING = 'highlighted';
 
 // || Main section
 function JobComments(props){
-
-    // Comment-related states
     const [urlComments, setUrl] = React.useState('');
     const [username, setUsername] = React.useState('');
     const [comments, setComments] = React.useState([]);
@@ -35,7 +33,6 @@ function JobComments(props){
     const [activeEdit, setActiveEdit] = React.useState([null, null]);
     const editor_state = get_and_set(activeEdit, setActiveEdit);
 
-    // Load inital comments data from server
     const { data, error, isLoaded } = useFetch(url_for_page_load(props.URL_GET_DATA, props.job_id, 'comments'));
     React.useEffect(() => {
         set_if_ok(data, 'url', setUrl);
@@ -43,18 +40,16 @@ function JobComments(props){
         set_if_ok(data, 'comments', setComments);
     }, [data]);
 
-    // State updates and packaging it up for passing downwards
     function update_comment(comment_id, comment_attributes){
-        list_state_update(comments, setComments, 'id', comment_id, comment_attributes);
+        update_list_state(comments, setComments, 'id', comment_id, comment_attributes);
     }
 
     function remove_comment(comment_id){
-        list_state_delete(comments, setComments, 'id', comment_id); 
+        remove_from_list_state(comments, setComments, 'id', comment_id); 
     }
 
     const actions_comments = get_actions_object(urlComments, null, update_comment, remove_comment);
 
-    // Rendering
     if(error){
         return <LoadingErrorUI name='comments' />
     }
@@ -67,6 +62,7 @@ function JobComments(props){
                             username = { username }
                             />
 }
+
 
 function JobCommentsUI(props){
     let num_comments = props.comments === null ? 0 : props.comments.length;
@@ -107,7 +103,7 @@ function JobCommentsSubsectionUI(props){
     return [
         <section class="subsection">
             <h4>{ capitaliseFirstLetter(props.section_name) } by {props.username}</h4>
-            <div class={ 'comment-container empty-paragraph ' + props.section_name }>
+            <div class={ 'comment-container ' + props.section_name }>
                 <CommentsEmpty  comments = { props.filtered_comments }
                                 verbed = { props.section_name } />
                 { props.filtered_comments.map((comment) => {
@@ -146,26 +142,20 @@ function CommentsEmpty(props){
 
 // || Individual Comments
 function Comment(props){
-
-    // Setup edit so children don't need to worry about the details
     const editor = get_editor_object(`${props.comment.id}_${props.section_name}`, props.editor_state.get, props.editor_state.set);
 
-    // Determine if this comment is the active_edit comment. If so, render the editor.
     if(editor.is_active){
         return <CommentEditor   actions_comments = { props.actions_comments }
                                 comment = { props.comment }
                                 editor  = { editor } />
     }
 
-    // Otherwise render the "normal" comment
     return <CommentReaderUI actions_comments = { props.actions_comments }
                             comment = {props.comment}
                             editor  = { editor } />
 }
 
-// || "Normal" Comment (aka READ comment)
-// Note: if this ever expands to include full comments, around here is where it'd make sense to add the branch.
-// Both types share the same "article" tags, but "collapsable" uses <details> and <summary>, while "full" uses two divs with classes.
+// || CommentReader
 function CommentReaderUI(props){
     var css_class_list = "one-comment";
     css_class_list += props.comment.private ? ' private' : ' public';  // Update CSS class list for public/private
@@ -175,9 +165,9 @@ function CommentReaderUI(props){
         <article class={ css_class_list }>
             <details class="wrapper">
                 <summary class="comment-body">
-                    <CommentContentsMainUI  comment = { props.comment } />
+                    <CommentReaderBodyUI  comment = { props.comment } />
                 </summary>
-                <CommentContentsFooter  actions_comments = { props.actions_comments }
+                <CommentReaderFooter  actions_comments = { props.actions_comments }
                                         comment = { props.comment }
                                         editor = { props.editor }
                                         />
@@ -187,7 +177,7 @@ function CommentReaderUI(props){
 }
 
 // Read Comment: the section with the "private" icon and the user's waffle
-function CommentContentsMainUI(props){
+function CommentReaderBodyUI(props){
     return [
         <span class="main">
             {props.comment.user_is_owner && props.comment.private ? <div class="privacy-status">[PRIVATE]</div>: ''}
@@ -196,8 +186,7 @@ function CommentContentsMainUI(props){
     ]
 }
 
-// Read Comment: the bit at the bottom, with the author, timestamp and buttons (pin, highlight and edit)
-function CommentContentsFooter(props){
+function CommentReaderFooter(props){
     const [backendError, setBackendError] = React.useState(null);
     const backend_error = get_backend_error_object(backendError, setBackendError);
 
@@ -222,7 +211,7 @@ function CommentContentsFooter(props){
         });
     }
 
-    return <CommentContentsFooterUI backend_error = { backend_error }
+    return <CommentReaderFooterUI backend_error = { backend_error }
                                     comment = { props.comment }
                                     editor = { props.editor }
                                     toggle_highlighted = { toggle_highlighted }
@@ -230,7 +219,7 @@ function CommentContentsFooter(props){
                                     />
 }
 
-function CommentContentsFooterUI(props){
+function CommentReaderFooterUI(props){
     return [
         <section class="footer">
             <div class="ownership">
@@ -250,7 +239,6 @@ function CommentContentsFooterUI(props){
 }
 
 
-// Read Comment: the pinned button at the bottom
 function CommentPinnedButtonUI(props){
     const display_text = props.pinned ? 'unpin' : 'pin';
     const on_or_off = props.pinned ? 'on' : 'off';
@@ -258,12 +246,10 @@ function CommentPinnedButtonUI(props){
     return <button class={`pinned-toggle pinned-status-${on_or_off}`} onClick={ props.handle_toggle }>{display_text}</button>
 }
 
-// Read Comment: the highlight button at the bottom
 function CommentHighlightButtonUI(props){
     return <button class="highlighted-toggle" onClick={ props.handle_toggle }>+/- highlight</button>
 }
 
-// Read Comment: edit button at the bottom
 function CommentEditButtonUI(props){
     if(!props.user_is_owner){
         return null;
@@ -275,8 +261,6 @@ function CommentEditButtonUI(props){
 
 // || Comment Editor
 function CommentEditor(props){
-    
-    // Set local states for the editor and package up for passing to UI
     const [contents, setContents] = React.useState(props.comment.contents);
     const [isPrivate, setPrivate] = React.useState(props.comment.private);
     const [isPinned, setPinned] = React.useState(props.comment.pinned);
@@ -302,11 +286,9 @@ function CommentEditor(props){
         highlighted: get_and_set(isHighlighted, update_highlighted)
     }
 
-    // Update/Delete support
     const [backendError, setBackendError] = React.useState(null);
     const backend_error = get_backend_error_object(backendError, setBackendError);
 
-    // Update
     function handle_submit(){
         save_comment();
     }
@@ -339,7 +321,6 @@ function CommentEditor(props){
         return state_to_object_be();
     }
 
-    // Delete
     function handle_delete(){
         delete_comment();
     }
@@ -384,9 +365,7 @@ function CommentEditorUI(props){
     ]
 }
 
-// Comment Editor: the strip of checkboxes for private, pinned and highlighted
 function CommentEditorCheckboxes(props){
-    // Set IDs here so that "for" on the label and "id" on the input/select/whatever will always match
     const ID_COMMENT_CHECKBOX_PRIVATE = 'id_private_checkbox';
     const ID_COMMENT_CHECKBOX_PINNED = 'id_pinned_checkbox';
     const ID_COMMENT_CHECKBOX_HIGHLIGHTED = 'id_highlighted_checkbox';

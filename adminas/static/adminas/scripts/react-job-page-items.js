@@ -83,27 +83,19 @@ function JobItemsCreatorButtonUI(props){
 }
 
 // || Existing
-// Section containing all the existing JobItems, both as a table listing them and as "details" panels
 function JobItemsExisting(props){
-    // Exit early if there are no items.
     if(props.items_list.length == 0){
         return <EmptySectionUI message='No items have been entered.' />
     }
 
-    // Manage edit state (i.e. only one JobItem can be edited at a time)
     const [activeEdit, setActiveEdit] = React.useState(null);
     const editor_state = get_and_set(activeEdit, setActiveEdit);
 
-    // Manage details state (i.e. only one JobItem can have details viewed at a time)
     const [activeDetails, setActiveDetails] = React.useState(null);
     const details_state = get_and_set(activeDetails, setActiveDetails);
     const details_parent = get_details_parent(activeDetails, props.items_list);
 
-    // Products
-    // item_list is a JobItem-centric list, which contains info about which products are assigned to each  
-    // JobItem's slots. This is good for the Specification section, but some parts of this page need the opposite: 
-    // a product-centric list, containing info about which JobItems refer to each product and to which
-    // JobItem/s the product has been assigned. Derive that from item_list here.
+    // item_list is a JobItem-centric list; some parts of the page require a product-centric list instead
     var product_slot_assignments = slot_assignment_data_by_product(props.items_list);
     
     return <JobItemsExistingUI  actions_items = { props.actions_items }

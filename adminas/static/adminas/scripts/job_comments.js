@@ -23,9 +23,9 @@
 const ATTR_LABEL_FORM_TYPE = 'data-form_type';
 const CLASS_ADD_BUTTON = 'add-button';
 const CLASS_ADD_BUTTON_COMMENT = `${CLASS_ADD_BUTTON}.comment`;
-const CLASS_EMPTINESS_MESSAGE_WANTED = 'empty-paragraph';
 const CLASS_EMPTINESS_MESSAGE = 'empty-section-notice';
-const CLASS_CONDITIONAL_EXISTENCE_WANTED = 'toggle-heading';
+const CLASS_EMPTINESS_NOT_PERSISTENT = 'not-persistent';
+const CLASS_EMPTINESS_PERSISTENT = 'persistent';
 const CLASS_COMMENT = 'one-comment';
 const CLASS_COMMENT_CONTENTS = 'contents';
 const CLASS_COMMENT_CONTROLS = 'controls';
@@ -1011,21 +1011,21 @@ function handle_section_emptiness(comment_section_ele, section_name=STR_FALLBACK
 
 function get_settings_comment_section_emptiness(comment_section_ele, section_is_empty){
     // Settings for added/removed comment sections
-    if(comment_section_ele.classList.contains(CLASS_CONDITIONAL_EXISTENCE_WANTED)){
+    if(comment_section_ele.classList.contains(CLASS_EMPTINESS_NOT_PERSISTENT)){
         return {
             existing: comment_section_ele.parentElement.querySelector('h5'),
             want_add: !section_is_empty,
             want_remove: section_is_empty,
-            class_indicating_task: CLASS_CONDITIONAL_EXISTENCE_WANTED
+            class_indicating_task: CLASS_EMPTINESS_NOT_PERSISTENT
         }
     }
     // Settings for persistent comment sections which display an emptiness note
-    else if(comment_section_ele.classList.contains(CLASS_EMPTINESS_MESSAGE_WANTED)){
+    else if(comment_section_ele.classList.contains(CLASS_EMPTINESS_PERSISTENT)){
         return {
             existing: comment_section_ele.querySelector(`.${CLASS_EMPTINESS_MESSAGE}`),
             want_add: section_is_empty,
             want_remove: !section_is_empty,
-            class_indicating_task: CLASS_EMPTINESS_MESSAGE_WANTED
+            class_indicating_task: CLASS_EMPTINESS_PERSISTENT
         }
     }
     return null;
@@ -1042,11 +1042,11 @@ function add_new_comment_emptiness_element(comment_section_ele, section_name, cl
         }
     }
 
-    if(class_indicating_task === CLASS_CONDITIONAL_EXISTENCE_WANTED){
+    if(class_indicating_task === CLASS_EMPTINESS_NOT_PERSISTENT){
         var ele = create_ele_heading_for_conditional_comment_section(section_name);
         comment_section_ele.before(ele);
     }
-    else if(class_indicating_task === CLASS_EMPTINESS_MESSAGE_WANTED){
+    else if(class_indicating_task === CLASS_EMPTINESS_PERSISTENT){
         var ele = create_ele_emptiness_explanation_for_comment_section(section_name);
         comment_section_ele.prepend(ele);
     }

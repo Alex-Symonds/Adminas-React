@@ -78,7 +78,7 @@
             {% if job.pinned_comments %}
                 <h5><span class="hide">Pinned</span></h5>
             {% endif %}
-                <section class="comment-container pinned streamlined toggle-heading">
+                <section class="comment-container pinned streamlined not-persistent">
             {% for comment in job.pinned_comments %}
                     {% include "adminas/components/comment_collapse.html" with comment=comment %}
             {% endfor %}

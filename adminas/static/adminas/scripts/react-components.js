@@ -295,8 +295,7 @@ function set_if_ok(data, key, setter){
 
 
 // || Backend Data Updating
-// Generate a set of headers
-function getFetchHeaders(method, body_obj){
+function getFetchHeaders(method, body_obj = null){
     const headers = {
         method: method,
         headers: getDjangoCsrfHeaders(),
@@ -336,7 +335,6 @@ function getCookie(name) {
     return cookieValue;
 }
 
-// Send data to the server
 const update_server = (url, headers, handle_response) => {
     fetch(url, headers)
     .then(response => get_json_with_status(response))
@@ -380,7 +378,7 @@ function get_backend_error_object(property, updater){
 
 
 // || Generic functions for updating states
-function list_state_update(listState, setListState, id_key, id, new_attributes){
+function update_list_state(listState, setListState, id_key, id, new_attributes){
     var index = listState.findIndex(ele => ele[id_key] === parseInt(id));
     if(index === -1){
         return;
@@ -392,7 +390,7 @@ function list_state_update(listState, setListState, id_key, id, new_attributes){
     ]);
 }
 
-function list_state_delete(listState, setListState, id_key, id){
+function remove_from_list_state(listState, setListState, id_key, id){
     var index = listState.findIndex(ele => ele[id_key] === parseInt(id));
     if(index === -1){
         return;
@@ -403,7 +401,7 @@ function list_state_delete(listState, setListState, id_key, id){
     ]);  
 }
 
-function list_state_create_one(setListState, attributes){
+function add_to_list_state(setListState, attributes){
     setListState(prevState => ([
         ...prevState,
         attributes
