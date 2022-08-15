@@ -95,7 +95,8 @@ function JobItemsExisting(props){
     const details_state = get_and_set(activeDetails, setActiveDetails);
     const details_parent = get_details_parent(activeDetails, props.items_list);
 
-    // item_list is a JobItem-centric list; some parts of the page require a product-centric list instead
+    // item_list is a JobItem-centric list, with parent-JobItem-centric slot assignment data.
+    // Some parts of the page require product-centric slot assignment data instead.
     var product_slot_assignments = slot_assignment_data_by_product(props.items_list);
     
     return <JobItemsExistingUI  actions_items = { props.actions_items }
@@ -146,7 +147,7 @@ function JobItemsExistingTable(props){
 
     return [
         <table id="jobitems_table" class={css_class}>
-            <JobItemsExistingTableHeadUI currency = { props.currency } />
+            <JobItemsExistingTableHeadUI    currency = { props.currency } />
             <JobItemsExistingTableBodyUI    actions_items = { props.actions_items }
                                             currency = {props.currency}
                                             details_items_list = { props.details_items_list }
@@ -202,7 +203,6 @@ function JobItemsExistingTableBodyUI(props){
 }
 
 function JobItemRow(props){
-    // Adjust which jobItem is selected for details
     function toggle_details(){
         if(props.details_state.get === props.data.ji_id){
             props.details_state.set(null);

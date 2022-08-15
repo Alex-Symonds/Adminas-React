@@ -1,5 +1,9 @@
 /*
     Enable simple filtering of the Records page.
+
+    Contents:
+        || Open menu
+        || Submit Filter Options
 */
 
 
@@ -52,7 +56,7 @@ const RECORDS_FILTER_SETTINGS = [
 document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById(ID_BEGIN_FILTER_BUTTON).addEventListener('click', () => {
-        open_filter_options_ele();
+        open_filter_options();
     });
 
 });
@@ -65,21 +69,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
-/* ----------------------------------------------------------------------------------------------------
-Open Filter Options
----------------------------------------------------------------------------------------------------- */
-async function open_filter_options_ele(){
+// || Open menu
+async function open_filter_options(){
     let filter_container = document.getElementById(ID_FILTER_CONTROLS_CONTAINER);
     let filter_options_ele = await create_ele_filter_options();
     filter_container.append(filter_options_ele);
 }
 
-// Open Filter Options: Main function to create the "window"
 async function create_ele_filter_options(){
     let filter_options_ele = create_generic_ele_formy_panel();
     filter_options_ele.id = ID_FILTER_OPTIONS_ELE;
 
-    filter_options_ele.append(create_ele_filter_options_close_btn());
+    filter_options_ele.append(create_ele_filter_options_close_button());
     filter_options_ele.append(create_ele_filter_options_heading());
     filter_options_ele.append(await create_ele_filter_options_body());
     filter_options_ele.append(create_ele_filter_options_submit());
@@ -88,7 +89,7 @@ async function create_ele_filter_options(){
 }
 
 // Open Filter Options: Component
-function create_ele_filter_options_close_btn(){
+function create_ele_filter_options_close_button(){
     let btn = create_generic_ele_cancel_button();
     btn.addEventListener('click', () => {
         let ele = document.getElementById(ID_FILTER_OPTIONS_ELE);
@@ -99,7 +100,7 @@ function create_ele_filter_options_close_btn(){
     return btn;
 }
 
-// Open Filter Options: Component
+
 function create_ele_filter_options_heading(){
     let ele = document.createElement('h4');
     ele.classList.add(CSS_GENERIC_PANEL_HEADING);
@@ -108,28 +109,26 @@ function create_ele_filter_options_heading(){
 }
 
 
-
-// Open Filter Options: Component with selects populated with server data
 async function create_ele_filter_options_body(){
     let ele = document.createElement('div');
     ele.classList.add(CLASS_FILTER_OPTIONS_BODY);
 
     for(let i = 0; i < RECORDS_FILTER_SETTINGS.length; i++){
         if(RECORDS_FILTER_SETTINGS[i].input_type === 'single-text'){
-            ele.append(create_filter_option_text_input(RECORDS_FILTER_SETTINGS[i]));
+            ele.append(create_ele_filter_option_text_input(RECORDS_FILTER_SETTINGS[i]));
         }
         else if(RECORDS_FILTER_SETTINGS[i].input_type === 'select'){
             ele.append(await create_filter_option_select(RECORDS_FILTER_SETTINGS[i]));
         }
         else if(RECORDS_FILTER_SETTINGS[i].input_type === 'range-date'){
-            ele.append(create_filter_option_date_range(RECORDS_FILTER_SETTINGS[i]));
+            ele.append(create_ele_filter_option_date_range(RECORDS_FILTER_SETTINGS[i]));
         }
     }
 
     return ele;
 }
 
-// Open Filter Options: Component
+
 function create_ele_filter_options_submit(){
     let ele = create_generic_ele_submit_button();
     ele.classList.add('full-width-button');
@@ -142,8 +141,7 @@ function create_ele_filter_options_submit(){
 }
 
 
-// Open Filter Options: Body component
-function create_filter_option_base(FILTER_SETTINGS){
+function create_ele_filter_option_base(FILTER_SETTINGS){
     // Use this for the stuff that'll be reused for each option, regardless of type
     let ele = document.createElement('div');
     
@@ -155,9 +153,8 @@ function create_filter_option_base(FILTER_SETTINGS){
     return ele;
 }
 
-// Open Filter Options: Body component
-function create_filter_option_text_input(FILTER_SETTINGS){
-    let ele = create_filter_option_base(FILTER_SETTINGS);
+function create_ele_filter_option_text_input(FILTER_SETTINGS){
+    let ele = create_ele_filter_option_base(FILTER_SETTINGS);
 
     let input_ele = document.createElement('input');
     input_ele.type = 'text';
@@ -167,8 +164,7 @@ function create_filter_option_text_input(FILTER_SETTINGS){
     return ele;
 }
 
-// Open Filter Options: Body component
-function create_filter_option_date_range(FILTER_SETTINGS){
+function create_ele_filter_option_date_range(FILTER_SETTINGS){
     let ele = document.createElement('fieldset');
 
     let heading = document.createElement('legend');
@@ -180,7 +176,7 @@ function create_filter_option_date_range(FILTER_SETTINGS){
     start_label.for = ID_PREFIX_FILTER_FIELDS + RANGE_START + FILTER_SETTINGS.id;
     ele.append(start_label);
 
-    let date_start = create_ele_dateinput(RANGE_START + FILTER_SETTINGS.id);
+    let date_start = create_ele_filter_option_date_input(RANGE_START + FILTER_SETTINGS.id);
     ele.append(date_start);
 
 
@@ -189,14 +185,13 @@ function create_filter_option_date_range(FILTER_SETTINGS){
     end_label.for = ID_PREFIX_FILTER_FIELDS + RANGE_END + FILTER_SETTINGS.id;
     ele.append(end_label);
 
-    let date_end = create_ele_dateinput(RANGE_END + FILTER_SETTINGS.id);
+    let date_end = create_ele_filter_option_date_input(RANGE_END + FILTER_SETTINGS.id);
     ele.append(date_end);
 
     return ele;
 }
 
-// Open Filter Options: Body component
-function create_ele_dateinput(id_suffix){
+function create_ele_filter_option_date_input(id_suffix){
     let input_ele = document.createElement('input');
     input_ele.type = 'date';
     input_ele.id = ID_PREFIX_FILTER_FIELDS + id_suffix;
@@ -204,11 +199,10 @@ function create_ele_dateinput(id_suffix){
 }
 
 
-// Open Filter Options: Body component
 async function create_filter_option_select(FILTER_SETTINGS){
     const key_options_list = 'opt_list';
 
-    let ele = create_filter_option_base(FILTER_SETTINGS);
+    let ele = create_ele_filter_option_base(FILTER_SETTINGS);
 
     let select_ele = document.createElement('select');
     select_ele.id = ID_PREFIX_FILTER_FIELDS + FILTER_SETTINGS.id;
@@ -239,7 +233,7 @@ async function create_filter_option_select(FILTER_SETTINGS){
     return ele;
 }
 
-// Open Filter Options: Query server for the list of valid options for a select
+
 async function get_options_from_server(field_id){
     let response = await fetch(`${URL_SELECT_OPTIONS}?type=select_options_list&name=${field_id}s`)
                     .catch(error => {
@@ -250,35 +244,14 @@ async function get_options_from_server(field_id){
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/* ----------------------------------------------------------------------------------------------------
-Submit Filter Options
----------------------------------------------------------------------------------------------------- */
-// Apply Filter: main function, called by the "apply filter" button
+// || Submit Filter Options
 function reload_page_with_filters(){
-    let get_params = create_get_parameters_for_records_filter();
+    let get_params = get_parameters_string_from_records_filter_inputs();
     window.location.href = `${URL_RECORDS}${get_params}`;
-    return;
 }
 
-// Apply Filter: GET parameters obtained and formatted for use in the URL
-function create_get_parameters_for_records_filter(){
-    let get_param_list = create_list_get_parameters_for_records_filter();
+function get_parameters_string_from_records_filter_inputs(){
+    let get_param_list = format_records_filter_options_as_list();
 
     if(get_param_list.length > 0){
         let get_param_str = `?${get_param_list[0]}`;
@@ -291,8 +264,7 @@ function create_get_parameters_for_records_filter(){
     return '';
 }
 
-// Apply Filter: GET parameters in a list. Contents derived from the user's inputs
-function create_list_get_parameters_for_records_filter(){
+function format_records_filter_options_as_list(){
     let get_param_list = [];
 
     for(let i = 0; i < RECORDS_FILTER_SETTINGS.length; i++){
@@ -310,10 +282,6 @@ function create_list_get_parameters_for_records_filter(){
         else if(RECORDS_FILTER_SETTINGS[i].input_type === 'range-date'){
             get_param = get_param_from_range(ID_PREFIX_FILTER_FIELDS, RECORDS_FILTER_SETTINGS[i].id);
         }
-        else {
-            console.log('Error: ', 'Filter option DOM element is missing.');
-            return;
-        }
 
         if(get_param !== ''){
             get_param_list.push(get_param);
@@ -323,24 +291,22 @@ function create_list_get_parameters_for_records_filter(){
     return get_param_list;
 }
 
-// Apply Filter: Check the input is not blank, then format it for the GET list
+
 function get_param_from_input(field_name, input_value){
     if(input_value !== ''){
-        return create_str_get_param(field_name, input_value);
+        return create_string_get_param(field_name, input_value);
     } 
     return ''; 
 }
 
-// Apply Filter: Check the select is not on the default option, then format it for the GET list
+
 function get_param_from_select(field_name, input_value){
     if(input_value !== '0'){
-        return create_str_get_param(field_name, input_value);
+        return create_string_get_param(field_name, input_value);
     } 
     return '';
 }
 
-// Apply Filter: Check for inputs in the start and end dates.
-// Note: In the event of a start and end date, this returns two parameters "stuck together".
 function get_param_from_range(id_prefix, field_name){
     let get_param = '';
 
@@ -360,9 +326,7 @@ function get_param_from_range(id_prefix, field_name){
     return get_param;
 }
 
-// Apply Filter: given a field name and an input value, format it GET-parameter-style with an "=" in between.
-function create_str_get_param(field_name, input_value){
-    let input_for_url = input_value;
-    return `${field_name}=${input_for_url}`;
+function create_string_get_param(field_name, input_value){
+    return `${field_name}=${input_value}`;
 }
 

@@ -24,6 +24,7 @@ async function update_backend(url, request_options){
     return await get_json_with_status(response);
 }
 
+
 async function query_backend(url){
     let response = await fetch(url)
     .catch(error => {
@@ -33,37 +34,6 @@ async function query_backend(url){
     return await get_json_with_status(response); 
 }
 
-
-// When deleting something, check for 204 before attempting to JSON anything.
-async function jsonOr204(response){
-    if(response.status === 204) return 204;
-    return await response.json();
-}
-
-async function OLDget_json_with_status(response){
-    let result = await response.json();
-    result[KEY_HTTP_CODE] = response.status;
-    return result;
-}
-
-function get_status_from_json(json_data){
-    const ERROR = -1;
-    if(typeof json_data !== 'object') return ERROR;
-    if(!(KEY_HTTP_CODE in json_data)) return ERROR;
-    return json_data[KEY_HTTP_CODE];
-}
-
-async function get_json_with_status(response){
-    const content_type = response.headers.get("content-type");
-    if(content_type && content_type.indexOf("application/json") !== -1){
-        var response_data = await response.json();
-    } else {
-        var response_data = {};
-    }
-    response_data[KEY_HTTP_CODE] = response.status;
-    response_data[KEY_LOCATION] = response.headers.get("Location");
-    return response_data;
-}
 
 function status_is_good(json_data, expected_response_code = null){
     const status = get_status_from_json(json_data);
@@ -78,7 +48,14 @@ function status_is_good(json_data, expected_response_code = null){
 }
 
 
-// Identify when the backend responded with a home-made error; extract the message for display
+function get_status_from_json(json_data){
+    const ERROR = -1;
+    if(typeof json_data !== 'object') return ERROR;
+    if(!(KEY_HTTP_CODE in json_data)) return ERROR;
+    return json_data[KEY_HTTP_CODE];
+}
+
+
 function responded_with_error_reason(response_json){
     if(typeof response_json != "object"){
         return false;
@@ -86,24 +63,12 @@ function responded_with_error_reason(response_json){
     return KEY_RESPONSE_ERROR_MSG in response_json;
 }
 
-
-// Identify when the backend responded with a home-made error; extract the message for display
-function responded_with_error_reason(response_json){
-    if(typeof response_json != "object"){
-        return false;
-    }
-    return KEY_RESPONSE_ERROR_MSG in response_json;
-}
 
 function get_error_message_from_response(response_json){
-
-    // Handle cases where this is called because the server returned an
-    // unexpected success code.
     if(status_is_good(response_json)){
         return 'Page refresh recommended.';
     }
 
-    // Handle actual error codes.
     const status = get_status_from_json(response_json);
     switch(status){
         case 400:
@@ -140,7 +105,6 @@ function get_error_message(error_info, task_failure_string = null){
             5) Fallback message
     */
 
-
     if(typeof error_info == 'string'){
         return error_info;
     }
@@ -149,7 +113,7 @@ function get_error_message(error_info, task_failure_string = null){
         if(task_failure_string !== null){
             let task_string_has_priority = true;
             if('status' in error_info){
-                task_string_has_priority = !error_message_has_high_priority(error_info['status']);
+                task_string_has_priority = !prefer_response_error_to_task_error(error_info['status']);
             }
 
             if(task_string_has_priority){
@@ -166,16 +130,16 @@ function get_error_message(error_info, task_failure_string = null){
     return 'Error: something went wrong.';
 }
 
-function error_message_has_high_priority(response_code){
-    // If everything is fine on the server and it just returned a slightly different "good"
-    // code to the one expected (e.g. 200 instead of 201) then we want to display the
-    // "everything's ok, just refresh the page" message and not anything error-y.
+function prefer_response_error_to_task_error(response_code){
+    // A good status code means the server is happy, which means the task succeeded, which means the task-related
+    // error message is flat-out *wrong* and should not be displayed to the user.
+    // Prefer the response error message, whatever it is (even a blank would be preferable).
     if(status_is_good(response_json)){
         return true;
     }
 
-    // These codes tend to return messages on which the user can act (e.g. "log in"; 
-    // "this clashes with another document"), so prefer these
+    // Prefer codes which return messages on which the user can act (e.g. "log in"; 
+    // "this clashes with another document")
     return response_code == 401 || response_code == 403 || response_code == 409;
 }
 
