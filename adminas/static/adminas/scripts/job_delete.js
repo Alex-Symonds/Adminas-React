@@ -17,23 +17,16 @@ document.addEventListener('DOMContentLoaded', () => {
 function delete_job(){
     let request_options = get_request_options('DELETE');
 
-    fetch(URL_DELETE_JOB, request_options)
-    .then(response => get_json_with_status(response))
-    .then(data => {
-        if(get_status_from_json(data) === 204){
-            window.location.href = '/';
-        }
-        else if(!status_is_good(data)){
-            display_delete_failed_message(data);
-        }
-    })
-    .catch(error => {
-        console.log('Error: ', error)
-    });
+    let response_data = update_backend(URL_DELETE_JOB, request_options);
+    if(get_status_from_json(response_data) === 204){
+        window.location.href = '/';
+    }
+    else if(!status_is_good(response_data)){
+        display_delete_failed_message(response_data);
+    }
 }
 
 function display_delete_failed_message(error_obj){
-    // If there's an existing error message with the same error, do nothing
     let message = get_message_from_error(error_obj);
 
     let existing_ele = document.querySelector(`.${CLASS_ERROR_MESSAGE}`);
@@ -41,8 +34,6 @@ function display_delete_failed_message(error_obj){
         return;
     }
 
-    // Clear out the old error message, if there is one, then replace with a
-    // shiny new error message.
     if (existing_ele != null){
         existing_ele.remove();
     }
