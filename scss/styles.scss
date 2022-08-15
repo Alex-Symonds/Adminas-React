@@ -1231,7 +1231,7 @@ fieldset.form-row{
                 }     
             }
     
-            .pinned-status-on{
+            .pinned-toggle.pin-on{
                 background-image: url(../images/i-pin-filled.svg);
     
                 &:hover{
@@ -1239,7 +1239,7 @@ fieldset.form-row{
                 }
             }
         
-            .pinned-status-off{
+            .pinned-toggle.pin-off{
                 background-image: url(../images/i-pin-unfilled.svg);
     
                 &:hover{

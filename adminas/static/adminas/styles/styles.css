@@ -1006,16 +1006,16 @@ fieldset.form-row label {
 .one-comment .footer .controls .highlighted-toggle:hover {
   background-position: 4px 4px;
 }
-.one-comment .footer .controls .pinned-status-on {
+.one-comment .footer .controls .pinned-toggle.pin-on {
   background-image: url(../images/i-pin-filled.svg);
 }
-.one-comment .footer .controls .pinned-status-on:hover {
+.one-comment .footer .controls .pinned-toggle.pin-on:hover {
   background-position: 4px 4px;
 }
-.one-comment .footer .controls .pinned-status-off {
+.one-comment .footer .controls .pinned-toggle.pin-off {
   background-image: url(../images/i-pin-unfilled.svg);
 }
-.one-comment .footer .controls .pinned-status-off:hover {
+.one-comment .footer .controls .pinned-toggle.pin-off:hover {
   background-position: 4px 4px;
 }
 .one-comment .footer .controls .temp-warning-msg {
