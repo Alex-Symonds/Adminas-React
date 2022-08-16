@@ -1,4 +1,4 @@
-# View for Adminas_React
+# Views for Adminas_React
 # Contents:
 #   || Page views
 #   || API views
@@ -13,19 +13,18 @@ from django.urls import reverse
 from django.core.paginator import Paginator
 from django.utils import formats
 
-import datetime
-
-# PDF stuff ----------------------------------------------
 from wkhtmltopdf.views import PDFTemplateResponse
-# --------------------------------------------------------
 
 from adminas.models import  PriceList, User, Job, Address, JobItem, Product, Slot, PurchaseOrder,\
                             JobModule, ProductionData, DocumentVersion, Company
 from adminas.forms import   DocumentDataForm, JobForm, POForm, JobItemForm, JobItemFormSet, JobItemEditForm, \
                             JobModuleForm, JobItemPriceForm, ProductionReqForm, DocumentVersionForm, JobCommentFullForm
-from adminas.constants import MAX_NUM_FORMS, DOCUMENT_TYPES, CSS_FORMATTING_FILENAME, HTML_HEADER_FILENAME, HTML_FOOTER_FILENAME, SUPPORTED_CURRENCIES, WO_CARD_CODE, SUCCESS_CODE, ERROR_MESSAGE_KEY
+from adminas.constants import MAX_NUM_FORMS, DOCUMENT_TYPES, CSS_FORMATTING_FILENAME, HTML_HEADER_FILENAME, HTML_FOOTER_FILENAME, SUPPORTED_CURRENCIES, WO_CARD_CODE
 from adminas.util import anonymous_user, dict_from_json, error_page, debug, get_dict_document_editor_settings,\
-    get_dict_job_page_root, get_dict_todo, get_dict_record, get_dict_manage_modules, paginate_from_get, get_customer_via_agent_string, filter_jobs, get_dict_currency, create_jobmodule, get_object, anonymous_user_json, get_param_from_dict, get_value_from_json, get_param_from_get_params, is_error, render_with_error, create_job, create_comment, create_po, create_jobitem, create_document, error, respond_with_error, get_comment, extract_toggle_data
+    get_dict_job_page_root, get_dict_todo, get_dict_record, get_dict_manage_modules, paginate_from_get, get_customer_via_agent_string, \
+    filter_jobs, get_dict_currency, create_jobmodule, get_object, anonymous_user_json, get_param_from_dict, get_value_from_json, \
+    get_param_from_get_params, is_error, render_with_error, create_job, create_comment, create_po, create_jobitem, create_document, \
+    error, respond_with_error, get_comment, extract_toggle_data
 
 
 # || Page views

@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
 import adminas.models
-from adminas.constants import ERROR_NO_DATA, DOCUMENT_TYPES, SUCCESS_CODE, ERROR_MESSAGE_KEY
+from adminas.constants import ERROR_NO_DATA, DOCUMENT_TYPES, KEY_ERROR_MESSAGE, KEY_RESPONSE_CODE
 import json
 from django.urls import reverse
 from django.core.paginator import Paginator
@@ -19,8 +19,8 @@ from django.core.paginator import Paginator
 # || Errors
 def error(reason, status_code):
     return {
-        ERROR_MESSAGE_KEY: reason,
-        'status': status_code
+        KEY_ERROR_MESSAGE: reason,
+        KEY_RESPONSE_CODE: status_code
     }
 
 
@@ -28,32 +28,20 @@ def is_error(result_or_err):
     if not type(result_or_err) is type(error('', 0)):
         return False
 
-    return ERROR_MESSAGE_KEY in result_or_err
-
-
-def OLD_respond_with_error(details):
-    """
-    JsonResponse based on a dict
-    """
-    # Legacy inconsistency issue: some places expect "message" for error text; some expect "error".
-    # Until this is resolved, return both.
-    return JsonResponse({
-        'message': details[ERROR_MESSAGE_KEY],
-        'error': details[ERROR_MESSAGE_KEY]
-    }, status = details['status']) 
+    return KEY_ERROR_MESSAGE in result_or_err
 
 
 def respond_with_error(details):
-    if(details['status'] == 403 or details['status'] == 409):
+    if(details[KEY_RESPONSE_CODE] == 403 or details[KEY_RESPONSE_CODE] == 409):
         return JsonResponse({
-            'error': details[ERROR_MESSAGE_KEY]
-        }, status = details['status'])
+            'error': details[KEY_ERROR_MESSAGE]
+        }, status = details[KEY_RESPONSE_CODE])
 
-    return HttpResponse(status = details['status'])
+    return HttpResponse(status = details[KEY_RESPONSE_CODE])
 
 
 def render_with_error(request, details):
-    status = details['status']
+    status = details[KEY_RESPONSE_CODE]
 
     message = "Error: something went wrong."
 
@@ -62,21 +50,21 @@ def render_with_error(request, details):
     elif status == 401:
         message = 'You must be logged in.'
     elif status == 403:
-        if(ERROR_MESSAGE_KEY in details):
-            message = details[ERROR_MESSAGE_KEY]
+        if(KEY_ERROR_MESSAGE in details):
+            message = details[KEY_ERROR_MESSAGE]
         else:
             message = 'Request was forbidden by the server.'
     elif status == 404:
         message = "Requested information was not found."
     elif status == 409:
-        if(ERROR_MESSAGE_KEY in details):
-            message = details[ERROR_MESSAGE_KEY]
+        if(KEY_ERROR_MESSAGE in details):
+            message = details[KEY_ERROR_MESSAGE]
         else:
             message = 'Request clashed with information on server. (The server won.)'
     elif status == 500:
         message = 'A server error has occurred.'
 
-    return error_page(request, message, details['status'])
+    return error_page(request, message, details[KEY_RESPONSE_CODE])
 
 
 def error_page(request, message, error_code):
@@ -508,7 +496,7 @@ def create_comment(comment_form, user, job):
 def create_document(user, job_obj, doc_code, data_form, version_form, assigned_items, special_instructions, prod_data_form):
     """
     Create one new "document", consisting of: the "main" document; version 1 of the document;
-    production data (if applicable), item assignments and special instructions.
+    production data (if applicable); item assignments (if applicable); special instructions (if applicable).
     """
     doc_data = create_document_data(data_form, doc_code, job_obj)
     doc_version = create_document_version(doc_data, user, version_form)

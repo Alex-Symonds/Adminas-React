@@ -46,25 +46,25 @@ function JobPage(){
     function update_item(item_id, item_attributes){
         // Updating existing items can affect document validity
         update_doc_state(item_id, item_attributes);
-        list_state_update(itemsList, setItemsList, 'ji_id', item_id, item_attributes);
+        update_list_state(itemsList, setItemsList, 'ji_id', item_id, item_attributes);
     }
 
     function delete_item(item_id){
         // Deleting items can affect document validity
         update_doc_state(item_id, null);
-        list_state_delete(itemsList, setItemsList, 'ji_id', item_id);
+        remove_from_list_state(itemsList, setItemsList, 'ji_id', item_id);
     }
 
     function create_po(po_attributes){
-        list_state_create_one(setPoList, po_attributes);
+        add_to_list_state(setPoList, po_attributes);
     }
 
     function update_po(po_id, po_attributes){
-        list_state_update(poList, setPoList, 'po_id', po_id, po_attributes);
+        update_list_state(poList, setPoList, 'po_id', po_id, po_attributes);
     }
 
     function delete_po(po_id){
-        list_state_delete(poList, setPoList, 'po_id', po_id);
+        remove_from_list_state(poList, setPoList, 'po_id', po_id);
     }
 
     function update_doc_state(item_id, item_attributes){

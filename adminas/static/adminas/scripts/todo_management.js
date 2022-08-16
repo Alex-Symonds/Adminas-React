@@ -77,7 +77,7 @@ function update_frontend_after_add(btn){
 function display_todo_error_on_job_panel(error_obj, job_id){
     active_ele = document.querySelector(`#${ID_PREFIX_JOB_PANEL}${job_id}`);
     if(active_ele){
-        msg_ele = create_dismissable_error(error_obj);
+        msg_ele = create_generic_ele_dismissable_error(error_obj);
         active_ele.prepend(msg_ele);
         return true;
     }

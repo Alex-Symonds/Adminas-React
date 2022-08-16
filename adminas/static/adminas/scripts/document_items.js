@@ -367,7 +367,7 @@ function create_ele_docitem_split_window_direction(called_from){
 function create_ele_docitem_edit_field(default_qty){
     // JobItem quantity fields are usually used in cases where min=1 makes sense.
     // Here, 0 makes sense too, so adjust the min.
-    let fld = get_jobitem_qty_field();
+    let fld = create_ele_jobitem_quantity_input();
     fld.min = 0;
     fld.value = default_qty;
 

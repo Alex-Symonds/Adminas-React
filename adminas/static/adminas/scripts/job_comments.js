@@ -201,22 +201,14 @@ function create_ele_jobcomment_editor_checkbox_container(){
     let container = document.createElement('div');
     container.classList.add(CLASS_COMMENT_INPUT_CHECKBOX_CONTAINER);
     
-    container.append(create_ele_jobcomment_editor_checkbox_label('Private', ID_COMMENT_CHECKBOX_PRIVATE));
-    container.append(create_ele_checkbox(ID_COMMENT_CHECKBOX_PRIVATE, true));
-    container.append(create_ele_jobcomment_editor_checkbox_label('Pin', ID_COMMENT_CHECKBOX_PINNED));
-    container.append(create_ele_checkbox(ID_COMMENT_CHECKBOX_PINNED));
-    container.append(create_ele_jobcomment_editor_checkbox_label('Highlight', ID_COMMENT_CHECKBOX_HIGHLIGHTED));
-    container.append(create_ele_checkbox(ID_COMMENT_CHECKBOX_HIGHLIGHTED))
+    container.append(create_generic_ele_label('Private', ID_COMMENT_CHECKBOX_PRIVATE));
+    container.append(create_generic_ele_checkbox(ID_COMMENT_CHECKBOX_PRIVATE, true));
+    container.append(create_generic_ele_label('Pin', ID_COMMENT_CHECKBOX_PINNED));
+    container.append(create_generic_ele_checkbox(ID_COMMENT_CHECKBOX_PINNED));
+    container.append(create_generic_ele_label('Highlight', ID_COMMENT_CHECKBOX_HIGHLIGHTED));
+    container.append(create_generic_ele_checkbox(ID_COMMENT_CHECKBOX_HIGHLIGHTED))
 
     return container;
-}
-
-
-function create_ele_jobcomment_editor_checkbox_label(display_str, for_id){
-    let label = document.createElement('label');
-    label.innerHTML = display_str;
-    label.for = for_id;
-    return label;
 }
 
 
@@ -534,7 +526,7 @@ function update_job_page_comments_after_failed_create(response_data, submit_btn)
     close_jobcomment_editor();
     remove_all_jobcomment_warnings();
     
-    let error_message_ele = create_dismissable_error(response_data);
+    let error_message_ele = create_generic_ele_dismissable_error(response_data);
     add_error_comment_creation_failed(error_message_ele, create_comment_container);
 }
 
@@ -544,7 +536,7 @@ function update_job_page_comments_after_failed_update(response_data, btn){
     close_jobcomment_editor();
 
     let contents_ele = comment_ele.querySelector('.contents');
-    let access_denied_ele = create_dismissable_error(response_data);
+    let access_denied_ele = create_generic_ele_dismissable_error(response_data);
     contents_ele.prepend(access_denied_ele);
 }
 
@@ -779,12 +771,12 @@ function remove_all_jobcomment_warnings(){
 function visibility_element(element, want_visibility){
     if(element == null) return;
 
-    let have_visibility = !element.classList.contains('hide');
+    let have_visibility = !element.classList.contains(CSS_HIDE);
     if(want_visibility && !have_visibility){
-        element.classList.remove('hide');
+        element.classList.remove(CSS_HIDE);
     }
     else if(!want_visibility && have_visibility){
-        element.classList.add('hide');
+        element.classList.add(CSS_HIDE);
     }
     return;
 }
@@ -1058,7 +1050,7 @@ function create_ele_heading_for_conditional_comment_section(section_name){
     let h5 = document.createElement('h5');
 
     let span = document.createElement('span');
-    span.classList.add('hide');
+    span.classList.add(CSS_HIDE);
 
     if(section_name === STR_FALLBACK){
         span.innerHTML = 'Comments';

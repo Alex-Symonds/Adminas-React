@@ -21,7 +21,7 @@ import json
 
 from django_countries.fields import CountryField
 
-from adminas.constants import DOCUMENT_TYPES, ERROR_MESSAGE_KEY, NUM_BODY_ROWS_ON_EMPTY_DOCUMENT, SUPPORTED_CURRENCIES, SUPPORTED_LANGUAGES, DEFAULT_LANG, INCOTERMS, DOC_CODE_MAX_LENGTH, ERROR_NO_DATA, SUCCESS_CODE
+from adminas.constants import DOCUMENT_TYPES, KEY_ERROR_MESSAGE, KEY_RESPONSE_CODE, NUM_BODY_ROWS_ON_EMPTY_DOCUMENT, SUPPORTED_CURRENCIES, SUPPORTED_LANGUAGES, DEFAULT_LANG, INCOTERMS, DOC_CODE_MAX_LENGTH, ERROR_NO_DATA, SUCCESS_CODE
 from adminas.util import format_money, get_dict_items_available_for_document, copy_relations_to_new_document_version, debug, update_membership,\
     is_error, create_document_instructions, create_document_assignment, create_document_instructions, error
 import datetime
@@ -1668,7 +1668,7 @@ class DocumentVersion(AdminAuditTrail):
         # Otherwise try to issue the document, then respond accordingly
         issue_result = self.issue(issue_date)
         if is_error(issue_result):
-            return error(f"Document was not issued ({issue_result[ERROR_MESSAGE_KEY]}), but any other unsaved changes have now been saved.", issue_result['status'])
+            return error(f"Document was not issued ({issue_result[KEY_ERROR_MESSAGE]}), but any other unsaved changes have now been saved.", issue_result[KEY_RESPONSE_CODE])
         return True
 
 

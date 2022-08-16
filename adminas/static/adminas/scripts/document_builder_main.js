@@ -363,8 +363,8 @@ function remove_unsaved_changes_ele(){
 function open_editor_special_instruction(btn){
     let target_div = btn.parentElement;
     let contents_div = target_div.querySelector('.contents');
-    contents_div.classList.add('hide');
-    hide_all_by_class('edit-icon');
+    contents_div.classList.add(CSS_HIDE);
+    hide_all_by_class(CSS_EDIT_ICON);
 
     let old_str = contents_div.innerHTML;
     target_div.prepend(create_ele_editor_special_instruction(old_str));
@@ -377,8 +377,8 @@ function close_editor_special_instruction(btn){
     edit_ele.remove();
 
     let contents_div = target_ele.querySelector('.contents');
-    contents_div.classList.remove('hide');
-    unhide_all_by_class('edit-icon');
+    contents_div.classList.remove(CSS_HIDE);
+    unhide_all_by_class(CSS_EDIT_ICON);
 }
 
 
@@ -537,7 +537,7 @@ function update_ele_special_instruction(btn){
     let target_ele = special_inst_ele.querySelector('.contents');
     target_ele.innerHTML = new_str;
 
-    target_ele.classList.remove('hide');
+    target_ele.classList.remove(CSS_HIDE);
 
     close_editor_special_instruction(btn);
     show_save_warning_ele();

@@ -366,7 +366,7 @@ function create_ele_module_slot_new_jobitem_form_quantity_and_submit(){
     let result = document.createElement('div');
     result.classList.add('combo-input-and-button');
 
-    let qty_fld = get_jobitem_qty_field();
+    let qty_fld = create_ele_jobitem_quantity_input();
     qty_fld.value = 1;
     result.append(qty_fld);
 
@@ -598,8 +598,8 @@ function open_editor_module_slot_filler(e){
     // Hide all the edit and remove buttons in an attempt to discourage users from trying to do two things at once
     desc_span.innerHTML = qty_and_desc.replace(QTY_RE, '');
     filler_div.classList.add(CLASS_MODULE_SLOT_IN_EDIT_MODE);
-    desc_span.classList.add('hide');
-    hide_all_by_class('edit-icon');
+    desc_span.classList.add(CSS_HIDE);
+    hide_all_by_class(CSS_EDIT_ICON);
     hide_all_by_class('remove-from-slot-btn');
 }
 
@@ -620,15 +620,15 @@ function close_editor_module_slot_filler(ele, new_qty){
 
     let desc_span = filler_div.querySelector('.child-desc');
     desc_span.innerHTML = qty_txt + desc_span.innerHTML;
-    if(desc_span.classList.contains('hide')){
-        desc_span.classList.remove('hide');
+    if(desc_span.classList.contains(CSS_HIDE)){
+        desc_span.classList.remove(CSS_HIDE);
     }
 
     if(filler_div.classList.contains(CLASS_MODULE_SLOT_IN_EDIT_MODE)){
         filler_div.classList.remove(CLASS_MODULE_SLOT_IN_EDIT_MODE);
     }
 
-    unhide_all_by_class('edit-icon');
+    unhide_all_by_class(CSS_EDIT_ICON);
     remove_ele_all_errors();
 }
 
@@ -674,7 +674,7 @@ function create_ele_module_slot_filler_editor_quantity_and_submit(jobmod_id, fil
 
 
 function create_ele_module_slot_filler_editor_quantity_field(jobmod_id, filler_text){
-    let result = get_jobitem_qty_field();
+    let result = create_ele_jobitem_quantity_input();
 
     result.value = filler_text.match(QTY_RE);
     result.setAttribute('data-id', jobmod_id);

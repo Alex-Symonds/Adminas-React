@@ -53,5 +53,7 @@ ERROR_NO_DATA = "[ERR]"
 
 
 SUCCESS_CODE = 'ok'
-ERROR_MESSAGE_KEY = 'reason'
+KEY_ERROR_MESSAGE = 'reason'
+KEY_RESPONSE_CODE = 'status'
+
 MAX_NUM_FORMS = 50

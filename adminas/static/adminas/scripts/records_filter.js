@@ -145,9 +145,7 @@ function create_ele_filter_option_base(FILTER_SETTINGS){
     // Use this for the stuff that'll be reused for each option, regardless of type
     let ele = document.createElement('div');
     
-    let label = document.createElement('label');
-    label.innerHTML = FILTER_SETTINGS.title;
-    label.for = ID_PREFIX_FILTER_FIELDS + FILTER_SETTINGS.id;
+    let label = create_generic_ele_label(FILTER_SETTINGS.title, ID_PREFIX_FILTER_FIELDS + FILTER_SETTINGS.id);
     ele.append(label);
 
     return ele;
@@ -171,30 +169,21 @@ function create_ele_filter_option_date_range(FILTER_SETTINGS){
     heading.innerHTML = FILTER_SETTINGS.title;
     ele.append(heading);
 
-    let start_label = document.createElement('label');
-    start_label.innerHTML = 'From';
-    start_label.for = ID_PREFIX_FILTER_FIELDS + RANGE_START + FILTER_SETTINGS.id;
-    ele.append(start_label);
+    let idStartDate = `${ID_PREFIX_FILTER_FIELDS}${RANGE_START}${FILTER_SETTINGS.id}`;
+    ele.append(create_generic_ele_label('From', idStartDate));
+    ele.append(create_ele_filter_option_date_input(idStartDate));
 
-    let date_start = create_ele_filter_option_date_input(RANGE_START + FILTER_SETTINGS.id);
-    ele.append(date_start);
-
-
-    let end_label = document.createElement('label');
-    end_label.innerHTML = 'To';
-    end_label.for = ID_PREFIX_FILTER_FIELDS + RANGE_END + FILTER_SETTINGS.id;
-    ele.append(end_label);
-
-    let date_end = create_ele_filter_option_date_input(RANGE_END + FILTER_SETTINGS.id);
-    ele.append(date_end);
+    let idEndDate = `${ID_PREFIX_FILTER_FIELDS}${RANGE_END}${FILTER_SETTINGS.id}`;
+    ele.append(create_generic_ele_label('To', idEndDate));
+    ele.append(create_ele_filter_option_date_input(idEndDate));
 
     return ele;
 }
 
-function create_ele_filter_option_date_input(id_suffix){
+function create_ele_filter_option_date_input(id){
     let input_ele = document.createElement('input');
     input_ele.type = 'date';
-    input_ele.id = ID_PREFIX_FILTER_FIELDS + id_suffix;
+    input_ele.id = id;
     return input_ele;
 }
 
@@ -215,7 +204,7 @@ async function create_filter_option_select(FILTER_SETTINGS){
 
     let response_data = await get_options_from_server(FILTER_SETTINGS.id);
     if(!status_is_good(response_data, 200)){
-        var select_error_ele = create_dismissable_error(response_data, 'Error: failed to load dropdown.');
+        var select_error_ele = create_generic_ele_dismissable_error(response_data, 'Error: failed to load dropdown.');
         ele.append(select_error_ele);
     }
     else{

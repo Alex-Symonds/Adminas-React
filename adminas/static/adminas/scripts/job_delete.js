@@ -27,7 +27,7 @@ function delete_job(){
 }
 
 function display_delete_failed_message(error_obj){
-    let message = get_message_from_error(error_obj);
+    let message = get_error_message(error_obj);
 
     let existing_ele = document.querySelector(`.${CLASS_ERROR_MESSAGE}`);
     if (existing_ele != null && existing_ele.getElementsByTagName('DIV')[0].innerHTML == message){
@@ -38,6 +38,6 @@ function display_delete_failed_message(error_obj){
         existing_ele.remove();
     }
     let delete_btn = document.getElementById(ID_DELETE_JOB_BTN);
-    let error_message_ele = create_dismissable_error(error_obj);
+    let error_message_ele = create_generic_ele_dismissable_error(error_obj);
     delete_btn.after(error_message_ele);
 }

@@ -29,13 +29,13 @@ function toggle_hide_product_list_panel(btn, want_hide){
     let parent_ele = btn.closest('td');
     let panel_ele = parent_ele.querySelector(`.${CLASS_PRODUCT_LIST}`);
 
-    let has_hide = panel_ele.classList.contains('hide');
+    let has_hide = panel_ele.classList.contains(CSS_HIDE);
 
     if(has_hide && !want_hide){
-        panel_ele.classList.remove('hide');
+        panel_ele.classList.remove(CSS_HIDE);
     }
     else if(!has_hide && want_hide){
-        panel_ele.classList.add('hide');
+        panel_ele.classList.add(CSS_HIDE);
     }
     return;
 }
