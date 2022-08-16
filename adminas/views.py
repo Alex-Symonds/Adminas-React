@@ -21,7 +21,7 @@ from adminas.forms import   DocumentDataForm, JobForm, POForm, JobItemForm, JobI
                             JobModuleForm, JobItemPriceForm, ProductionReqForm, DocumentVersionForm, JobCommentFullForm
 from adminas.constants import MAX_NUM_FORMS, DOCUMENT_TYPES, CSS_FORMATTING_FILENAME, HTML_HEADER_FILENAME, HTML_FOOTER_FILENAME, SUPPORTED_CURRENCIES, WO_CARD_CODE
 from adminas.util import anonymous_user, dict_from_json, error_page, debug, get_dict_document_editor_settings,\
-    get_dict_job_page_root, get_dict_todo, get_dict_record, get_dict_manage_modules, paginate_from_get, get_customer_via_agent_string, \
+    get_dict_job_page_root, get_dict_todo, get_dict_record, get_dict_manage_modules, get_page, get_customer_via_agent_string, \
     filter_jobs, get_dict_currency, create_jobmodule, get_object, anonymous_user_json, get_param_from_dict, get_value_from_json, \
     get_param_from_get_params, is_error, render_with_error, create_job, create_comment, create_po, create_jobitem, create_document, \
     error, respond_with_error, get_comment, extract_toggle_data
@@ -289,7 +289,7 @@ def comments_page(request):
     setting_for_order_by = '-created_on'
     all_comments = job.get_all_comments(request.user, setting_for_order_by)
 
-    page = paginate_from_get(all_comments, request.GET)
+    page = get_page(all_comments, request.GET)
     if is_error(page):
         return render_with_error(page)
 
@@ -344,9 +344,7 @@ def records(request):
     filtered_jobs = filter_jobs(request.GET)
 
     num_records_per_page = 20
-    paginated = Paginator(filtered_jobs, num_records_per_page)
-    req_page_num = request.GET.get('page', 1)
-    req_page = paginated.page(req_page_num)
+    req_page = get_page(filtered_jobs, request.GET, num_records_per_page)
 
     records = [get_dict_record(job, request.user) for job in req_page.object_list]
 

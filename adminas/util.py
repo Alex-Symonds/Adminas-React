@@ -198,7 +198,18 @@ def extract_toggle_data(posted_data):
     return error('Invalid request', 400)
 
 
+def get_page(sorted_items, get_params, num_per_page = 10):
+    if(sorted_items != None):
+        paginator = Paginator(sorted_items, num_per_page)
 
+        # Get the requested page number (fallback to 1 if this wasn't specified)
+        requested_page_num = get_param_from_get_params('page', get_params)
+        if is_error(requested_page_num):
+            requested_page_num = 1
+
+        return paginator.page(requested_page_num)
+
+    return None
 
 
 # || Formatting
@@ -235,19 +246,7 @@ def get_customer_via_agent_string(job):
     return result
 
 
-# || Paginate
-def paginate_from_get(sorted_items, get_params, num_per_page = 10):
-    if(sorted_items != None):
-        paginator = Paginator(sorted_items, num_per_page)
 
-        # Get the requested page number (fallback to 1 if this wasn't specified)
-        requested_page_num = get_param_from_get_params('page', get_params)
-        if is_error(requested_page_num):
-            requested_page_num = 1
-
-        return paginator.page(requested_page_num)
-
-    return None
 
     
 

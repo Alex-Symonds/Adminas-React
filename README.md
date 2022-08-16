@@ -51,11 +51,11 @@ Address stores only a physical address, an FK to a Site and the date of creation
 ### Background Info: Product Models
 Product information is split across five models: Product, Description, StandardAccessory, SlotChoiceList and Slot.
 
-There should be one Product record for each item that wants its own line on document (that is, items with a selling price and "standard accessories").
+There should be one Product record for each item that wants its own line on document (that is, items with a selling price and items which are "standard accessories").
 
 Descriptions of Products are stored as separate records, giving users the options of adding multilingual support and keeping a record of old descriptions.
 
-Slot and SlotChoiceList together are used to describe "modular" Products. Suppose the company sells a "joyfully toy-full chocolate egg" which contains 1-4 small toys of the customer's choice: this would be considered a modular product because the egg alone is incomplete, the customer must also order 1-4 toys (for this example, let's say 0 toys is disallowed for business reasons and 5 wouldn't fit). SlotChoiceList is where Adminas stores the list of suitable small toys. It contains a field for a name (this is for the convenience of system admins, it only appears in the Django admin pages) and an MTM table matching the SlotChoiceList to relevant Products (in this example, all toys small enough to fit 4 inside the egg). Slot links the parent Product to the SlotChoiceList and states how many are required and how many are optional. Multiple Slots can be assigned to a single Product in the event of a more complex modular item. A single SlotChoiceList could be used to populate multiple different Slots in multiple different Products (it's up to the system admin to weigh up the pros and cons of "not needing to re-enter the same list more than once" versus "what if we add a new option for ParentA without realising the same list is also used for ParentX, where the new option would be disastrous?").
+Slot and SlotChoiceList together are used to describe "modular" Products. Suppose the company sells a "joyfully toy-full chocolate egg" which contains 1-4 small toys of the customer's choice: this would be considered a modular product because the egg alone is incomplete, the customer must also order 1-4 toys (for this example, let's say 0 toys is disallowed for business reasons and 5 wouldn't fit). SlotChoiceList is where Adminas stores the list of suitable small toys. It contains a field for a name (this is for the convenience of system admins, it only appears in the Django admin pages) and an MTM table matching the SlotChoiceList to relevant Products (in this example, all toys small enough to fit 4 inside the egg). Slot links the parent Product to the SlotChoiceList and states how many are required and how many are optional. Multiple Slots can be assigned to a single Product in the event of a more complex modular item. A single SlotChoiceList could be used to populate multiple different Slots in multiple different Products (it's up to the system admin to weigh up the pros and cons of DRY versus "what if we add a new option for ParentA without realising the same list is also used for ParentX, where the new option would be disastrous?").
 
 StandardAccessory is used in cases where one Product is supplied with a selection of other products as standard and the company wishes to mention the additional products on the paperwork. It can be used to add small sundry items to a Product (e.g. a dust cover, a power cable, batteries); to create "package deals" (i.e. create a Product for the package as a whole, then add all the included Products via StandardAccessories); or to create modular items with pre-selected valid options (e.g. there could be an "awfully dinosaur-full chocolate egg" Product where the system admin added four dinosaur toy Products as StandardAccessories).
 
@@ -103,7 +103,7 @@ JobModule is used to describe one slot filler on a modular JobItem. Via FK field
 
 
 ### Document Models
-There are nine models related to documents: DocumentData, DocumentVersion, DocAssignment, ProductionData, SpecialInstruction, DocumentStaticMainFields, DocumentStaticOptionalFields, DocumentStaticSpecialInstruction, and DocumentStaticLineItem.
+There are five models related to documents: DocumentData, DocumentVersion, DocAssignment, ProductionData and SpecialInstruction.
 
 DocumentData represents "one document", storing all information about the document which will remain constant across any/all revisions that might be needed. This turns out to be limited to the type of document, the FK to the associated Job, and a reference name.
 
@@ -115,7 +115,6 @@ SpecialInstruction allows users to communicate unusual details with the folks pr
 
 Not all documents need production dates, so to avoid lots of "null" in DocumentVersion, it's stored as "ProductionData".
 
-The four ```DocumentStatic*``` models are used to store the content of a document when it's issued, so that Adminas has the information it needs to reconstruct the PDF of the issued document as it was when it was issued, without risk of any subsequent updates being incorrectly retroactively applied.
 
 
 ## Additional Information: Design Decisions
@@ -123,7 +122,7 @@ The four ```DocumentStatic*``` models are used to store the content of a documen
 Users must select addresses from an address book and are not given the ability to create or update addresses via the New or Job pages. This is because when a user's mind is on the task of processing an order they're probably not giving much consideration to how they can help maintain a pristine address book. Adminas keeps these two tasks completely separate in the hope of avoiding the same Site appearing half a dozen times under slightly different names because users kept forgetting what they'd called it and decided it'd be faster to re-enter the Site than find it.
 
 ### Restrictive product descriptions on documents
-Adminas doesn't allow users to edit product descriptions (outside of Django admin); it doesn't allow users to group JobItems and display a group name and subtotal on the document; it complains if users fail to include all JobItems on documents. These features are missing because of the two types of documents output by Adminas and how these interact with the most common reasons for wanting to edit a product description.
+Adminas doesn't allow users to edit product descriptions (outside of Django admin) because of the two types of documents output by Adminas and how these interact with the most common reasons for wanting to edit a product description.
 
 The most common reasons for wanting to amend a product description are:
 1. To match the customer's description or layout
@@ -132,16 +131,9 @@ The most common reasons for wanting to amend a product description are:
 
 Work orders (WO) are internal documents, meaning there's no need to consider the needs of customers or third-parties, only those of the user's company. Consistency in wording and display is mostly beneficial to the company, since employees will learn to recognise the standard descriptions at a glance, reducing the risk of miscommunication and increasing efficiency. Its weakness is the risk of employees overlooking information about modifications due to their habit of only glancing at the list of items. This can be mitigated by ensuring modifications are displayed separately and prominently: making a tiny edit in the middle of an otherwise familiar description does not qualify. This is why Adminas prohibits users editing product descriptions on WOs and instead gives them the ability to add "SpecialInstructions" (which appear in a big obvious box at the top).
 
-Order confirmations (OC) are external documents but they're usually just between the company and the customer, third-parties rarely take an interest. Rewording the OC to match the customer's PO would rather defeat one of the primary purposes of the OC -- parroting back a PO does nothing to help confirm the company's understanding of the order matches the customer's -- and customers rarely insist upon it anyway. Editing a product description to reflect modifications makes more sense on an OC (the customer might not even realise their modification is a modification), but modifications probably aren't that common and SpecialInstructions do an ok job of getting the message across on the OC, so it wasn't deemed worth implementing a document-specific product description editor purely for a small subset of OCs.
+Order confirmations (OC) are external documents but they're usually just between the company and the customer, third-parties rarely take an interest. Rewording the OC to match the customer's PO is rarely requested by customers and would defeat one of the primary purposes of the OC: confirming the supplier's understanding of the order matches the customer's, which doesn't happen if you simply parrot back their PO. Editing a product description to reflect modifications makes more sense on an OC (the customer might not even realise their modification is a modification), but modifications probably aren't that common and SpecialInstructions do an ok job of getting the message across on the OC, so it wasn't deemed worth implementing a document-specific product description editor purely for a small subset of OCs.
 
 If Adminas were expanded to output more documents -- particularly ones of interest to third-parties, such as invoices -- then it would require additional functionality when it comes to customising the body content.
-
-### Storage of issued documents
-Regarding the use of ```DocumentStatic*``` models to preserve the issued state of a document, I considered two alternatives: storing the actual PDFs in Adminas (so clicking the button a second time shows the previously created PDF instead of making a new one from data); preventing users and super users from updating/deleting anything that's appeared on an issued document.
-
-A large percentage of paper documents stored in filing cabinets are never again seen by human eyes. Assuming the same is true of digital documents, I decided against storing the PDFs: it would use more memory compared to storing just the strings and while it'd greatly reduce the amount of database access (one filename vs. multiple tables and strings), the database access only happens when you issue the document and when you look at it.
-
-I decided against locking records for editing because it'd be annoying to keep having to remake records and set up all the FKs every time a user finds a typo in something that's gone out.
 
 
 ## Additional Information: Ideas for Extension
@@ -175,21 +167,21 @@ Adding a new empty price list via Django admin is easy enough, but populating it
 * forms.py has the settings for any/all forms
 * models.py contains the models, including many methods
 * urls.py sets up the URLs and how they correspond to the fucntions in views.py
-* views.py contains the logic for handling GET/POST requests
+* views.py contains page views, api views and some helper functions relating to forms and identifying request types
  
 #### constants.py 
 Contains "business-y" constants: CSS settings for their document stationery, currencies they accept, languages they support, INCOTERMS they allow, etc.
 
 #### util.py
-* formatting functions: format_money(), get_plus_prefix(), debug()
-* reusable error pages: anonymous_user(), error_page()
-* a couple of functions for creating new database objects: add_jobitem() and copy_relations_to_new_document_version()
-* get_document_available_items(), which is used by the document_builder page to create a dict of JobItems available for use on a document of a given type
+* Error-related functions, to pass errors around and then respond (via JSON or render) accordingly and consistently
+* Helper functions to take information from GET parameters or JSON bodies and extract the required objects/variables
+* String formatting (money, plus prefix, agent/customer string)
+* Preparing dictionaires for various purposes
+* Creating new database objects
+* Tools
 
 
 ### Subfolder adminas/templatetags/ 
-The three files with names beginning with "get" allow Django templates to make use of some class methods which require an object as an argument.
-
 query_transform.py is used by the pagination navigation. The records page uses GET parameters for both pagination and filter settings, so using ```"?page={{ page.next_page_number }}"``` in the pagination navigation (as suggested in the Django docs) would result in it losing all the filter settings, making it impossible to ever see past the first page of filtered records. query_transform.py solves this problem by copying the entire current URL and updating only the GET parameter passed in as an argument.
 
 
@@ -244,10 +236,6 @@ Page-specific CSS named accordingly.
 Used by: edit.
 On changing a dropdown of address names, request the full address from the server and display it on the page.
 
-##### auto_item_desc.js
-Used by: job, edit.
-On changing a dropdown containing product names, request the product description of the item and display it on the page.
-
 ##### document_builder_main.js
 Used by: document_builder.
 1. Save, issue and delete buttons at the top of the page, plus the "unsaved changes" warning box.
@@ -261,37 +249,21 @@ Adds functionality to the "split" and "incl/excl" buttons on the item lists.
 Used by: document_main.
 Adds functionality to the two "version" buttons, replace and revert. (Note: "replace" only available on issued documents; revert only available on issued documents with >1 version)
 
-##### items_edit.js
-Used by: job.
-Enables editing existing JobItems, both via the edit button on the panels for each item or via the pricecheck table.
-
-##### items_new_form.js
-Used by: job.
-Allows the user to hide/unhide the entire "add new JobItems" form and modify the form to create multiple JobItems in one go.
-
 ##### job_comments.js
-Used by: job, job_comments, index.
+Used by: job_comments, index
 Comment functionality: create, edit, delete and toggling statuses.
 
 ##### job_delete.js
 Used by: edit.
 Enables the "delete" button when editing an existing Job.
 
-##### job_price_check_btn.js
-Used by: job.
-Functionality for the "selling price is {NOT }CONFIRMED" indicator/button on the Job page. Toggles the price_confirmed status on the server and updates the page.
-
-##### job_toggle.js
-Used by: job.
-Job page visibility toggles for the "add PO" form and the "add JobItems" form.
-
 ##### manage_modules.js
 Used by: module_management.
 Allows users to edit an existing slot filler; add space for an additional slot filler (via the "+ slot" button); fill an empty slot with an existing JobItem or by creating a new JobItem.
 
-##### po_edit.js
-Used by: job.
-Job page's PO section. Enables updating and deleting of an existing PO. (Creating a new PO is handled via a form.)
+##### 
+
+
 
 ##### records_filter.js
 Used by: records.
