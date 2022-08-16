@@ -261,9 +261,15 @@ Enables the "delete" button when editing an existing Job.
 Used by: module_management.
 Allows users to edit an existing slot filler; add space for an additional slot filler (via the "+ slot" button); fill an empty slot with an existing JobItem or by creating a new JobItem.
 
-##### 
+##### react-job-page-X.js
+Used by: job.
+As an exercise, the Job page is now constructed using React. The various files cover components, states and helper functions for the all the various sections, forms and error messages which can appear on the Job page.
 
+Inevitably there is some overlap between the React files and the "vanilla" files: comments and todo list toggles also appear on other, non-React pages.
 
+##### react-util.js
+Used by: job.
+Components and functions to help more than one section of the Job page.
 
 ##### records_filter.js
 Used by: records.
@@ -274,9 +280,9 @@ Used by: records.
 Handles the "view" buttons. (If there are multiple POs or items on an order, users can view them in a pop-up by clicking "view").
 
 ##### todo_management.js
-Used by: job, home, records.
+Used by: home, records.
 Allows users to adjust which Jobs appear on the to-do list in three ways: add via the "plus" buttons on the Records page; remove via the "minus" circles on the homepage to-do list; toggle via the "indicator" on the Job page.
 
 ##### util.js
 Used by: any/all pages.
-A selection of general-purpose functions available to all pages. Includes: formatting numbers with thousand separator commas; obtaining the date; obtaining a select index based on the display text; finding the last element of a type on the page; a couple of functions from the Django documentation regarding CSRF authentication; functions to hide/show elements based on CSS class; wipe data from a "form row"; several generic DOM elements (message boxes, buttons, panels).
+A selection of general-purpose functions available to all pages.
