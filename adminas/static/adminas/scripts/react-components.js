@@ -3,7 +3,7 @@
 
     Contents:
         || Strings and Formatting
-        || Icons
+        || "Small" components (spans, icons)
         || Buttons and Controls
         || Price Comparison Table
         || Select
@@ -37,11 +37,12 @@ function format_percentage(perc, min_digits = 0){
     return perc.toLocaleString(undefined, {minimumFractionDigits: min_digits, maximumFractionDigits: 2}) + '%';
 }
 
+
+// || "Small" components (spans, icons)
 function JobItemIdIcon(props){
-    if(props.ji_id === null){
-        return null;
-    }
-    return <span class="name-tag id">{ props.ji_id }</span>
+    return <JobItemNameTagSpan  css = " id"
+                                name = { props.ji_id } 
+                                />
 }
 
 function JobItemPriceListIconSpan(props){
@@ -58,7 +59,8 @@ function JobItemNameTagSpan(props){
         return null;
     }
 
-    return <span class="name-tag">{ props.name }</span>
+    let extra_classes = 'css' in props ? ` ${props.css}` : '';
+    return <span class={"name-tag" + extra_classes}>{ props.name }</span>
 }
 
 function InvalidIconUI(props){
@@ -113,8 +115,6 @@ function EditorControls(props){
 
 
 // || Price Comparison Table
-// The Job pages compares the sum total of all the individual items entered against the total PO value and the total list price.
-// Both sections display a similar table.
 function PriceComparisonTable(props){
     let difference_as_perc = 0;
     if(props.second_value !== 0){
@@ -150,7 +150,6 @@ function QuantityNameLi(props){
 
 
 // || Select (React component)
-// Create a <select> element with a list of valid options obtained from the backend.
 function SelectBackendOptions(props){
     const url = props.api_url + '?type=select_options_list&name=' + props.get_param;
     const { data, error, isLoaded } = useFetch(url);
@@ -182,12 +181,10 @@ function SelectBackendOptions(props){
     }
 }
 
-// Part of <select>. This is a "none" option to add above the "real" options.
 function OptionEmptyDefaultUI(props){
     return <option value="" selected={ props.selected_opt_id !== null && props.selected_opt_id !== '' }>---------</option>
 }
 
-// Part of <select>. Add an option using a single id / name pair.
 function OptionIdAndNameUI(props){
     if(props.is_selected){
         return <option value={props.id} selected>{props.name}</option>
@@ -197,21 +194,18 @@ function OptionIdAndNameUI(props){
 
 
 // || Package Data and Methods
-// Group together URL for backend access with state management functions
 function get_actions_object(url, create_f, update_f, delete_f){
     return {
         url, create_f, update_f, delete_f
     }
 }
 
-// Group a state and its updater for convenient passing as props
-function get_and_set(get, set){
+function getter_and_setter(get, set){
     return {
         get, set
     }
 }
 
-// Group edit mode stuff, i.e turn on/off and info to determine "should I be on or off?"
 function get_editor_object(this_id, state_id, update_state){
     function edit_on(){
         update_state(this_id);
@@ -228,23 +222,18 @@ function get_editor_object(this_id, state_id, update_state){
 }
 
 // || Backend Data Loading
-// Component to display when waiting for data from the server
 function LoadingUI(props){
     return <div class="loading">Loading...</div>
 }
 
-// Component to display when loading data from the server has gone horribly wrong
 function LoadingErrorUI(props){
     return <div class="loading error">Error loading { props.name }</div>
 }
 
-// Component to display when there was no data to display.
 function EmptySectionUI(props){
     return <p class="empty-section-notice">{ props.message }</p>
 }
 
-// Reusable function to GET data from the server, also returning the "error" and "isLoaded"
-// variables used to activate the loading elements
 const useFetch = url => {
     const [data, setData] = React.useState([]);
     const [error, setError] = React.useState(null);
@@ -274,13 +263,13 @@ const useFetch = url => {
 
 
 // Helper function: add the appropriate GET params to requests for initial page data
-function url_for_page_load(main_url, job_id, name){
-    return `${main_url}?job_id=${job_id}&type=page_load&name=${name}`;
+function url_for_page_load(api_url, job_id, name){
+    return `${api_url}?job_id=${job_id}&type=page_load&name=${name}`;
 }
 
 // Helper function: add the appropriate GET params when requesting a list of options for a <select>
-function url_for_url_list(main_url){
-    return `${main_url}?type=urls`;
+function url_for_url_list(api_url){
+    return `${api_url}?type=urls`;
 }
 
 // Helper function. Check if the key appears in the response data and if so, use the setter to set something to it
@@ -296,43 +285,7 @@ function set_if_ok(data, key, setter){
 
 // || Backend Data Updating
 function getFetchHeaders(method, body_obj = null){
-    const headers = {
-        method: method,
-        headers: getDjangoCsrfHeaders(),
-        credentals: 'include' 
-    }
-
-    if(body_obj !== null){
-        headers.body = JSON.stringify(body_obj)
-    }
-
-    return headers;
-}
-
-// Taken from Django documentation for CSRF handling.
-function getDjangoCsrfHeaders(){
-    // Prepare for CSRF authentication
-    var csrftoken = getCookie('csrftoken');
-    var headers = new Headers();
-    headers.append('X-CSRFToken', csrftoken);
-    return headers;
-}
-
-// Taken from Django documentation for CSRF handling.
-function getCookie(name) {
-    // Gets a cookie.
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
-    }
-    return cookieValue;
+    return get_request_options(method, body_obj);
 }
 
 const update_server = (url, headers, handle_response) => {
@@ -353,7 +306,7 @@ function BackendErrorUI(props){
         return null;
     }
     return [
-        <div class="temp-warning-msg">
+        <div class={CLASS_ERROR_MESSAGE}>
             <div class="message">{ props.message }</div>
             <CancelButton   cancel = { props.turn_off_error } />
         </div>]

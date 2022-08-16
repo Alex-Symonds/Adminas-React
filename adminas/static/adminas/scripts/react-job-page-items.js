@@ -89,10 +89,10 @@ function JobItemsExisting(props){
     }
 
     const [activeEdit, setActiveEdit] = React.useState(null);
-    const editor_state = get_and_set(activeEdit, setActiveEdit);
+    const editor_state = getter_and_setter(activeEdit, setActiveEdit);
 
     const [activeDetails, setActiveDetails] = React.useState(null);
-    const details_state = get_and_set(activeDetails, setActiveDetails);
+    const details_state = getter_and_setter(activeDetails, setActiveDetails);
     const details_parent = get_details_parent(activeDetails, props.items_list);
 
     // item_list is a JobItem-centric list, with parent-JobItem-centric slot assignment data.
@@ -300,7 +300,7 @@ function JobItemsDetailsContainer(props){
     }
 
     const [isExpanded, setIsExpanded] = React.useState(true);
-    const expanded_state = get_and_set(isExpanded, setIsExpanded);
+    const expanded_state = getter_and_setter(isExpanded, setIsExpanded);
 
     const expanded_class = isExpanded ? " expanded" : "";
     return [
@@ -856,7 +856,7 @@ function JobItemsCreator(props){
     var actions_formset = {
         'add_one': add_field_set,
         'add_multiple': add_n_field_sets,
-        'num_to_add': get_and_set(numToAdd, handle_num_add_change),
+        'num_to_add': getter_and_setter(numToAdd, handle_num_add_change),
         'remove': remove_field_set,
         'update': update_fields
     }
@@ -1010,10 +1010,10 @@ function JobItemsCreatorRow(props){
     }
 
     const controlled = {
-        quantity: get_and_set(props.data.quantity, update_quantity),
-        selling_price: get_and_set(props.data.selling_price, update_selling_price),
-        product_id: get_and_set(props.data.product_id, update_product),
-        price_list_id: get_and_set(props.data.price_list_id, update_price_list)
+        quantity: getter_and_setter(props.data.quantity, update_quantity),
+        selling_price: getter_and_setter(props.data.selling_price, update_selling_price),
+        product_id: getter_and_setter(props.data.product_id, update_product),
+        price_list_id: getter_and_setter(props.data.price_list_id, update_price_list)
     }
 
     function handle_click_remove(e){
@@ -1089,10 +1089,10 @@ function JobItemEditor(props){
     }
 
     const controlled = {
-        quantity: get_and_set(quantity, update_quantity),
-        selling_price: get_and_set(sellingPrice, update_selling_price),
-        product_id: get_and_set(productId, update_product),
-        price_list_id: get_and_set(priceListId, update_price_list)
+        quantity: getter_and_setter(quantity, update_quantity),
+        selling_price: getter_and_setter(sellingPrice, update_selling_price),
+        product_id: getter_and_setter(productId, update_product),
+        price_list_id: getter_and_setter(priceListId, update_price_list)
     };
 
     function handle_submit(e){

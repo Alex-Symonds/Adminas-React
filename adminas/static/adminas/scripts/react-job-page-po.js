@@ -152,7 +152,7 @@ function JobPoList(props){
 
     // manage edit mode: only one PO should be editable at a time
     const [activeEdit, setActiveEdit] = React.useState(null);
-    const editor_state = get_and_set(activeEdit, setActiveEdit);
+    const editor_state = getter_and_setter(activeEdit, setActiveEdit);
 
     return <JobPoListUI po_list = { props.data.po_list }
                         actions_po = { props.actions_po }
@@ -299,11 +299,11 @@ function JobPoEditor(props){
     }
 
     var controlled = {
-        'reference': get_and_set(reference, update_reference),
-        'date_on_po': get_and_set(dateOnPo, update_date_on_po),
-        'date_received': get_and_set(dateReceived, update_date_received),
-        'currency': get_and_set(currency, update_currency),
-        'po_value': get_and_set(poValue, update_po_value)
+        'reference': getter_and_setter(reference, update_reference),
+        'date_on_po': getter_and_setter(dateOnPo, update_date_on_po),
+        'date_received': getter_and_setter(dateReceived, update_date_received),
+        'currency': getter_and_setter(currency, update_currency),
+        'po_value': getter_and_setter(poValue, update_po_value)
     }
 
     // Fetching the URL for purchase order actions from the BE

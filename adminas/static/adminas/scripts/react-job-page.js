@@ -104,7 +104,7 @@ function JobPage(){
     const doc_data = get_documents_data_object(urlDocs, docList, jobMain.doc_quantities, total_qty_all_items);
     const actions_items = get_actions_object(urlItems, create_items, update_item, delete_item);
     const actions_po = get_actions_object(null, create_po, update_po, delete_po);
-    const price_accepted_state = get_and_set(priceAccepted, setPriceAccepted);
+    const price_accepted_state = getter_and_setter(priceAccepted, setPriceAccepted);
 
     return <JobPageUI   actions_items = { actions_items }
                         actions_po = { actions_po }

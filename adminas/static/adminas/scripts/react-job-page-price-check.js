@@ -139,7 +139,7 @@ function JobPriceCheckDetails(props){
 
     // Details allows users to edit prices directly from the table. Only one price at a time though.
     const [activeEdit, setActiveEdit] = React.useState(null);
-    const editor_state = get_and_set(activeEdit, setActiveEdit);
+    const editor_state = getter_and_setter(activeEdit, setActiveEdit);
 
     return <JobPriceCheckDetailsUI  actions_items = { props.actions_items }
                                     currency = { props.currency }

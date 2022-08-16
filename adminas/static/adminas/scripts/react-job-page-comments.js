@@ -31,7 +31,7 @@ function JobComments(props){
     // a comment which is both pinned and highlighted will appear in both sections, so using the ID alone would result in 
     // an unnecessary second editor window (for the comment with the same ID, but in the other section).
     const [activeEdit, setActiveEdit] = React.useState([null, null]);
-    const editor_state = get_and_set(activeEdit, setActiveEdit);
+    const editor_state = getter_and_setter(activeEdit, setActiveEdit);
 
     const { data, error, isLoaded } = useFetch(url_for_page_load(props.URL_GET_DATA, props.job_id, 'comments'));
     React.useEffect(() => {
@@ -280,10 +280,10 @@ function CommentEditor(props){
     }
 
     const controlled = {
-        contents: get_and_set(contents, handle_content_change),
-        private: get_and_set(isPrivate, update_private),
-        pinned: get_and_set(isPinned, update_pinned),
-        highlighted: get_and_set(isHighlighted, update_highlighted)
+        contents: getter_and_setter(contents, handle_content_change),
+        private: getter_and_setter(isPrivate, update_private),
+        pinned: getter_and_setter(isPinned, update_pinned),
+        highlighted: getter_and_setter(isHighlighted, update_highlighted)
     }
 
     const [backendError, setBackendError] = React.useState(null);
