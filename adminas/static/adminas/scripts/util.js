@@ -56,6 +56,19 @@ function get_status_from_json(json_data){
 }
 
 
+async function get_json_with_status(response){
+    const content_type = response.headers.get("content-type");
+    if(content_type && content_type.indexOf("application/json") !== -1){
+        var response_data = await response.json();
+    } else {
+        var response_data = {};
+    }
+    response_data[KEY_HTTP_CODE] = response.status;
+    response_data[KEY_LOCATION] = response.headers.get("Location");
+    return response_data;
+}
+
+
 function responded_with_error_reason(response_json){
     if(typeof response_json != "object"){
         return false;
@@ -131,8 +144,8 @@ function get_error_message(error_info, task_failure_string = null){
 }
 
 function prefer_response_error_to_task_error(response_code){
-    // A good status code means the server is happy, which means the task succeeded, which means the task-related
-    // error message is flat-out *wrong* and should not be displayed to the user.
+    // A good status code means the server is happy, which means the task itself succeeded, which means the 
+    // task-related error message is flat-out *wrong* and should not be displayed to the user.
     // Prefer the response error message, whatever it is (even a blank would be preferable).
     if(status_is_good(response_json)){
         return true;
@@ -308,11 +321,7 @@ function get_ele_index(target_child, parent){
 }
 
 
-// -------------------------------------
-// CREATE GENERIC DOM ELEMENTS
-// -------------------------------------
-
-// Response message (general)
+// || DOM elements
 function create_message_ele(){
     let message_ele = document.createElement('div');
     message_ele.classList.add(CLASS_MESSAGE_BOX);
