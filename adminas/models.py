@@ -71,6 +71,7 @@ class DocAssignment(models.Model):
             'is_invalid': not self.quantity_is_valid(),
             'jiid': self.item.pk,
             'max_available': self.max_valid_quantity(),
+            'total_quantity': self.item.quantity,
             'used_by': self.version.document.reference
         }
 
@@ -1702,7 +1703,7 @@ class DocumentVersion(AdminAuditTrail):
         data['title'] = dict(DOCUMENT_TYPES).get(self.document.doc_type)
 
         data['currency'] = self.document.job.currency
-        data['total_value_f'] = self.total_value_f()
+        data['total_value_f'] = format_money(self.total_value())
         data['invoice_to'] = self.invoice_to.display_str_newlines()
         data['delivery_to'] = self.delivery_to.display_str_newlines()
         data['css_filename'] = f'document_default_{self.document.doc_type.lower()}.css'
@@ -1979,14 +1980,10 @@ class DocumentVersion(AdminAuditTrail):
                 if qty > 0:
                     result.append(get_dict_document_line_item_available(poss_item, qty))    
 
-
             if len(result) == 0:
                 return None
             else:
                 return result
-
-
-
 
 
     def get_unavailable_items(self):
@@ -2005,28 +2002,17 @@ class DocumentVersion(AdminAuditTrail):
 
         result = []
         for ae in assigned_elsewhere.all():
-            this_dict = {}
-            this_dict['id'] = ae.pk
-            this_dict['jiid'] = ae.item.pk
-            this_dict['total_quantity'] = ae.item.quantity
-            this_dict['display'] = ae.item.display_str().replace(str(ae.item.quantity), str(ae.quantity))
-            this_dict['is_available'] = False
-            this_dict['used_by'] = ae.version.document.reference
-            this_dict['doc_id'] = ae.version.id
-            this_dict['is_invalid'] = not ae.quantity_is_valid()
-            result.append(this_dict)                
+            result.append(ae.get_dict())                
         return result
 
 
     def update_item_assignments(self, assignment_obj):
         """
-        Update, delete or create DocAssignments according to the assignment_obj.
+        Update, delete and create DocAssignments according to the assignment_obj.
 
         Note: the assignment_obj argument must be a dict with a key/value pair for each JobItem,
         where key = JobItem ID and value = desired quantity to display on this document.
         """
-
-        # Update or delete existing assignments
         for existing_da in DocAssignment.objects.filter(version=self):
             new_qty = assignment_obj.pop(str(existing_da.item.id), None)
             if new_qty == None:
@@ -2037,7 +2023,6 @@ class DocumentVersion(AdminAuditTrail):
             else:
                 existing_da.update(new_qty)
         
-        # Create new assignments from remaining key/values in the assignment_obj
         for key, value in assignment_obj.items():
             if value > 0:
                 create_document_assignment(self, key, value)
@@ -2045,11 +2030,7 @@ class DocumentVersion(AdminAuditTrail):
 
     def update_special_instructions(self, required, user):
         """
-            Update or delete SpecialInstructions according to their difference to/absence from the "required" argument (which is a list).
-
-            Following each update, the method removes the relevant dict from "required".
-            What remains (and is returned) is a list of new SpecialInstructions requiring creation, for use elsewhere.
-
+            Update, delete and create SpecialInstructions according to their difference to/absence from the "required" argument (which is a list).
             Note: the "required" argument must be a list of dicts with two fields (id and quantity).
         """
         for ei in SpecialInstruction.objects.filter(version=self):
@@ -2071,18 +2052,15 @@ class DocumentVersion(AdminAuditTrail):
         """
             Find the ProductionData associated with this document and update it.
         """
-        # Skip if this document type doesn't have production data associated with it under any circumstances
         if self.document.doc_type != 'WO':
             return
 
         else:
-            # Look for ProductionData records for this document.
             proddata_qs = ProductionData.objects.filter(version=self)
 
             # Found 0: Create a new ProductionData record for this document
             if proddata_qs.count() == 0:              
 
-                # No dates = don't bother
                 if '' == form.cleaned_data['date_requested'] and '' == form.cleaned_data['date_scheduled']:
                     return
 
@@ -2103,15 +2081,12 @@ class DocumentVersion(AdminAuditTrail):
                 )
                 this_pd.save()
 
-            # Found 1: Update/Delete it
             elif proddata_qs.count() == 1:
                 this_pd = proddata_qs[0]
 
-                # No dates = no ProductionData, so delete it
                 if '' == form.cleaned_data['date_requested'] and '' == form.cleaned_data['date_scheduled']:
                     this_pd.delete()
 
-                # Update the dates if they changed
                 else:
                     something_changed = False
 
@@ -2161,13 +2136,6 @@ class DocumentVersion(AdminAuditTrail):
            Total sum of values of all line items on this specific document (value)
         """
         return sum(item['total_price'] for item in self.get_body_lines() if 'total_price' in item)
-
-
-    def total_value_f(self):
-        """
-            Total sum of values of all line items on this specific document (formatted string)
-        """
-        return format_money(self.total_value())
 
 
     def quantity_of_items(self):
