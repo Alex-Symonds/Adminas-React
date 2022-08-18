@@ -102,8 +102,8 @@
                 <h5 class="panel-header">Include</h5>
                 <ul class="included">
     {% for inc in included_items %}
-                    <li {% if inc.invalid_quantity %}class="invalid"{% endif %}>
-                        {% if inc.invalid_quantity %}<span class="invalid-icon"><span>quantity is invalid</span></span>{% endif %}
+                    <li {% if inc.is_invalid %}class="invalid"{% endif %}>
+                        {% if inc.is_invalid %}<span class="invalid-icon"><span>quantity is invalid</span></span>{% endif %}
                         <span class="display">{{ inc.display }}</span><span class="name-tag id">{{ inc.jiid }}</span>
                     </li>
     {% empty %}

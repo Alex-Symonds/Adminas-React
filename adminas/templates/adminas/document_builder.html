@@ -121,8 +121,8 @@
                 <h4 class="panel-header">Include</h4>
                 <ul id="included">
     {% for inc in included_items %}
-                    <li data-jiid="{{ inc.jiid }}" {% if inc.invalid_quantity %}class="invalid" data-max_available="{{ inc.max_available }}"{% endif %}>
-                        {% if inc.invalid_quantity %}<span class="invalid-icon"><span>quantity is invalid</span></span>{% endif %}
+                    <li data-jiid="{{ inc.jiid }}" {% if inc.is_invalid %}class="invalid" data-max_available="{{ inc.max_available }}"{% endif %}>
+                        {% if inc.is_invalid %}<span class="invalid-icon"><span>quantity is invalid</span></span>{% endif %}
                         <span class="display">{{ inc.display }}</span>
                         <div class="button-container">
                             <button class="toggle-docitem-btn button-primary">excl. &raquo;</button>

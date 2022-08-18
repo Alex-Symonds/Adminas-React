@@ -70,6 +70,7 @@ class DocAssignment(models.Model):
             'is_available': False,
             'is_invalid': not self.quantity_is_valid(),
             'jiid': self.item.pk,
+            'max_available': self.max_valid_quantity(),
             'used_by': self.version.document.reference
         }
 
@@ -1109,8 +1110,8 @@ class JobItem(AdminAuditTrail):
     quantity = models.IntegerField(blank=True)
     selling_price = models.DecimalField(max_digits=MAX_DIGITS_PRICE, decimal_places=2)
 
-    # Support for "nested" Products. e.g. suppose a Pez dispenser includes one "free" packet of Pez; you also sell additional packets of Pez separately;
-    # customer has ordered one dispenser and 3 spare packets. Result = two JobItem records for Pez packets: one to cover the packet included 
+    # Support for "nested" Products, e.g. suppose a Pez dispenser includes one "free" packet of Pez; you also sell additional packets of Pez separately;
+    # customer has ordered one dispenser and 3 spare packets. Desired outcome = two JobItem records for Pez packets: one to cover the packet included 
     # with the dispenser ("included_with" would refer to the JobItem for the dispenser) and one to cover the three spares ("included_with" would be blank).
     included_with = models.ForeignKey('self', on_delete=models.CASCADE, related_name='includes', null=True, blank=True)
 
@@ -1177,49 +1178,10 @@ class JobItem(AdminAuditTrail):
             Adds money information at the end.
         """
         # Used on the Records template
-        return f'{self.display_str()} @ {self.job.currency}&nbsp;{self.selling_price_f()}'
+        return f'{self.display_str()} @ {self.job.currency}&nbsp;{format_money(self.selling_price)}'
  
 
     # || JobItem.Update
-    def safe_to_delete(self):
-        """
-        Checks possible reasons to forbid the deletion of a JobItem.
-        """
-        if not self.quantity_is_ok_for_modular_as_child(0):
-            return error('Forbidden: conflicts with modular item assignments.', 403)
-        
-        if self.on_issued_document():
-            return error('Forbidden: conflicts with issued documents.', 403)
-        
-        return True
-
-    def safe_to_update(self, form):
-        # Update is forbidden if it'd result in there not being enough slot filler products on the job to
-        # fulfill all the existing module assignments. This can occur in two ways:
-        #   1) Decreasing the quantity of a slot filling product (or changing the product, which is 
-        #      equivalent to decreasing the quantity of the old product to 0)
-        #   2) Increasing the quantity of modular items with existing slot assignments
-        product_has_changed = form.cleaned_data['product'] != self.product
-        new_quantity = form.cleaned_data['quantity']
-        quantity_current_product = 0 if product_has_changed else new_quantity
-
-        if not self.quantity_is_ok_for_modular_as_child(quantity_current_product):
-            return error("Update failed: conflicts with modular item assignments.", 403)
-
-        if not product_has_changed and quantity_current_product > self.quantity and self.product.is_modular():
-            if not self.quantity_is_ok_for_modular_as_parent(quantity_current_product):
-                return error("Update failed: insufficient items to fill specification.", 403)
-
-        # Update is forbidden if it'd alter any field which appears on an issued documents
-        selling_price_has_changed = form.cleaned_data['selling_price'] != self.selling_price
-        num_on_issued = self.num_required_for_issued_documents()
-        if  num_on_issued > 0 and\
-            (product_has_changed or selling_price_has_changed or new_quantity < num_on_issued):
-            return error("Update failed: issued documents would be altered.", 403)
-
-        return True
-
-
     def update(self, form):
         """
         Update JobItem based on a form.
@@ -1246,9 +1208,6 @@ class JobItem(AdminAuditTrail):
         elif quantity_has_changed or price_list_has_changed:
             self.update_standard_accessories()
 
-        
-
-
     def update_price(self, form):
         """
         Update selling price of a JobItem from a form
@@ -1256,6 +1215,44 @@ class JobItem(AdminAuditTrail):
         self.selling_price = form.cleaned_data['selling_price']
         self.save()
         self.job.price_changed()
+
+    def safe_to_delete(self):
+        """
+        Checks possible reasons to forbid the deletion of a JobItem.
+        """
+        if not self.quantity_is_ok_for_modular_as_child(0):
+            return error('Forbidden: conflicts with modular item assignments.', 403)
+        
+        if self.on_issued_document():
+            return error('Forbidden: conflicts with issued documents.', 403)
+        
+        return True
+
+    def safe_to_update(self, form):
+        # Update is forbidden if it'd result in there not being enough slot filler products on the job to
+        # fulfill all the existing module assignments. This can occur in two ways:
+        #   1) Decreasing the quantity of a slot filling product (or changing the product, which is 
+        #      equivalent to decreasing the quantity of the current product to 0)
+        #   2) Increasing the quantity of modular items with existing slot assignments
+        product_has_changed = form.cleaned_data['product'] != self.product
+        new_quantity = form.cleaned_data['quantity']
+        new_quantity_current_product = 0 if product_has_changed else new_quantity
+
+        if not self.quantity_is_ok_for_modular_as_child(new_quantity_current_product):
+            return error("Update failed: conflicts with modular item assignments.", 403)
+
+        if not product_has_changed and new_quantity_current_product > self.quantity and self.product.is_modular():
+            if not self.quantity_is_ok_for_modular_as_parent(new_quantity_current_product):
+                return error("Update failed: insufficient items to fill specification.", 403)
+
+        # Update is forbidden if it'd alter any field which appears on an issued documents
+        selling_price_has_changed = form.cleaned_data['selling_price'] != self.selling_price
+        num_on_issued = self.num_required_for_issued_documents()
+        if  num_on_issued > 0 and\
+            (product_has_changed or selling_price_has_changed or new_quantity < num_on_issued):
+            return error("Update failed: issued documents would be altered.", 403)
+
+        return True
 
 
     # || JobItem.Documents
@@ -1274,17 +1271,15 @@ class JobItem(AdminAuditTrail):
         if doc_assignments == None:
             return 0
 
-        # It is expected that each JobItem unit will appear once on each doc_type, so if there
-        # are 3 on issued WOs and 4 on issued OCs, we need 4 (since WO and OC can share the 3).
         result = 0
         for loop_tuple in DOCUMENT_TYPES:
             required_by_doc_type = 0
             doc_type = loop_tuple[0]
             docs_this_type = doc_assignments.filter(version__document__doc_type=doc_type)
 
-            for doca in docs_this_type:
-                if not doca.version.issue_date == None:
-                    required_by_doc_type += doca.quantity
+            for doc in docs_this_type:
+                if not doc.version.issue_date == None:
+                    required_by_doc_type += doc.quantity
             
             result = required_by_doc_type if required_by_doc_type > result else result
 
@@ -1292,13 +1287,6 @@ class JobItem(AdminAuditTrail):
 
 
     # || JobItem.Financial
-    def selling_price_f(self):
-        """
-            Format the selling price for display.
-        """
-        return format_money(self.selling_price)
-
-
     def list_price(self):
         """
             List price for this JobItem (value)
@@ -1309,28 +1297,18 @@ class JobItem(AdminAuditTrail):
         except:
             return None
 
-    def list_price_f(self):
-        """
-            List price for this JobItem (formatted string)
-        """
-        return format_money(self.list_price())
-
-
     def resale_percentage(self):
         """ 
             If the invoice is going to an agent, work out and report the resale discount percentage.
         """
-        # End early if resale doesn't apply (because we're not invoicing an agent or because the product doesn't have one)
         if not self.job.invoice_to.site.company.is_agent or (self.product.resale_category == None and self.product.special_resale.all().count() == 0):
             return 0
 
         else:
-            # If the agent has their own special deal, handle it
             deal = self.product.special_resale.filter(agent=self.job.invoice_to.site.company)
             if len(deal) != 0:
                 return deal[0].percentage
             
-            # Handle an agent on standard resale discount
             else:
                 return self.product.resale_category.resale_perc
 
@@ -1371,7 +1349,7 @@ class JobItem(AdminAuditTrail):
     def update_standard_accessories(self):
         """
             Run through existing standard accessory JobItems linked to self and update the quantities and price lists.
-            (For when a user edits the quantity on an existing JobItem, necessitating the same set but more/fewer)
+            (For when a user edits the quantity or price list on an existing JobItem)
         """
         for stdAcc in self.includes.all():
             accessory_data = StandardAccessory.objects.filter(parent=self.product).filter(accessory=stdAcc.product)[0]
@@ -1389,10 +1367,10 @@ class JobItem(AdminAuditTrail):
     # || JobItem.Modular
     def quantity_is_ok_for_modular_as_child(self, new_qty):
         """
-            Modular: Child. When editing the qty, check the new qty is compatible with JobModule assignments
+            Modular: Child. When editing the quantity, check the new quantity is compatible with JobModule assignments
             (i.e. user hasn't subtracted so many that there aren't enough to fulfill all existing slot assignments)
         """        
-        module_assignments = self.jobmodules_as_child()
+        module_assignments = JobModule.objects.filter(parent__job=self.job).filter(child=self.product)
         num_needed_for_assignments = 0
         if module_assignments.count() > 0:
             for ma in module_assignments:
@@ -1401,10 +1379,9 @@ class JobItem(AdminAuditTrail):
         product_qty_without_me = self.job.quantity_of_product(self.product) - self.quantity
         return product_qty_without_me + new_qty >= num_needed_for_assignments
 
-
     def quantity_is_ok_for_modular_as_parent(self, new_qty):
         """
-            Modular: Parent. When editing the qty, check the new qty is compatible with JobModule assignments
+            Modular: Parent. When editing the quantity, check the new quantity is compatible with JobModule assignments
             (i.e. user hasn't added so many that there aren't enough "children" to fulfill all existing slot assignments)       
         """
         for module_assignment in self.modules.all():
@@ -1413,14 +1390,6 @@ class JobItem(AdminAuditTrail):
             if total_quantity_needed > total_quantity_exists:
                 return False
         return True
-
-
-    def jobmodules_as_child(self):
-        """
-            Modular: Child. Get a list of relevant JobModules
-        """
-        return JobModule.objects.filter(parent__job=self.job).filter(child=self.product)
-
 
     def item_is_complete(self):
         """
@@ -1436,9 +1405,6 @@ class JobItem(AdminAuditTrail):
         """
             Modular: Parent. The program allows users to exceed the required + optional total: 
             so this is used to find out if the user has taken advantage of that ability.
-            
-            (The purpose of allowing the user to exceed the maximum is to support the possibility of 
-            customers ordering bespoke modifications to increase the slots on a product.)
         """
         if self.product.is_modular():
             for slot in self.product.slots.all():
@@ -1594,14 +1560,12 @@ class DocumentVersion(AdminAuditTrail):
     """
         This class represents one "version" in the sentence "Adminas supports multiple versions of a single document".
 
-        A document where all goes according to plan will only have one version.
+        A document where everything goes according to plan will only have one version.
     """
     document = models.ForeignKey(DocumentData, on_delete=models.CASCADE, related_name='versions')
     version_number = models.IntegerField()
     issue_date = models.DateField(null=True, blank=True)
     issued_json = models.JSONField(encoder=DjangoJSONEncoder, null=True)
-
-    # This should be set to False in two situations: version is deleted; version is replaced.
     active = models.BooleanField(default=True)
 
     # On draft documents the final text hasn't been created yet, so this is where we store the "instructions" for where to find the text when the time comes to issue it.
@@ -1665,7 +1629,7 @@ class DocumentVersion(AdminAuditTrail):
     def issue(self, issue_date):
         """
         Issue the document version.
-        Note: should only be called after ascertaining that the document should be issued.
+        Note: this should only be called /after/ ascertaining that the document is safe to issue.
         """
         # Prevent the issue date from being "updated" to nothingness, in the event of someone 
         # ignoring the above.
@@ -1845,7 +1809,7 @@ class DocumentVersion(AdminAuditTrail):
             Make a copy of this DocumentVersion, but with the version number incremented and issue date/JSON removed: then deactivate self.
 
             Purpose:
-            It's beneficial to keep a record of *all* PDFs that have been "released into the wild", regardless of whether or not they're correct.
+            It's beneficial to keep a record of *all* versions that have been "released into the wild", regardless of whether or not they're correct.
             If anything, the incorrect ones are particularly valuable, since they can help explain why something or other went horribly wrong.
             To this end, edit-via-replacement is required for issued documents (rather than edit-by-overwrite).
         """
@@ -1913,13 +1877,7 @@ class DocumentVersion(AdminAuditTrail):
             assignments = DocAssignment.objects.filter(version=self)
             result = []
             for a in assignments:
-                this_dict = {}
-                this_dict['id'] = a.pk
-                this_dict['jiid'] = a.item.id
-                this_dict['max_available'] = a.max_valid_quantity()
-                this_dict['display'] = a.item.display_str().replace(str(a.item.quantity), str(a.quantity))
-                this_dict['invalid_quantity'] = not a.quantity_is_valid()
-                result.append(this_dict)
+                result.append(a.get_dict())
             return result
 
 
