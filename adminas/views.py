@@ -365,7 +365,6 @@ def api_comments(request):
     if not request.user.is_authenticated:
         return anonymous_user(request)
 
-    # User wants to delete a job comment
     if request.method == 'DELETE':
         comment = get_comment(request, True)
 
@@ -375,7 +374,7 @@ def api_comments(request):
             comment.delete()
             return HttpResponse(status = 204)
 
-    # User wants to edit an existing job comment
+
     elif request.method == 'PUT':
         posted_data = dict_from_json(request.body)
         if is_error(posted_data):
@@ -406,23 +405,19 @@ def api_comments(request):
 
             comment.update_toggles(toggle_details, request.user)
 
-        # Report success
         return HttpResponse(status = 204)
 
 
-    # User wants the create a comment
     elif request.method == 'POST':
 
         comment_form = get_form_from_request(request, get_comment_form)
         if is_error(comment_form):
             return respond_with_error(comment_form)
 
-        # Make sure the Job ID is ok
         job = get_object(Job, key = 'job_id', get_params = request.GET)
         if is_error(job):
             respond_with_error(job)
 
-        # Create new comment then respond with all the data needed to display a new comment on the page
         comment = create_comment(comment_form, request.user, job)
         return JsonResponse({
             'id': comment.id,
@@ -477,15 +472,13 @@ def api_draft_documents(request):
 
         return HttpResponse(status = 204)
 
-    # POST
+
     elif request.method == 'POST':
 
-        # Stick incoming data into forms
         doc_request_data = get_document_details_from_request(request)
         if is_error(doc_request_data):
             return respond_with_error(doc_request_data)
 
-        # Obtain job and doc_code from the GET params
         job = get_object(Job, key = 'job', get_params = request.GET)
         if is_error(job):
             return job
@@ -494,7 +487,6 @@ def api_draft_documents(request):
         if is_error(doc_code):
             return doc_code
 
-        # Create the new document
         doc_obj = create_document(  request.user, job, doc_code,\
                                     doc_request_data['doc_data_form'],
                                     doc_request_data['version_form'],\
@@ -505,6 +497,7 @@ def api_draft_documents(request):
         return JsonResponse({
             'id': doc_obj.id
         }, status = 201, headers = {'Location': f"{reverse('doc_editor_page')}?id={doc_obj.id}"})
+
 
     # GET
     doc_obj = get_object(DocumentVersion, key = 'id', get_params = request.GET)
@@ -526,9 +519,8 @@ def api_issued_documents(request):
     if not request.user.is_authenticated:
         return anonymous_user(request)
 
-    doc_id = get_param_from_get_params('doc_id', request.GET)
     if request.method == 'POST':
-        this_version = get_object(DocumentVersion, id = doc_id)
+        this_version = get_object(DocumentVersion, key = 'doc_id', get_params = request.GET)
         if is_error(this_version):
             return respond_with_error(this_version)
 
@@ -555,11 +547,7 @@ def api_issued_documents(request):
                 'id': previous_version.id
             }, status = 200, headers = {'Location': reverse('doc_main', kwargs={'doc_id': previous_version.pk})})
 
-            # return JsonResponse({
-            #     'redirect': reverse('doc_main', kwargs={'doc_id': previous_version.pk})
-            # }, status = 200)
-
-        return respond_with_error(error("Invalid GET parameters.", 400))
+    return respond_with_error(error("Invalid request.", 400))
 
 
 
@@ -648,32 +636,36 @@ def api_items(request):
 
             return HttpResponse(status = 204)
 
+    # GET
+    ji_id_list_string = get_param_from_get_params('ji_id_list', request.GET)
+    ji_id = get_param_from_get_params('ji_id', request.GET)
+    if is_error(ji_id_list_string) and is_error(ji_id):
+        return respond_with_error(error('Necessary GET parameter is missing', 400))
 
-    ji_id_list_get_string = get_param_from_get_params('ji_id_list', request.GET)
-    if not is_error(ji_id_list_get_string):
-        ji_id_list = ji_id_list_get_string.split('.')
+    elif not is_error(ji_id_list_string):
+
+        ji_id_list = ji_id_list_string.split('.')
         if len(ji_id_list) <= 0 or len(ji_id_list) > MAX_NUM_FORMS:
             my_error = error("Invalid item list", 400)
             return respond_with_error(my_error)
         
         jobitems = []
-        for ji_id in ji_id_list:
-
-            ji_obj = get_object(JobItem, id = ji_id)
-            if is_error(ji_obj):
-                return respond_with_error(ji_obj)
-
-            jobitems.append(ji_obj.get_dict())
+        for id in ji_id_list:
+            jobitem = get_object(JobItem, id = id)
+            if is_error(jobitem):
+                return respond_with_error(jobitem)
+            jobitems.append(jobitem.get_dict())
         
         return JsonResponse({
             'jobitems': jobitems
         }, status = 200)
 
-    jobitem = get_object(JobItem, key = 'ji_id', get_params = request.GET)
-    if is_error(jobitem):
-        return respond_with_error(jobitem)
+    elif not is_error(ji_id):
+        jobitem = get_object(JobItem, id = ji_id)
+        if is_error(jobitem):
+            return respond_with_error(jobitem)
 
-    return JsonResponse(jobitem.get_dict(), status = 200)
+        return JsonResponse(jobitem.get_dict(), status = 200)
 
 
 

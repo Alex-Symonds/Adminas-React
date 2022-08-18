@@ -22,7 +22,7 @@ import json
 from django_countries.fields import CountryField
 
 from adminas.constants import DOCUMENT_TYPES, KEY_ERROR_MESSAGE, KEY_RESPONSE_CODE, NUM_BODY_ROWS_ON_EMPTY_DOCUMENT, SUPPORTED_CURRENCIES, SUPPORTED_LANGUAGES, DEFAULT_LANG, INCOTERMS, DOC_CODE_MAX_LENGTH, ERROR_NO_DATA, SUCCESS_CODE
-from adminas.util import format_money, get_dict_items_available_for_document, copy_relations_to_new_document_version, debug, update_membership,\
+from adminas.util import format_money, get_dict_document_line_item_available, copy_relations_to_new_document_version, debug, update_membership,\
     is_error, create_document_instructions, create_document_assignment, create_document_instructions, error
 import datetime
 
@@ -61,6 +61,17 @@ class DocAssignment(models.Model):
 
         self.quantity = min(int(new_quantity), self.max_valid_quantity())
         self.save()
+
+    def get_dict(self):
+        return {
+            'display': self.item.display_str().replace(str(self.item.quantity), str(self.quantity)),
+            'doc_id': self.version.id,
+            'id': self.pk,
+            'is_available': False,
+            'is_invalid': not self.quantity_is_valid(),
+            'jiid': self.item.pk,
+            'used_by': self.version.document.reference
+        }
 
     def max_valid_quantity(self, exclude_drafts = False):
         """
@@ -575,7 +586,7 @@ class Job(AdminAuditTrail):
 
     def safe_to_delete(self):
         """
-            Determines if this Job can be safely deleted or if it's passed the point of no return (from an administrative perspective).
+            Determine if this Job can be safely deleted or if it's passed the point of no return (from an administrative perspective).
         """
         # Condition #1: Job must not have any issued documents (since we want to keep a record of all documents that have been issued)
         docs = DocumentVersion.objects.filter(document__job=self)
@@ -612,7 +623,7 @@ class Job(AdminAuditTrail):
 
     def get_dict_slot_fillers(self, slot):
         """
-            List of Products on this Job which are suitable for filling the given Slot.
+            List of dicts for Products on this Job which are suitable for filling the given Slot.
         """
         prd_list = []
         for product in self.fillers_for_slot(slot):
@@ -784,7 +795,6 @@ class Job(AdminAuditTrail):
             qty_on_issued = self.document_item_quantities(doc_type, True)
             qty_on_draft = self.document_item_quantities(doc_type, False)
 
-            result = []
             if qty_on_job == qty_on_issued:
                 return (STATUS_CODE_OK, f'{doc_type} ok')
             
@@ -892,39 +902,29 @@ class Job(AdminAuditTrail):
             self.save()
 
     def has_invalid_currency_po(self):
+        """
+            Check if any POs assigned to this Job are in a different currency.
+        """
         for po in self.related_po():
             if not po.currency == self.currency:
                 return True
         return False
 
-
     def total_value(self):
         """
-            Get the total value for this Job (number).
+            Get the total value for this Job.
         """
-        # Change this to whatever is going to be considered the "default" value for the order
+        # This should be whatever is going to be considered the "default" value for the order
         return self.total_po_value()
-
-    def total_value_f(self):
-        """
-            Get the total value for this Job (formatted string).
-        """
-        return format_money(self.total_value())
 
     def total_list_price(self):
         """
-            Get the total list price for this Job (number).
+            Get the total list price for this Job.
         """
         try:
             return sum([item.list_price() for item in self.items.filter(included_with=None)])
         except:
             return 0
-
-    def total_list_price_f(self):
-        """
-            Get the total list price for this Job (formatted string).
-        """
-        return format_money(self.total_list_price())
 
     def total_line_value(self):
         """
@@ -979,21 +979,35 @@ class Job(AdminAuditTrail):
     ## || Job.Documents
     def get_items_unassigned_to_doc(self, doc_type):
         """
-            Get a list of JobItems on this Job which have not yet been assigned to a document of the given type.
-            
-            On a new document, this is used to pre-populate "Included" <ul>.
-            On existing documents, used to get "excluded, but available" to populate the top of the "Excluded" <ul>.
+            Get a list of JobItem quantities on this Job which have not yet been assigned to a document of the given type.
         """
-        result = get_dict_items_available_for_document(self.main_item_list(), doc_type)
-        return result
+        jobitems = self.main_item_list()
+
+        if jobitems == None or jobitems.count() == 0:
+            return None
+
+        else:
+            result = []
+            for poss_item in jobitems:
+                qty = poss_item.quantity
+
+                assignments = DocAssignment.objects.filter(item=poss_item).filter(version__document__doc_type=doc_type).filter(version__active=True)
+                for assignment in assignments:
+                    qty = qty - assignment.quantity
+
+                if qty > 0:
+                    result.append(get_dict_document_line_item_available(poss_item, qty))    
+
+
+            if len(result) == 0:
+                return None
+            else:
+                return result
 
 
     def get_items_assigned_to_doc(self, doc_type):
         """
             Get a list of JobItems on this Job which have already been assigned to a document of the given type.
-
-            On a new document, this is used to pre-populate "Excluded" <ul>.
-            On existing documents, used to get "unavailable, even if you wanted it" to populate the bottom of the "Excluded" <ul>.
         """        
         assigned_elsewhere = DocAssignment.objects\
                             .filter(version__document__job=self)\
@@ -1005,15 +1019,7 @@ class Job(AdminAuditTrail):
 
         result = []
         for ae in assigned_elsewhere.all():
-            this_dict = {}
-            this_dict['id'] = ae.pk
-            this_dict['jiid'] = ae.item.pk
-            this_dict['display'] = ae.item.display_str().replace(str(ae.item.quantity), str(ae.quantity))
-            this_dict['is_available'] = False
-            this_dict['is_invalid'] = not ae.quantity_is_valid()
-            this_dict['used_by'] = ae.version.document.reference
-            this_dict['doc_id'] = ae.version.id
-            result.append(this_dict)                
+            result.append(ae.get_dict())                
         return result
 
     def __str__(self):
@@ -1030,24 +1036,10 @@ class JobComment(AdminAuditTrail):
     """
         A User's comment regarding a Job. Comments can be "private", "pinned" and/or "highlighted". 
         
-        "Private", as you'd expect, determines whether the comment can be seen by anyone or just the author.
-        
-        "Pinned" and "highlighted" are used to emphasise chosen comments by displaying them on the Job page.
-
-        In addition:
-            > "Pinned" comments also appear on the to-do list, at the bottom of the Job panel
-            > "Highlighted" comments get special formatting (most noticably on the Job Comments page)
-
-        The purpose of "pinned" is to "pin" the comment to the to-do list panel. This is intended to allow Users to add 
-        reminders (e.g. "MUST ISSUE OC BY $DATE") and notes for distinguishing between similar Jobs 
-        (e.g. "Alice is chasing this one"; "Bob is chasing this one"). Analogue folks might think of it as a post-it
-        stuck to the front of a cardboard folder.
-
-        "Highlighted" is intended to allow the user to separate the comment-wheat from the comment-chaff without 
-        spamming up the to-do list (e.g. "The order confirmation must be sent to email1 and email2" might be 
-        highlight-worthy: you don't want that buried under back-and-forth comments, but you're probably only 
-        interested in reading it when you're already looking at the Job page). Analogue folks might think 
-        of this as taking a yellow highlighter pen to some written instructions.
+        The distinction between "pinned" and "highlighted" is:
+            >> "pinned" determines which comments can appear "on the outside" (i.e. pages with 
+                information about multiple Jobs might display pinned comments).
+            >> "highlighted" emphasises a comment, in a manner appropriate for the current page.
     """
 
     contents = models.TextField()
@@ -1089,8 +1081,8 @@ class JobComment(AdminAuditTrail):
         self.save()
 
     def update_toggles(self, toggle_details, user):
-        want_pinned = self.is_pinned_by(user) if not 'pinned' in toggle_details else toggle_details['pinned']
-        want_highlighted = self.is_highlighted_by(user) if not 'highlighted' in toggle_details else toggle_details['highlighted']
+        want_pinned = toggle_details['pinned'] if 'pinned' in toggle_details else self.is_pinned_by(user) 
+        want_highlighted = toggle_details['highlighted'] if 'highlighted' in toggle_details else self.is_highlighted_by(user)  
         update_membership(want_pinned, self.is_pinned_by, user, self.pinned_by)
         update_membership(want_highlighted, self.is_highlighted_by, user, self.highlighted_by)
         self.save()

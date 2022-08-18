@@ -295,39 +295,13 @@ def get_dict_document_editor_settings(get_params):
     return error("Invalid GET parameters.", 400)
 
 
-def get_dict_items_available_for_document(jobitems, doc_type):
-    """
-        List of items assigned to a Job which have not yet been assigned to a document of this type.
-        On a new document, the assumption is that the user is creating the new document to cover the leftover items, 
-        so this is used to populate the default "included" list.
-        On an existing document, the user has already indicated which items they wish to include, so this is used to 
-        populate the top of the "excluded" list.
-    """
-    if jobitems == None or jobitems.count() == 0:
-        return None
-
-    else:
-        result = []
-        for poss_item in jobitems:
-            qty = poss_item.quantity
-
-            assignments = adminas.models.DocAssignment.objects.filter(item=poss_item).filter(version__document__doc_type=doc_type).filter(version__active=True)
-            for assignment in assignments:
-                qty = qty - assignment.quantity
-
-            if qty > 0:
-                this_dict = {}
-                this_dict['jiid'] = poss_item.pk
-                this_dict['total_quantity'] = poss_item.quantity
-                this_dict['display'] = poss_item.display_str().replace(str(poss_item.quantity), str(qty))
-                this_dict['is_available'] = True
-                result.append(this_dict)    
-
-
-        if len(result) == 0:
-            return None
-        else:
-            return result
+def get_dict_document_line_item_available(jobitem, qty_available):
+    return {
+        'display': jobitem.display_str().replace(str(jobitem.quantity), str(qty_available)),
+        'is_available': True,
+        'jiid': jobitem.pk,
+        'total_quantity': jobitem.quantity
+    }
 
 
 def get_dict_job_page_root(job):
@@ -455,7 +429,7 @@ def get_dict_todo(job, user = None):
     result['name'] = job.name
     result['pinned_comments'] = None if user == None else job.get_pinned_comments(user, '-created_on')
     result['status'] = job.job_status()
-    result['value'] = job.total_value_f()
+    result['value'] = format_money(job.total_value())
     
     return result
 
