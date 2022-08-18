@@ -55,14 +55,12 @@ class DocAssignment(models.Model):
     item = models.ForeignKey('JobItem', on_delete=models.CASCADE)
     quantity = models.IntegerField()
 
-
     def update(self, new_quantity):
         if int(new_quantity) == self.quantity:
             return
 
         self.quantity = min(int(new_quantity), self.max_valid_quantity())
         self.save()
-
 
     def max_valid_quantity(self, exclude_drafts = False):
         """
@@ -99,13 +97,14 @@ class DocAssignment(models.Model):
         """
         return min(self.quantity, self.max_valid_quantity(exclude_drafts))
 
+
     def __str__(self):
         return f'{self.quantity} x {self.item.product.name} assigned to {self.version.document.doc_type} {self.version.document.reference}'
 
 
-
 class User(AbstractUser):
     todo_list_jobs = models.ManyToManyField('Job', related_name='users_monitoring')
+
 
 class AdminAuditTrail(models.Model):
     created_on = models.DateTimeField(auto_now_add=True)
@@ -113,7 +112,6 @@ class AdminAuditTrail(models.Model):
 
     class Meta:
         abstract = True
-
 
 
 
@@ -164,7 +162,7 @@ class Address(AdminAuditTrail):
     def display_str_newlines(self):
         return f'{self.address},\n{self.region},\n{self.postcode},\n{self.country.name}'
 
-    def as_dict(self):
+    def get_dict(self):
         return {
             'address': self.address,
             'region': self.region,

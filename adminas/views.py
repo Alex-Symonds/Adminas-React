@@ -909,7 +909,7 @@ def api_data(request):
         if is_error(address):
             return respond_with_error(address)
 
-        return JsonResponse(address.as_dict(), status = 200)
+        return JsonResponse(address.get_dict(), status = 200)
 
     elif data_category == 'product_description':
         job = get_object(Job, key = 'job_id', get_params = request.GET)

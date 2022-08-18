@@ -8,32 +8,27 @@ from adminas.models import User, Company, Site, Address, Product, Price, PriceLi
 import datetime
 import random
 from adminas.constants import GBP, EUR, USD, EN, DE
+from decouple import config
 
-NEED_ADDRESSES = True
-NEED_PRODUCTS = True
-NEED_CHOICE_LISTS = True
-NEED_SLOTS = True
-NEED_STDACCS = True
-NEED_DESCS_ONLY = False
-NEED_JOBS = True
-
-ADMIN = User.objects.all()[0]
+ADMIN = User.objects.all().filter(username=config("USERNAME_SYSTEM"))[0]
 
 task_total = 6
 
 def main():
-    task_num = 1
-    task_num = print_progress('addresses', task_num)
+    task_progress = 1
+    task_progress = print_progress('user', task_progress)
+    populate_user()
+    task_progress = print_progress('addresses', task_progress)
     populate_addresses()
-    task_num = print_progress('products, descriptions and price lists (this is a big one)', task_num)
+    task_progress = print_progress('products, descriptions and price lists (this is a big one)', task_progress)
     populate_products()
-    task_num = print_progress('slot options', task_num)
+    task_progress = print_progress('slot options', task_progress)
     populate_choice_lists()
-    task_num = print_progress('slot settings', task_num)
+    task_progress = print_progress('slot settings', task_progress)
     populate_slots()
-    task_num = print_progress('standard accessories', task_num)
+    task_progress = print_progress('standard accessories', task_progress)
     populate_std_accs()
-    task_num = print_progress('demo job', task_num)
+    task_progress = print_progress('demo job', task_progress)
     populate_jobs()
     print('All dummy data is loaded.')
 
@@ -44,7 +39,34 @@ def print_progress(thing_loading, task_num):
     return task_num
 
 
+
+def populate_user():
+    new_system = User(
+        username = config("USERNAME_SYSTEM"),
+        password = config("PASSWORD_SYSTEM")
+    )
+    new_system.save()
+
+    new_admin = User(
+        username = config("USERNAME_ADMIN"),
+        password = config("PASSWORD_ADMIN"),
+        is_superuser = True
+    )
+    new_admin.save()
+
+    new_user = User(
+        username = config("USERNAME_GUEST"),
+        password = config("PASSWORD_GUEST")
+    )
+    new_user.save()
+
+
 def populate_jobs():
+    """
+    Add one Job to the database for demo purposes.
+    Includes one item with standard accessories (to show how those are displayed) 
+    and one empty "modular" item (so module management page has something to work with).
+    """
     if Job.objects.all().count() > 0:
         return
 
@@ -96,21 +118,10 @@ def populate_jobs():
 
 
 
-def populate_descs_only():
-    data = products_data()
-    old_date = datetime.datetime(2020, 12, 15, 13, 45, 12, 000000)
-
-    for d in data:
-        p = Product.objects.get(name=d[1])
-        add_set_of_desc(p, old_date, d[4])
-
-    print('Descs added')
-    return
-
-
 def populate_std_accs():
-
-    # Avoid adding StandardAccessories twice.
+    """
+    Add demo standard accessories.
+    """
     if StandardAccessory.objects.all().count() > 0:
         return
 
@@ -164,14 +175,18 @@ def populate_std_accs():
 
 
 def populate_slots():
+    """
+    Add demo slot settings to modular items.
+    """
     if Slot.objects.all().count() > 0:
         return
 
-    #parent (fk), name (Char), quantity (Int), is_required (Bool), choices (fk)
+    
     trapdoor = Product.objects.get(name='Trapdoor (BYO)')
     tester = Product.objects.get(name='Treasure tester')
 
     slots_data = []
+    # parent (obj), name (Str), quantity_required (Int), quantity_optional (Int), choice list name (Str)
     slots_data.append([trapdoor, 'Pit', 1, 0, 'Pits'])
     slots_data.append([trapdoor, 'Hatch', 1, 0, 'Hatches'])
     slots_data.append([trapdoor, 'Activation Method', 1, 4, 'Activators'])
@@ -194,6 +209,9 @@ def populate_slots():
 
 
 def populate_choice_lists():
+    """
+    Setup demo choice lists for modular items.
+    """
     if SlotChoiceList.objects.all().count() > 0:
         return
 
@@ -221,14 +239,15 @@ def populate_choice_lists():
 
 
 def populate_products():
+    """
+    Add demo product data.
+    """
     if Product.objects.all().count() > 0:
         return
 
-    # Obtain data entered about products
     products = products_data()
     populate_resale_categories()
 
-    # Setup two price lists
     prl = PriceList(created_by = ADMIN, valid_from = datetime.datetime.today(), name = 'PRL 2021.7.1')
     prl.save()
 
@@ -239,7 +258,7 @@ def populate_products():
     countries = ['GB', 'US', 'NZ', 'AU', 'CA', 'DE', 'FR', 'CN']
     max_part_no = int('9' * 8)
 
-#products.append(['CT', 'Trapdoor (BYO)', '76109010', 'Trapdoor mechanism', 100000.00, 'Standard'])
+    #products.append(['CT', 'Trapdoor (BYO)', '76109010', 'Trapdoor mechanism', 100000.00, 'Standard'])
     for e in products:
         part_no = f'{e[0]}{random.randint(0, max_part_no):08}'
         origin = countries[random.randint(0, len(countries)-1)]
@@ -261,6 +280,9 @@ def populate_products():
 
 
 def add_set_of_desc(p, desc):
+    """
+    Add three descriptions: "DE", "old" and "current" (demo language toggling and how the older price is ignored).
+    """
     # Add "DE" version first
     d = Description(
         created_by = ADMIN,
@@ -285,7 +307,9 @@ def add_set_of_desc(p, desc):
 
 
 def add_set_of_prices(p, prl, oldprl, val):
-
+    """
+    Add two demo prices (current and old) for each currency
+    """
     pr = Price(
         price_list = prl,
         product = p,
@@ -298,13 +322,17 @@ def add_set_of_prices(p, prl, oldprl, val):
     pr.pk = None
     pr.currency = GBP
     pr.price_list = oldprl
-    pr.value = round(val/1.05, 0)   #format(val/1.05, ".0f")
+    pr.value = round(val/1.05, 0)
     pr.save()
     add_other_currencies(pr)
 
     return
 
+
 def add_other_currencies(gbp_price_obj):
+    """
+    Add USD and EUR demo prices as well, based on arbitrary exchange rates.
+    """
     val = gbp_price_obj.value
 
     gbp_price_obj.pk = None
@@ -321,6 +349,10 @@ def add_other_currencies(gbp_price_obj):
 
 
 def populate_resale_categories():
+    """
+    Add some demo resale categories.
+    """
+
     categories = [
         {'name': 'Standard', 'resale': 25},
         {'name': 'Weapons', 'resale': 35},
@@ -337,6 +369,9 @@ def populate_resale_categories():
 
 
 def products_data():
+    """
+    Array of demo products.
+    """
     products = []
     products.append(['CT', 'Trapdoor (BYO)', 'Trapdoor mechanism', 100000.00, 'Standard'])
     products.append(['CT', 'Lava pit',  'Deep pit (d = 9 metres), supplied with lava (d = 3 metres)', 500000.00, 'Standard'])
@@ -390,6 +425,10 @@ def products_data():
 
 
 def populate_addresses():
+    """
+    Add demo companies, sites and addresses.
+    """
+
     if Address.objects.all().count() > 0:
         return
 

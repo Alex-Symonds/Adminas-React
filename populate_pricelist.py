@@ -14,18 +14,20 @@ def main():
         Create a set of Price records for the latest PriceList.
         
         Usage:
-            python populate_pricelist.py {optional: percentage_increase as decimal}
+            python populate_pricelist.py {optional: percentage_increase}
 
         Details:
             It will attempt to set Price.value to the previous price for this product & currency, but with the specified percentage increase applied.
-            i.e. a percentage_increase of 0 would result in values being copied from the previous price list.
-            Absence of a percentage_increase argument means all Price.values are set to 0, allowing for 100% manual entry via Django admin.
+        
+        Examples:
+            python populate_pricelist.py        = all values are set to 0, for manual entry via Django admin.
+            python populate_pricelist.py 0      = values are copied from the previous price list.
+            python populate_pricelist.py 50     = new prices are 150% of the previous prices.
     """
 
-    # Get the latest price list object and check it's suitable
     price_list = get_latest_price_list_obj()
     if price_list == None:
-        print('Failed: price list was not found. (You must create a price list in Django admin before populating it.)')
+        print('Failed: price list was not found. (You must create an empty new price list in Django admin before populating it.)')
         return
 
     prices_on_price_list = Price.objects.filter(price_list=price_list)
@@ -34,12 +36,11 @@ def main():
         print(f'Either: \n\t1) Create a new price list in Django admin;\n\t2) Delete all existing prices from "{price_list.name}" via Django admin')
         return
 
-    # Check if the user entered a percentage_increase
     if len(sys.argv) > 1:
         try:
             percentage_increase_as_decimal = Decimal(sys.argv[1]) / 100
         except InvalidOperation:
-            print('Error: optional argument must be a number. Giving up.')
+            print('Error: optional argument must be a number. Giving up without doing anything.')
             return
 
         multiplier = 1 + percentage_increase_as_decimal
@@ -86,7 +87,6 @@ def assign_new_prices(this_pl, multiplier):
     for prd in Product.objects.filter(available=True):
         for curr in SUPPORTED_CURRENCIES:
 
-            # Work out the new value
             # Handle "no previous price list exists"
             if prev_pl == None:
                 new_value = 0
