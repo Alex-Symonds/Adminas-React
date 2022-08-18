@@ -1963,7 +1963,30 @@ class DocumentVersion(AdminAuditTrail):
             On a new document, the assumption is that the user is creating the new document to cover the leftover items, so this is used to populate the default "included" list.
             On an existing document, the user has already indicated which items they wish to include, so this is used to populate the top of the "excluded" list.
         """
-        return get_dict_items_available_for_document(self.document.job.main_item_list(), self.document.doc_type)
+        jobitems = self.document.job.main_item_list()
+        if jobitems == None or jobitems.count() == 0:
+            return None
+
+        else:
+            result = []
+            for poss_item in jobitems:
+                qty = poss_item.quantity
+
+                assignments = DocAssignment.objects.filter(item=poss_item).filter(version__document__doc_type=doc_type).filter(version__active=True)
+                for assignment in assignments:
+                    qty = qty - assignment.quantity
+
+                if qty > 0:
+                    result.append(get_dict_document_line_item_available(poss_item, qty))    
+
+
+            if len(result) == 0:
+                return None
+            else:
+                return result
+
+
+
 
 
     def get_unavailable_items(self):
