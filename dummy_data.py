@@ -10,17 +10,16 @@ import random
 from adminas.constants import GBP, EUR, USD, EN, DE
 from decouple import config
 
-ADMIN = User.objects.all().filter(username=config("USERNAME_SYSTEM"))[0]
-
 task_total = 6
 
 def main():
     task_progress = 1
     task_progress = print_progress('user', task_progress)
     populate_user()
+    
     task_progress = print_progress('addresses', task_progress)
     populate_addresses()
-    task_progress = print_progress('products, descriptions and price lists (this is a big one)', task_progress)
+    task_progress = print_progress('products, descriptions and price lists (this takes a while)', task_progress)
     populate_products()
     task_progress = print_progress('slot options', task_progress)
     populate_choice_lists()
@@ -38,27 +37,35 @@ def print_progress(thing_loading, task_num):
     task_num += 1
     return task_num
 
-
-
 def populate_user():
-    new_system = User(
+    new_system = User.objects.create_user(
         username = config("USERNAME_SYSTEM"),
+        email = config("EMAIL_SYSTEM"),
         password = config("PASSWORD_SYSTEM")
     )
     new_system.save()
 
-    new_admin = User(
+    new_admin = User.objects.create_user(
         username = config("USERNAME_ADMIN"),
+        email = config("EMAIL_ADMIN"),
         password = config("PASSWORD_ADMIN"),
+        is_staff = True,
         is_superuser = True
     )
     new_admin.save()
 
-    new_user = User(
+    new_guest = User.objects.create_user(
         username = config("USERNAME_GUEST"),
+        email = config("EMAIL_GUEST"),
         password = config("PASSWORD_GUEST")
     )
-    new_user.save()
+    new_guest.save()
+
+def get_system_user():
+    return User.objects.all().get(username=config("USERNAME_SYSTEM"))
+
+def get_demo_user():
+    return User.objects.all().get(username=config("USERNAME_GUEST"))
 
 
 def populate_jobs():
@@ -82,7 +89,7 @@ def populate_jobs():
         invoice_addr = Address.objects.filter(site__company=agent)[0]
     
     job = Job(
-        created_by = ADMIN,
+        created_by = get_system_user(),
         name = '2108-001',
         agent = agent,
         customer = customer,
@@ -98,9 +105,12 @@ def populate_jobs():
     )
     job.save()
 
+    demo_user = get_demo_user()
+    demo_user.todo_list_jobs.add(job)
+    demo_user.save()
 
     ji = JobItem(
-        created_by = ADMIN,
+        created_by = get_system_user(),
         job = job,
         quantity = 1,
         price_list = PriceList.objects.all()[0],
@@ -162,7 +172,7 @@ def populate_std_accs():
         for accessory in parent[1]:
             a = Product.objects.get(name=accessory[1])
             stdAcc = StandardAccessory(
-                created_by = ADMIN,
+                created_by = get_system_user(),
                 parent = p,
                 accessory = a,
                 quantity = accessory[0]
@@ -248,11 +258,11 @@ def populate_products():
     products = products_data()
     populate_resale_categories()
 
-    prl = PriceList(created_by = ADMIN, valid_from = datetime.datetime.today(), name = 'PRL 2021.7.1')
+    prl = PriceList(created_by = get_system_user(), valid_from = datetime.datetime.today(), name = 'PRL 2021.7.1')
     prl.save()
 
     old_date = datetime.datetime(2020, 12, 15, 13, 45, 12, 000000)
-    oldprl = PriceList(created_by = ADMIN, valid_from = old_date, name = 'PRL 2020.12.3')
+    oldprl = PriceList(created_by = get_system_user(), valid_from = old_date, name = 'PRL 2020.12.3')
     oldprl.save()
 
     countries = ['GB', 'US', 'NZ', 'AU', 'CA', 'DE', 'FR', 'CN']
@@ -264,7 +274,7 @@ def populate_products():
         origin = countries[random.randint(0, len(countries)-1)]
 
         p = Product(
-            created_by = ADMIN,
+            created_by = get_system_user(),
             available = True,
             name = e[1],
             part_number = part_no,
@@ -285,7 +295,7 @@ def add_set_of_desc(p, desc):
     """
     # Add "DE" version first
     d = Description(
-        created_by = ADMIN,
+        created_by = get_system_user(),
         product = p,
         language = DE,
         description = f'[TRANSLATE: DE] {desc}'
@@ -361,7 +371,7 @@ def populate_resale_categories():
 
     for cat in categories:
         c = ResaleCategory(
-            created_by = ADMIN,
+            created_by = get_system_user(),
             name = cat['name'],
             resale_perc = cat['resale']
         )
@@ -442,7 +452,7 @@ def populate_addresses():
 
     for co in companies_info:
         c = Company(
-                created_by = ADMIN,
+                created_by = get_system_user(),
                 full_name = co[3],
                 name = co[2],
                 currency = co[1],
@@ -477,7 +487,7 @@ def populate_addresses():
 
     for sa in site_and_address:
         s = Site(
-            created_by = ADMIN,
+            created_by = get_system_user(),
             company = sa[0],
             name = sa[1],
             default_invoice = sa[2],
@@ -487,7 +497,7 @@ def populate_addresses():
 
         addr = sa[4]
         a = Address(
-            created_by = ADMIN,
+            created_by = get_system_user(),
             site = s,
             country = addr[0],
             region = addr[1],

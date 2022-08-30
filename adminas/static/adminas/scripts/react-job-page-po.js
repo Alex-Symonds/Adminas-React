@@ -26,11 +26,10 @@ function JobPo(props){
                                 />
             <JobPoDiscrepancyUI currency = { props.currency}
                                 data = { props.po_data }
-                                num_po = { props.num_po } 
                                 />
             <JobPoList          actions_po = { props.actions_po }
-                                currency = {props.currency} 
-                                data = {props.po_data}
+                                currency = { props.currency } 
+                                data = { props.po_data }
                                 job_id = { props.job_id }
                                 URL_GET_DATA = { props.URL_GET_DATA }
                                 />
@@ -119,7 +118,7 @@ function JobPoAddNew(props){
 // || Discrepancy Warning
 // Subsection showing the difference between total PO value and total line items value. Conditionally displayed when there's a mismatch with prices.
 function JobPoDiscrepancyUI(props){
-    if(props.data.difference === 0 || props.num_po === 0){
+    if(props.data.difference === 0 || props.data.po_list.length === 0){
         return null;
     }
 
