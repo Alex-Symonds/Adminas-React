@@ -528,15 +528,80 @@
 
 
 
+.jobitems-details{
+    position: fixed;
+    top: 0;
+    right: 0;
+    z-index: 8;
+
+    width: 40rem;
+    box-shadow: 0 0 15px 15px rgba(black, 33%);
+
+    .header{
+        position: relative;
+        max-height: 35px;
+        height: 35px;
+        min-height: 35px;
+
+        width: calc(100% - 5px);
+
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        background: v.$c_tone_03;
+        border-left: 3px solid v.$c_tone_05;
+        box-sizing: border-box;
+
+        h4{
+            margin: 0 0 0 1rem;
+        }
+    }
+
+    .jobitems-details-container{
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+    
+        height: calc(100vh - 35px - 1px); // less header, less 1px to show the end
+        overflow-y: auto;
+    
+        width: calc(100% - 5px);
+        box-sizing: border-box;
+    
+        padding: 0.3rem;
+    
+        border-color: transparent transparent v.$c_tone_04 v.$c_tone_05;
+        border-style: solid;
+        border-width: 0 0 1px 3px;
+
+        background: v.$c_tone_01;
+
+        position: relative;
+    }
+
+    .expand-collapse{
+        width: 100%;
+        height: 0;
+        box-shadow: 0 0 2rem 8px v.$c_tone_00;
+    }
+    
+}
+
 
 .job-item-container{
     max-width: 35rem;
+    width: calc(100% - 0.5rem);
     padding: 0;
     border-bottom: 1px solid v.$c_tone_04;
 
     margin: 1rem 0 0 2rem;
+    box-sizing: border-box;
+
     &:first-of-type{
-        margin: 0;
+        margin: 0.3rem 0 0 0;
+        width: 100%;
+        max-width: 40rem;
     }
 
     .ji-list{
@@ -669,6 +734,20 @@
                 display: table;
                 clear: both;
             }
+
+            .warning-msg{
+                margin: 0 0.5rem 0 0.5rem;
+                padding: 0 0.7rem 0.2rem 0.3rem;
+            
+                .msg{
+                    position: relative;
+                    top: -0.1rem;
+                }
+            
+                .invalid-icon{
+                    top: 0.2rem;
+                }
+            }
         }
     }
 
@@ -715,160 +794,6 @@
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-// .OLDjob-item-container{
-//     //box-shadow: v.$panel_shadow;
-
-//     div,
-//     h5{
-//         border-left: 3px solid v.$c_tone_04;
-//     }
-
-//     .panel-header{
-//         border-bottom: none;
-//         width: calc(100% - 16px);
-//     }
-
-//     ul{
-//         margin: 3px 0 0 0;
-//         padding-bottom: 0.3rem;
-//     }
-
-//     li{
-//         color: v.$c_tone_06;
-//     }
-
-//     div:last-child{
-//         border-bottom: none;
-//     }
-
-//     .assignment-icon{
-//         display: inline-block;
-//         border: 1px solid v.$c_tone_00;
-//         border-radius: 0.2rem;
-//         font-size: 0.75rem;
-//         margin: 0;
-//         padding: 0;
-//         margin: 0 0.1rem;
-    
-//         span{
-//             display: block;
-//             float: left;
-//             padding: 1px 6px;
-//             margin: 0;
-//         }
-    
-//         .label{
-//             border-top-left-radius: 0.15rem;
-//             border-bottom-left-radius: 0.15rem;
-//             border-right: 2px solid v.$c_accent_secondary;
-//             background: v.$c_tone_01;
-//             color: v.$c_tone_06;
-//         }
-//         .status{
-//             background: v.$c_tone_01;
-//             font-weight: bold;
-//         }
-       
-//         &:last-of-type{
-//             border-bottom: 1px solid v.$c_tone_00;
-//         }
-//     }
-
-//     .money{
-//         margin: 0 3px;
-//         padding: 4px 2px 10px 5px;
-//         //border-top: 1px solid v.$c_tone_04;
-//         //border-left: 3px solid transparent;
-
-//         .currency,
-//         .selling_price{
-//             font-size: 1.2rem;
-//             font-weight: bold;
-//         }
-
-//         .selling_price{
-//             margin-left: 0.5rem;
-//         }
-
-//     }
-
-//     .std-accs-container{
-//         margin-left: 3px;
-//         border-left: 3px solid v.$c_tone_04;
-
-//         p{
-//             padding: 0.2rem 0 0.2rem 0.4rem;
-//             width: calc(100% - 0.4rem);
-//             background: v.$c_tone_02; 
-//             margin: 0;
-//         }
-//     }
-
-//     .module-status-section{
-//         margin: 3px 0 1px 3px;
-//         border-bottom-left-radius: 3px;
-
-//         .intro-line{
-//             display: flex;
-//             align-items: center;
-//             padding: 0.2rem 0 0.2rem 0.4rem;
-//             width: calc(100% - 0.4rem - 3px);
-//             background: v.$c_accent_02;
-
-//             .display-text{
-//                 flex-grow: 2;
-//             }
-//             &:after{
-//                 content: '';
-//                 display: table;
-//                 clear: both;
-//             }
-//         }
-//     }
-
-//     .assignments{
-//         border-left: 3px solid v.$c_tone_04;
-//         .intro-line{
-//             background: v.$c_tone_02;
-//         }
-//     }
-
-//     .modules-ok{
-//         border-left: 3px solid v.$c_accent_secondary;
-//         .intro-line{
-//             background: v.$c_tone_02;
-//         }
-//     }  
-
-//     .modules-incomplete{
-//         border-left: 3px solid red;
-//         .intro-line{
-//             background: v.$c_warning;
-//         }
-//     }
-
-//     .modules-excess{
-//         border-left: 3px solid v.$c_flag_special_bright;
-//         .intro-line{
-//             background: v.$c_flag_special_dark;
-//         }
-//         li{
-//             color: v.$c_tone_06;
-//         }
-//     }  
-// }
 
 #toggle_item_form_btn{
     margin-top: 3px;
@@ -947,10 +872,7 @@ table.price-comparison{
 }
 
 
-.jobitems-details{
-    margin: 2rem;
-    width: 30rem;
-}
+
 
 
 #po_table{
@@ -1092,6 +1014,8 @@ table.price-comparison{
         }
     }
 }
+
+
 
 
 #jobitems_table{
@@ -1409,6 +1333,7 @@ table.price-comparison{
     }
 }
 
+
 // When the details panel won't fit at the side of the table, fix it to the
 // top of the page and give it a scroll bar.
 @media screen and (max-width: 1360px){
@@ -1421,39 +1346,25 @@ table.price-comparison{
     }
 
     .jobitems-details{
-        position: fixed;
-        top: 0;
-        left: 0;
-        z-index: 8;
+        // position: fixed;
+        // top: 0;
+        // left: 0;
+        // z-index: 8;
 
         width: 100%;
         box-sizing: border-box;
 
         margin: 0;
-        padding: 2.1rem 0 0 0;
+        padding: 0;
 
         border-bottom: 1px solid v.$c_tone_03;
         box-shadow: 0 0 30px 20px rgba(black, 80%);
         background: v.$c_tone_02;
 
         .jobitems-details-container{
-            display: flex;
-            flex-direction: column;
             align-items: center;
-
             max-height: 45vh;
-            overflow-y: auto;
-
-            width: calc(100% - 10px);
-            box-sizing: border-box;
-
             padding: 0;
-
-            border: 0.3rem solid v.$c_accent_02;
-            border-left: none;
-            border-right: none;
-
-            background: v.$c_tone_01;
         }
 
         .jobitems-details-container.expanded{
@@ -1461,15 +1372,8 @@ table.price-comparison{
             max-height: calc(100vh - 2.1rem - 41px);
         }
 
-        .close{
-            position: absolute;
-            top: 0;
-            right: 0;
-        }
-
         .expand-collapse{
             float: none;
-            width: 100%;
             height: 40px;
 
             background-size: 30px;
@@ -1504,9 +1408,16 @@ table.price-comparison{
         background: #333;
         box-shadow: 0 0 20px 1px rgba(black, 50%);
 
-        width: 100%;
+        width: calc(100% - 1rem);
         box-sizing: border-box;
-        margin: 1rem 0 0 0;
+        margin: 1rem 0 0 1rem;
+
+
+        &:first-of-type{
+            margin: 0.3rem 0 0 0;
+            width: 100%;
+            max-width: 40rem;
+        }        
 
         // Make the price list icon go under the price if there's no space
         .money.subsection{
@@ -1533,20 +1444,6 @@ table.price-comparison{
         // Make the invalid warning message drop to another line
         .module-status-section .intro-line{
             flex-wrap: wrap;
-
-            .warning-msg{
-                margin: 0 0.5rem 0 0.5rem;
-                padding: 0 0.7rem 0.2rem 0.3rem;
-
-                .msg{
-                    position: relative;
-                    top: -0.1rem;
-                }
-
-                .invalid-icon{
-                    top: 0.2rem;
-                }
-            }
         }
 
         .edit-icon span{

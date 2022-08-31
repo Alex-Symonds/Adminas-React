@@ -305,7 +305,10 @@ function JobItemsDetailsContainer(props){
     const expanded_class = isExpanded ? " expanded" : "";
     return [
         <div class="jobitems-details">
-            <CancelButton   cancel = { details_off } />
+            <div class="header">
+                <h4>item details</h4>
+                <CancelButton   cancel = { details_off } />
+            </div>
             <div class={"jobitems-details-container" + expanded_class}>
                 <JobItem    actions_items = { props.actions_items }
                             currency = {props.currency}
@@ -679,7 +682,12 @@ function JobItemAssignmentsCounterUI(props){
 // JobItemReader: JobItemAssignments helper. Display one assignment as an <li>
 function JobItemAssignmentLiUI(props){
     var each = props.data.parent_qty > 1 ? 'each ' : '';
-    return <li>{props.data.quantity } {each}to {props.data.parent_qty} x [{props.data.part_num}] {props.data.product_name} <span class="id-number">{props.data.parent_id}</span></li>
+    return [
+        <li>
+            {props.data.quantity } {each}to {props.data.parent_qty} x [{props.data.part_num}] {props.data.product_name}
+            <JobItemIdIcon ji_id = { props.data.parent_id } />
+        </li>
+    ]
 }
 
 // JobItemReader: helper function

@@ -366,7 +366,7 @@ function create_ele_module_slot_new_jobitem_form_quantity_and_submit(){
     let result = document.createElement('div');
     result.classList.add('combo-input-and-button');
 
-    let qty_fld = create_ele_jobitem_quantity_input();
+    let qty_fld = create_generic_ele_jobitem_quantity_input();
     qty_fld.value = 1;
     result.append(qty_fld);
 
@@ -674,7 +674,7 @@ function create_ele_module_slot_filler_editor_quantity_and_submit(jobmod_id, fil
 
 
 function create_ele_module_slot_filler_editor_quantity_field(jobmod_id, filler_text){
-    let result = create_ele_jobitem_quantity_input();
+    let result = create_generic_ele_jobitem_quantity_input();
 
     result.value = filler_text.match(QTY_RE);
     result.setAttribute('data-id', jobmod_id);

@@ -429,14 +429,63 @@
   color: #6bfaff;
 }
 
+.jobitems-details {
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: 8;
+  width: 40rem;
+  box-shadow: 0 0 15px 15px rgba(0, 0, 0, 0.33);
+}
+.jobitems-details .header {
+  position: relative;
+  max-height: 35px;
+  height: 35px;
+  min-height: 35px;
+  width: calc(100% - 5px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #666;
+  border-left: 3px solid #AAA;
+  box-sizing: border-box;
+}
+.jobitems-details .header h4 {
+  margin: 0 0 0 1rem;
+}
+.jobitems-details .jobitems-details-container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  height: calc(100vh - 35px - 1px);
+  overflow-y: auto;
+  width: calc(100% - 5px);
+  box-sizing: border-box;
+  padding: 0.3rem;
+  border-color: transparent transparent #888 #AAA;
+  border-style: solid;
+  border-width: 0 0 1px 3px;
+  background: #222;
+  position: relative;
+}
+.jobitems-details .expand-collapse {
+  width: 100%;
+  height: 0;
+  box-shadow: 0 0 2rem 8px #141414;
+}
+
 .job-item-container {
   max-width: 35rem;
+  width: calc(100% - 0.5rem);
   padding: 0;
   border-bottom: 1px solid #888;
   margin: 1rem 0 0 2rem;
+  box-sizing: border-box;
 }
 .job-item-container:first-of-type {
-  margin: 0;
+  margin: 0.3rem 0 0 0;
+  width: 100%;
+  max-width: 40rem;
 }
 .job-item-container .ji-list {
   padding: 0.1rem 0 0.3rem 0;
@@ -545,6 +594,17 @@
   display: table;
   clear: both;
 }
+.job-item-container .module-status-section .intro-line .warning-msg {
+  margin: 0 0.5rem 0 0.5rem;
+  padding: 0 0.7rem 0.2rem 0.3rem;
+}
+.job-item-container .module-status-section .intro-line .warning-msg .msg {
+  position: relative;
+  top: -0.1rem;
+}
+.job-item-container .module-status-section .intro-line .warning-msg .invalid-icon {
+  top: 0.2rem;
+}
 .job-item-container .assignments {
   border-left: 3px solid #888;
   border-color: #d4c7a3;
@@ -646,11 +706,6 @@ table.price-comparison .conclusion th, table.price-comparison .conclusion td {
 
 #price_summary {
   margin-top: 1.5rem;
-}
-
-.jobitems-details {
-  margin: 2rem;
-  width: 30rem;
 }
 
 #po_table .value {
@@ -977,44 +1032,25 @@ table.price-comparison .conclusion th, table.price-comparison .conclusion td {
   }
 
   .jobitems-details {
-    position: fixed;
-    top: 0;
-    left: 0;
-    z-index: 8;
     width: 100%;
     box-sizing: border-box;
     margin: 0;
-    padding: 2.1rem 0 0 0;
+    padding: 0;
     border-bottom: 1px solid #666;
     box-shadow: 0 0 30px 20px rgba(0, 0, 0, 0.8);
     background: #444;
   }
   .jobitems-details .jobitems-details-container {
-    display: flex;
-    flex-direction: column;
     align-items: center;
     max-height: 45vh;
-    overflow-y: auto;
-    width: calc(100% - 10px);
-    box-sizing: border-box;
     padding: 0;
-    border: 0.3rem solid #00c2e0;
-    border-left: none;
-    border-right: none;
-    background: #222;
   }
   .jobitems-details .jobitems-details-container.expanded {
     height: calc(100vh - 2.1rem - 41px);
     max-height: calc(100vh - 2.1rem - 41px);
   }
-  .jobitems-details .close {
-    position: absolute;
-    top: 0;
-    right: 0;
-  }
   .jobitems-details .expand-collapse {
     float: none;
-    width: 100%;
     height: 40px;
     background-size: 30px;
     background-repeat: no-repeat;
@@ -1041,9 +1077,14 @@ table.price-comparison .conclusion th, table.price-comparison .conclusion td {
   .job-item-container {
     background: #333;
     box-shadow: 0 0 20px 1px rgba(0, 0, 0, 0.5);
-    width: 100%;
+    width: calc(100% - 1rem);
     box-sizing: border-box;
-    margin: 1rem 0 0 0;
+    margin: 1rem 0 0 1rem;
+  }
+  .job-item-container:first-of-type {
+    margin: 0.3rem 0 0 0;
+    width: 100%;
+    max-width: 40rem;
   }
   .job-item-container .money.subsection {
     display: flex;
@@ -1063,17 +1104,6 @@ table.price-comparison .conclusion th, table.price-comparison .conclusion td {
   }
   .job-item-container .module-status-section .intro-line {
     flex-wrap: wrap;
-  }
-  .job-item-container .module-status-section .intro-line .warning-msg {
-    margin: 0 0.5rem 0 0.5rem;
-    padding: 0 0.7rem 0.2rem 0.3rem;
-  }
-  .job-item-container .module-status-section .intro-line .warning-msg .msg {
-    position: relative;
-    top: -0.1rem;
-  }
-  .job-item-container .module-status-section .intro-line .warning-msg .invalid-icon {
-    top: 0.2rem;
   }
   .job-item-container .edit-icon span {
     right: 0;
