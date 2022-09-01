@@ -4,6 +4,8 @@ import django
 django.setup()
 
 from adminas.models import User, Company, Site, Address, Product, Price, PriceList, Description, Slot, SlotChoiceList, StandardAccessory, Job, JobItem, ResaleCategory
+from adminas.util import create_jobmodule
+from adminas.forms import JobModuleForm
 
 import datetime
 import random
@@ -13,21 +15,21 @@ from decouple import config
 task_total = 6
 
 def main():
-    task_progress = 1
-    task_progress = print_progress('user', task_progress)
-    populate_user()
-    
-    task_progress = print_progress('addresses', task_progress)
-    populate_addresses()
-    task_progress = print_progress('products, descriptions and price lists (this takes a while)', task_progress)
-    populate_products()
-    task_progress = print_progress('slot options', task_progress)
-    populate_choice_lists()
-    task_progress = print_progress('slot settings', task_progress)
-    populate_slots()
-    task_progress = print_progress('standard accessories', task_progress)
-    populate_std_accs()
-    task_progress = print_progress('demo job', task_progress)
+    # task_progress = 1
+    # task_progress = print_progress('user', task_progress)
+    # populate_user()
+    # task_progress = print_progress('addresses', task_progress)
+    # populate_addresses()
+    # task_progress = print_progress('products, descriptions and price lists (this takes a while)', task_progress)
+    # populate_products()
+    # task_progress = print_progress('slot options', task_progress)
+    # populate_choice_lists()
+    # task_progress = print_progress('slot settings', task_progress)
+    # populate_slots()
+    # task_progress = print_progress('standard accessories', task_progress)
+    # populate_std_accs()
+    # task_progress = print_progress('demo job', task_progress)
+    print('Adding a job')
     populate_jobs()
     print('All dummy data is loaded.')
 
@@ -109,22 +111,53 @@ def populate_jobs():
     demo_user.todo_list_jobs.add(job)
     demo_user.save()
 
+    add_jobitem_with_standard_accessories(job)
+    add_jobitem_with_empty_modules(job)
+    add_jobitem_with_filled_modules(job)
+
+
+def add_jobitem_with_standard_accessories(job):
+    add_new_jobitem(job, 'Trap door (volcano pack)', 50000.00)
+
+def add_jobitem_with_empty_modules(job):
+    add_new_jobitem(job, 'Treasure tester', 75000)
+
+def add_jobitem_with_filled_modules(job):
+    parent = add_new_jobitem(job, 'Trapdoor (BYO)', 100000.00)
+
+    for slot in parent.product.slots.all():
+        first_option_product = slot.choice_list()[0]
+        child = add_new_jobitem(job, first_option_product.name, 5.00)
+
+        if slot.quantity_required > 1:
+            child.quantity = slot.quantity_required
+            child.save()
+
+        form = JobModuleForm({
+            'quantity': slot.quantity_required,
+            'parent': parent,
+            'child': child,
+            'slot': slot
+        })
+        form.is_valid()
+        result = create_jobmodule(form)
+
+
+
+def add_new_jobitem(job, name, price=1):
     ji = JobItem(
         created_by = get_system_user(),
         job = job,
         quantity = 1,
         price_list = PriceList.objects.all()[0],
-        product = Product.objects.get(name='Trap door (volcano pack)'),
-        selling_price = 50000.00
+        product = Product.objects.get(name=name),
+        selling_price = price
     )
     ji.save()
     ji.add_standard_accessories()
 
-    ji.pk = None
-    ji.product = Product.objects.get(name='Treasure tester')
-    ji.selling_price = 75000
-    ji.save()
-    ji.add_standard_accessories()
+    return ji
+
 
 
 

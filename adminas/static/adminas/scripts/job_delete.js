@@ -14,10 +14,10 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 
-function delete_job(){
+async function delete_job(){
     let request_options = get_request_options('DELETE');
 
-    let response_data = update_backend(URL_DELETE_JOB, request_options);
+    let response_data = await update_backend(URL_DELETE_JOB, request_options);
     if(get_status_from_json(response_data) === 204){
         window.location.href = '/';
     }

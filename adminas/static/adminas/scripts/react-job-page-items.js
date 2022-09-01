@@ -401,15 +401,12 @@ function get_details_css_class(selected_status){
 // || JobItem: one individual JobItem 
 // This adds some arguments to passed down functions and handles the "read or edit" logic
 function JobItem(props){
-
-    // Add the job_id argument to passed-down functions, so children don't need to worry about that detail.
     const editor = get_editor_object(props.data.ji_id, props.editor_state.get, props.editor_state.set);
 
     function delete_item(){
         props.actions_items.delete_f(props.data.ji_id);
     }
 
-    // Edit mode display
     if(editor.is_active){
         return <JobItemEditor   data = {props.data}
                                 delete_item = { delete_item }
@@ -421,7 +418,6 @@ function JobItem(props){
                                 />
     }
 
-    // Read mode display
     return <JobItemReaderUI 
                             currency = { props.currency }
                             data = { props.data }

@@ -17,8 +17,6 @@ from django.utils import formats
 from django.urls import reverse
 from django.core.serializers.json import DjangoJSONEncoder
 
-import json
-
 from django_countries.fields import CountryField
 
 from adminas.constants import DOCUMENT_TYPES, KEY_ERROR_MESSAGE, KEY_RESPONSE_CODE, NUM_BODY_ROWS_ON_EMPTY_DOCUMENT, SUPPORTED_CURRENCIES, SUPPORTED_LANGUAGES, DEFAULT_LANG, INCOTERMS, DOC_CODE_MAX_LENGTH, ERROR_NO_DATA, SUCCESS_CODE
