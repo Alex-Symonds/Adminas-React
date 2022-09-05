@@ -4,8 +4,8 @@ import django
 django.setup()
 
 from adminas.models import User, Company, Site, Address, Product, Price, PriceList, Description, Slot, SlotChoiceList, StandardAccessory, Job, JobItem, ResaleCategory
-from adminas.util import create_jobmodule
-from adminas.forms import JobModuleForm
+from adminas.util import debug, create_jobmodule, create_po, create_comment
+from adminas.forms import JobModuleForm, POForm, JobCommentFullForm
 
 import datetime
 import random
@@ -111,10 +111,84 @@ def populate_jobs():
     demo_user.todo_list_jobs.add(job)
     demo_user.save()
 
+    add_demo_jobitems(job)
+    add_demo_po(job)
+    add_demo_comments(job)
+
+
+def add_demo_po(job):
+    dict = {
+        'job': job,
+        'reference': "PO-demo-001",
+        'date_on_po': datetime.date.today(),
+        'date_received': datetime.date.today(),
+        'currency': job.currency,
+        'value': 55555.55
+    }
+
+    form = POForm(dict)
+    if form.is_valid():
+        create_po(get_system_user(), form)
+    else:
+        debug(form.errors)
+        
+
+def add_demo_comments(job):
+    pass
+    # demo_user = get_demo_user()
+
+    # add_comment(job, demo_user,\
+    #     "This comment was written using a different account. It's not private, so you can see it too. You can't edit the contents, but you can control whether it's pinned and/or highlighted for you.",\
+    #     is_author = False,
+    #     highlighted = True)
+    # add_comment(job, demo_user, demo_user, \
+    #     "This comment was written using the Demo account. It's private, so nobody else can see it. You can edit the contents and control pinned/highlighted for yourself.",\
+    #     is_author = True, highlighted = True, private = True)
+    # add_comment(job, demo_user, demo_user,\
+    #     "Pinned comment: it appears on the todo list.", 
+    #     is_author = True, pinned = True)
+
+def add_comment(job, user, contents, **kwargs):
+    pass
+
+    # is_author = set_comment_settings_from_kwargs(kwargs, 'is_author')
+    # if is_author:
+    #     author = user
+    #     dict = {
+    #         'contents': contents,
+    #         'private': False,
+    #         'pinned': False,
+    #         'highlighted': False
+    #     }
+    # else:
+    #     author = get_system_user()
+    #     dict = {
+    #         'contents': contents,
+    #         'private': False,
+    #         'pinned': False,
+    #         'highlighted': False
+    #     }
+
+
+    # form = JobCommentFullForm(dict)
+    # if form.is_valid():
+    #     create_comment(form, author, job)
+
+    # is_private = set_comment_settings_from_kwargs(kwargs, 'private')
+    # is_pinned = set_comment_settings_from_kwargs(kwargs, 'pinned')
+    # is_highlighted = set_comment_settings_from_kwargs(kwargs, 'highlighted')
+
+
+
+def set_comment_settings_from_kwargs(kwargs, key):
+    return kwargs[key] if key in kwargs else False
+
+
+
+def add_demo_jobitems(job):
     add_jobitem_with_standard_accessories(job)
     add_jobitem_with_empty_modules(job)
     add_jobitem_with_filled_modules(job)
-
 
 def add_jobitem_with_standard_accessories(job):
     add_new_jobitem(job, 'Trap door (volcano pack)', 50000.00)
@@ -136,11 +210,11 @@ def add_jobitem_with_filled_modules(job):
         form = JobModuleForm({
             'quantity': slot.quantity_required,
             'parent': parent,
-            'child': child,
+            'child': child.product,
             'slot': slot
         })
         form.is_valid()
-        result = create_jobmodule(form)
+        create_jobmodule(form)
 
 
 

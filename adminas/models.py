@@ -1067,18 +1067,16 @@ class JobComment(AdminAuditTrail):
 
         return result
 
+
     def update(self, form, user):
         """
         Update comment based on a form.
         """
         self.contents = form.cleaned_data['contents']
         self.private = form.cleaned_data['private']
-
-        want_pinned = form.cleaned_data['pinned']
-        want_highlighted = form.cleaned_data['highlighted']
-        update_membership(want_pinned, self.is_pinned_by, user, self.pinned_by)
-        update_membership(want_highlighted, self.is_highlighted_by, user, self.highlighted_by)
         self.save()
+        self.update_toggles(form.cleaned_data, user)
+
 
     def update_toggles(self, toggle_details, user):
         want_pinned = toggle_details['pinned'] if 'pinned' in toggle_details else self.is_pinned_by(user) 

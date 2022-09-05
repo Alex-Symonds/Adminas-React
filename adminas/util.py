@@ -7,6 +7,7 @@ from django.urls import reverse
 from django.core.paginator import Paginator
 
 
+
 # Contents:
 #   || Errors
 #   || Retrieve
@@ -451,19 +452,12 @@ def create_comment(comment_form, user, job):
         private = comment_form.cleaned_data['private']
     )
     comment.save()
-
-    want_pinned = comment_form.cleaned_data['pinned']
-    if want_pinned:
-        comment.pinned_by.add(user)
-
-    want_highlighted = comment_form.cleaned_data['highlighted']
-    if want_highlighted:
-        comment.highlighted_by.add(user)
-
-    if want_pinned or want_highlighted:
-        comment.save()
+    comment.update_toggles(comment_form.cleaned_data, user)
 
     return comment
+
+
+
 
 
 def create_document(user, job_obj, doc_code, data_form, version_form, assigned_items, special_instructions, prod_data_form):
@@ -640,16 +634,16 @@ def debug(print_this):
     print('---------------------------------------------------------------------------')
 
 
-def update_membership(want_membership, memberlist_includes, member, mtm_list):
+def update_membership(want_membership, memberlist_includes, member, memberlist):
     """
     Fix membership of an MTM list, but only if it's wrong
     """
     have_membership = memberlist_includes(member)
 
     if want_membership and not have_membership:
-        mtm_list.add(member)
+        memberlist.add(member)
     elif not want_membership and have_membership:
-        mtm_list.remove(member)
+        memberlist.remove(member)
 
 
 def copy_relations_to_new_document_version(existing_relations, new_version):
