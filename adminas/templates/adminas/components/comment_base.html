@@ -14,7 +14,7 @@
 {% else %}
                 <div class="public-status">[public]</div>
 {% endif %}
-                <span class="contents">{{ comment.contents }}</span>
+                <span class="contents">{{ comment.contents|linebreaks }}</span>
             </span>
 
 {% block wrapper_middle %}

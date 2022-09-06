@@ -41,7 +41,7 @@ p.empty-section-notice {
   border: 1px solid #BBB;
   box-shadow: 0 0 10px 1px rgba(0, 212, 245, 0.5);
 }
-.panel.job p {
+.panel.job .job-details p {
   color: #F6F6F6;
   margin: 0;
   padding: 12px 10px;

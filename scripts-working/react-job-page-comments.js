@@ -10,7 +10,7 @@
         || CommentReader
             Note: the vanilla JS has two types of comments, "collapsable" and "full". "Full" comments don't appear on the Job page,
                   so only "collapsable" has been React-ified
-        || CommentEditor
+        || Comment Editor
 */
 
 // Note: these const strings are currently used for three different things:
@@ -24,6 +24,7 @@ const HIGHLIGHTED_STRING = 'highlighted';
 // || Main section
 function JobComments(props){
     const [urlComments, setUrl] = React.useState('');
+    const [apiComments, setApi] = React.useState('');
     const [username, setUsername] = React.useState('');
     const [comments, setComments] = React.useState([]);
 
@@ -36,6 +37,7 @@ function JobComments(props){
     const { data, error, isLoaded } = useFetch(url_for_page_load(props.URL_GET_DATA, props.job_id, 'comments'));
     React.useEffect(() => {
         set_if_ok(data, 'url', setUrl);
+        set_if_ok(data, 'api', setApi)
         set_if_ok(data, 'username', setUsername);
         set_if_ok(data, 'comments', setComments);
     }, [data]);
@@ -48,7 +50,7 @@ function JobComments(props){
         remove_from_list_state(comments, setComments, 'id', comment_id); 
     }
 
-    const actions_comments = get_actions_object(urlComments, null, update_comment, remove_comment);
+    const actions_comments = get_actions_object(apiComments, null, update_comment, remove_comment);
 
     if(error){
         return <LoadingErrorUI name='comments' />
@@ -59,6 +61,7 @@ function JobComments(props){
     return <JobCommentsUI   actions_comments = { actions_comments }
                             comments = { comments }
                             editor_state = { editor_state }
+                            comment_page_url = { urlComments }
                             username = { username }
                             />
 }
@@ -69,7 +72,7 @@ function JobCommentsUI(props){
     return [
         <section id="job_comments" class="paired-section">
             <h3>Comments</h3>
-            <a href={`${props.actions_comments.url}&page=1`}>See all { num_comments } comments</a>
+            <a href={`${props.comment_page_url}&page=1`}>See all { num_comments } comments</a>
             <JobCommentsSubsection  actions_comments = { props.actions_comments }
                                     comments = { props.comments }
                                     editor_state = { props.editor_state }
@@ -190,7 +193,28 @@ function CommentReaderBodyUI(props){
     return [
         <span class="main">
             <div class={privacyCss}>[{privacyStr}]</div>
-            <span class="contents">{props.comment.contents}</span>
+            <CommentContentsWithLinebreaks text = { props.comment.contents }/>
+        </span>
+    ]
+}
+
+function CommentContentsWithLinebreaks(props){
+    if(!props.text.includes('\n')){
+        var contents = <p>{ props.text }</p>;
+    }
+    else{
+        var contents = props.text.split('\n').map((pcontents) => {
+            return (
+                <span>
+                    {pcontents}
+                    <br />
+                </span>
+            )
+        });
+    }
+    return [
+        <span class="contents">
+            { contents }
         </span>
     ]
 }
@@ -207,11 +231,11 @@ function CommentReaderFooter(props){
     }
 
     function toggle_comment_from_icon(attributes){
-        const url = `${props.actions_comments.url}&id=${props.comment.id}`;
+        const url = `${props.actions_comments.url}?id=${props.comment.id}`;
         const headers = getFetchHeaders('PUT', attributes);
 
         update_server(url, headers, resp_data => {
-            if(status_is_good(resp_data, 200)){
+            if(status_is_good(resp_data, 204)){
                 props.actions_comments.update_f(props.comment.id, attributes);
             }
             else {
@@ -303,11 +327,11 @@ function CommentEditor(props){
     }
 
     const save_comment = () => {
-        const url = `${props.actions_comments.url}&id=${props.comment.id}`;
+        const url = `${props.actions_comments.url}?id=${props.comment.id}`;
         const headers = getFetchHeaders('PUT', state_to_object_be());
         
         update_server(url, headers, resp_data => {
-            if(status_is_good(resp_data, 200)){
+            if(status_is_good(resp_data, 204)){
                 props.actions_comments.update_f(props.comment.id, state_to_object_fe());
                 props.editor.off();
             }
@@ -364,7 +388,7 @@ function CommentEditorUI(props){
             <h4>Edit Comment</h4>
             <BackendErrorUI message = { props.backend_error.message }
                             turn_off_error = { props.backend_error.clear } />
-            <textarea id="id_comment_contents" name="contents" cols="30" rows="5" value={ props.controlled.contents.get } onChange={ props.controlled.contents.set }></textarea>
+            <textarea id="id_comment_contents" name="contents" cols="30" rows="5" value={ paragraph_tags_to_newlines(props.controlled.contents.get) } onChange={ props.controlled.contents.set }></textarea>
             <CommentEditorCheckboxes controlled = { props.controlled } />
             <EditorControls delete = { props.handle_delete }
                             submit = { props.handle_submit } 

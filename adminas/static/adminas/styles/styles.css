@@ -977,6 +977,12 @@ fieldset.form-row label {
 .one-comment .main .public-status {
   background-image: url(../images/i-speech-bubble.svg);
 }
+.one-comment .main p:first-of-type {
+  margin-top: 0;
+}
+.one-comment .main p:last-of-type {
+  margin-bottom: 0;
+}
 .one-comment .footer {
   margin: 3px;
 }

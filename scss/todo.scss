@@ -58,12 +58,11 @@ p.empty-section-notice{
         box-shadow: v.$panel_shadow_highlight;
     }
 
-    p{
+    .job-details p{
         color: v.$c_txt_main;
         margin: 0;
         padding: 12px 10px;
         background: v.$c_tone_02;
-        
     }
 
     ul{

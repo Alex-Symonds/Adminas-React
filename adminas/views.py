@@ -1004,6 +1004,7 @@ def api_data(request):
         if component_name == 'comments':
             setting_for_order_by = '-created_on'
             response_data['url'] = f"{reverse('comments_page')}?job_id={job.id}"
+            response_data['api'] = reverse('api_comments')
             response_data['username'] = request.user.username
             response_data['comments'] = job.get_all_comments(request.user, setting_for_order_by)
 
