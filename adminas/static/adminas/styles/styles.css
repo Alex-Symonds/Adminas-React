@@ -612,7 +612,6 @@ fieldset.form-row label {
   padding-top: 0.3rem;
   font-size: 1.1rem;
   font-weight: bold;
-  border-top: 1px solid #444;
 }
 .form-like #id_edit_item_selling_price {
   margin-left: 0.5rem;

@@ -351,7 +351,8 @@
 }
 
 #po_edit_form {
-  width: calc(100% - 1rem);
+  width: calc(90% - 1rem);
+  max-width: 20rem;
   margin-bottom: 1.1rem;
 }
 #po_edit_form .button-container {
@@ -745,14 +746,21 @@ table.price-comparison .conclusion th, table.price-comparison .conclusion td {
   border-bottom: 1px solid red;
 }
 #po_table .panel {
-  position: absolute;
-  top: -0.7rem;
+  position: fixed;
+  bottom: 0;
   background: #222;
   z-index: 3;
   box-shadow: 0 0 10px 1px rgba(0, 0, 0, 0.85);
 }
 
 @media screen and (max-width: 900px) {
+  #po_table .panel {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    bottom: auto;
+    transform: translate(-50%);
+  }
   #po_table thead tr {
     position: absolute;
     top: -9999px;

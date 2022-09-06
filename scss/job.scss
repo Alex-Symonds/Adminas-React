@@ -425,7 +425,8 @@
 }
 
 #po_edit_form{
-    width: calc(100% - 1rem);
+    width: calc(90% - 1rem);
+    max-width: 20rem;
     margin-bottom: 1.1rem;
 
     .button-container{
@@ -922,8 +923,9 @@ table.price-comparison{
     }
 
     .panel{
-        position: absolute;
-        top: -0.7rem;
+        position: fixed;
+        bottom: 0;
+
         background: v.$c_tone_01;
         z-index: 3;
 
@@ -933,6 +935,14 @@ table.price-comparison{
 @media screen and (max-width: 900px){
 
     #po_table{
+        .panel{
+            position: absolute;
+            top: 0;
+            left: 50%;
+            bottom: auto;
+            transform: translate(-50%);
+        }
+
         thead tr{
             position: absolute;
             top: -9999px;
@@ -1351,11 +1361,6 @@ table.price-comparison{
     }
 
     .jobitems-details{
-        // position: fixed;
-        // top: 0;
-        // left: 0;
-        // z-index: 8;
-
         width: 100%;
         box-sizing: border-box;
 
@@ -1676,57 +1681,6 @@ table.price-comparison{
             }
         }
     }
-
-    // #price_check_section{
-    //     max-width: 475px;
-    //     width: 100%;
-
-    //     .selling-price{
-    //         margin-top: 0;
-    //     }
-        
-    //     /*
-    //     Label the data
-    //     */
-    //     #price_check_table{
-    //         td:nth-of-type(2):before { content: "Quantity"; }
-    //         td:nth-of-type(1):before { content: "Part Number"; }
-    //         td:nth-of-type(3):before { content: "Sold @"; }
-    //         td:nth-of-type(4):before { content: "Price List: Version"; }
-    //         td:nth-of-type(5):before { content: "Price List: Value"; }
-    //         td:nth-of-type(6):before { content: "Price List vs. Sold"; }
-    //         td:nth-of-type(7):before { content: "Price List vs. Sold (%)"; }
-    //         td:nth-of-type(8):before { content: "Resale: Discount"; }
-    //         td:nth-of-type(9):before { content: "Resale: Value"; }
-    //         td:nth-of-type(10):before { content: "Resale vs. Sold"; }
-    //         td:nth-of-type(11):before { content: "Resale vs. Sold (%)"; }
-    //     }
-
-    //     // In narrow-mode the descriptions overlap the row below, so
-    //     // add a background; then add other formatting so the background
-    //     // doesn't look weird.
-    //     .details{
-    //         position: absolute;
-    //         bottom: -1rem;
-    //         right: 5px;
-    //         z-index: 2; // So you can click it off again
-
-    //         width: 15rem;
-
-    //         color: v.$c_tone_07;
-    //         background: v.$c_tone_02;
-    //         border: 1px solid v.$c_tone_01;
-    //         padding: 3px;
-    //         box-shadow: v.$panel_shadow;
-
-    //         border-right: 3px solid v.$c_accent_secondary;
-    //         padding-right: 10px;
-    //         text-align: right;
-
-    //         border-top-left-radius: 0.5rem;
-    //         border-bottom-left-radius: 0.5rem;
-    //     }
-    // }
 }
 
 
