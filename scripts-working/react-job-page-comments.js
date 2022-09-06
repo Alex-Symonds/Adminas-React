@@ -67,7 +67,7 @@ function JobComments(props){
 function JobCommentsUI(props){
     let num_comments = props.comments === null ? 0 : props.comments.length;
     return [
-        <section id="job_comments" class="item">
+        <section id="job_comments" class="paired-section">
             <h3>Comments</h3>
             <a href={`${props.actions_comments.url}&page=1`}>See all { num_comments } comments</a>
             <JobCommentsSubsection  actions_comments = { props.actions_comments }

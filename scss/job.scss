@@ -141,17 +141,22 @@
 .pair-related{
     display: flex;
     flex-flow: row wrap;
-    gap: 2rem;
+    gap: 2.5rem;
     min-width: 40%;
     max-width: 100%;
 
     flex-grow: 2;
 
-    .item{
-        flex-grow: 2;
-        min-width: 275px;
+    .paired-section{
+        flex-grow: 1;
+        min-width: 295px;
+        max-width: 716px;
     }
-
+}
+@media screen and (min-width: 1690px){
+    .pair-related .paired-section{
+        max-width: 616px;
+    }
 }
 
 #toggle_po_form_btn{

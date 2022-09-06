@@ -53,7 +53,7 @@ function JobPriceCheckUI(props){
     }
 
     return [
-        <section id="price_check_section" class="item">
+        <section id="price_check_section" class="paired-section">
             <h3>Prices</h3>
             { contents }
         </section>

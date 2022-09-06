@@ -9,7 +9,7 @@
 // || Main section
 function JobDocumentsUI(props){
     return [
-        <section class="job-doc-section item">
+        <section class="job-doc-section paired-section">
             <h3>Documents</h3>
             <JobDocumentsSubsection doc_data = { props.doc_data }
                                     doc_type = 'WO'
