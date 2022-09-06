@@ -683,13 +683,12 @@ def api_job(request):
         if is_error(job_to_delete):
             return render_with_error(request, job_to_delete)
 
-        if job_to_delete.safe_to_delete():
-            job_to_delete.delete()
-            return HttpResponse(status = 204)
-
-        return JsonResponse({
-            'message': "This Job can't be deleted."
-        }, status = 403)
+        is_safe = job_to_delete.safe_to_delete()
+        if is_error(is_safe):
+            return respond_with_error(is_safe)
+        
+        job_to_delete.delete()
+        return HttpResponse(status = 204)
 
 
     # POST = form submission = create or edit a Job

@@ -178,9 +178,18 @@ function CommentReaderUI(props){
 
 // Read Comment: the section with the "private" icon and the user's waffle
 function CommentReaderBodyUI(props){
+    let privacyCss = 'public-status';
+    let privacyStr = 'public';
+
+    if(props.comment.user_is_owner && props.comment.private){
+        privacyCss = 'privacy-status';
+        privacyStr = 'PRIVATE';
+    }
+
+
     return [
         <span class="main">
-            {props.comment.user_is_owner && props.comment.private ? <div class="privacy-status">[PRIVATE]</div>: ''}
+            <div class={privacyCss}>[{privacyStr}]</div>
             <span class="contents">{props.comment.contents}</span>
         </span>
     ]
@@ -243,7 +252,7 @@ function CommentPinnedButtonUI(props){
     const display_text = props.pinned ? 'unpin' : 'pin';
     const on_or_off = props.pinned ? 'on' : 'off';
 
-    return <button class={`pinned-toggle pinned-status-${on_or_off}`} onClick={ props.handle_toggle }>{display_text}</button>
+    return <button class={`pinned-toggle pin-${on_or_off}`} onClick={ props.handle_toggle }>{display_text}</button>
 }
 
 function CommentHighlightButtonUI(props){

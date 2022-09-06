@@ -134,54 +134,57 @@ def add_demo_po(job):
         
 
 def add_demo_comments(job):
-    pass
-    # demo_user = get_demo_user()
+    demo_user = get_demo_user()
 
-    # add_comment(job, demo_user,\
-    #     "This comment was written using a different account. It's not private, so you can see it too. You can't edit the contents, but you can control whether it's pinned and/or highlighted for you.",\
-    #     is_author = False,
-    #     highlighted = True)
-    # add_comment(job, demo_user, demo_user, \
-    #     "This comment was written using the Demo account. It's private, so nobody else can see it. You can edit the contents and control pinned/highlighted for yourself.",\
-    #     is_author = True, highlighted = True, private = True)
-    # add_comment(job, demo_user, demo_user,\
-    #     "Pinned comment: it appears on the todo list.", 
-    #     is_author = True, pinned = True)
-
-def add_comment(job, user, contents, **kwargs):
-    pass
-
-    # is_author = set_comment_settings_from_kwargs(kwargs, 'is_author')
-    # if is_author:
-    #     author = user
-    #     dict = {
-    #         'contents': contents,
-    #         'private': False,
-    #         'pinned': False,
-    #         'highlighted': False
-    #     }
-    # else:
-    #     author = get_system_user()
-    #     dict = {
-    #         'contents': contents,
-    #         'private': False,
-    #         'pinned': False,
-    #         'highlighted': False
-    #     }
+    add_demo_comment(job, demo_user, True,\
+        "Demo wrote this comment to explain something unusual about the job. Demo set it to 'not private' so other users can see it too (but only Demo can edit it). Demo has not pinned it because it's long and it'd make the todo list look untidy: better to write a shorter, private comment and pin that instead. Demo has not highlighted it because it's been superseded.",
+        )
+    add_demo_comment(job, demo_user, True,\
+        "Pinned summary describing something unusual.",
+        pinned = True, private = True)
+    add_demo_comment(job, demo_user, True,\
+        "Personal reminder: do the thing before the deadline!",
+        pinned = True, highlighted = True, private = True)
+    add_demo_comment(job, demo_user, False,\
+        "Someone else's comment explaining recent developments in relation to the point Demo raised. Demo can see it because it's not private. Demo has highlighted it so it stands out and appears on the job page.",
+        highlighted = True)    
+    add_demo_comment(job, demo_user, False,\
+        "Someone else's comment talking about something which doesn't affect Demo. Demo has neither pinned nor highlighted it.",
+        )
 
 
-    # form = JobCommentFullForm(dict)
-    # if form.is_valid():
-    #     create_comment(form, author, job)
+def add_demo_comment(job, user, is_author, contents, **kwargs):
+    if is_author:
+        form_input = format_input_for_comment_form(contents, kwargs)
+    else:
+        form_input = format_input_for_comment_form(contents)
 
-    # is_private = set_comment_settings_from_kwargs(kwargs, 'private')
-    # is_pinned = set_comment_settings_from_kwargs(kwargs, 'pinned')
-    # is_highlighted = set_comment_settings_from_kwargs(kwargs, 'highlighted')
+    form = JobCommentFullForm(form_input)
+    if form.is_valid():
+        author = user if is_author else get_system_user()
+        new_comment = create_comment(form, author, job)
+
+        if not is_author:
+            new_comment.update_toggles(format_input_for_comment_toggles(kwargs), user)
 
 
+def get_boolean_from_dict(dict, key):
+    return dict[key] if key in dict else False
 
-def set_comment_settings_from_kwargs(kwargs, key):
-    return kwargs[key] if key in kwargs else False
+
+def format_input_for_comment_form(contents, settings = None):
+    return {
+        'contents': contents,
+        'private': False if settings == None else get_boolean_from_dict(settings, 'private'),
+        'pinned': False if settings == None else get_boolean_from_dict(settings, 'pinned'),
+        'highlighted': False if settings == None else get_boolean_from_dict(settings, 'highlighted')
+    }
+
+def format_input_for_comment_toggles(settings):
+    return {
+        'pinned': get_boolean_from_dict(settings, 'pinned'),
+        'highlighted': get_boolean_from_dict(settings, 'highlighted')
+    }    
 
 
 

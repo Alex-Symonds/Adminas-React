@@ -592,12 +592,12 @@ class Job(AdminAuditTrail):
         docs = DocumentVersion.objects.filter(document__job=self)
         for d in docs:
             if d.issue_date != None and d.issue_date != '':
-                return False
+                return error("Jobs with issued documents can't be deleted.", 403)
 
         # Condition #2: Job must not have any active POs (POs have accounting implications, so they must be "deactivated" first)
         porders = PurchaseOrder.objects.filter(job=self).filter(active=True)
         if porders.count() > 0:
-            return False
+            return error("Jobs with active purchase orders can't be deleted.", 403)
 
         return True
 

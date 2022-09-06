@@ -9,9 +9,11 @@
 {% endblock %}
 
             <span class="main">
-{% if comment.user_is_owner %}{% if comment.private %}
+{% if comment.private %}
                 <div class="privacy-status">[PRIVATE]</div>
-{% endif %}{% endif %}
+{% else %}
+                <div class="public-status">[public]</div>
+{% endif %}
                 <span class="contents">{{ comment.contents }}</span>
             </span>
 

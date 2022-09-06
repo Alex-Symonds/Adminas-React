@@ -1148,32 +1148,79 @@ fieldset.form-row{
 .one-comment{
     position: relative;
 
-    width: calc(100% - 10px);
     min-width: 250px;
     max-width: v.$MAX_WIDTH;
 
     padding: 2px 5px 0;
 
+    summary{
+        list-style: none;
+    }
+
     .main{
+        display: flex;
+        flex-flow: row-reverse nowrap;
+        justify-content: space-between;
+
         .contents{
             margin: 0;
             padding: 5px;
+
+            flex-grow: 2;
         }
 
-        .privacy-status{
-            float: right;
+        .privacy-status,
+        .public-status{
             margin: 4px 6px;
 
+            min-width: 24px;
             width: 24px;
             height: 24px;
             text-indent: -9999px;
 
-            background-image: url(../images/i-private-comment.svg);
             background-repeat: no-repeat;
             background-position: center;
             background-size: 24px 24px;
             text-indent: -9999px;
         }
+
+        .privacy-status{
+            background-image: url(../images/i-private-comment.svg);
+        }
+
+        .public-status{
+            background-image: url(../images/i-speech-bubble.svg);
+        }
+
+        // .privacy-status{
+        //     float: right;
+        //     margin: 4px 6px;
+
+        //     width: 24px;
+        //     height: 24px;
+        //     text-indent: -9999px;
+
+        //     background-image: url(../images/i-private-comment.svg);
+        //     background-repeat: no-repeat;
+        //     background-position: center;
+        //     background-size: 24px 24px;
+        //     text-indent: -9999px;
+        // }
+
+        // .public-status{
+        //     float: right;
+        //     margin: 4px 6px;
+
+        //     width: 24px;
+        //     height: 24px;
+        //     text-indent: -9999px;
+
+        //     background-image: url(../images/i-speech-bubble.svg);
+        //     background-repeat: no-repeat;
+        //     background-position: center;
+        //     background-size: 24px 24px;
+        //     text-indent: -9999px;
+        // }
     }
 
     .footer{
