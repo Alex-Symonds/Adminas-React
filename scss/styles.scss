@@ -1376,6 +1376,11 @@ fieldset.form-row{
 .create-comments-container{
     display: block;
     width: 100%;
+    padding: 0.7rem 0;
+
+    .job-comment-cu-container{
+        margin: 0 0 0 0.7rem;
+    }
 }
 .all-comments{
     .create-comments-container{
@@ -1407,12 +1412,13 @@ fieldset.form-row{
         border: 1px solid v.$c_tone_00;
         border-radius: 3px;
         
+        margin: 0.3rem 0 0 0;
         padding: 3px 0 0;
         width: calc(100% - 3px);
         height: 1.5rem;
 
         display: flex;
-        flex: row;
+        flex-direction: row;
         align-content: flex-start;
 
         label{
@@ -1430,6 +1436,10 @@ fieldset.form-row{
             margin-right: 1.9rem;
         }
 
+    }
+
+    &.form-like .controls{
+        margin: 0.7rem 0;
     }
 }
 
