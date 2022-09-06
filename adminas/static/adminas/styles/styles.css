@@ -501,7 +501,7 @@ nav li a:hover {
   position: relative;
   box-sizing: border-box;
   border: 1px solid #666;
-  border-radius: 8px;
+  border-radius: 3px;
   max-width: 700px;
   width: 93%;
   margin: 1rem 0.5rem 0 0.5rem;
@@ -515,13 +515,13 @@ nav li a:hover {
 .panel .panel-header {
   font-size: 1rem;
   width: calc(100% - 16px);
-  border-top-left-radius: 8px;
-  border-top-right-radius: 8px;
+  border-top-left-radius: 3px;
+  border-top-right-radius: 3px;
   margin: 0;
   padding: 12px 8px;
   color: #F6F6F6;
-  background: #444;
-  background: linear-gradient(0deg, #222 0%, #444 100%);
+  background: #666;
+  background: linear-gradient(0deg, #666 0%, #686868 100%);
   border-bottom: 1px solid #666;
 }
 .panel .panel-header h3 {
@@ -671,7 +671,7 @@ fieldset.form-row label {
   padding: 0.4rem 0;
   height: 2.3rem;
   font-size: 1.2rem;
-  border-radius: 0.5rem;
+  border-radius: 3px;
   border-top-left-radius: 0;
   border-top-right-radius: 0;
 }

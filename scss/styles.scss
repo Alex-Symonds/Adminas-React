@@ -593,7 +593,7 @@ nav{
     box-sizing: border-box;
 
     border: 1px solid v.$c_tone_03;
-    border-radius: 8px;
+    border-radius: 3px; //8px;
 
     max-width: v.$MAX_WIDTH;
     width: 93%;
@@ -613,14 +613,14 @@ nav{
 
         width: calc(100% - 16px);
 
-        border-top-left-radius: 8px;
-        border-top-right-radius: 8px;
+        border-top-left-radius: 3px;
+        border-top-right-radius: 3px;
         margin: 0;
         padding: 12px 8px;
 
         color: v.$c_txt_main;
-        background: v.$c_tone_02;
-        background: linear-gradient(0deg, v.$c_tone_01 0%, v.$c_tone_02 100%);
+        background: v.$c_tone_03;
+        background: linear-gradient(0deg, v.$c_tone_03 0%, #686868 100%);
         border-bottom: 1px solid v.$c_tone_03;
 
         h3{
@@ -643,7 +643,7 @@ nav{
 
 // Panel subsections
 .subsection{
-    margin: 1rem 0 0 3px;//0.5rem 0 0 3px;
+    margin: 1rem 0 0 3px;
     border-bottom: 1px solid v.$c_tone_03;
     border-left: 3px solid v.$c_tone_04;
 
@@ -733,7 +733,6 @@ fieldset.form-row{
         padding-top:0.3rem;
         font-size: 1.1rem;
         font-weight: bold;
-        // border-top: 1px solid v.$c_tone_02;
     }
 
     #id_edit_item_selling_price{
@@ -808,7 +807,7 @@ fieldset.form-row{
         padding: 0.4rem 0;
         height: 2.3rem;
         font-size: 1.2rem;
-        border-radius: 0.5rem;
+        border-radius: 3px;
         border-top-left-radius: 0;
         border-top-right-radius: 0;        
     }
