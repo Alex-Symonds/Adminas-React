@@ -240,7 +240,7 @@ function get_document_data_as_object(issue_date){
         obj['req_prod_date'] = req_prod_date_value;
     }
 
-    let sched_prod_date_value = get_value_from_id('id_req_prod_date');
+    let sched_prod_date_value = get_value_from_id('id_sched_prod_date');
     if(sched_prod_date_value !== null){
         obj['sched_prod_date'] = sched_prod_date_value;
     }

@@ -462,41 +462,20 @@ def create_comment(comment_form, user, job):
 
 def create_document(user, job_obj, doc_code, data_form, version_form, assigned_items, special_instructions, prod_data_form):
     """
-    Create one new "document", consisting of: the "main" document; version 1 of the document;
+    Create one new "document", consisting of: the "main" document; version 1 of that document;
     production data (if applicable); item assignments (if applicable); special instructions (if applicable).
     """
     doc_data = create_document_data(data_form, doc_code, job_obj)
     doc_version = create_document_version(doc_data, user, version_form)
+    
     doc_version.update_production_dates(prod_data_form)
+    doc_version.add_special_instructions(special_instructions, user)
 
-    create_document_assignments(doc_version, assigned_items)
-    create_document_instructions(special_instructions, doc_version, user)
+    items_result = doc_version.assign_items(assigned_items)
+    if is_error(items_result):
+        return items_result
     
     return doc_version
-
-
-def create_document_assignments(doc_version, assigned_items):
-      for key, value in assigned_items.items():
-        value_int = int(value)
-        if value_int > 0:
-            create_document_assignment(doc_version, key, value)  
-
-
-def create_document_assignment(doc_obj, jiid, new_qty):
-    """
-    Create a document assignment for a jobitem.
-    """
-    ji = get_object(adminas.models.JobItem, id = int(jiid))
-    if is_error(ji):
-        return error("Invalid assignment data (C).", 400)
-
-    assignment = adminas.models.DocAssignment(
-        version = doc_obj,
-        item = ji,
-        quantity = int(new_qty)
-    )
-    assignment.quantity = min(assignment.quantity, assignment.max_valid_quantity())
-    assignment.save()
 
 
 def create_document_data(form, doc_code, job_obj):
@@ -511,19 +490,6 @@ def create_document_data(form, doc_code, job_obj):
     new_document.save()
 
     return new_document
-
-
-def create_document_instructions(new_special_instructions, doc_obj, user):
-    """
-    Create a batch of special instructions for documents.
-    """
-    for spec_instr in new_special_instructions:
-        instr = adminas.models.SpecialInstruction(
-            version = doc_obj,
-            instruction = spec_instr['contents'],
-            created_by = user
-        )
-        instr.save()
 
 
 def create_document_version(parent_doc, user, version_form):
@@ -546,7 +512,6 @@ def create_job(jobform, user):
     """
     Add one Job, based on a pre-validated form.
     """
-
     site_to_invoice = jobform.cleaned_data['invoice_site']
     site_to_deliver = jobform.cleaned_data['delivery_site']
 

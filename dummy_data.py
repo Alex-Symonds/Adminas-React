@@ -4,8 +4,9 @@ import django
 django.setup()
 
 from adminas.models import User, Company, Site, Address, Product, Price, PriceList, Description, Slot, SlotChoiceList, StandardAccessory, Job, JobItem, ResaleCategory
-from adminas.util import debug, create_jobmodule, create_po, create_comment
+from adminas.util import create_document, debug, create_jobmodule, create_po, create_comment
 from adminas.forms import JobModuleForm, POForm, JobCommentFullForm
+from adminas.views import get_document_details
 
 import datetime
 import random
@@ -114,6 +115,36 @@ def populate_jobs():
     add_demo_jobitems(job)
     add_demo_po(job)
     add_demo_comments(job)
+    add_demo_document(job)
+
+
+def add_demo_document(job):
+    doc_details = get_document_details({
+        'reference': 'DEMOWO0001',
+        'issue_date': datetime.date.today(),
+        'req_prod_date': datetime.date.today(),
+        'sched_prod_date': datetime.date.today(),
+        'assigned_items': [],
+        'special_instructions': [] 
+    })
+
+    doc_obj = create_document(
+        get_system_user(), job, 'WO',\
+        doc_details['doc_data_form'],\
+        doc_details['version_form'],\
+        doc_details['assigned_items'],\
+        doc_details['special_instructions'],\
+        doc_details['prod_data_form']
+        )
+
+            # doc_obj = create_document(  request.user, job, doc_code,\
+            #                         doc_request_data['doc_data_form'],
+            #                         doc_request_data['version_form'],\
+            #                         doc_request_data['assigned_items'],\
+            #                         doc_request_data['special_instructions'],\
+            #                         doc_request_data['prod_data_form'])
+
+    pass
 
 
 def add_demo_po(job):

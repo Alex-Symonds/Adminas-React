@@ -20,8 +20,8 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django_countries.fields import CountryField
 
 from adminas.constants import DOCUMENT_TYPES, KEY_ERROR_MESSAGE, KEY_RESPONSE_CODE, NUM_BODY_ROWS_ON_EMPTY_DOCUMENT, SUPPORTED_CURRENCIES, SUPPORTED_LANGUAGES, DEFAULT_LANG, INCOTERMS, DOC_CODE_MAX_LENGTH, ERROR_NO_DATA, SUCCESS_CODE
-from adminas.util import format_money, get_dict_document_line_item_available, copy_relations_to_new_document_version, debug, update_membership,\
-    is_error, create_document_instructions, create_document_assignment, create_document_instructions, error
+from adminas.util import get_object, format_money, get_dict_document_line_item_available, copy_relations_to_new_document_version, debug, update_membership,\
+    is_error, error
 import datetime
 
 from django.db.models import Q
@@ -1606,7 +1606,9 @@ class DocumentVersion(AdminAuditTrail):
         if is_error(items_outcome):
             return items_outcome
 
-        self.update_special_instructions(special_instructions, user)
+        spec_instr_outcome = self.update_special_instructions(special_instructions, user)
+        if is_error(spec_instr_outcome):
+            return spec_instr_outcome
 
         if prod_data_form != None:
             self.update_production_dates(prod_data_form)
@@ -1621,6 +1623,51 @@ class DocumentVersion(AdminAuditTrail):
         if is_error(issue_result):
             return error(f"Document was not issued ({issue_result[KEY_ERROR_MESSAGE]}), but any other unsaved changes have now been saved.", issue_result[KEY_RESPONSE_CODE])
         return True
+
+
+    def assign_items(self, assigned_items):
+        """
+        Add a batch of item assignments to the document.
+        """
+        stored_error = None
+        for key, value in assigned_items.items():
+            value_int = int(value)
+            if value_int > 0:
+                result = self.assign_item(key, value)
+                if(is_error(result)):
+                    stored_error = result
+        if stored_error != None:
+            return stored_error
+
+
+    def assign_item(self, jiid, new_qty):
+        """
+        Assign one item to a document.
+        """
+        ji = get_object(JobItem, id = int(jiid))
+        if is_error(ji):
+            return error("Invalid assignment data", 400)
+
+        assignment = DocAssignment(
+            version = self,
+            item = ji,
+            quantity = int(new_qty)
+        )
+        assignment.quantity = min(assignment.quantity, assignment.max_valid_quantity())
+        assignment.save()
+
+
+    def add_special_instructions(self, new_special_instructions, user):
+        """
+        Add a batch of special instructions to the document.
+        """
+        for spec_instr in new_special_instructions:
+            new_instr = SpecialInstruction(
+                version = self,
+                instruction = spec_instr['contents'],
+                created_by = user
+            )
+            new_instr.save()
 
 
     def issue(self, issue_date):
@@ -1812,12 +1859,12 @@ class DocumentVersion(AdminAuditTrail):
     def get_replacement_version(self, user):
         """ 
             Make a copy of this DocumentVersion, but with the version number incremented and issue date/JSON removed: then deactivate self.
-
-            Purpose:
-            It's beneficial to keep a record of *all* versions that have been "released into the wild", regardless of whether or not they're correct.
-            If anything, the incorrect ones are particularly valuable, since they can help explain why something or other went horribly wrong.
-            To this end, edit-via-replacement is required for issued documents (rather than edit-by-overwrite).
         """
+        # Purpose:
+        # It's beneficial to keep a record of *all* versions that have been "released into the wild", regardless of whether or not they're correct.
+        # If anything, the incorrect ones are particularly valuable, since they can help explain why something or other went horribly wrong.
+        # To this end, edit-via-replacement is required for issued documents (rather than edit-by-overwrite).
+
         replacement = DocumentVersion(
             created_by = user,
             document = self.document,
@@ -2029,27 +2076,32 @@ class DocumentVersion(AdminAuditTrail):
         
         for key, value in assignment_obj.items():
             if value > 0:
-                create_document_assignment(self, key, value)
+                self.assign_item(self, key, value)
             
 
     def update_special_instructions(self, required, user):
         """
             Update, delete and create SpecialInstructions according to their difference to/absence from the "required" argument (which is a list).
-            Note: the "required" argument must be a list of dicts with two fields (id and quantity).
+            Note: the "required" argument must be a list of dicts with two fields (id and contents).
         """
-        for ei in SpecialInstruction.objects.filter(version=self):
+        for existing_speci in SpecialInstruction.objects.filter(version=self):
             found = False
+
             for req in required:
-                if 'id' in req and int(req['id']) == ei.id:
+                if not 'id' in req:
+                    return error('Invalid data', 400)
+
+                if 'id' in req and int(req['id']) == existing_speci.id:
                     found = True
-                    ei.instruction = req['contents']
-                    ei.save()
+                    existing_speci.instruction = req['contents']
+                    existing_speci.save()
                     required.remove(req)
                     break
+    
             if not found:
-                ei.delete()
+                existing_speci.delete()
 
-        create_document_instructions(required, self, user)
+        self.add_special_instructions(required, user)
 
 
     def update_production_dates(self, form):
@@ -2064,6 +2116,8 @@ class DocumentVersion(AdminAuditTrail):
 
             # Found 0: Create a new ProductionData record for this document
             if proddata_qs.count() == 0:              
+
+                debug(form.cleaned_data)
 
                 if '' == form.cleaned_data['date_requested'] and '' == form.cleaned_data['date_scheduled']:
                     return
@@ -2104,35 +2158,6 @@ class DocumentVersion(AdminAuditTrail):
                     
                     if something_changed:
                         this_pd.save()   
-
-
-    def update_requested_production_date(self, prod_data_form):
-        """
-            Find the ProductionData associated with this document and update it.
-        """
-        if self.document.doc_type == 'WO':
-            proddata_qs = ProductionData.objects.filter(version=self)
-
-            if proddata_qs.count() == 0:
-                if '' != prod_data_form.cleaned_data['date_requested']:
-                    prod_req = ProductionData(
-                        version = self,
-                        date_requested = prod_data_form.cleaned_data['date_requested'],
-                        date_scheduled = None
-                    )
-                    prod_req.save()
-
-            elif proddata_qs.count() == 1:
-                prod_req = proddata_qs[0]
-
-                if '' == prod_data_form.cleaned_data['date_requested']:
-                    prod_req.delete()
-
-                elif prod_req.date_requested != prod_data_form.cleaned_data['date_requested']:
-                    prod_req.date_requested = prod_data_form.cleaned_data['date_requested']
-                    prod_req.save()
-        else:
-            return
 
 
     def total_value(self):

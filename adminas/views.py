@@ -10,7 +10,6 @@ from django.contrib.auth import authenticate, login, logout
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.db import IntegrityError
 from django.urls import reverse
-from django.core.paginator import Paginator
 from django.utils import formats
 
 from wkhtmltopdf.views import PDFTemplateResponse
@@ -488,7 +487,7 @@ def api_draft_documents(request):
             return doc_code
 
         doc_obj = create_document(  request.user, job, doc_code,\
-                                    doc_request_data['doc_data_form'],
+                                    doc_request_data['doc_data_form'],\
                                     doc_request_data['version_form'],\
                                     doc_request_data['assigned_items'],\
                                     doc_request_data['special_instructions'],\
@@ -1130,7 +1129,10 @@ def get_document_details_from_request(request):
     incoming_data = dict_from_json(request.body)
     if is_error(incoming_data):
         return incoming_data
+    return get_document_details(incoming_data)
 
+
+def get_document_details(incoming_data):
     doc_data_form = get_validated_form({
         'reference': incoming_data['reference']
     }, DocumentDataForm)
