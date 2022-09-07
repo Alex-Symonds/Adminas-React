@@ -1638,7 +1638,7 @@ class DocumentVersion(AdminAuditTrail):
             return check
 
         self.issue_date = issue_date
-        self.issued_json = self.get_current_data()
+        self.issued_json = self.dict_for_json()
         self.save()
 
 
@@ -1685,9 +1685,9 @@ class DocumentVersion(AdminAuditTrail):
         
         return result
     
-    def get_current_data(self):
+    def dict_for_json(self):
         """
-            Retrieve data for populating a document, based on the current state of the database 
+            Compile dict containing data for populating a document, based on the current state of the database 
         """
         data = {}
         data['job_id'] = self.document.job.id
@@ -1786,6 +1786,14 @@ class DocumentVersion(AdminAuditTrail):
         data['created_by'] = User.objects.get(id = data['created_by'])
 
         return data            
+
+    def get_draft_data(self):
+        """
+            Data for populating a draft document.
+        """
+        data = self.dict_for_json()
+        data['created_by'] = User.objects.get(id = data['created_by']).username
+        return data
 
     def deactivate(self):
         """ 
@@ -1969,7 +1977,7 @@ class DocumentVersion(AdminAuditTrail):
             for poss_item in jobitems:
                 qty = poss_item.quantity
 
-                assignments = DocAssignment.objects.filter(item=poss_item).filter(version__document__doc_type=doc_type).filter(version__active=True)
+                assignments = DocAssignment.objects.filter(item=poss_item).filter(version__document__doc_type=self.document.doc_type).filter(version__active=True)
                 for assignment in assignments:
                     qty = qty - assignment.quantity
 

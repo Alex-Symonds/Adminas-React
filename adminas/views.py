@@ -156,7 +156,7 @@ def document_pdf(request, doc_id):
     my_doc = DocumentVersion.objects.get(id=doc_id)
 
     if my_doc.issue_date == '' or my_doc.issue_date == None:
-        context = my_doc.get_current_data()
+        context = my_doc.get_draft_data()
     else:
         context = my_doc.get_issued_data()
 
