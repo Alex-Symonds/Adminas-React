@@ -260,7 +260,7 @@ function create_ele_jobcomment_editor_delete_button(){
 
 function populate_ele_jobcomment_editor_with_existing(editor_ele, comment_ele, want_settings){
     let old_contents = comment_ele.querySelector('.' + CLASS_COMMENT_CONTENTS).innerHTML.trim();
-    editor_ele.querySelector('#' + ID_COMMENT_TEXTAREA).value = paragraph_tags_to_newlines(old_contents);
+    editor_ele.querySelector('#' + ID_COMMENT_TEXTAREA).value = html_tags_to_newlines(old_contents);
 
     if(want_settings){
         let is_private = string_to_boolean(comment_ele.dataset.is_private);
@@ -283,18 +283,25 @@ function populate_ele_jobcomment_editor_with_existing(editor_ele, comment_ele, w
 }
 
 
-function paragraph_tags_to_newlines(str){
-    let paragraphs = str.replaceAll(/<\/?p>/g, '');
-    let linebreaks = paragraphs.replaceAll(/<br>/g, '\n');
-    return linebreaks;
+function html_tags_to_newlines(str){
+    // Remove leading <p> to avoid an unwanted gap at the top
+    if(str.slice(0,3) == '<p>'){
+        str = str.slice(3);
+    }
+
+    // Remove all '\n's (to regain control, if any were added automatically) and '</p>'s (unwanted)
+    str = str.replaceAll(/(\n|<\/p>)/g, '');
+
+    str = str.replaceAll(/<p>/g, '\n\n');
+    str = str.replaceAll(/<br>/g, '\n');
+    return str;
 }
 
-function newlines_to_paragraph_tags(str){
-    
+function newlines_to_html_tags(str){
     let paragraphs = str.replaceAll('\n\n', '</p><p>');
     if(paragraphs.length !== str.length){
-        if(paragraphs.slice(-3) === '</p><p>'){
-            paragraphs = paragraphs.slice(0, -7);
+        if(paragraphs.slice(-3) === '<p>'){
+            paragraphs = paragraphs.slice(0, -3);
         }
         paragraphs = '<p>' + paragraphs + '</p>';
     }
@@ -305,10 +312,10 @@ function newlines_to_paragraph_tags(str){
 
 
 function update_visibility_comment_content(comment_ele, want_visibility){
-    let details_ele = comment_ele.querySelector('details');
+    let details_ele = comment_ele.querySelector('.wrapper');
     if(details_ele == null) return;
 
-    visibility_element(comment_ele.querySelector('details'), want_visibility);
+    visibility_element(comment_ele.querySelector('.wrapper'), want_visibility);
 
     if(want_visibility){
         details_ele.removeAttribute('open');
@@ -648,7 +655,7 @@ function create_ele_comment_privacy_status(){
 function create_ele_comment_contents(contents){
     let ele = document.createElement('span');
     ele.classList.add(CLASS_COMMENT_CONTENTS);
-    ele.innerHTML = newlines_to_paragraph_tags(contents);
+    ele.innerHTML = newlines_to_html_tags(contents);
     return ele;
 }
 
@@ -769,7 +776,7 @@ function update_comment_presence_in_one_filtered_section(response, section_class
 
 function update_comment_ele(response, comment_ele){
     let contents_ele = comment_ele.querySelector('.' + CLASS_COMMENT_CONTENTS);
-    contents_ele.innerHTML = newlines_to_paragraph_tags(response['contents']);
+    contents_ele.innerHTML = newlines_to_html_tags(response['contents']);
 
     update_ele_comment_pinned_status(comment_ele, response['pinned']);
     update_ele_comment_highlighted_status(comment_ele, response['highlighted']);
