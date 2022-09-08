@@ -686,6 +686,7 @@ def api_job(request):
         if is_error(is_safe):
             return respond_with_error(is_safe)
         
+        job_to_delete.delete_draft_documents()
         job_to_delete.delete()
         return HttpResponse(status = 204)
 

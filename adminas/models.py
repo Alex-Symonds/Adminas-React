@@ -602,6 +602,18 @@ class Job(AdminAuditTrail):
         return True
 
 
+    def delete_draft_documents(self):
+        """
+        Delete draft documents. 
+        """
+        if self.safe_to_delete() == True:
+            docs = DocumentData.objects.filter(job=self)
+            if docs.count() == 0:
+                return
+            for d in docs:
+                d.delete()
+
+
     def on_todo_list(self, user):
         """
             To-do list. Check if this Job is on the todo list for the specified User
@@ -1630,10 +1642,10 @@ class DocumentVersion(AdminAuditTrail):
         Add a batch of item assignments to the document.
         """
         stored_error = None
-        for key, value in assigned_items.items():
-            value_int = int(value)
+        for key_id, value_qty in assigned_items.items():
+            value_int = int(value_qty)
             if value_int > 0:
-                result = self.assign_item(key, value)
+                result = self.assign_item(key_id, value_qty)
                 if(is_error(result)):
                     stored_error = result
         if stored_error != None:
@@ -2116,9 +2128,6 @@ class DocumentVersion(AdminAuditTrail):
 
             # Found 0: Create a new ProductionData record for this document
             if proddata_qs.count() == 0:              
-
-                debug(form.cleaned_data)
-
                 if '' == form.cleaned_data['date_requested'] and '' == form.cleaned_data['date_scheduled']:
                     return
 
