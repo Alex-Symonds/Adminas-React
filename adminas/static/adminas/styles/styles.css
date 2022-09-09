@@ -1,3 +1,7 @@
+@font-face {
+  font-family: "Roboto";
+  src: url(../fonts/Roboto-Regular.ttf);
+}
 /* Common CSS for Adminas-React
     Contents:
         || HTML tag adjustments
@@ -39,7 +43,7 @@ a:hover {
 }
 
 h1 {
-  font-family: "Roboto", sans-serif;
+  font-family: Roboto, sans-serif;
   margin: 0;
   padding: 0;
   font-size: 1.3rem;
@@ -123,7 +127,7 @@ article {
 }
 
 .adminas-name {
-  font-family: "Roboto", sans-serif;
+  font-family: Roboto, sans-serif;
 }
 
 .subheading {

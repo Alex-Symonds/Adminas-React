@@ -168,7 +168,6 @@ class Address(AdminAuditTrail):
     region = models.CharField(max_length=REGION_NAME_LENGTH)
     postcode = models.CharField(max_length=10, blank=True)
     address = models.TextField()
-    contact = models.CharField(max_length=PERSON_NAME_LENGTH, blank=True)
 
     def display_str_newlines(self):
         return f'{self.address},\n{self.region},\n{self.postcode},\n{self.country.name}'

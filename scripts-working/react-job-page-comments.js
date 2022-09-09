@@ -388,7 +388,7 @@ function CommentEditorUI(props){
             <h4>Edit Comment</h4>
             <BackendErrorUI message = { props.backend_error.message }
                             turn_off_error = { props.backend_error.clear } />
-            <textarea id="id_comment_contents" name="contents" cols="30" rows="5" value={ paragraph_tags_to_newlines(props.controlled.contents.get) } onChange={ props.controlled.contents.set }></textarea>
+            <textarea id="id_comment_contents" name="contents" cols="30" rows="5" value={ props.controlled.contents.get } onChange={ props.controlled.contents.set }></textarea>
             <CommentEditorCheckboxes controlled = { props.controlled } />
             <EditorControls delete = { props.handle_delete }
                             submit = { props.handle_submit } 

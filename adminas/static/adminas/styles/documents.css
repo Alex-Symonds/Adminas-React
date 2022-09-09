@@ -1,3 +1,7 @@
+@font-face {
+  font-family: "Roboto";
+  src: url(../fonts/Roboto-Regular.ttf);
+}
 /* Document_Builder and Document_Main formatting
     Contents:
         || Text formatting

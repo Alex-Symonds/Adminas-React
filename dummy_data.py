@@ -16,21 +16,20 @@ from decouple import config
 task_total = 6
 
 def main():
-    # task_progress = 1
-    # task_progress = print_progress('user', task_progress)
-    # populate_user()
-    # task_progress = print_progress('addresses', task_progress)
-    # populate_addresses()
-    # task_progress = print_progress('products, descriptions and price lists (this takes a while)', task_progress)
-    # populate_products()
-    # task_progress = print_progress('slot options', task_progress)
-    # populate_choice_lists()
-    # task_progress = print_progress('slot settings', task_progress)
-    # populate_slots()
-    # task_progress = print_progress('standard accessories', task_progress)
-    # populate_std_accs()
-    # task_progress = print_progress('demo job', task_progress)
-    print('Adding a job')
+    task_progress = 1
+    task_progress = print_progress('user', task_progress)
+    populate_user()
+    task_progress = print_progress('addresses', task_progress)
+    populate_addresses()
+    task_progress = print_progress('products, descriptions and price lists (this takes a while)', task_progress)
+    populate_products()
+    task_progress = print_progress('slot options', task_progress)
+    populate_choice_lists()
+    task_progress = print_progress('slot settings', task_progress)
+    populate_slots()
+    task_progress = print_progress('standard accessories', task_progress)
+    populate_std_accs()
+    task_progress = print_progress('demo job, with items, comments and a document', task_progress)
     populate_jobs()
     print('All dummy data is loaded.')
 

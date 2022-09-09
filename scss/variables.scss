@@ -1,7 +1,14 @@
 // Constants
-$f_adminas: 'Roboto', sans-serif;
+@font-face {
+    font-family: "Roboto";
+    src: url(../fonts/Roboto-Regular.ttf);
+}
+
+$f_adminas: Roboto, sans-serif;
 $f_heading: 'Arial', sans-serif;
 $f_contents: 'Calibri', sans-serif;
+
+
 
 $MAX_WIDTH: 700px;
 $breakpoint_table_to_rows: 930px;

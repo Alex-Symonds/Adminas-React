@@ -23,12 +23,15 @@ Expected workflow is: New > Add Items => Complete Modular Items => Add PO > Chec
 
 ## How to run the application
 1. Install modules as per requirements.txt
+2. Setup SECRET_KEY as an ".env" variable (open sample.env.txt, input a suitable SECRET_KEY, then save the file as ".env")
 2. ```python manage.py runserver``` (or the equivalent for your OS)
 3. Check if the settings in constants.py are to your liking
 4. ```python manage.py makemigrations```
 5. ```python manage.py migrate```
 6. ```python manage.py createsuperuser``` and go through the normal process (for access to Django admin)
-7. (Optional) ```python dummy_data.py``` to populate the database with some addresses, products, prices and one job (all with a "super-villain supplies" theme)
+7. (Optional) To add Admin (superuser), Demo and System user accounts and some dummy data (with a "super-villain supplies" theme):
+- Input the other .env variables in sample.env.txt
+- ```python dummy_data.py``` to populate the database with some addresses, products, prices and one job (all with a "super-villain supplies" theme)
 8. Open your preferred web browser and go to http://127.0.0.1:8000/
 
 User Configuration:
@@ -41,51 +44,80 @@ User Configuration:
 ## Additional Information: Data Handled Exclusively via Django Admin (Addresses, Products and Prices)
 ### Background Info: Address Models
 The address book is split across three models, Company, Site and Address.
+* Company stores information about the company itself and relevant account details (e.g. agreed currency)
+* Address stores only a physical address
+* Site links Addresses to Companies and gives context to that Addresses role in the Company (users can give the site a name and indicate if it's the default invoice or delivery address)
 
-The Company/Site split is intended to allow one company to have as many different addresses as they need. Many will only need one or perhaps two (one for paperwork, one for deliveries), but for larger companies the sky is the limit: shared accounting offices, shared warehouses, different divisions operating independently under the same banner, etc.
-
-The Site/Address split is intended to support an optional "address history" for keeping a record of physical moves. If Acme's accounting office is moving from one side of town to the other, the system admin can choose whether to overwrite the existing address or add a new address for the same site and leaving the old address alone. Regardless of what they choose, ```Site.current_address()``` will return the correct address.
-
-Address stores only a physical address, an FK to a Site and the date of creation. Site gives context to the Address within the Company: it allows the user to flag whether this address is a "default" address for invoices or deliveries; to add a name/label to it (e.g. accounting office, main warehouse, factory making X). Company stores details about who the company is: whether they're an agent, which currency the operate in, and a shorter version of their name for display purposes.
+This allows a single Company to have as many different locations as are needed and offers continuity in the event of a physical move (e.g. if a company moves their accounting office to the other side of town, the Company and Site records will remain the same, only the Address record needs to change or be replaced).
 
 ### Background Info: Product Models
-Product information is split across five models: Product, Description, StandardAccessory, SlotChoiceList and Slot.
+Product information is split across five models: Product, Description, StandardAccessory, Slot and SlotChoiceList.
+* Product is used to represent one item which should get its own line on documents (that is, it's either something on sale or something included with something on sale)
+* Description is a one-line description to appear on documents
+* StandardAccessory allows users to nest specific child Products within a parent Product
+* Slot and SlotChoiceList allow users to describe Products where the customer has a range of options to choose between. The SlotChoiceList contains a list of interchangeable child Product options; Slot links that list to the parent and sets how many are required/optional
 
-There should be one Product record for each item that wants its own line on document (that is, items with a selling price and items which are "standard accessories").
+Descriptions are separated from Products to allow a single Product to have more than one description (allowing multiple languages, or to keep a record of old descriptions).
 
-Descriptions of Products are stored as separate records, giving users the options of adding multilingual support and keeping a record of old descriptions.
+The main use cases for StandardAccessories are expected to be:
+1. Adding small sundry Products to a "main" Product, e.g. making a charger Product and a headphones Product StandardAccessories of a smartphone Product.
+2. Creating "packages" of Products, e.g. making a new "Flavour Pouch Sampler Set" Product, then using StandardAccessories to include one each of a range of different flavour pouches
 
-Slot and SlotChoiceList together are used to describe "modular" Products. Suppose the company sells a "joyfully toy-full chocolate egg" which contains 1-4 small toys of the customer's choice: this would be considered a modular product because the egg alone is incomplete, the customer must also order 1-4 toys (for this example, let's say 0 toys is disallowed for business reasons and 5 wouldn't fit). SlotChoiceList is where Adminas stores the list of suitable small toys. It contains a field for a name (this is for the convenience of system admins, it only appears in the Django admin pages) and an MTM table matching the SlotChoiceList to relevant Products (in this example, all toys small enough to fit 4 inside the egg). Slot links the parent Product to the SlotChoiceList and states how many are required and how many are optional. Multiple Slots can be assigned to a single Product in the event of a more complex modular item. A single SlotChoiceList could be used to populate multiple different Slots in multiple different Products (it's up to the system admin to weigh up the pros and cons of DRY versus "what if we add a new option for ParentA without realising the same list is also used for ParentX, where the new option would be disastrous?").
+But suppose a user sells customisable bicycles where customers can pick from a range of frames, wheels and saddles: creating a separate Product-with-StandardAccessories for every possible combination could become unmanageable as their product range grows.
 
-StandardAccessory is used in cases where one Product is supplied with a selection of other products as standard and the company wishes to mention the additional products on the paperwork. It can be used to add small sundry items to a Product (e.g. a dust cover, a power cable, batteries); to create "package deals" (i.e. create a Product for the package as a whole, then add all the included Products via StandardAccessories); or to create modular items with pre-selected valid options (e.g. there could be an "awfully dinosaur-full chocolate egg" Product where the system admin added four dinosaur toy Products as StandardAccessories).
+This is where Slots and SlotChoiceLists come in. Our bicycle seller could instead setup SlotChoiceLists for "Frames", "Wheels" and "Saddles", then use Slots to link those lists to a "Bicycle" Product. Now the user doesn't need to worry about all the different combinations: they simply manage the lists.
+
+#### Differences between StandardAccessories and Slots
+Broadly, StandardAccessories are considered an integral part of the parent item, while Slot fillers are independent items.
+
+* Pricing: child StandardAccessories are included in the price of the parent; Slot fillers are priced separately.
+* Deleting the parent: deleting a parent with StandardAccessories will also delete all the children; deleting a parent with Slot fillers will only delete the parent
+* Deleting the child: child StandardAccessories can't be deleted (except by deleting the parent); child Slot fillers can't be deleted while they're filling a Slot, so it's necessary to go to the parent and remove the child item from the Slot first (this is intended to prevent users from unknowingly invalidating the specification of a parent item)
 
 ### Background Info: Price Models
 Pricing information is split across four models, Price, PriceList, ResaleCategory and AgentResaleGroup.
-
-PriceList and Price are used to set the "normal" prices. PriceList sets the "valid from" date for a set of prices and assigns a name to the price list (e.g. "2022 Q1") which is intended to be the way the company and their customers/agents refer to the price list. Price stores one item on the price list: it has fields for a currency, a value, and FKs to the Product and the PriceList.
+* Price stores the Product, currency, value and the FK of a PriceList
+* PriceList has a "valid from" date and a name. Otherwise it's just used to separate Prices into groups
+* ResaleCategory allows users to apply a specified resale discount to a defined list of Products
+* AgentResaleGroup allows users to apply Agent-specific resale discounts to a defined list of Products
 
 The two "Resale" models are for situations where the company sells directly to customers, but also via resellers/agents. Chances are there'll be some sort of resale discount on offer for the resellers/agents, but not necessarily the same resale discount on all Products and also not necessarily the same resale discount to all agents.
 
-ResaleCategory is used for "default" resale discounts, which are based solely on the Product: it has fields for a category name and the percentage. Adminas assumes that each Product will only have one default resale discount category because if a Product is in two categories where one has 10% resale and one has 20% resale, all agents will insist on applying the 20% category every time and its presence in the 10% category is a pointless source of grumbling and discontent. Since this makes it a OTM relationship, the FK field is inside the Product model as "resale_category".
+ResaleCategory is used for "default" resale discounts, ones which are based solely on the Product: it has fields for a category name and the percentage. Adminas assumes that each Product will only have one default resale discount category [^4].
 
-AgentResaleGroup is used for agent-and-product resale discounts. It has fields for a name, a percentage, and an FK to the agent's Company record. One AgentResaleGroup will probably contain multiple Products and one Product could appear in multiple AgentResaleGroups (maybe the company sells dynamite at 20% standard resale, but Quality Mining Supplies gets 30% for being bulk-buyers, while Acme were only offered 5% because their customers keep misusing the dynamite to target roadrunners, bringing shame and legal challenges to the company), so it's a MTM relationship. For consistency with ResaleCategory this is also inside the Product model, as "special_resale".
+AgentResaleGroup is used for agent-and-product resale discounts. One AgentResaleGroup will probably contain multiple Products and one Product could appear in multiple AgentResaleGroups.
+
+[^4]: If a Product is in more than one category but they all have the same discount, there was no point in it being in multiple categories. If the categories have different discounts, this is a recipe for wasting time arguing with agents about which discount applies. Hence, a single discount for each Product seems reasonable.
+
+[^5]: Maybe the user sells dynamite at 20% standard resale, but Quality Mining Supplies gets 30% for being bulk-buyers, while Acme were only offered 5% because their customers keep misusing the dynamite to target roadrunners, bringing shame and legal challenges to the user.
 
 ### Django Admin: Addresses, Products and Prices
-Companys pages include Sites and AgentResaleGroups in tabular format. The inclusion of Sites means system admins can see a list of all Sites for this Company in one place and, importantly, which are flagged as default invoice/delivery addresses, making it easier to manage those flags. AgentResaleGroups provides a convenient list of any/all special deals offered to this agent (when applicable), making it easier to see all special deals currently offered to the agent and adjust the percentages on offer when something new has been negotiated.
+#### Companys
+Includes Sites and AgentResaleGroups in tabular format.
+Sites are included to provide an overview of all Sites affiliated with the Company and to facilitate the management of the flags for default invoice/delivery address.
+AgentResaleGroups are included to to provide an overview of all deals offered to the agent Company and to facilitate the management of the percentages (e.g. if a 5% discount increase is negotiated, it would be more convenient to go to the Company page and run down the table adding +5 to each row than it would be to individually access AgentResaleGroup records).
 
-In addition to appearing on the Companys pages, Sites and AgentResaleGroups also have "their own" pages in Django admin.
+#### Sites (for Addresses)
+Includes Addresses in tabular format.
+Sites has its own tab due to its role as a contextual wrapper around Addresses (which are not included on the Job page). When a user wishes to work with Addresses, they would do it via the Sites page.
 
-Sites has Addresses included in tabular format. When updating an address, odds are that the system admin will be thinking in terms of "Acme's accounting office has moved" rather than street addresses, so this is intended to make it easier to find the correct address. It also serves to show an address history for each Site, should that be of interest.
+#### AgentResaleGroups
+Includes list of included Products in tabular fomat.
+This allows modifications to the list of Products included in each AgentResaleGroup (this is not accessible on the Companys page).
 
-AgentResaleGroups has a list of included Products in tabular format. This allows modifications to the list of Products included in each AgentResaleGroup (and the percentages, if the user is so inclined).
+#### Products
+Includes Descriptions, StandardAccessories and Slots displayed tabularly
+All three of these models can only be accessed via Products in Django admin. Description would've been a field in the Product class/table if it weren't for different languages, so it's an obvious inclusion. StandardAccessories and Slots are describing more complex Products so again, this is the logical location for them.
 
-Products has Descriptions, StandardAccessories and Slots displayed tabularly: all three of those models can only be accessed via Products in Django admin. Description would've been a field in the Product class/table if it weren't for different languages, so it's an obvious inclusion. StandardAccessories and Slots are describing more complex Products so again, this is the logical location for them.
+#### SlotChoiceLists
+Only contain themselves, allowing users to modify the names and which Products are valid options for each choice list. 
 
-SlotChoiceLists pages only contain themselves, allowing users to modify the names and which Products are valid options for each choice list. 
+#### PriceList
+Includes Prices displayed tabularly.
+This allows users to adjust the name of the price list and see its contents in one location. This is the only place where Prices are displayed in Django admin.
 
-PriceList has associated Prices displayed tabularly, allowing users to adjust the name and see the contents in one location. This is the only place where Prices are displayed in Django admin.
-
-ResaleCategorys is where users can see a list of all the standard categories and modify their names and percentages. Each record shows a read-only list of Products assigned to that category. If the user wishes to modify which Products appear in a category, it's necessary to do this via Products.
+#### ResaleCategorys
+Each record shows a read-only list of Products assigned to that category. If the user wishes to modify which Products appear in a category, it's necessary to do this via Products, due to resale_category being an FK field on the Product model.
 
 ## Additional Information: Other Data
 ### Job Models
@@ -93,7 +125,7 @@ Job is the main "bucket" for each job. All models relating to a specific Job wil
 
 A PurchaseOrder reflects one purchase order document, as received from a customer. Usually the receipt of a purchase order is what will initiate the creation of a Job, so I considered having an "Order" model instead of a "Job" model and including PO fields in it, but this approach would go horribly wrong under certain rare-but-not-rare-enough circumstances: when a colleague wants something prepared for an exhibition or demonstration, so there's no purchase order but work is required; if the company wants to start work before the PO arrives to meet a tight lead time; if a customer modifies their order via issuing additional POs instead of revising the original one. As such, it's better to have a bucket that represents nothing beyond "one project in Adminas" -- i.e. Job -- and have a separate model for PurchaseOrders.
 
-JobComments enable users to add notes to Jobs. The private/public, pinned and highlighted settings allow users to determine where comments appear and who can see them. Private comments are for reminders and memos that mean something to the author, but wouldn't to anyone else; public is for information about the order which should be shared with anyone working on it. Both "pinned" and "highlighted" comments get a speical panel on the Job page and the JobComments page, based on the assumption that if users have gone to the trouble of emphasising those comments, they should be very emphasised. In addition to this, "pinned" status adds notes to the to-do list page, where they can best help the user distinguish between Jobs or remind them of outstanding tasks. "Highlighted" status adds formatting to make the comment stand out when scrolling through all the comments on the JobComments page.
+JobComments enable users to add notes to Jobs. The private/public, pinned and highlighted settings allow users to determine where comments appear and who can see them. Private comments are for reminders and memos that mean something to the author, but wouldn't to anyone else; public is for information about the order which should be shared with anyone working on it. Both "pinned" and "highlighted" comments get a special panel on the Job page and the JobComments page. In addition to this, "pinned" status also adds notes to the to-do list page, where they can best help the user distinguish between Jobs or remind them of outstanding tasks. "Highlighted" status adds formatting to make the comment stand out when scrolling through all the comments on the JobComments page.
 
 JobItems are the means by which instances of Products are added to Jobs, with the ability to also state the selling price, the applicable price list, and how many are required. JobItems are used as the basis for document line items and filling modular items.
 
@@ -122,41 +154,41 @@ Not all documents need production dates, so to avoid lots of "null" in DocumentV
 Users must select addresses from an address book and are not given the ability to create or update addresses via the New or Job pages. This is because when a user's mind is on the task of processing an order they're probably not giving much consideration to how they can help maintain a pristine address book. Adminas keeps these two tasks completely separate in the hope of avoiding the same Site appearing half a dozen times under slightly different names because users kept forgetting what they'd called it and decided it'd be faster to re-enter the Site than find it.
 
 ### Restrictive product descriptions on documents
-Adminas doesn't allow users to edit product descriptions (outside of Django admin) because of the two types of documents output by Adminas and how these interact with the most common reasons for wanting to edit a product description.
+Adminas doesn't allow users to edit product descriptions on individual Jobs because of the two types of documents output by Adminas and how these interact with the most common reasons for wanting to edit a product description.
 
 The most common reasons for wanting to amend a product description are:
 1. To match the customer's description or layout
-2. The level of detail which is useful to the company would be confusing to third-parties, such as customs or export control
+2. The level of detail which is useful to the user would be confusing to third-parties, such as customs or export control
 3. The product is being supplied with modifications which affect the description
 
-Work orders (WO) are internal documents, meaning there's no need to consider the needs of customers or third-parties, only those of the user's company. Consistency in wording and display is mostly beneficial to the company, since employees will learn to recognise the standard descriptions at a glance, reducing the risk of miscommunication and increasing efficiency. Its weakness is the risk of employees overlooking information about modifications due to their habit of only glancing at the list of items. This can be mitigated by ensuring modifications are displayed separately and prominently: making a tiny edit in the middle of an otherwise familiar description does not qualify. This is why Adminas prohibits users editing product descriptions on WOs and instead gives them the ability to add "SpecialInstructions" (which appear in a big obvious box at the top).
+Work orders (WO) are internal documents, meaning there's no need to consider the needs of customers or third-parties, only those of the user's company. Over time company employees will learn to recognise the standard descriptions at a glance, meaning they'll stop taking the time to read every word. Embedding critical information about modifications in the middle of such a blob of standard text is therefore likely to result in the information being overlooked and the Product supplied without the agreed modifications. This is why Adminas prohibits adjustments to the descriptions on the WO card and instead provides "SpecialInstructions", so any modifications can be described in a big obvious box at the top of the page.
 
-Order confirmations (OC) are external documents but they're usually just between the company and the customer, third-parties rarely take an interest. Rewording the OC to match the customer's PO is rarely requested by customers and would defeat one of the primary purposes of the OC: confirming the supplier's understanding of the order matches the customer's, which doesn't happen if you simply parrot back their PO. Editing a product description to reflect modifications makes more sense on an OC (the customer might not even realise their modification is a modification), but modifications probably aren't that common and SpecialInstructions do an ok job of getting the message across on the OC, so it wasn't deemed worth implementing a document-specific product description editor purely for a small subset of OCs.
+Order confirmations (OC) are external documents but they're usually just between the company and the customer, third-parties rarely take an interest. Rewording the OC to match the customer's PO is rarely requested by customers and would defeat one of the primary purposes of the OC: confirming the supplier's understanding of the order matches the customer's, which doesn't happen if you simply parrot back their PO. Editing a product description to reflect modifications makes more sense on an OC than on a WO (the customer might not even realise their modification _is_ a modification): the question is whether this would come up often enough to be worth implementing the feature. Given that modified Products could also be handled by adding a new Product to the system; adding Slots to a Product; adding SpecialInstructions to describe the modification; it was deemed to not be worth it.
 
 If Adminas were expanded to output more documents -- particularly ones of interest to third-parties, such as invoices -- then it would require additional functionality when it comes to customising the body content.
 
 
 ## Additional Information: Ideas for Extension
-* Refactor Adminas to work as a website used by multiple different companies, instead of as an in-house tool. Obviously this would require big changes to company-specific settings, data and contents to ensure they're only viewable and editable by the right users.
 * Have different types of users with different levels of access (e.g. maybe some employees aren't trusted with entering non-standard prices and are limited to selecting list or calculated resale prices)
 * Add Adminas modules for managing addresses, products and prices, so nobody needs to use Django admin
 * Order entry data and reports/graphs. Adminas could take information added for PurchaseOrders (on creation, update and deletion), modify this as needed for storing OE figures, then output this as a CSV and/or use it to produce reports and graphs.
-* Quotation tool. Salespeople would also benefit from module management to guide them through the options and requirements of modular items. Also, creating a quote would require adding the list of items, entering customer details and setting prices for everything, so in the event of the quote leading to an order, the quote inputs could be used as a basis for generating the Job, saving admin users from pointless duplication of work. It could also allow automatic confirmation of any unusual prices (if they were offered on the quote).
-* CMS for salespeople, so they can better manage their quotes.
+* Quotation tool. The "module management" page could also be helpful for salespeople, as it would help guide them through the options and requirements of modular items. In the event of a successful sale, the quote could be used to populate a Job, saving admin users from pointless duplication of work. It could also allow automatic confirmation of unusual prices offered on the quote.
 * Production module. It would be convenient for admin users if Adminas could automatically notify production users of new orders and requested dates, then notify the admin users when production users respond with a scheduled date. Unfortunately it wouldn't be so convenient for production users if they have to keep logging into Adminas solely to see if any new orders have come in, so it'd be better if Adminas also provides them with their own reasons to log in: perhaps a calendar/kanban board so they can block in labour for each order, a stock control system, a production to-do list, etc.
-* Expansion to other types of PDFs. Adminas could also handle invoices, packing lists, receipts, shipping documents, case marks, etc. Though in the case of invoices, this would involve a lot more flexibility over the contents and a lot of rules controlling when they can be created, edited and deleted (customers and accountants can get very picky about these details)
-* In the event of more documents being involved, it might also be nice to add a visual progress indicator on each Job on the to-do list and Records, so users can see at a glance that this Job needs an invoice and that Job is waiting for shipping arrangements
+* Expansion to other types of PDFs. Adminas could also handle invoices, packing lists, receipts, shipping documents, case marks, etc. Though in the case of invoices, this would involve a lot more flexibility over the contents and a lot of business logic controlling when they can be created, edited and deleted.
+* In the event of more documents being involved, add a visual progress indicator on each Job on the to-do list and Records, so users can see at a glance that this Job needs an invoice and that Job is waiting for shipping arrangements
+* Completing its conversion to a SPA
 * Give users a selection of different PDF templates for documents
 * Give users a code-less means of adjusting the company-specific HTML/CSS of the PDFs
+* Refactor Adminas to work as a website used by multiple different companies, instead of as an in-house tool. Obviously this would require big changes to company-specific settings, data and contents to ensure they're only viewable and editable by the right users.
 
-
-## What's in each file I created
+## What's in each file
 ### Main Folder
 #### dummy_data.py
 Run from the command line ```python dummy_data.py``` to populate the database with some dummy data (with a "super-villain supplies" theme) for everything which an office worker tasked with entering a purchase order would expect to be "on the system" already. That is:
 * Companies, both customers and agents (including addresses, sites, and special resale discount agreements)
 * Products (including descriptions, standard accessories and setting up modular items with slots)
 * Price lists (including standard resale discounts)
+* One Job, including item assignments, comments and a demo document
 
 #### populate_pricelist.py
 Adding a new empty price list via Django admin is easy enough, but populating it would be a painful process of manually adding a new Price record for each combination of active_product and supported currency. populate_pricelist.py is intended to help with the population step: it creates a set of Price records for every active_product/currency combination and assigns them to the most recent PriceList (assuming it's empty). This means the admin user only needs to create the empty price list, run the script, then enter the new prices. Alternatively, if the new prices are a straightforward "X% increase on whatever it was last time", the user can enter "X" as an optional argument and the program will apply that increase to the previous price for the same product&currency pair, if possible.
@@ -189,7 +221,7 @@ query_transform.py is used by the pagination navigation. The records page uses G
 layout.html is the base for all webpages. Then there's one html file for each page on Adminas.
 
 #### Subfolder components/
-* comment_base.html, comment_collapse.html and comment_full.html contain the HTML for a single comment. comment_base.html has the parts common to all comments; comment_collapse.html and comment_full.html extend it in different ways to create the "slimline" version (where you click to expand the section with the buttons) and the full version (where you don't).
+* comment_base.html, comment_collapse.html and comment_full.html contain the HTML for a single comment. comment_base.html has the parts common to all comments; comment_collapse.html and comment_full.html extend it in different ways to create the "slimline" version (where you click to expand the section with the buttons) and the full version (where you don't). This is used on the pages with comments which have not yet been moved to React.
 * pagination_nav.html is the pagination navigation strip, used on the job_comments and records pages.
 
 #### Subfolder pdf/
