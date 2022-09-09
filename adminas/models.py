@@ -2068,7 +2068,7 @@ class DocumentVersion(AdminAuditTrail):
         return result
 
 
-    def update_item_assignments(self, assignment_obj):
+    def update_item_assignments(self, assignment_dict):
         """
         Update, delete and create DocAssignments according to the assignment_obj.
 
@@ -2076,18 +2076,19 @@ class DocumentVersion(AdminAuditTrail):
         where key = JobItem ID and value = desired quantity to display on this document.
         """
         for existing_da in DocAssignment.objects.filter(version=self):
-            new_qty = assignment_obj.pop(str(existing_da.item.id), None)
+            new_qty = assignment_dict.pop(str(existing_da.item.id), None)
             if new_qty == None:
-                return error("Invalid assignment data (UD).", 400)
+                return error("Invalid assignment data", 400)
 
             if new_qty == 0:
                 existing_da.delete()
             else:
                 existing_da.update(new_qty)
         
-        for key, value in assignment_obj.items():
+        for key, value in assignment_dict.items():
+            debug(f"JobItem #{key} has quantity = {value}")
             if value > 0:
-                self.assign_item(self, key, value)
+                self.assign_item(key, value)
             
 
     def update_special_instructions(self, required, user):
