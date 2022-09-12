@@ -11,7 +11,8 @@ from adminas.views import get_document_details
 import datetime
 import random
 from adminas.constants import GBP, EUR, USD, EN, DE
-from decouple import config
+# from decouple import config
+
 
 task_total = 6
 
@@ -41,33 +42,33 @@ def print_progress(thing_loading, task_num):
 
 def populate_user():
     new_system = User.objects.create_user(
-        username = config("USERNAME_SYSTEM"),
-        email = config("EMAIL_SYSTEM"),
-        password = config("PASSWORD_SYSTEM")
+        username = os.getenv("USERNAME_SYSTEM"),
+        email = os.getenv("EMAIL_SYSTEM"),
+        password = os.getenv("PASSWORD_SYSTEM")
     )
     new_system.save()
 
     new_admin = User.objects.create_user(
-        username = config("USERNAME_ADMIN"),
-        email = config("EMAIL_ADMIN"),
-        password = config("PASSWORD_ADMIN"),
+        username = os.getenv("USERNAME_ADMIN"),
+        email = os.getenv("EMAIL_ADMIN"),
+        password = os.getenv("PASSWORD_ADMIN"),
         is_staff = True,
         is_superuser = True
     )
     new_admin.save()
 
     new_guest = User.objects.create_user(
-        username = config("USERNAME_GUEST"),
-        email = config("EMAIL_GUEST"),
-        password = config("PASSWORD_GUEST")
+        username = os.getenv("USERNAME_GUEST"),
+        email = os.getenv("EMAIL_GUEST"),
+        password = os.getenv("PASSWORD_GUEST")
     )
     new_guest.save()
 
 def get_system_user():
-    return User.objects.all().get(username=config("USERNAME_SYSTEM"))
+    return User.objects.all().get(username=os.getenv("USERNAME_SYSTEM"))
 
 def get_demo_user():
-    return User.objects.all().get(username=config("USERNAME_GUEST"))
+    return User.objects.all().get(username=os.getenv("USERNAME_GUEST"))
 
 
 def populate_jobs():
