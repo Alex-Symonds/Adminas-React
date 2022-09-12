@@ -37,7 +37,6 @@ SESSION_COOKIE_SECURE = True
 
 INSTALLED_APPS = [
     'adminas',
-    # 'wkhtmltopdf',
     'django_countries',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -46,8 +45,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 ]
-
-# WKHTMLTOPDF_CMD = r'"C:/test/wkhtmltopdf/bin/wkhtmltopdf"'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
