@@ -127,11 +127,9 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
-STATIC_ROOT = '/adminas/static/'
-MEDIA_ROOT = '/adminas/media/'
+STATIC_ROOT = '/home/alexsymonds/Adminas-React/adminas/static/'
+MEDIA_ROOT = '/home/alexsymonds/Adminas-React/adminas/media/'
 
-if DEBUG == True:
-    STATIC_ROOT = 'Z:/Documents/Programming/adminas-react-gulp/adminas/static/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
