@@ -22,8 +22,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 # from decouple import config
-SECRET_KEY = 'n(g^e0o^z%1@=@=sfdgdf@hp$y%bhk+970sgdfg%n7gig8okxy*$$@dxldgqo'
-# SECRET_KEY = os.getenv("SECRET_KEY")
+SECRET_KEY = os.getenv("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
