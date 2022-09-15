@@ -2086,7 +2086,6 @@ class DocumentVersion(AdminAuditTrail):
                 existing_da.update(new_qty)
         
         for key, value in assignment_dict.items():
-            debug(f"JobItem #{key} has quantity = {value}")
             if value > 0:
                 self.assign_item(key, value)
             

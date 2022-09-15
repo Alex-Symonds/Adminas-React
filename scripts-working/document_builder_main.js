@@ -299,7 +299,10 @@ function get_special_instructions_as_list(){
     Array.from(parent_ele.children).forEach(ele => {
         if(!ele.classList.contains('no-special-instructions')){
             let d = {}
-            d['id'] = ele.dataset.siid;
+            // All special instructions must have an 'id' key.
+            // New special instructions won't have an assigned ID yet, so use 0
+            // to indicate newness.
+            d['id'] = ele.hasAttribute('siid') ? ele.dataset.siid : 0;
             d['contents'] = ele.querySelector('.contents').innerHTML;
             special_instructions.push(d);
         }

@@ -12,7 +12,7 @@ from django.db import IntegrityError
 from django.urls import reverse
 from django.utils import formats
 
-# from wkhtmltopdf.views import PDFTemplateResponse
+from wkhtmltopdf.views import PDFTemplateResponse
 
 from adminas.models import  PriceList, User, Job, Address, JobItem, Product, Slot, PurchaseOrder,\
                             JobModule, ProductionData, DocumentVersion, Company
@@ -177,22 +177,23 @@ def document_pdf(request, doc_id):
     if my_doc.document.doc_type == 'WO':
         margin_bottom_setting = 35
 
-    # response = PDFTemplateResponse( request=request,
-    #                                 template=template_body,
-    #                                 filename=f"{my_doc.document.doc_type} {my_doc.document.reference}.pdf",
-    #                                 header_template = template_header,
-    #                                 footer_template = template_footer,
-    #                                 context=context,
-    #                                 show_content_in_browser=True,
-    #                                 cmd_options={
-    #                                         'dpi': 77,
-    #                                         'margin-bottom': margin_bottom_setting,
-    #                                         "zoom":1,
-    #                                         'quiet': None,
-    #                                         'enable-local-file-access': True},
-    #                             )
-    response = error_page(request, "PDF goes here", 500)
+    response = PDFTemplateResponse( request=request,
+                                    template=template_body,
+                                    filename=f"{my_doc.document.doc_type} {my_doc.document.reference}.pdf",
+                                    header_template = template_header,
+                                    footer_template = template_footer,
+                                    context=context,
+                                    show_content_in_browser=True,
+                                    cmd_options={
+                                            'dpi': 77,
+                                            'margin-bottom': margin_bottom_setting,
+                                            "zoom":1,
+                                            'quiet': None,
+                                            'enable-local-file-access': True},
+                                )
     return response
+
+
 
 def document_editor_page(request):
     """

@@ -6,8 +6,6 @@ import json
 from django.urls import reverse
 from django.core.paginator import Paginator
 
-
-
 # Contents:
 #   || Errors
 #   || Retrieve
@@ -654,5 +652,3 @@ def filter_jobs(get_params):
 
     return jobs
 
-
-      

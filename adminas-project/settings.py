@@ -22,12 +22,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 # from decouple import config
-SECRET_KEY = os.getenv("SECRET_KEY")
+SECRET_KEY = 'n(g^e0o^z%1@=@=sfdgdf@hp$y%bhk+970sgdfg%n7gig8okxy*$$@dxldgqo'
+# SECRET_KEY = os.getenv("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['alexsymonds.pythonanywhere.com']
+ALLOWED_HOSTS = ['127.0.0.1', 'alexsymonds.pythonanywhere.com']
 
 CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SECURE = True
@@ -37,6 +38,7 @@ SESSION_COOKIE_SECURE = True
 
 INSTALLED_APPS = [
     'adminas',
+    'wkhtmltopdf',
     'django_countries',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -130,6 +132,11 @@ MEDIA_URL = '/media/'
 STATIC_ROOT = '/home/alexsymonds/Adminas-React/adminas/static/'
 MEDIA_ROOT = '/home/alexsymonds/Adminas-React/adminas/media/'
 
+WKHTMLTOPDF_CMD = r'/home/alexsymonds/pdf/wkhtml-install/usr/local/bin/wkhtmltopdf'
+
+if DEBUG == True:
+    WKHTMLTOPDF_CMD = r'"C:/test/wkhtmltopdf/bin/wkhtmltopdf"'
+    STATIC_ROOT = 'Z:/Documents/Programming/Adminas-React/adminas/static/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
