@@ -153,13 +153,14 @@
 
     .paired-section{
         flex-grow: 1;
-        min-width: 295px;
-        max-width: 716px;
+        min-width: min(425px, 100%);
+        max-width: min(700px, 100%);
     }
+
 }
-@media screen and (min-width: 1690px){
+@media screen and (min-width: 1000px){
     .pair-related .paired-section{
-        max-width: 616px;
+        max-width: min(700px, 50%);
     }
 }
 
@@ -182,7 +183,7 @@
 }
 
 .job-doc-section{
-    min-width: 280px;
+    //min-width: min(350px, 95vw); //280px
 
     .status-ele{
         margin-left: calc(0.2rem + 3px);    // Line up with <li>s. <ul> left padding = 0.2rem; <ul> left margin = 3px; 

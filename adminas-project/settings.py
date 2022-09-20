@@ -21,13 +21,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-# from decouple import config
 SECRET_KEY = os.getenv("SECRET_KEY")
+ 
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1', 'alexsymonds.pythonanywhere.com']
+ALLOWED_HOSTS = ['alexsymonds.pythonanywhere.com']
 
 CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SECURE = True
@@ -133,9 +134,12 @@ MEDIA_ROOT = '/home/alexsymonds/Adminas-React/adminas/media/'
 
 WKHTMLTOPDF_CMD = r'/home/alexsymonds/pdf/wkhtml-install/usr/local/bin/wkhtmltopdf'
 
-if DEBUG == True:
-    WKHTMLTOPDF_CMD = r'"C:/test/wkhtmltopdf/bin/wkhtmltopdf"'
-    STATIC_ROOT = 'Z:/Documents/Programming/Adminas-React/adminas/static/'
+if True:
+    from decouple import config
+    SECRET_KEY = config("SECRET_KEY")
+    WKHTMLTOPDF_CMD = config("WKHTMLTOPDF_CMD")
+    STATIC_ROOT = config("STATIC_ROOT")
+    ALLOWED_HOSTS = ['127.0.0.1', 'alexsymonds.pythonanywhere.com']
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
