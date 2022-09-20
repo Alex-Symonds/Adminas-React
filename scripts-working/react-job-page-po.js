@@ -13,7 +13,7 @@
 // || Main section
 function JobPo(props){
     return [
-        <section id="job_po_section" class="paired-section">
+        <section id="job_po_section" class="job-section">
             <h3>Purchase Orders</h3>
             <JobPoCreate    actions_po = { props.actions_po }
                             currency = { props.currency }

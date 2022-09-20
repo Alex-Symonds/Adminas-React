@@ -161,16 +161,24 @@ function JobPageUI(props){
 function JobContentsUI(props){
     return [
         <div class="job-page-sections-wrapper">
-            <JobDetails currency = { props.currency }   
-                        job_id = { props.job_id }
-                        URL_GET_DATA = { props.URL_GET_DATA }
-                        />
-            <section class="job-section pair-related">
+            {/* <section class="pair-related"> */}
+                <JobDetails currency = { props.currency }   
+                            job_id = { props.job_id }
+                            URL_GET_DATA = { props.URL_GET_DATA }
+                            />
                 <JobComments    job_id = { props.job_id }
                                 URL_GET_DATA = { props.URL_GET_DATA } />
+            {/* </section>
+            <section class="pair-related"> */}
                 <JobDocumentsUI doc_data = { props.doc_data }
                                 job_id = {props.job_id} />
-            </section>
+                <JobPo  actions_po = { props.actions_po }
+                        currency = { props.currency }
+                        job_id = { props.job_id }
+                        po_data = { props.po_data }
+                        URL_GET_DATA = { props.URL_GET_DATA }
+                        />
+            {/* </section> */}
             <JobItems   actions_items = { props.actions_items }
                         currency = { props.currency }
                         items_list = { props.items_list }
@@ -178,23 +186,15 @@ function JobContentsUI(props){
                         URL_GET_DATA = { props.URL_GET_DATA }
                         URL_MODULE_MANAGEMENT = { props.URL_MODULE_MANAGEMENT }
                         />
-            <section class="job-section pair-related">
-                <JobPo  actions_po = { props.actions_po }
-                        currency = { props.currency }
-                        job_id = { props.job_id }
-                        po_data = { props.po_data }
-                        URL_GET_DATA = { props.URL_GET_DATA }
-                        />
-                <JobPriceCheck  actions_items = { props.actions_items }
-                                currency = { props.currency }
-                                has_invalid_currency_po = { props.has_invalid_currency_po }
-                                items_list = { props.items_list }
-                                job_id = { props.job_id }
-                                price_accepted_state = { props.price_accepted_state }
-                                total_selling = { props.total_selling }
-                                URL_GET_DATA = { props.URL_GET_DATA }
-                                />
-            </section>  
+            <JobPriceCheck  actions_items = { props.actions_items }
+                            currency = { props.currency }
+                            has_invalid_currency_po = { props.has_invalid_currency_po }
+                            items_list = { props.items_list }
+                            job_id = { props.job_id }
+                            price_accepted_state = { props.price_accepted_state }
+                            total_selling = { props.total_selling }
+                            URL_GET_DATA = { props.URL_GET_DATA }
+                            />
         </div>
     ];
 }
