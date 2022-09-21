@@ -134,7 +134,7 @@ MEDIA_ROOT = '/home/alexsymonds/Adminas-React/adminas/media/'
 
 WKHTMLTOPDF_CMD = r'/home/alexsymonds/pdf/wkhtml-install/usr/local/bin/wkhtmltopdf'
 
-if True:
+if False:
     from decouple import config
     SECRET_KEY = config("SECRET_KEY")
     WKHTMLTOPDF_CMD = config("WKHTMLTOPDF_CMD")

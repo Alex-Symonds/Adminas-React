@@ -4,3 +4,4 @@ db.sqlite3
 migrations/
 .env
 node_modules
+css
