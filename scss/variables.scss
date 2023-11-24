@@ -12,12 +12,15 @@ $f_contents: 'Calibri', sans-serif;
 
 $MAX_WIDTH: 700px;
 $breakpoint_table_to_rows: 930px;
+$min_supported_width: 320px;
+$body_margin_mobile: 4px;
+$body_margin_desktop: 8px;
 
 $c_bg_main: rgb(34, 35, 36);
 $g_bg_main: linear-gradient(45deg, rgb(34, 35, 36) 0%, rgb(40, 40, 41) 35%, rgb(56, 58, 58) 100%);
 $c_txt_main: #F6F6F6;
 $c_txt_main_highlight: white;
-$c_txt_alt: black;
+$c_txt_alt: #2b2727;
 $c_txt_alt_highlight: #222;
 
 $c_tone_00: #141414;
