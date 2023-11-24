@@ -1,5 +1,5 @@
 # PDF document variables to adjust the CSS and the "company" header and footer.
-CSS_FORMATTING_FILENAME = 'document_user'
+CSS_FORMATTING_FILENAME = 'doc_user'
 HTML_HEADER_FILENAME = 'pdf_doc_2_user_h'
 HTML_FOOTER_FILENAME = 'pdf_doc_2_user_f'
 NUM_BODY_ROWS_ON_EMPTY_DOCUMENT = 15 
