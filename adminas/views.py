@@ -94,7 +94,7 @@ def index(request):
     """
     # Show anon users the index page, but without user-specific elements
     if not request.user.is_authenticated:
-        return render(request, 'adminas/index.html')
+        return render(request, 'adminas/salesPitch.html')
 
     user = request.user
     jobs = user.todo_list_jobs.all().order_by('-created_on')

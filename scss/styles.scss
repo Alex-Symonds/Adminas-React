@@ -24,7 +24,7 @@ body{
 }
 
 body {
-    margin: 4px;
+    margin: v.$body_margin_mobile;
     font-family: v.$f_contents;
     background: v.$c_bg_main;
     background: v.$g_bg_main;
@@ -44,19 +44,13 @@ a{
 }
 
 h1{
-    font-family: v.$f_adminas;
     margin: 0;
     padding: 0;
     font-size: 1.3rem;
-    color: v.$c_tone_07;
 
     border-left: 3px solid v.$c_tone_03;
     padding: 0.1rem 0.5rem 0.3rem;
     margin-top: 0.1rem;
-
-    span{
-        color: v.$c_accent;
-    }
 }
 
 h2,
@@ -136,6 +130,15 @@ article{
     font-family: v.$f_adminas;
 }
 
+.productName{
+    font-family: v.$f_adminas;
+    color: v.$c_tone_07;
+
+    span{
+        color: v.$c_accent;
+    }
+}
+
 .subheading{
     margin-top: 0px;
     font-size: 1.1rem;
@@ -173,7 +176,7 @@ article{
 }
 @media screen and (min-width: 500px){
     body{
-        margin: 8px;
+        margin: v.$body_margin_desktop;
     }
     .page_container{
         width: 96%;
@@ -281,11 +284,11 @@ nav{
 
     background: v.$c_accent;
     background: v.$g_button_main;
-    color: v.$c_txt_main;
+    color: v.$c_txt_alt;
     border: 1px solid v.$c_accent_02;
 
     &:hover{
-        color: v.$c_txt_alt;
+        color: v.$c_tone_02;
         background: v.$c_accent_03;
         background: v.$g_button_hover;
         box-shadow: 0 0 3px 1px v.$c_tone_02;
@@ -300,8 +303,8 @@ nav{
     border: 1px solid v.$c_accent_02;
 
     &:hover{
-        color: v.$c_txt_alt;
-        background: v.$c_accent_03;
+        color: v.$c_accent_04;
+        background: v.$c_tone_02;
         box-shadow: 0 0 3px 1px v.$c_tone_02;
     }
 }

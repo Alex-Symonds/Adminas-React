@@ -23,7 +23,7 @@
     </head>
     <body>
         <div class='page_container'>
-            <h1>Admin<span>as</span></h1>
+            <h1><span class="productName">Admin<span>as</span></h1>
             <nav>
                 <ul>
 {% if user.is_authenticated %}
@@ -50,10 +50,10 @@
 
                 </ul>
             </nav>
-            <div class='page_contents'>
+            <main class='page_contents'>
                 {% block body %}
                 {% endblock %}
-            </div>
+            </main>
             <div class="credits">
                 <h6>Credits</h6>
                 <ul>
