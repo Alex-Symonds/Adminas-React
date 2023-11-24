@@ -1760,7 +1760,7 @@ class DocumentVersion(AdminAuditTrail):
         data['total_value_f'] = format_money(self.total_value())
         data['invoice_to'] = self.invoice_to.display_str_newlines()
         data['delivery_to'] = self.delivery_to.display_str_newlines()
-        data['css_filename'] = f'document_default_{self.document.doc_type.lower()}.css'
+        data['css_filename'] = f'doc_default_{self.document.doc_type.lower()}.css'
 
         data['fields'] = self.get_doc_fields()
 

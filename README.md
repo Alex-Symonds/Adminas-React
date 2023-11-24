@@ -28,10 +28,10 @@ Expected workflow is: New > Add Items => Complete Modular Items => Add PO > Chec
 3. Check if the settings in constants.py are to your liking
 4. ```python manage.py makemigrations```
 5. ```python manage.py migrate```
-6. ```python manage.py createsuperuser``` and go through the normal process (for access to Django admin)
-7. (Optional) To add Admin (superuser), Demo and System user accounts and some dummy data (with a "super-villain supplies" theme):
+6. (Optional) To add Admin (superuser), Demo and System user accounts and some dummy data (with a "super-villain supplies" theme):
 - Input the other .env variables in sample.env.txt
 - ```python dummy_data.py``` to populate the database with some addresses, products, prices and one job (all with a "super-villain supplies" theme)
+7. (If you didn't perform step 6) ```python manage.py createsuperuser``` and go through the normal process (for access to Django admin)
 8. Open your preferred web browser and go to http://127.0.0.1:8000/
 
 User Configuration:
@@ -63,9 +63,7 @@ The main use cases for StandardAccessories are expected to be:
 1. Adding small sundry Products to a "main" Product, e.g. making a charger Product and a headphones Product StandardAccessories of a smartphone Product.
 2. Creating "packages" of Products, e.g. making a new "Flavour Pouch Sampler Set" Product, then using StandardAccessories to include one each of a range of different flavour pouches
 
-But suppose a user sells customisable bicycles where customers can pick from a range of frames, wheels and saddles: creating a separate Product-with-StandardAccessories for every possible combination could become unmanageable as their product range grows.
-
-This is where Slots and SlotChoiceLists come in. Our bicycle seller could instead setup SlotChoiceLists for "Frames", "Wheels" and "Saddles", then use Slots to link those lists to a "Bicycle" Product. Now the user doesn't need to worry about all the different combinations: they simply manage the lists.
+Suppose a user sells customisable bicycles where customers can pick from a range of frames, wheels and saddles: creating a separate Product-with-StandardAccessories for every possible combination could become unmanageable as their product range grows. Slots and SlotChoiceLists are intended to help in this type of situation. Our bicycle seller could instead setup SlotChoiceLists for "Frames", "Wheels" and "Saddles", then use Slots to link those lists to a "Bicycle" Product. Now the user doesn't need to worry about all the different combinations: they simply manage the lists.
 
 #### Differences between StandardAccessories and Slots
 Broadly, StandardAccessories are considered an integral part of the parent item, while Slot fillers are independent items.
@@ -172,14 +170,17 @@ If Adminas were expanded to output more documents -- particularly ones of intere
 * Have different types of users with different levels of access (e.g. maybe some employees aren't trusted with entering non-standard prices and are limited to selecting list or calculated resale prices)
 * Add Adminas modules for managing addresses, products and prices, so nobody needs to use Django admin
 * Order entry data and reports/graphs. Adminas could take information added for PurchaseOrders (on creation, update and deletion), modify this as needed for storing OE figures, then output this as a CSV and/or use it to produce reports and graphs.
-* Quotation tool. The "module management" page could also be helpful for salespeople, as it would help guide them through the options and requirements of modular items. In the event of a successful sale, the quote could be used to populate a Job, saving admin users from pointless duplication of work. It could also allow automatic confirmation of unusual prices offered on the quote.
+* Quotation module. The "module management" page could also be helpful for salespeople, as it would help guide them through the options and requirements of modular items. In the event of a successful sale, the quote could be used to populate a Job, saving admin users from pointless duplication of work. It could also allow automatic confirmation of unusual prices offered on the quote.
 * Production module. It would be convenient for admin users if Adminas could automatically notify production users of new orders and requested dates, then notify the admin users when production users respond with a scheduled date. Unfortunately it wouldn't be so convenient for production users if they have to keep logging into Adminas solely to see if any new orders have come in, so it'd be better if Adminas also provides them with their own reasons to log in: perhaps a calendar/kanban board so they can block in labour for each order, a stock control system, a production to-do list, etc.
 * Expansion to other types of PDFs. Adminas could also handle invoices, packing lists, receipts, shipping documents, case marks, etc. Though in the case of invoices, this would involve a lot more flexibility over the contents and a lot of business logic controlling when they can be created, edited and deleted.
 * In the event of more documents being involved, add a visual progress indicator on each Job on the to-do list and Records, so users can see at a glance that this Job needs an invoice and that Job is waiting for shipping arrangements
-* Completing its conversion to a SPA
+* Complete its conversion to a SPA with React
 * Give users a selection of different PDF templates for documents
 * Give users a code-less means of adjusting the company-specific HTML/CSS of the PDFs
 * Refactor Adminas to work as a website used by multiple different companies, instead of as an in-house tool. Obviously this would require big changes to company-specific settings, data and contents to ensure they're only viewable and editable by the right users.
+* Split Job page into multiple different pages/modes by task: for example, the price check information is only needed when checking/confirming prices.
+* Redesign of todo list. Using rows instead of cards would allow more active Jobs to appear at once.
+* Redesign of mobile Records page to arrange the data more compactly
 
 ## What's in each file
 ### Main Folder
@@ -191,7 +192,11 @@ Run from the command line ```python dummy_data.py``` to populate the database wi
 * One Job, including item assignments, comments and a demo document
 
 #### populate_pricelist.py
-Adding a new empty price list via Django admin is easy enough, but populating it would be a painful process of manually adding a new Price record for each combination of active_product and supported currency. populate_pricelist.py is intended to help with the population step: it creates a set of Price records for every active_product/currency combination and assigns them to the most recent PriceList (assuming it's empty). This means the admin user only needs to create the empty price list, run the script, then enter the new prices. Alternatively, if the new prices are a straightforward "X% increase on whatever it was last time", the user can enter "X" as an optional argument and the program will apply that increase to the previous price for the same product&currency pair, if possible.
+Adding a new empty price list via Django admin is easy enough, but populating it would be a painful process of manually adding a new Price record for each combination of active_product and supported currency. populate_pricelist.py is intended to help with the population step: it creates a set of Price records for every active_product/currency combination and assigns them to the most recent PriceList (assuming it's empty). This means the admin user only needs to:
+1. Create the empty price list
+2. Run the script
+3. Enter the new prices via Django admin
+Alternatively, if the new prices are a straightforward "X% increase on whatever it was last time", the user can enter "X" as an optional argument and the program will apply that increase to the previous price for the same product&currency pair, if possible.
 
 ### Subfolder adminas/
 #### "Standard" Django files
@@ -221,7 +226,7 @@ query_transform.py is used by the pagination navigation. The records page uses G
 layout.html is the base for all webpages. Then there's one html file for each page on Adminas.
 
 #### Subfolder components/
-* comment_base.html, comment_collapse.html and comment_full.html contain the HTML for a single comment. comment_base.html has the parts common to all comments; comment_collapse.html and comment_full.html extend it in different ways to create the "slimline" version (where you click to expand the section with the buttons) and the full version (where you don't). This is used on the pages with comments which have not yet been moved to React.
+* comment_base.html, comment_collapse.html and comment_full.html contain the HTML for a single comment. comment_base.html has the parts common to all comments; comment_collapse.html and comment_full.html extend it in different ways to create the "slimline" version (where you click to expand the section with the buttons) and the full version (where you don't). This is used on the pages with comments which have not yet been converted to React.
 * pagination_nav.html is the pagination navigation strip, used on the job_comments and records pages.
 
 #### Subfolder pdf/

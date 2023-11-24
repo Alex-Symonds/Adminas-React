@@ -92,10 +92,11 @@ def index(request):
     """
         Index page, containing to-do list.
     """
-    # Show anon users the index page, but without user-specific elements
+    # Show anon users the sales pitch
     if not request.user.is_authenticated:
         return render(request, 'adminas/salesPitch.html')
 
+    # Show known users their todo list
     user = request.user
     jobs = user.todo_list_jobs.all().order_by('-created_on')
 
