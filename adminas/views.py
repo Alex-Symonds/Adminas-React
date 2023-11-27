@@ -94,7 +94,7 @@ def index(request):
     """
     # Show anon users the sales pitch
     if not request.user.is_authenticated:
-        return render(request, 'adminas/salesPitch.html')
+        return render(request, 'adminas/sales_pitch.html')
 
     # Show known users their todo list
     user = request.user

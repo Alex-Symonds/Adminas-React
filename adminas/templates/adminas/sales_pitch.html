@@ -162,7 +162,11 @@
             </h3>
             <section class="testimonialsContainer">
                 <section class="testimonial contentWrapper">
-                    <img src="{% static 'adminas/images/person1.webp' %}" alt="" width="90px" height="90px"  class="testimonial_image"/>
+                    <img srcset="   {% static 'adminas/images/person1-90.webp' %} 1x,
+                                    {% static 'adminas/images/person1-180-90x2.webp' %} 2x,
+                                "
+                                src="{% static 'adminas/images/person1-90.webp' %}" class="testimonial_image" alt="" 
+                    />
                     <p class="testimonial_name">
                         Ms. S. Tokfoto
                     </p>
@@ -171,7 +175,11 @@
                     </p>
                 </section>
                 <section class="testimonial contentWrapper">
-                    <img src="{% static 'adminas/images/person2.webp' %}" alt="" width="90px" height="90px"  class="testimonial_image"/>
+                    <img srcset="   {% static 'adminas/images/person2-90.webp' %} 1x,
+                                    {% static 'adminas/images/person2-180-90x2.webp' %} 2x,
+                                "
+                                src="{% static 'adminas/images/person2-90.webp' %}" class="testimonial_image" alt="" 
+                    />
                     <p class="testimonial_name">
                         Mr. Roy Altifre
                     </p>
@@ -180,7 +188,11 @@
                     </p>
                 </section>
                 <section class="testimonial contentWrapper">
-                    <img src="{% static 'adminas/images/person3.webp' %}" alt="" width="90px" height="90px"  class="testimonial_image"/>
+                    <img srcset="   {% static 'adminas/images/person3-90.webp' %} 1x,
+                                    {% static 'adminas/images/person3-180-90x2.webp' %} 2x,
+                                "
+                                src="{% static 'adminas/images/person3-90.webp' %}" class="testimonial_image" alt="" 
+                    />
                     <p class="testimonial_name">
                         Ms. F. Aykpeep
                     </p>
