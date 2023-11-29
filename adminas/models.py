@@ -522,7 +522,7 @@ class Job(AdminAuditTrail):
 
     invoice_to = models.ForeignKey(Address, on_delete=models.PROTECT, related_name='jobs_invoiced')
     delivery_to = models.ForeignKey(Address, on_delete=models.PROTECT, related_name='jobs_delivered')
-    
+   
     currency = models.CharField(max_length=3, choices=SUPPORTED_CURRENCIES)
     quote_ref = models.CharField(max_length=SYSTEM_NAME_LENGTH)
     payment_terms = models.TextField()
@@ -567,6 +567,8 @@ class Job(AdminAuditTrail):
         """
         Update Job via JobForm
         """
+        debug(jobform.cleaned_data)
+
         self.created_by = user
         self.name = jobform.cleaned_data['name']
         self.agent = jobform.cleaned_data['agent']
