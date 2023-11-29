@@ -293,6 +293,18 @@ nav{
         background: v.$g_button_hover;
         box-shadow: 0 0 3px 1px v.$c_tone_02;
     }
+    &:active{
+        background: red;
+    }
+    &:focus,
+    &:focus-visible
+    &:focus-within{
+        outline: dotted v.px-to-rem(2) rgba(v.$c_accent-50, 0.9);
+        outline-offset: v.px-to-rem(2);
+        color: v.$c_txt_alt;
+        background: v.$c_accent-400;
+        background: v.$g_button_focus;
+    }
 }
 .button-primary-hollow{
     font-weight: bold;
