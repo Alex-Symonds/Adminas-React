@@ -40,6 +40,17 @@ function jsModuleManagement(){
   .pipe(gulp.dest(PATH_BUILT_SCRIPTS));
 }
 
+function jsRecords(){
+  return gulp.src([
+    `${PATH_WORKING_SCRIPTS}records_filter.js`,
+    `${PATH_WORKING_SCRIPTS}records_list_toggle.js`
+  ])
+  .pipe(concat('records.js'))
+  .pipe(uglify())
+  .pipe(rename({ extname: '.min.js' }))
+  .pipe(gulp.dest(PATH_BUILT_SCRIPTS));
+}
+
 function jsMain() {
   return buildConcat([
         /* Files used on multiple pages */
@@ -78,5 +89,6 @@ exports.default = function(){
   watch(PATH_WORKING_SCRIPTS, jsMain);
   watch(PATH_WORKING_SCRIPTS, jsDocumentBuilder);
   watch(PATH_WORKING_SCRIPTS, jsModuleManagement);
+  watch(PATH_WORKING_SCRIPTS, jsRecords);
   watch(PATH_SCSS_FILES, css);
 };

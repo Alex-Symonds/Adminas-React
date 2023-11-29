@@ -63,12 +63,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
-
-
-
-
-
-
 // || Open menu
 async function open_filter_options(){
     let filter_container = document.getElementById(ID_FILTER_CONTROLS_CONTAINER);

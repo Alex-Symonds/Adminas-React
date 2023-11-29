@@ -29,19 +29,27 @@ class AddressForm(ModelForm):
         model = Address
         exclude = ['site',]
 
-class SiteModelChoiceField(ModelChoiceField):
+# class SiteModelChoiceField(ModelChoiceField):
+#     def label_from_instance(self, obj):
+#         inv = '[inv]' if obj.default_invoice else ''
+#         deliv = '[ship]' if obj.default_delivery else ''
+#         return f'{obj.company.name}: {obj.name} {inv}{deliv}'
+
+class AddressModelChoiceField(ModelChoiceField):
     def label_from_instance(self, obj):
-        inv = '[inv]' if obj.default_invoice else ''
-        deliv = '[ship]' if obj.default_delivery else ''
-        return f'{obj.company.name}: {obj.name} {inv}{deliv}'
+        inv = '[inv]' if obj.site.default_invoice else ''
+        deliv = '[ship]' if obj.site.default_delivery else ''
+        return f'{obj.site.company.name}: {obj.site.name} {inv}{deliv}'
 
 class JobForm(ModelForm):
-    invoice_site = SiteModelChoiceField(queryset=Site.objects.order_by('-name').order_by('-default_invoice'))
-    delivery_site = SiteModelChoiceField(queryset=Site.objects.order_by('-name').order_by('-default_delivery'))
+    # invoice_site = SiteModelChoiceField(queryset=Site.objects.order_by('-name').order_by('-default_invoice'))
+    # delivery_site = SiteModelChoiceField(queryset=Site.objects.order_by('-name').order_by('-default_delivery'))
+    invoice_to = AddressModelChoiceField(queryset=Address.objects.order_by('-site__name').order_by('-site__default_invoice'))
+    delivery_to = AddressModelChoiceField(queryset=Address.objects.order_by('-site__name').order_by('-site__default_delivery'))
 
     class Meta():
         model = Job
-        fields = ['name', 'quote_ref', 'country', 'language', 'agent', 'customer', 'currency', 'payment_terms', 'incoterm_code', 'incoterm_location']
+        fields = ['invoice_to', 'delivery_to', 'name', 'quote_ref', 'country', 'language', 'agent', 'customer', 'currency', 'payment_terms', 'incoterm_code', 'incoterm_location']
         labels = {
             'name': 'Job ID'
         }
@@ -54,6 +62,7 @@ class JobForm(ModelForm):
         super(JobForm, self).__init__(*args, **kwargs)
         self.fields['agent'].queryset = Company.objects.filter(
                                         is_agent=True)
+
 
 
 PoFormSet = modelform_factory(
