@@ -549,6 +549,7 @@ class Job(AdminAuditTrail):
         result = {}
         result['agent'] = self.agent.name if self.agent != None else None
         result['country_name'] = self.country.name
+        result['currency'] = self.currency
         result['customer'] = self.customer.name if self.agent != None else None
         result['delivery_to'] = self.delivery_to.display_str_newlines()
         result['id'] = self.id
@@ -559,6 +560,7 @@ class Job(AdminAuditTrail):
         result['name'] = self.name
         result['payment_terms'] = self.payment_terms
         result['quote_ref'] = self.quote_ref
+        result['value'] = format_money(self.total_value())
         
         return result
 

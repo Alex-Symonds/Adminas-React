@@ -324,14 +324,25 @@ def get_dict_job_page_root(job):
     result['main'] = {
         'currency': job.currency,
         'doc_quantities': job.all_documents_item_quantities(),
+        'timestamp': job.created_on,
         'URL_MODULE_MANAGEMENT': reverse('manage_modules', kwargs={'job_id': job.id})
     }
+    result['currency'] = job.currency
+    result['doc_quantities'] = job.all_documents_item_quantities()
+    result['timestamp'] = job.created_on
+    result['URL_MODULE_MANAGEMENT'] = reverse('manage_modules', kwargs={'job_id': job.id})
 
     result['po_list'] = []
     for po in job.po.filter(active=True):
         result['po_list'].append(po.get_dict())
 
     result['price_accepted'] = job.price_is_ok
+
+    result['names'] = {
+        'customer_via_agent': get_customer_via_agent_string(job),
+        'customer_name': job.customer.name,
+        'job_name': job.name
+    }
 
     return result   
 

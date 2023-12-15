@@ -5,19 +5,39 @@
     src: url(../fonts/NotoSans-Regular.ttf);
 }
 
+// These appear in a React hook as well, so always update both
+$sidebarWidthOnDesktop: #{v.px-to-rem(240)};
+$breakpoint_jobNavNoStretch: #{calc($sidebarWidthOnDesktop * 2)};
+$breakpoint_permaShowJobNav: #{calc($sidebarWidthOnDesktop * 5)};
+// This one doesn't :)
+$breakpoint_docsCardsToTable: 453px;
+
+
 /*  Job formatting.
     Contents:
         || Misc (Buttons and warnings)
         || Status Strip
         || Status indicator (todo, price confirmation)
         || Layout
+        || Summary section
+        || Job Details Section
+        || Comments Section
         || Documents Section
         || Items Section
         || Items Table
         || PO Section
         || Price Check Section
         || Price Comparison Table
+        || Outgoing Docs Table
+        || Modals
+
 */
+
+.jobPageContentsWrapper{
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
 
 
 // || Misc (Buttons and warnings)
@@ -48,6 +68,306 @@
 .empty-section-notice{
     padding: 0 1rem;
 }
+
+.burgerMenu{
+    --size: #{v.px-to-rem(12)};
+
+    position: fixed;
+    top: 0;
+    right: v.px-to-rem(4);
+    z-index: 10;
+
+    height: calc(var(--size) + #{ v.px-to-rem(18) });
+    width: calc(var(--size) + #{ v.px-to-rem(18) });
+
+    box-sizing: border-box;
+
+    background: rgba(v.$c_tone_950, .5);
+    border-radius: 50%;
+
+    overflow: hidden;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: v.px-to-rem(2) solid rgba(v.$c_tone_500, .5);
+
+    &_button{
+        --stripeColor: #{v.$c_tone_200};
+        --stripeHeight: #{v.px-to-rem(2)};
+    
+        width: calc(var(--size) + #{v.px-to-rem(4)});
+        height: var(--size);
+        border: transparent;
+    
+        background: linear-gradient(
+                        var(--stripeColor) 0%,
+                        var(--stripeColor) var(--stripeHeight),
+                        transparent calc(var(--stripeHeight) + 1px),
+    
+                        transparent calc(50% - var(--stripeHeight) / 2 - 1px),
+                        var(--stripeColor) calc(50% - var(--stripeHeight) / 2),
+                        var(--stripeColor) calc(50% + var(--stripeHeight) / 2),
+                        transparent calc(50% + var(--stripeHeight) / 2 + 1px),
+    
+                        transparent calc(100% - var(--stripeHeight) - 1px),
+                        var(--stripeColor) calc(100% - var(--stripeHeight)),
+                        var(--stripeColor) 100%,                        
+                    );
+        
+        &:hover{
+            --stripeColor: #{v.$c_accent_300};
+        }
+    }
+}
+
+
+
+// || Sidebar
+.jobSideNav{
+    --desktopPadding: #{v.px-to-rem(16)};
+    --mobilePadding: #{v.px-to-rem(6)};
+
+    position: fixed;
+    top: 0;
+    left: 0;
+
+    z-index: 5;
+
+    background: linear-gradient(190deg, v.$c_tone_900 0%, v.$c_tone_950 100%);
+    
+    max-width: 100vw;
+    height: 100%;
+    min-height: 100vh;
+    box-sizing: border-box;
+    
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - v.$body_margin_mobile * 2);
+    box-shadow: 0 8px 12px 0 rgba(black, 33%);
+
+    overflow-x: hidden;
+    overflow-y: auto;
+
+    transition: all 325ms ease-in;
+
+    &-open{
+        min-width: 100%;
+        width: 100vw;
+        padding: var(--desktopPadding);
+    }
+
+    &-closed{
+        min-width: 0;
+        width: 0;
+        padding: 0;
+    }
+
+
+    &_closeButton{
+        position: relative;
+        align-self: end;
+        top: v.px-to-rem(-10);
+        right: v.px-to-rem(2);
+    }
+    
+    &_topWrapper{
+        display: flex;
+        flex-direction: column;
+        gap: 1.75vh;
+    }
+
+    &_heading{
+        margin: 0;
+        padding: 0;
+        border: none;
+        max-width: 100%;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+
+    &_subheading{
+        margin: 0;
+        padding: 0;
+        line-height: v.px-to-rem(18);
+        font-size: v.px-to-rem(18);
+        font-weight: 700;
+    
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+
+    &_toggleWrapper{
+        width: fit-content;
+    
+        color: v.$c_tone_100;
+    
+        display: flex;
+        flex-direction: row-reverse;
+        justify-content: space-between;
+        gap: v.px-to-rem(10);
+    }
+
+    &_list{
+        margin: 4vh 0 0 0;
+        padding: 0;
+        list-style-type: none;
+    
+        display: flex;
+        flex-direction: column;
+        gap: v.px-to-rem(20);
+    }
+
+    &_button{
+        box-sizing: border-box;
+        padding: v.px-to-rem(8) v.px-to-rem(16);
+        width: 100%;
+        
+        font-size: v.px-to-rem(20);
+        font-weight: 500;
+        text-align: left;
+        color: v.$c_txt_main;
+    
+        background: none;
+    
+        border-width: 0 0 0 v.px-to-rem(4);
+        border-style: solid;
+        border-color: transparent;
+    
+        &:hover:enabled{
+            border-color: v.$c_accent-500;
+            background: v.$c_tone_700;
+        }
+    
+        &-on{
+            background: rgba(v.$c_tone_950, .5);
+            border-color: v.$c_accent_secondary;
+        }
+    }
+
+}
+
+
+.toggle{
+    --size: #{v.px-to-rem(24)};
+    --fontSize: #{v.px-to-rem(12)};
+
+    height: var(--size);
+    width: calc(var(--size) * 2);
+    border-radius: calc(var(--size) / 2);
+
+    line-height: var(--fontSize);
+    font-size: var(--fontSize);
+
+    position: relative;
+
+    &-on{
+        background: v.$c_accent-500;
+    }
+    &-off{
+        background: v.$c_tone_04;
+    }
+
+    &_labelText{
+        border-left: v.px-to-rem(3) solid v.$c_tone_500;
+        padding: 0 0 0 v.px-to-rem(10);
+    }
+
+    &_ball{
+        --diameter: calc(var(--size) - 4px);
+    
+        width: var(--diameter);
+        height: var(--diameter);
+        border-radius: 100%;
+    
+        background: v.$c_tone_50;
+        position: absolute;
+        top: v.px-to-rem(2);
+        left: v.px-to-rem(2);
+    
+        transition: 250ms ease-in-out;
+    
+        &-on{
+            transform: translateX(calc(var(--size) * 2 - var(--size)));
+        }
+    }
+
+    &_statusText{
+        position: absolute;
+        top: calc(50% - var(--fontSize) / 2);
+    
+        &-on{
+            left: v.px-to-rem(8);
+        }
+        &-off{
+            right: v.px-to-rem(8);
+        }
+    }
+    
+    
+}
+
+
+.jobPageHeading{
+    &_heading,
+    &_subheading{
+        overflow-x: hidden;
+        width: 100%;
+        word-wrap: break-word;
+    }
+
+    &_subheading{
+        color: v.$c_tone_100;
+        font-weight: 500;
+    }
+}
+
+@media screen and (min-width: $breakpoint_jobNavNoStretch){
+    .jobSideNav{
+        max-width: var(--w);
+
+        &-open{
+            min-width: var(--w);
+            width: var(--w);
+        }
+    }
+
+    .jobSideNav_closeButton{
+        right: v.px-to-rem(-10);
+    }
+}
+
+
+@media screen and (min-width: $breakpoint_permaShowJobNav){
+    .jobSideNav{
+        position: static;
+        z-index: 1;
+        min-width: var(--w);
+        width: var(--w);
+        padding: var(--desktopPadding);
+
+    }
+
+    .jobSideNav_closeButton{
+        display: none;
+    }
+
+    .burgerMenu{
+        display: none;
+    }
+
+    .jobPage{
+        --gapSize: 1rem;
+        max-width: calc(100% - var(--gapSize));
+        box-sizing: border-box;
+        gap: var(--gapSize);
+    }
+}
+
+
 
 // || Status Strip
 .job-heading-with-status{
@@ -194,62 +514,139 @@
 }
 
 
-
 // || Layout
-.job-page-sections-wrapper{
-    margin-top: 2rem;
+.jobPage{
+    --w: #{$sidebarWidthOnDesktop};
 
-    display: grid;
-    grid-template-columns: 100%;
-    grid-template-rows: auto auto auto auto auto auto;
-    grid-template-areas: 
-    "general"
-    "comments"
-    "documents"
-    "items"
-    "po"
-    "price_check";
+    display: flex;
+    max-width: 96%;
+}
 
-    gap: 3rem;
 
-    #job_details{
-        grid-area: general;
+// || Summary section
+.jobSummary_contentsLayout{
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+.timeValueContainer{
+    display: flex;
+    flex-wrap: wrap;
+    width: calc(#{v.px-to-rem(160)} + #{v.px-to-rem(320)} + 2rem);
+    max-width: 100%;
+    gap: 1rem;
+}
+@media screen and (min-width: 561px){
+    .jobSummary_contentsLayout{
+        display: grid;
+        grid-template-rows: auto auto auto auto auto;
+        grid-template-columns: 50% 50%;
+        grid-template-areas: 
+            "status status"
+            "timeValue timeValue"
+            "pinned pinned"
+            "items customerRef"
+        ;
+        gap: v.px-to-rem(16);
     }
 
-    #job_comments{
-        grid-area: comments;
+    .jobSummaryStatus{
+        grid-area: status;
     }
-
-    .job-doc-section{
-        grid-area: documents;
+    .timeValueContainer{
+        grid-area: timeValue;
     }
-
-    #job_items_section{
+    .jobCommentSection{
+        grid-area: pinned;
+    }
+    .jobSummaryCustomerRef{
+        grid-area: customerRef;
+    }
+    .jobSummaryItems{
         grid-area: items;
     }
-
-    #job_po_section{
-        grid-area: po;
-    }
-
-    #price_check_section{
-        grid-area: price_check;
-    }
-
-}
-@media screen and (min-width: 1250px){
-    .job-page-sections-wrapper{
-        grid-template-columns: 1fr 1fr;
-        grid-template-rows: auto auto auto auto;
-        grid-template-areas: 
-        "general comments"
-        "po documents"
-        "items items"
-        "price_check price_check";  
-    }
 }
 
+.jobSummaryTimestamp_text,
+.jobSummaryOrderValue_text{
+    padding: v.px-to-rem(8) v.px-to-rem(12);
+    font-size: v.px-to-rem(24);
+    font-weight: 700;
+    margin: 0;
+}
 
+.jobSummaryTimestamp{
+    box-sizing: border-box;
+    width: v.px-to-rem(160);
+    max-width: 100%;
+}
+
+.jobSummaryOrderValue{
+    box-sizing: border-box;
+    width: v.px-to-rem(320);
+    max-width: 100%;
+}
+
+.jobSummaryCustomerRef{
+    &_list{
+        padding: v.px-to-rem(8) v.px-to-rem(12);
+        margin: 0;
+        list-style: none;
+        max-height: v.px-to-rem(210);
+        overflow-y: auto;
+    }
+
+    &_poRef{
+        font-weight: 700;
+    }
+
+    &_poDated{
+        color: v.$c_tone_400;
+    }
+}
+
+.jobSummaryItems{
+    &_list{
+        padding: v.px-to-rem(8) v.px-to-rem(12);
+        margin: 0;
+        list-style: none;
+    }
+    
+    &_item{
+        padding: v.px-to-rem(6) v.px-to-rem(6);
+        border-bottom: 1px solid v.$c_tone_600;
+    }
+
+    &_price{
+        color: v.$c_tone_400;
+    }
+
+    &_moreItems{
+        margin: 0 0 0 v.px-to-rem(12);
+        padding: 0 v.px-to-rem(6) v.px-to-rem(14);
+    }
+}
+
+
+// || Job Details Section
+.jobDetails{
+    width: v.px-to-rem(500);
+    max-width: 100%;
+
+    &_row{
+        display: flex;
+        align-items: stretch;
+        height: 100%;
+    }
+    
+}
+
+
+// || Comments Section
+.jobCommentSection{
+    width: v.px-to-rem(708);
+    max-width: 100%;
+}
 
 
 // || Documents Section
@@ -487,7 +884,7 @@
     }
 
     span.desc{
-        margin: 0.2rem 0 0 0.75rem;
+        margin: v.px-to-rem(8) 0 0 0.75rem;
     }
 }
 
@@ -495,7 +892,7 @@
     position: fixed;
     top: 0;
     right: 0;
-    z-index: 8;
+    z-index: 50;
 
     width: 40rem;
     box-shadow: 0 0 15px 15px rgba(black, 33%);
@@ -524,7 +921,7 @@
     .jobitems-details-container{
         display: flex;
         flex-direction: column;
-        align-items: flex-end;
+        align-items: center;
     
         height: calc(100vh - 35px - 1px); // less header, less 1px to show the end
         overflow-y: auto;
@@ -541,12 +938,13 @@
         background: v.$c_tone_01;
 
         position: relative;
+
+        
     }
 
     .expand-collapse{
         width: 100%;
         height: 0;
-        box-shadow: 0 0 2rem 8px v.$c_tone_00;
     }
     
 }
@@ -755,54 +1153,16 @@
 
 }
 
-#container_edit_item{
-    width: 96%;
+// #container_edit_item{
+//     min-width: 260px;
+//     width: fit-content;
+//     max-width: calc(100% - 16px);
 
-    .temp-warning-msg{
-        margin-top: 1.2rem;
-    }
-}
+//     .temp-warning-msg{
+//         margin-top: 1.2rem;
+//     }
+// }
 
-#new_items_container{
-    width: 95%;
-    max-width: 500px;
-
-    .add-button{
-        // On a narrow screen, make it so the expansion occurs /over/ the "Add [_] more" box, 
-        // instead of pushing the box down.
-        position: absolute;
-        margin: 0.5rem 0 0 0.5rem;
-    }
-
-    .add-multiple{
-        background: v.$c_tone_01;
-        border: 1px solid v.$c_tone_00;
-        border-radius: 3px;
-
-        width: fit-content;
-
-        display: block;
-        float: right;
-        margin: 0.5rem 0.5rem 0;
-        padding: 0.15rem 0.35rem;
-
-        font-size: 0.8rem;
-
-        input{
-            width: 3rem;
-            height: 0.9rem;
-            margin-left: 0.1rem;
-        }
-
-        .button-primary{
-            margin-left: 1.5rem;
-            font-size: 0.9rem;
-            width: 3rem;
-            padding: 0.15rem 0.5rem;
-        }
-    }
-
-}
 
 // || Items Table
 #jobitems_table{
@@ -1145,6 +1505,7 @@
 
         .jobitems-details-container{
             align-items: center;
+            height: fit-content;
             max-height: 45vh;
             padding: 0;
         }
@@ -1249,22 +1610,6 @@
 
 
 // || PO Section
-#po_edit_form{
-    width: calc(90% - 1rem);
-    max-width: 20rem;
-    margin-bottom: 1.1rem;
-
-    .button-container{
-        gap: 5%;
-
-        button, #po_submit_button{
-            max-width: 10rem;
-            width: 25%;
-            height: 2rem;
-        }
-    }
-}
-
 #po_table{
     .value{
         text-align: right;
@@ -1415,11 +1760,23 @@
 }
 
 // || Price Check Section
+.jobPriceCheckDetails {
+    width: fit-content;
+    max-width: 100%;
+}
+
+.jobPriceCheckComparison{
+    margin-top: 1.5rem;
+    width: fit-content;
+    max-width: 100%;
+}
+
 .selling-price-container{
     position: relative;
 }
 
-.price-checker-edit-window{
+
+.priceCheckEditor{
     position: absolute;
     z-index: 2;
     left: -10px;
@@ -1429,33 +1786,27 @@
 
     text-align: left;
 
-    p{
+    &_description{
         margin: 0.5rem;
     }
 
-    .price-options-container{
+    &_optionsContainer{
         border-top: 1px solid v.$c_tone_01;
-
-        h6{
-            font-size: 0.95rem;
-            font-weight: normal;
-            width: 100%;
-            margin: 0.5rem 0 0 0.5rem;
-            padding-bottom: 0.2rem;
-        }
-
-        button{
-            margin: 0.2rem 5% 0.2rem;
-            padding: 0.4rem 0.3rem;
-            width: 40%;
-        }
     }
 
-    .combo-input-and-button{
-        margin: 1rem 0 1rem 0.5rem;
+    &_optionsHeading{
+        font-size: 0.95rem;
+        font-weight: normal;
+        width: 100%;
+        margin: 0.5rem 0 0 0.5rem;
+        padding-bottom: 0.2rem;
     }
 
-    .button-primary-hollow{
+    &_presetPriceButton{
+        margin: 0.2rem 5% 0.2rem;
+        padding: 0.4rem 0.3rem;
+        width: 40%;
+
         background: v.$c_tone_00;
 
         &:hover{
@@ -1463,7 +1814,12 @@
             color: v.$c_accent_04;
         }
     }
+
+    &_customPrice{
+        margin: 1rem 0 1rem 0.5rem;
+    }
 }
+
 
 #price_check_table{
     .ji_id{
@@ -1514,6 +1870,10 @@
     }
 }
 @media screen and (max-width: 1098px){
+
+    .jobPriceCheckDetails{
+        width: v.px-to-rem(464);
+    }
 
     #price_check_table{
         // Make it stop behaving like a table
@@ -1715,6 +2075,340 @@ table.price-comparison{
     }
 }
 
-#price_summary{
-    margin-top: 1.5rem;
+
+// || Outgoing Docs Table
+.jobDocsOut_contentWrapper{
+    display: flex;
+    flex-wrap: wrap;
+    gap: v.px-to-rem(32);
 }
+
+.jobDocsOutSubsection{
+    display: grid;
+    grid-template-columns: 130px auto;
+    grid-template-rows: auto auto auto auto;
+    grid-template-areas: 
+    "heading heading"
+    "addBtn unassigned"
+    "docsTable docsTable"
+    ;
+
+    column-gap: v.px-to-rem(8);
+    width: fit-content;
+
+    &_heading{
+        grid-area: heading;
+    }
+    &_addButton{
+        grid-area: addBtn;
+    }
+    &_unassigned{
+        grid-area: unassigned;
+        align-self: center;
+        justify-self: end;
+        margin-right: v.px-to-rem(4);
+    }
+}
+
+.jobDocsOutSubsection_unassigned{
+    display: block;
+    background: v.$c_tone_01;
+    border: 1px solid v.$c_tone_04;
+
+    border-color: v.$c_warning;
+}
+
+.jobDocsOutSubsection_unassignedMsg{
+    padding: 0.2rem 1rem;
+    margin-right: 3px;
+    display: inline-block;
+}
+
+.jobDocsOutSubsection_unassignedIcon{
+    display: inline-block;
+    border-right: 1px solid transparent;
+    width: 1rem;
+    padding: 0.2rem 0.4rem;
+    text-align: center;
+    font-weight: bold;
+
+    color: v.$c_tone_01;
+    background: v.$c_warning;
+}
+
+
+.documentsOutTable{
+    grid-area: docsTable;
+    margin: 0.3rem;
+    border-collapse: collapse;
+
+    th{
+        padding: 0.1rem 0.5rem;
+        border: 1px solid v.$c_tone_02;
+        background: v.$c_tone_03;
+    }
+
+    &_referenceCol,
+    &_dateCol,
+    &_statusCol,
+    &_editCol {
+        border: 1px solid v.$c_tone_03;
+        height: 2rem;
+        box-sizing: border-box;
+    }
+
+    .edit-icon{
+        position: relative;
+        left: v.px-to-rem(1);
+        border-bottom: 2px solid transparent;
+    }
+    .edit-icon:hover{
+        border-color: white;
+    }
+
+    --widthDateCol: #{v.px-to-rem(92)};
+    --widthStatusCol: #{v.px-to-rem(78)};
+    --widthEditCol: #{v.px-to-rem(33)};
+
+    width: v.px-to-rem(400);
+
+    &_dateCol{
+        min-width: var(--widthDateCol);
+        width: var(--widthDateCol);
+        max-width: var(--widthDateCol);
+        padding: 0.1rem 0.5rem;
+    }
+
+    &_statusCol{
+        min-width: var(--widthStatusCol);
+        width: var(--widthStatusCol);
+        max-width: var(--widthStatusCol);
+        padding: 0.1rem 0.5rem;
+
+        &-draft{
+            background: v.$c_accent-900;
+        }
+        &-issued{
+            background: v.$c_secondary-900;
+        }
+    }
+
+    &_editCol{
+        min-width: var(--widthEditCol);
+        width: var(--widthEditCol);
+        max-width: var(--widthEditCol);
+    }
+
+    &_referenceCol{
+        padding: 0.1rem 0.5rem;
+        width: 50rem;
+        max-width: calc(100% - var(--widthDateCol) - var(--widthStatusCol) - var(--widthEditCol));
+    }
+
+    &_status{
+        position: relative;
+        left: calc(-0.5rem + 2px);
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        height: 100%;
+        width: 100%;
+
+        padding: 0.1rem 0.5rem;
+        box-sizing: border-box;
+        border-left: 3px solid transparent;
+
+        &-draft{
+            border-color:v.$c_accent_500;
+        }
+        &-issued{
+            border-color: v.$c_accent_secondary;
+        }
+    }
+}
+
+
+@media screen and (max-width: $breakpoint_docsCardsToTable){
+
+    .jobDocsOutSubsection_unassignedMsg{
+        font-size: v.px-to-rem(12);
+        padding: v.px-to-rem(4) v.px-to-rem(8);
+    }
+    .documentsOutTable{   
+        width: calc(100% - 0.6rem);
+        max-width: 100%;
+
+        thead tr{
+            position: absolute;
+            top: -9999px;
+            left: -9999px;
+        }
+    
+        &_referenceCol,
+        &_dateCol,
+        &_statusCol,
+        &_editCol {
+            display: inline-block;
+            padding: 0.1rem 0.4rem;
+            vertical-align: middle;
+            height: auto;
+            border: none;
+        }
+
+        tbody tr{
+            display: grid;
+            grid-template-columns: var(--widthDateCol) var(--widthStatusCol) minmax(0, 1fr)  var(--widthEditCol);
+            grid-template-rows: auto min-content 1.5rem;
+            grid-template-areas: 
+                "ref ref ref ref"
+                ". . . edit"
+                "date status . edit"
+            ;
+            column-gap: v.px-to-rem(8);
+    
+            min-width: 268px;
+            max-width: 100%;
+    
+            box-sizing: border-box;
+            margin: 0.5rem 0 0 0;
+            padding: 0.3rem 0.2rem;
+    
+            border: 1px solid v.$c_tone_00;
+            box-shadow: 0 0 10px 1px rgba(black, 35%);
+        }
+
+        .edit-icon{
+            top: v.px-to-rem(4);
+        }
+
+        &_dateCol{
+            grid-area: date;
+            text-align: left;
+        }
+    
+        &_statusCol{
+            grid-area: status;
+            text-align: left;
+
+            &-draft{
+                background: v.$c_accent-900;
+            }
+            &-issued{
+                background: v.$c_secondary-900;
+            }
+        }
+    
+        &_editCol{
+            grid-area: edit;
+            text-align: left;
+            align-self: end;
+        }
+    
+        &_referenceCol{
+            grid-area: ref;
+            text-align: left;
+
+            display: flex;
+            align-items: end;
+            
+            max-width: 100%;
+
+            overflow: hidden;
+        }
+    
+        &_status{
+            position: relative;
+            left: calc(-0.5rem + 2px);
+    
+            display: flex;
+            align-items: center;
+            justify-content: start;
+    
+            height: 100%;
+            width: 100%;
+    
+            padding: 0.1rem 0.5rem;
+            box-sizing: border-box;
+            border-left: 3px solid transparent;
+    
+            &-draft{
+                border-color:v.$c_accent_500;
+            }
+            &-issued{
+                border-color: v.$c_accent_secondary;
+            }
+        } 
+    }
+}
+
+
+// || Modals
+.jobItemsCreator{
+    width: 100%;
+
+    &_form{
+        display: flex;
+        flex-direction: column;
+        gap: v.px-to-rem(24);
+
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+}
+
+.commentEditor{
+    &_form{
+        display: flex;
+        flex-direction: column;
+        gap: v.px-to-rem(16);
+        padding: v.px-to-rem(8) 0 0;
+
+        width: 75ch;
+        max-width: 100%;
+    }
+
+    &_editText{
+        height: 50vh;
+        min-height: 6rem;
+        width: 100%;
+    }
+
+    &_checkboxesContainer{
+        background: v.$c_tone_01;
+        border: 1px solid v.$c_tone_00;
+        border-radius: 3px;
+        
+        margin: 0.3rem 0 0 0;
+        padding: 0 v.px-to-rem(6);
+        width: 100%;
+        box-sizing: border-box;
+        font-size: v.px-to-rem(14);
+        line-height: v.px-to-rem(14);
+
+        display: flex;
+        flex-direction: row;
+        align-items: flex-start;
+        gap: v.px-to-rem(14);
+    }
+}
+@media screen and (min-aspect-ratio: 1/1){
+    .commentEditor{
+        &_editText{
+            height: 20vh;
+        }
+    }
+}
+
+.poEditor{
+    &_poNumInput{
+        width: 100%;
+    }
+}
+
+
+
+
+

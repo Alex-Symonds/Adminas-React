@@ -23,7 +23,14 @@ function css(){
 }
 
 function jsReact() {
-    return gulp.src([`${PATH_WORKING_SCRIPTS}react-util.js`, `${PATH_WORKING_SCRIPTS}react-job-page*.js`])
+    return gulp.src([
+      `${PATH_WORKING_SCRIPTS}react-util.js`, 
+      `${PATH_WORKING_SCRIPTS}react-job-page*.js`,
+      `${PATH_WORKING_SCRIPTS}react-status-strip.js`,
+      `${PATH_WORKING_SCRIPTS}react-errors.js`,
+      `${PATH_WORKING_SCRIPTS}react-modal.js`,
+      `${PATH_WORKING_SCRIPTS}react-formset.js`,
+    ])
         .pipe(concat('react-job.js'))
         .pipe(babel({
             presets: ["@babel/preset-react"]

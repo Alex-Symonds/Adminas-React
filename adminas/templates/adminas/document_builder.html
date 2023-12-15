@@ -65,7 +65,7 @@
         <h4>General</h4>
         <div class="form-row">
             <label class="row-label" for="id_doc_reference">Reference</label>
-            <input type="text" id="id_doc_reference" value="{{reference}}">
+            <input class="subsection_input" type="text" id="id_doc_reference" value="{{reference}}">
             <div class="doc-version" id="id_doc_version">version {{ version_number }}</div>
         </div>
 
@@ -73,12 +73,12 @@
     {% if doc_type == 'WO' %}
         <div class="form-row">
             <label class="row-label" for="id_req_prod_date">Requested Completion Date</label>
-            <input type="date" id="id_req_prod_date" value="{{doc_specific.date_requested|date:'Y-m-d'}}">
+            <input class="subsection_input" type="date" id="id_req_prod_date" value="{{doc_specific.date_requested|date:'Y-m-d'}}">
         </div>
 
         <div class="form-row">
             <label class="row-label" for="id_sched_prod_date">Scheduled Completion Date</label>
-            <input type="date" id="id_sched_prod_date" value="{{doc_specific.date_scheduled|date:'Y-m-d'}}">
+            <input class="subsection_input" type="date" id="id_sched_prod_date" value="{{doc_specific.date_scheduled|date:'Y-m-d'}}">
         </div>
     {% endif %}
     </section>

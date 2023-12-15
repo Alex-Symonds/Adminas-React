@@ -4,8 +4,8 @@
 
     Contents:
         || Consts
-        || Main section
-        || Subsections
+        || JobComments (for the Job page)
+        || Subsections (to separate pinned and highlighted)
         || Individual Comments
         || CommentReader
             Note: the vanilla JS has two types of comments, "collapsable" and "full". "Full" comments don't appear on the Job page,
@@ -23,99 +23,47 @@ const HIGHLIGHTED_STRING = 'highlighted';
 
 // || Main section
 function JobComments(props){
-    const [urlComments, setUrl] = React.useState('');
-    const [apiComments, setApi] = React.useState('');
-    const [username, setUsername] = React.useState('');
-    const [comments, setComments] = React.useState([]);
-
-    // For comments, the active_edit state stores an ID AND a section name instead of just the ID. This is because
-    // a comment which is both pinned and highlighted will appear in both sections, so using the ID alone would result in 
-    // an unnecessary second editor window (for the comment with the same ID, but in the other section).
-    const [activeEdit, setActiveEdit] = React.useState([null, null]);
-    const editor_state = getter_and_setter(activeEdit, setActiveEdit);
-
-    const { data, error, isLoaded } = useFetch(url_for_page_load(props.URL_GET_DATA, props.job_id, 'comments'));
-    React.useEffect(() => {
-        set_if_ok(data, 'url', setUrl);
-        set_if_ok(data, 'api', setApi)
-        set_if_ok(data, 'username', setUsername);
-        set_if_ok(data, 'comments', setComments);
-    }, [data]);
-
-    function update_comment(comment_id, comment_attributes){
-        update_list_state(comments, setComments, 'id', comment_id, comment_attributes);
-    }
-
-    function remove_comment(comment_id){
-        remove_from_list_state(comments, setComments, 'id', comment_id); 
-    }
-
-    const actions_comments = get_actions_object(apiComments, null, update_comment, remove_comment);
-
-    if(error){
-        return <LoadingErrorUI name='comments' />
-    }
-    else if (!isLoaded){
-        return <LoadingUI />
-    }
-    return <JobCommentsUI   actions_comments = { actions_comments }
-                            comments = { comments }
-                            editor_state = { editor_state }
-                            comment_page_url = { urlComments }
-                            username = { username }
-                            />
-}
-
-
-function JobCommentsUI(props){
     let num_comments = props.comments === null ? 0 : props.comments.length;
     return [
         <section id="job_comments" class="job-section">
             <h3>Comments</h3>
-            <a href={`${props.comment_page_url}&page=1`}>See all { num_comments } comments</a>
-            <JobCommentsSubsection  actions_comments = { props.actions_comments }
-                                    comments = { props.comments }
-                                    editor_state = { props.editor_state }
-                                    section_name = { PINNED_STRING }
-                                    username = { props.username } 
-                                    />                                         
-            <JobCommentsSubsection  actions_comments = { props.actions_comments }
-                                    comments = { props.comments } 
-                                    editor_state = { props.editor_state }
-                                    section_name = { HIGHLIGHTED_STRING }
-                                    username = { props.username }
-                                    />
+            <a href={`${ props.commentsURL }&page=1`}>See all { num_comments } comments</a>
+            <JobCommentsSubsection  
+                actions = { props.commentsActions }
+                comments = { props.comments }
+                commentsEditor = { props.commentsEditor }
+                sectionName = { PINNED_STRING }
+                username = { props.username } 
+            />                                         
+            <JobCommentsSubsection  
+                actions = { props.actionsComments }
+                comments = { props.comments } 
+                commentsEditor = { props.commentsEditor }
+                sectionName = { HIGHLIGHTED_STRING }
+                username = { props.username }
+            />
         </section>
     ]
 }
 
 // || Subsections
 function JobCommentsSubsection(props){
-    // props.comments contains ALL the comments: filter out ones that don't belong in this section
-    var filtered_comments = filter_comments(props.comments, props.section_name);
-
-    return <JobCommentsSubsectionUI actions_comments = { props.actions_comments }
-                                    editor_state = { props.editor_state }
-                                    filtered_comments = { filtered_comments }
-                                    section_name = { props.section_name }
-                                    username = { props.username }
-                                    />
-}
-
-function JobCommentsSubsectionUI(props){
+    var commentsFiltered = filter_comments(props.comments, props.sectionName);
     return [
-        <section class="subsection">
-            <h4>{ capitaliseFirstLetter(props.section_name) } by {props.username}</h4>
-            <div class={ 'comment-container ' + props.section_name }>
-                <CommentsEmpty  comments = { props.filtered_comments }
-                                verbed = { props.section_name } />
-                { props.filtered_comments.map((comment) => {
-                    return <Comment key = { comment.id.toString() }
-                                    actions_comments = { props.actions_comments }
-                                    comment = { comment }
-                                    editor_state = { props.editor_state }
-                                    section_name = { props.section_name }
-                                    />
+        <section class="subsection jobCommentSection">
+            <h4>{ capitaliseFirstLetter(props.sectionName) } by {props.username}</h4>
+            <div class={ 'comment-container ' + props.sectionName }>
+                <CommentsEmpty  
+                    comments = {commentsFiltered }
+                    verbed = { props.sectionName } 
+                />
+                { commentsFiltered.map((comment) => {
+                    return  <Comment key = { comment.id.toString() }
+                                actions = { props.actions }
+                                comment = { comment }
+                                commentsEditor = { props.commentsEditor }
+                                sectionName = { props.sectionName }
+                            />
                 })}
             </div>
         </section>
@@ -145,21 +93,30 @@ function CommentsEmpty(props){
 
 // || Individual Comments
 function Comment(props){
-    const editor = get_editor_object(`${props.comment.id}_${props.section_name}`, props.editor_state.get, props.editor_state.set);
+    const editor = get_editor_object(
+        props.commentsEditor.convertToIDStr([props.comment.id, props.sectionName]), 
+        props.commentsEditor.activeIDStr, 
+        props.commentsEditor.set);
 
-    if(editor.is_active){
-        return <CommentEditor   actions_comments = { props.actions_comments }
-                                comment = { props.comment }
-                                editor  = { editor } />
-    }
-
-    return <CommentReaderUI actions_comments = { props.actions_comments }
-                            comment = {props.comment}
-                            editor  = { editor } />
+        return  <>
+                    { editor.is_active ?
+                        <CommentEditor   
+                            actions = { props.actions }
+                            comment = { props.comment }
+                            editor  = { editor } 
+                        />
+                        : null
+                    }
+                    <CommentReader 
+                        actions = { props.actions }
+                        comment = { props.comment }
+                        editor  = { editor } 
+                    />
+                </>
 }
 
 // || CommentReader
-function CommentReaderUI(props){
+function CommentReader(props){
     var css_class_list = "one-comment";
     css_class_list += props.comment.private ? ' private' : ' public';  // Update CSS class list for public/private
     css_class_list += props.comment.highlighted ? ' ' + HIGHLIGHTED_STRING : ''; // Update CSS class list for highlighted
@@ -168,32 +125,37 @@ function CommentReaderUI(props){
         <article class={ css_class_list }>
             <details class="wrapper">
                 <summary class="comment-body">
-                    <CommentReaderBodyUI  comment = { props.comment } />
+                    <CommentReaderBodyUI  
+                        comment = { props.comment } 
+                    />
                 </summary>
-                <CommentReaderFooter  actions_comments = { props.actions_comments }
-                                        comment = { props.comment }
-                                        editor = { props.editor }
-                                        />
+                <CommentReaderFooter  
+                    actions = { props.actions }
+                    comment = { props.comment }
+                    editor = { props.editor }
+                />
             </details>
         </article>  
     ]
 }
 
-// Read Comment: the section with the "private" icon and the user's waffle
+
 function CommentReaderBodyUI(props){
     let privacyCss = 'public-status';
     let privacyStr = 'public';
-
     if(props.comment.user_is_owner && props.comment.private){
         privacyCss = 'privacy-status';
         privacyStr = 'PRIVATE';
     }
 
-
     return [
         <span class="main">
-            <div class={privacyCss}>[{privacyStr}]</div>
-            <CommentContentsWithLinebreaks text = { props.comment.contents }/>
+            <div class={ privacyCss }>
+                [{ privacyStr }]
+            </div>
+            <CommentContentsWithLinebreaks 
+                text = { props.comment.contents } 
+            />
         </span>
     ]
 }
@@ -219,53 +181,35 @@ function CommentContentsWithLinebreaks(props){
     ]
 }
 
+
 function CommentReaderFooter(props){
-    const [backendError, setBackendError] = React.useState(null);
-    const backend_error = get_backend_error_object(backendError, setBackendError);
+    const {
+        backend_error,
+        toggle_highlighted,
+        toggle_pinned,
+    } = useCommentReaderToggles(props.actions, props.comment);
 
-    function toggle_pinned(){
-        toggle_comment_from_icon({pinned: !props.comment.pinned});
-    }
-    function toggle_highlighted(){
-        toggle_comment_from_icon({highlighted: !props.comment.highlighted});
-    }
-
-    function toggle_comment_from_icon(attributes){
-        const url = `${props.actions_comments.url}?id=${props.comment.id}`;
-        const headers = getFetchHeaders('PUT', attributes);
-
-        update_server(url, headers, resp_data => {
-            if(status_is_good(resp_data, 204)){
-                props.actions_comments.update_f(props.comment.id, attributes);
-            }
-            else {
-                backend_error.set(get_error_message(resp_data));
-            }
-        });
-    }
-
-    return <CommentReaderFooterUI backend_error = { backend_error }
-                                    comment = { props.comment }
-                                    editor = { props.editor }
-                                    toggle_highlighted = { toggle_highlighted }
-                                    toggle_pinned = { toggle_pinned }
-                                    />
-}
-
-function CommentReaderFooterUI(props){
     return [
         <section class="footer">
             <div class="ownership">
                 {props.comment.created_by} on {props.comment.created_on }
             </div>
             <div class="controls">
-                <BackendErrorUI message = { props.backend_error.message }
-                                turn_off_error = { props.backend_error.clear } />
-                <CommentPinnedButtonUI  handle_toggle = { props.toggle_pinned }
-                                        pinned = { props.comment.pinned } />
-                <CommentHighlightButtonUI   handle_toggle = { props.toggle_highlighted } />
-                <CommentEditButtonUI    editor = { props.editor }
-                                        user_is_owner = { props.comment.user_is_owner } />
+                <BackendErrorUI 
+                    message = { backend_error.message }
+                    turn_off_error = { backend_error.clear } 
+                />
+                <CommentPinnedButtonUI  
+                    handle_toggle = { toggle_pinned }
+                     pinned = { props.comment.pinned } 
+                />
+                <CommentHighlightButtonUI   
+                    handle_toggle = { toggle_highlighted } 
+                />
+                <CommentEditButtonUI    
+                    editor = { props.editor }
+                    user_is_owner = { props.comment.user_is_owner } 
+                />
             </div>
         </section>
     ] 
@@ -276,28 +220,173 @@ function CommentPinnedButtonUI(props){
     const display_text = props.pinned ? 'unpin' : 'pin';
     const on_or_off = props.pinned ? 'on' : 'off';
 
-    return <button class={`pinned-toggle pin-${on_or_off}`} onClick={ props.handle_toggle }>{display_text}</button>
+    return  <button 
+                class={`pinned-toggle pin-${on_or_off}`} 
+                onClick={ props.handle_toggle }
+            >
+                {display_text}
+            </button>
 }
 
+
 function CommentHighlightButtonUI(props){
-    return <button class="highlighted-toggle" onClick={ props.handle_toggle }>+/- highlight</button>
+    return  <button 
+                class="highlighted-toggle" 
+                onClick={ props.handle_toggle }
+            >
+                +/- highlight
+            </button>
 }
+
 
 function CommentEditButtonUI(props){
     if(!props.user_is_owner){
         return null;
     }
-    return <button class="edit-comment" onClick={ props.editor.on }>edit</button>
+    return  <button 
+                class="edit-comment" 
+                onClick={ props.editor.on }
+            >
+                edit
+            </button>
 }
 
+
+function useCommentReaderToggles(actions, comment){
+    const [backendErrorState, setBackendErrorState] = React.useState(null);
+    const backendErrorObj = get_backend_error_object(backendErrorState, setBackendErrorState);
+
+    /* 
+    Fretting about the absense of controlled states for the toggles?
+    ---------------------------------------------------------------------------
+     These are the toggles in /the reader/ and not the editor. When clicked they 
+     should take effect immediately, rather than waiting for a separate "sumbit" 
+     action.
+     Since there's no need to "pool" changes for the submit, these just directly
+     display/update the main comments state.
+    */
+
+    function toggle_pinned(){
+        toggle_comment_from_icon({pinned: !comment.pinned});
+    }
+    function toggle_highlighted(){
+        toggle_comment_from_icon({highlighted: !comment.highlighted});
+    }
+
+    function toggle_comment_from_icon(attributes){
+        const url = `${actions.url}?id=${comment.id}`;
+        const headers = getFetchHeaders('PUT', attributes);
+
+        update_server(url, headers, resp_data => {
+            if(status_is_good(resp_data, 204)){
+                actions.update_f(comment.id, attributes);
+            }
+            else {
+                backendErrorObj.set(get_error_message(resp_data));
+            }
+        });
+    }
+
+    return {
+        backend_error: backendErrorObj,
+        toggle_highlighted,
+        toggle_pinned,
+    }
+}
 
 
 // || Comment Editor
 function CommentEditor(props){
-    const [contents, setContents] = React.useState(props.comment.contents);
-    const [isPrivate, setPrivate] = React.useState(props.comment.private);
-    const [isPinned, setPinned] = React.useState(props.comment.pinned);
-    const [isHighlighted, setHighlighted] = React.useState(props.comment.highlighted);
+    const {
+        backend_error,
+        controlled,
+        handle_delete,
+        handle_submit,
+    } = useCommentEditor(props.actions, props.editor, props.comment);
+
+    return [
+        <Modal close={props.editor.off}>
+            <div class="commentEditor">
+                <h3 className={"modal_heading"}>Edit Comment</h3>
+                <div className={"modal_contents"}>
+                    <BackendErrorUI message = { backend_error.message }
+                                    turn_off_error = { backend_error.clear } />
+                    <form className={"commentEditor_form"}>
+
+                        <label for={"id_comment_contents"} className={"sr-only"}>Contents</label>
+                        <textarea 
+                            id="id_comment_contents" 
+                            className={"commentEditor_editText"}
+                            name="contents" 
+                            cols="30" rows="5" 
+                            value={ controlled.contents.get } 
+                            onChange={ controlled.contents.set }
+                        >
+                        </textarea>
+                        <CommentEditorCheckboxes
+                            controlled = { controlled }
+                        />
+                        <EditorControls 
+                            delete = { handle_delete }
+                            submit = { (e) => { e.preventDefault(); handle_submit() } } 
+                            want_delete = { true }
+                        />
+                    </form>
+                </div>       
+            </div>
+        </Modal>
+    ]
+}
+
+
+function CommentEditorCheckboxes({ controlled }){
+    return  <div class="commentEditor_checkboxesContainer">
+                <CheckboxWithLabel
+                    idStr = { 'id_private_checkbox' }
+                    labelStr = { "Private" }
+                    isChecked = { controlled.private.get }
+                    onChange = { controlled.private.set }
+                />
+                <CheckboxWithLabel
+                    idStr = { 'id_pinned_checkbox' }
+                    labelStr = { "Pin" }
+                    isChecked = { controlled.pinned.get }
+                    onChange = { controlled.pinned.set }
+                />
+                <CheckboxWithLabel
+                    idStr = { 'id_highlighted_checkbox' }
+                    labelStr = { "Highlight" }
+                    isChecked = { controlled.highlighted.get }
+                    onChange = { controlled.highlighted.set }
+                />
+            </div>
+}
+
+
+function CheckboxWithLabel({idStr, labelStr, isChecked, onChange }){
+    return  <div className={"checkboxWithLabel"}>
+                <label 
+                    for={ idStr }
+                    className={"checkboxWithLabel_label"}
+                >
+                    { labelStr }
+                </label>
+                <input 
+                    type="checkbox" 
+                    id={ idStr } 
+                    checked={ isChecked } 
+                    onChange={ onChange }
+                >
+                </input>
+            </div>
+}
+
+
+function useCommentEditor(actions, editor, comment){
+    const [contents, setContents] = React.useState(comment.contents);
+    const [isPrivate, setPrivate] = React.useState(comment.private);
+    const [isPinned, setPinned] = React.useState(comment.pinned);
+    const [isHighlighted, setHighlighted] = React.useState(comment.highlighted);
 
     function handle_content_change(e){
         setContents(e.target.value);
@@ -327,13 +416,13 @@ function CommentEditor(props){
     }
 
     const save_comment = () => {
-        const url = `${props.actions_comments.url}?id=${props.comment.id}`;
+        const url = `${ actions.url }?id=${ comment.id }`;
         const headers = getFetchHeaders('PUT', state_to_object_be());
         
         update_server(url, headers, resp_data => {
             if(status_is_good(resp_data, 204)){
-                props.actions_comments.update_f(props.comment.id, state_to_object_fe());
-                props.editor.off();
+                actions.update_f(comment.id, state_to_object_fe());
+                editor.off();
             }
             else {
                 backend_error.set(get_error_message(resp_data));
@@ -359,12 +448,12 @@ function CommentEditor(props){
     }
 
     function delete_comment(){
-        const url = `${props.actions_comments.url}&id=${props.comment.id}`;
+        const url = `${ actions.url }&id=${ comment.id }`;
         const headers = getFetchHeaders('DELETE', null);
 
         update_server(url, headers, resp_data => {
             if(status_is_good(resp_data, 204)){
-                props.actions_comments.delete_f(props.comment.id);
+                actions.delete_f(comment.id);
             }
             else{
                 backend_error.set(get_error_message(resp_data));
@@ -373,44 +462,10 @@ function CommentEditor(props){
         });
     }
 
-    return <CommentEditorUI backend_error = { backend_error }
-                            controlled = { controlled }
-                            editor = { props.editor }
-                            handle_delete = { handle_delete }
-                            handle_submit = { handle_submit }     
-                            />
-}
-
-function CommentEditorUI(props){
-    return [
-        <div class="job-comment-cu-container panel form-like">
-            <button class="close" onClick={ props.editor.off }><span>close</span></button>
-            <h4>Edit Comment</h4>
-            <BackendErrorUI message = { props.backend_error.message }
-                            turn_off_error = { props.backend_error.clear } />
-            <textarea id="id_comment_contents" name="contents" cols="30" rows="5" value={ props.controlled.contents.get } onChange={ props.controlled.contents.set }></textarea>
-            <CommentEditorCheckboxes controlled = { props.controlled } />
-            <EditorControls delete = { props.handle_delete }
-                            submit = { props.handle_submit } 
-                            want_delete = { true }
-                            />
-        </div>
-    ]
-}
-
-function CommentEditorCheckboxes(props){
-    const ID_COMMENT_CHECKBOX_PRIVATE = 'id_private_checkbox';
-    const ID_COMMENT_CHECKBOX_PINNED = 'id_pinned_checkbox';
-    const ID_COMMENT_CHECKBOX_HIGHLIGHTED = 'id_highlighted_checkbox';
-
-    return [
-        <div class="checkbox-container">
-            <label for={ID_COMMENT_CHECKBOX_PRIVATE}>Private</label>
-            <input type="checkbox" id={ID_COMMENT_CHECKBOX_PRIVATE} checked={ props.controlled.private.get } onChange={ props.controlled.private.set }></input>
-            <label for={ID_COMMENT_CHECKBOX_PINNED}>Pin</label>
-            <input type="checkbox" id={ID_COMMENT_CHECKBOX_PINNED} checked={ props.controlled.pinned.get } onChange={ props.controlled.pinned.set }></input>
-            <label for={ID_COMMENT_CHECKBOX_HIGHLIGHTED}>Highlight</label>
-            <input type="checkbox" id={ID_COMMENT_CHECKBOX_HIGHLIGHTED} checked={ props.controlled.highlighted.get } onChange={ props.controlled.highlighted.set }></input>
-        </div>
-    ]
+    return {
+        backend_error,
+        controlled,
+        handle_delete,
+        handle_submit,
+    }
 }
