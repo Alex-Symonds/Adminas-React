@@ -20,10 +20,51 @@ $body_margin_desktop: 8px;
 
 $c_bg_main: rgb(34, 35, 36);
 $g_bg_main: linear-gradient(45deg, rgb(34, 35, 36) 0%, rgb(40, 40, 41) 35%, rgb(56, 58, 58) 100%);
+//$g_bg_modal: linear-gradient(45deg, rgb(34, 35, 36) 35%, rgb(39, 40, 41) 100%);
+$g_bg_modal: linear-gradient(45deg, rgb(48, 50, 51) 35%, rgb(57, 58, 59) 100%);
+
 $c_txt_main: #F6F6F6;
 $c_txt_main_highlight: white;
 $c_txt_alt: #2b2727;
 $c_txt_alt_highlight: #222;
+
+// Tailwind pallette naming scheme: gradually convert to this
+$c_accent-50: #ebfeff;
+$c_accent-100: #cefcff;
+$c_accent-200: #a2f6ff;
+$c_accent-300: #63edfd;
+$c_accent-400: #1cd9f4;
+$c_accent-500: #00D4F5;
+$c_accent-600: #0396b7;
+$c_accent-700: #0a7894;
+$c_accent-800: #126078;
+$c_accent-900: #145065;
+$c_accent-950: #063546;
+
+$c_tone_50: #f6f6f6;
+$c_tone_100: #e7e7e7;
+$c_tone_200: #d1d1d1;
+$c_tone_300: #b0b0b0;
+$c_tone_400: #888888;
+$c_tone_500: #6d6d6d;
+$c_tone_600: #5d5d5d;
+$c_tone_700: #555555;
+$c_tone_800: #454545;
+$c_tone_900: #3d3d3d;
+$c_tone_950: #262626;
+
+$c_secondary-50: #eefff7;
+$c_secondary-100: #d6ffee;
+$c_secondary-200: #b0ffde;
+$c_secondary-300: #73ffc4;
+$c_secondary-400: #2ff9a3;
+$c_secondary-500: #0dfa96;
+$c_secondary-600: #00bc6a;
+$c_secondary-700: #029356;
+$c_secondary-800: #087347;
+$c_secondary-900: #095e3d;
+$c_secondary-950: #003520;
+
 
 $c_tone_00: #141414;
 $c_tone_01: #222;
@@ -34,26 +75,15 @@ $c_tone_05: #AAA;
 $c_tone_06: #BBB;
 $c_tone_07: #F6F6F6;
 
-$c_accent: #00D4F5;
+$c_accent: $c_accent-500;
 $c_accent_04: #6bfaff;
 $c_accent_03: #4ADFF7;
 $c_accent_02: #00c2e0;
 $c_accent_01: #006675;
 
-// Tailwind pallette naming scheme: gradually convert to this
-$c_accent-50: #ebfeff;
-$c_accent-100: #cefcff;
-$c_accent-200: #a2f6ff;
-$c_accent-300: #63edfd;
-$c_accent-400: #1cd9f4;
-$c_accent-500: $c_accent;
-$c_accent-600: #0396b7;
-$c_accent-700: #0a7894;
-$c_accent-800: #126078;
-$c_accent-900: #145065;
-$c_accent-950: #063546;
-
-
+$c_accent_secondary: $c_secondary-500;
+$c_accent_secondary_02: #067A4A;
+$c_accent_secondary_03: #09BA70;
 
 $c_txt_on_accent: black;
 $g_accent_main: linear-gradient(135deg, $c_accent_02 0%, $c_accent 75%, $c_accent_04 100%);
@@ -62,10 +92,6 @@ $g_accent_main_background: linear-gradient(135deg, rgb(48, 48, 48) 75%,  $c_acce
 $g_button_main: linear-gradient(45deg, $c_accent_03 0%, $c_accent 50%, $c_accent_02 100%);
 $g_button_hover: linear-gradient(135deg, $c_accent_04, $c_accent_03 66%, $c_accent 100%);
 $g_button_focus: linear-gradient(135deg, $c_accent-200, $c_accent-300 45%, $c_accent 100%);
-
-$c_accent_secondary: #0DFA96;
-$c_accent_secondary_02: #067A4A;
-$c_accent_secondary_03: #09BA70;
 
 $g_button_secondary: linear-gradient(335deg, #0AC778 0%,  #0DFA96 100%);
 
@@ -92,3 +118,15 @@ $shadow_popout:  0 0 1rem 1.5rem rgba(black, 40%);
 $panel_shadow: 0 0 10px 1px rgba(black, 85%);
 $panel_shadow_highlight: 0 0 10px 1px rgba($c_accent, 50%);
 
+
+@mixin visually-hidden{
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}

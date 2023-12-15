@@ -1004,14 +1004,14 @@ def api_data(request):
             return respond_with_error(component_name)
 
         response_data = {}
-        if component_name == 'comments':
-            setting_for_order_by = '-created_on'
-            response_data['url'] = f"{reverse('comments_page')}?job_id={job.id}"
-            response_data['api'] = reverse('api_comments')
-            response_data['username'] = request.user.username
-            response_data['comments'] = job.get_all_comments(request.user, setting_for_order_by)
+        # if component_name == 'comments':
+            # setting_for_order_by = '-created_on'
+            # response_data['url'] = f"{reverse('comments_page')}?job_id={job.id}"
+            # response_data['api'] = reverse('api_comments')
+            # response_data['username'] = request.user.username
+            # response_data['comments'] = job.get_all_comments(request.user, setting_for_order_by)
 
-        elif component_name == 'details':
+        if component_name == 'details':
             response_data = job.get_dict()
             response_data['url'] = reverse('job_editor_page') + '?job=' + str(job.id)
 
@@ -1023,13 +1023,22 @@ def api_data(request):
             response_data['doc_list'] = doc_list
 
         elif component_name == 'heading':
+            jobDict = job.get_dict()
             response_data['names'] = {
-                'job_name': job.name,
-                'customer_name': job.customer.name
+                'job_name': jobDict['name'],
+                'customer_name': jobDict['customer'],
+                'agent_name': jobDict['agent']
             }
 
         elif component_name == 'job_page_root':
             response_data = get_dict_job_page_root(job)
+
+            setting_for_order_by = '-created_on'
+            response_data['comments_url'] = f"{reverse('comments_page')}?job_id={job.id}"
+            response_data['comments_api'] = reverse('api_comments')
+            response_data['username'] = request.user.username
+            response_data['comments'] = job.get_all_comments(request.user, setting_for_order_by)
+
 
         elif component_name == 'todo':
             response_data['url'] = reverse('api_todo_list')

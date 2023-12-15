@@ -23,7 +23,7 @@ function JobDetails(props){
 
 function JobDetailsUI(props){
     return [
-        <section id="job_details" class="job-section">
+        <section className={"job-section jobDetails"}>
             <h3>General Details</h3>
             <div class="extended-subheading">
                 <a href={ props.data.url } class="edit-icon"><span>edit</span></a>
@@ -73,8 +73,9 @@ function JobDetailsDeliverySectionUI(props){
 
 function JobDetailsReadRowUI(props){
     return [
-        <div class="read_row">
-            <span class="row-label">{props.heading}: </span>{props.value}
+        <div className={"read_row jobDetails_row"}>
+            <span class="row-label">{props.heading}: </span>
+            <span>{props.value}</span>
         </div>
     ]
 }

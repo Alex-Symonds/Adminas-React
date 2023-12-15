@@ -7,11 +7,20 @@
         || Buttons and Controls
         || Price Comparison Table
         || Select
+        || Other Form Components
         || Package Data and Methods
         || Backend Data Loading
         || Backend Data Updating
         || Generic functions for updating states
 */
+
+// || Status Code constants
+// Notes:
+//  >> matching declarations exist in models.py
+//  >> these are directly used as CSS classes.
+const STATUS_CODE_OK = 'status_ok';
+const STATUS_CODE_ACTION = 'status_action';
+const STATUS_CODE_ATTN = 'status_attn';
 
 
 // || Strings and Formatting
@@ -35,6 +44,12 @@ function format_percentage(perc, min_digits = 0){
         return '-%';
     }
     return perc.toLocaleString(undefined, {minimumFractionDigits: min_digits, maximumFractionDigits: 2}) + '%';
+}
+
+function format_timestamp(timeStr){
+    const timeDate = new Date(timeStr);
+
+    return `${timeDate.getFullYear()}-${timeDate.getMonth().toString().padStart(2, '0')}-${timeDate.getDate().toString().padStart(2, '0')}`;
 }
 
 
@@ -83,9 +98,14 @@ function WarningSubsection(props){
 }
 
 // || Buttons and Controls
-function SubmitButton(props){
-    // Needs submit()
-    return <button class="button-primary" onClick={ props.submit }>submit</button>
+function SubmitButton({submit, cssClasses}){
+    const css = cssClasses ?? "";
+    return  <button 
+                className={`button-primary ${ css }`}
+                onClick={ submit }
+            >
+                submit
+            </button>
 }
 
 function DeleteButton(props){
@@ -93,7 +113,9 @@ function DeleteButton(props){
     if(!props.user_has_permission){
         return null;
     }
-    return <button class="button-warning delete-btn" onClick={ props.delete }>delete</button>
+    return  <button type={"button"} class="button-warning delete-btn formControls_button" onClick={ props.delete }>
+                delete
+            </button>
 }
 
 function CancelButton(props){
@@ -102,16 +124,20 @@ function CancelButton(props){
 }
 
 function EditorControls(props){
-    // Needs sumbit(), delete(), want_delete
+    // Needs sumbit(), delete(), want_delete, bemClass
     return [
-        <div class="controls">
-            <SubmitButton   submit = { props.submit }/>
-            <DeleteButton   delete = { props.delete } 
-                            user_has_permission = { props.want_delete }  />
+        <div className={`controls formControls${props.bemClass === undefined ? "" : " " + props.bemClass}`}>
+            <SubmitButton   
+                submit = { props.submit }
+                cssClasses={"formControls_submit"}
+            />
+            <DeleteButton  
+                delete = { props.delete } 
+                user_has_permission = { props.want_delete }  
+            />
         </div>
     ]
 }
-
 
 
 // || Price Comparison Table
@@ -163,7 +189,7 @@ function SelectBackendOptions(props){
 
     else{
         return [
-            <select name={props.select_name} id={props.select_id} required={props.is_required} onChange={ props.handle_change }>
+            <select className={`formy_select${props.cssClasses === undefined ? "" : " " + props.cssClasses}`} name={props.select_name} id={props.select_id} required={props.is_required} onChange={ props.handle_change }>
                 <OptionEmptyDefaultUI selected_opt_id = {props.selected_opt_id}/>
                 {
                     data.opt_list.map((option) => {
@@ -191,6 +217,21 @@ function OptionIdAndNameUI(props){
     }
     return <option value={props.id}>{props.name}</option>
 }
+
+
+// || Other Form Components
+function FormLabel(props){
+    return  <label for={props.inputID} className={"formy_label"}>
+                { props.children }
+            </label>
+}
+
+function LabelFieldContainer({children}){
+    return  <div className={"formy_labelFieldContainer"}>
+                { children }
+            </div>
+}
+
 
 
 // || Package Data and Methods
@@ -280,6 +321,24 @@ function set_if_ok(data, key, setter){
 }
 
 
+function get_if_defined(data, key, fallback){
+    if(typeof data[key] !== 'undefined'){
+        return data[key];
+    }
+    return fallback;
+}
+
+function getUpdatedObjectFromList(name, list, ID_KEY, idToUpdate, new_attributes){
+    const oldIdx = list.findIndex(ele => ele[ID_KEY] === idToUpdate);
+    if(oldIdx === -1){
+        throw Error(`Unrecognised ${name} cannot be edited`);
+    }
+    return {
+        ...list[oldIdx],
+        ...new_attributes
+    };
+}
+
 
 
 
@@ -359,4 +418,13 @@ function add_to_list_state(setListState, attributes){
         ...prevState,
         attributes
     ]));
+}
+
+function getUpdatedList(list, id_key, id, new_attributes){
+    return list.map(ele => {
+        if(ele[id_key] === id){
+            return new_attributes;
+        }
+        return ele;
+    });
 }
