@@ -163,6 +163,9 @@ function get_error_message(error_info, task_failure_string = null){
 
 
 function prefer_response_error_to_task_error(response_code){
+    // Note to self: you have some generic error messages based on the response code,
+    // but also some tasks actually make their own custom error messages. 
+
     // A "good" status code means the server is happy, which means the task itself succeeded.
     // That means the task-related error message is flat-out *wrong* and should not be displayed to the user.
     // Prefer the response error message, whatever it is (even a blank would be preferable).

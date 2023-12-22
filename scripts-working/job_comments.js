@@ -52,6 +52,7 @@ const CLASS_PREFIX_FOR_COMMENT_ID = 'id-';
 const CLASS_PRIVACY_STATUS = 'privacy-status';
 const CLASS_SAVE_BTN = 'save';
 const CLASS_STREAMLINED_WANTED = 'streamlined';
+const CLASS_TODO_HAS_JOB_ID = 'todoJob';
 const DEFAULT_COMMENT_ID = '0';
 const ID_COMMENT_TEXTAREA = 'id_comment_contents';
 const ID_COMMENT_CHECKBOX_HIGHLIGHTED = 'id_highlighted_checkbox';
@@ -284,18 +285,24 @@ function populate_ele_jobcomment_editor_with_existing(editor_ele, comment_ele, w
 
 
 function html_tags_to_newlines(str){
-    // Remove leading <p> to avoid an unwanted gap at the top
+    // Prep: Remove leading <p> to avoid an unwanted gap at the top
     if(str.slice(0,3) == '<p>'){
         str = str.slice(3);
     }
 
-    // Remove all '\n's (to regain control, if any were added automatically) and '</p>'s (unwanted)
-    str = str.replaceAll(/(\n|<\/p>)/g, '');
+    // Prep: Remove all '\n's (to regain control, if any were added automatically) and '</p>'s (unwanted)
+    str = str.replaceAll('\n', '');
+    str = str.replaceAll('</p>', '')
 
-    str = str.replaceAll(/<p>/g, '\n\n');
-    str = str.replaceAll(/<br>/g, '\n');
+    // Swap everything newliney for newlines
+    str = str.replaceAll('<p>', '\n\n');
+    str = str.replaceAll('<br>', '\n');
+    str = str.replaceAll('<br/>', '\n');
+    str = str.replaceAll('<br />', '\n');
+
     return str;
 }
+
 
 function newlines_to_html_tags(str){
     let paragraphs = str.replaceAll('\n\n', '</p><p>');
@@ -498,6 +505,11 @@ function get_job_id_for_comments(ele_in_job_panel){
     if(job_panel !== null){
         return job_panel.dataset.job_id;
     }
+
+    let todoJobEle = ele_in_job_panel.closest(`.${CLASS_TODO_HAS_JOB_ID}`);
+    if(todoJobEle !== null){
+        return todoJobEle.dataset.job_id;
+    }
     
     return -1;
 }
@@ -526,6 +538,7 @@ function update_job_page_comments_after_create(comment_obj){
     }
 
     remove_all_jobcomment_warnings();
+    update_todo_list_row_pinned(comment_obj, 'create');
 }
 
 
@@ -537,6 +550,7 @@ function update_job_page_comments_after_update(response){
     });
 
     update_comment_presence_in_all_filtered_sections(response);
+    update_todo_list_row_pinned(response, 'update');
 }
 
 
@@ -546,6 +560,7 @@ function update_job_page_comments_after_delete(comment_id){
         ele.remove();
         handle_section_emptiness(container);
     });
+    update_todo_list_row_pinned({id: comment_id}, 'delete');
 }
 
 
@@ -872,6 +887,8 @@ function update_frontend_for_comment_toggle(comment_ele, new_status, toggled_att
     else{
         remove_comment_from_section(class_to_find_comment, toggled_attribute);
     }
+
+    toggle_todo_list(comment_ele, new_status, toggled_attribute);
 }
 
 
@@ -925,7 +942,7 @@ function update_comment_pinned_button(pinned_btn, is_pinned_now){
 
 function add_comment_to_section(class_to_find_comment, section_name, comment_data = null){
     let all_section_instances = document.querySelectorAll(`.${CLASS_COMMENTS_CONTAINER}.${section_name}`);
-    if(all_section_instances.length == 0){
+    if(all_section_instances === null || all_section_instances.length == 0){
         return;
     }
 
@@ -980,7 +997,7 @@ function get_comment_data_from_comment_ele(ele){
     let result = {};
     result['id'] = ele.dataset.comment_id;
     result['footer_str'] = ele.querySelector(`.${CLASS_COMMENT_OWNERSHIP}`).innerHTML.trim();
-    result['contents'] = ele.querySelector(`.${CLASS_COMMENT_CONTENTS}`).innerHTML.trim();
+    result['contents'] = html_tags_to_newlines(ele.querySelector(`.${CLASS_COMMENT_CONTENTS}`).innerHTML.trim());
     result['private'] = ele.dataset.is_private.toLowerCase() == 'true';
     result['pinned'] = ele.dataset.is_pinned.toLowerCase() == 'true';
     result['highlighted'] = ele.dataset.is_highlighted.toLowerCase() == 'true';
@@ -1003,7 +1020,7 @@ function find_comment_section_ele(all_section_instances, job_id, section_name){
     }
 
     if(job_id > 0){
-        let id_to_find_job_panel = `${ID_PREFIX_JOB_PANEL_ON_TODO_LIST}${comment_data['job_id']}`;
+        let id_to_find_job_panel = `${ID_PREFIX_JOB_PANEL_ON_TODO_LIST}${job_id}`;
         let job_panel = document.getElementById(id_to_find_job_panel);
         if(job_panel !== null){
             return job_panel.querySelector(`.${CLASS_COMMENTS_CONTAINER}.${section_name}`);
@@ -1030,6 +1047,22 @@ function handle_section_emptiness(comment_section_ele, section_name=STR_FALLBACK
 
 
 function get_settings_comment_section_emptiness(comment_section_ele, section_is_empty){
+    /*
+    Use Case #1 (Persistent):
+    Space is only allocated to comments when there are comments to display. When it
+    becomes empty, the comment section should collapse to nothing, therefore any other 
+    contents - so far, just a heading - should be removed. When it ceases to be 
+    empty, all the other contents must be re-added too.
+       
+    Use Case #2 (Not Persistent):
+    There is a space on the page for comments, which is always there. When it becomes
+    empty it should display a message declaring its emptiness (so it's clear nothing
+    has gone wrong). When it ceases to be empty, this message should be removed.
+
+    Commonalities:
+    Both need to do something when the section becomes or ceases to be empty.
+    Both need to "add stuff" in one situation and "remove stuff" in the other.
+    */
     // Settings for added/removed comment sections
     if(comment_section_ele.classList.contains(CLASS_EMPTINESS_NOT_PERSISTENT)){
         return {

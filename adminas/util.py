@@ -521,9 +521,6 @@ def create_job(jobform, user):
     """
     Add one Job, based on a pre-validated form.
     """
-    site_to_invoice = jobform.cleaned_data['invoice_site']
-    site_to_deliver = jobform.cleaned_data['delivery_site']
-
     new_job = adminas.models.Job(
         created_by = user,
         name = jobform.cleaned_data['name'],
@@ -536,8 +533,8 @@ def create_job(jobform, user):
         payment_terms = jobform.cleaned_data['payment_terms'],
         incoterm_code = jobform.cleaned_data['incoterm_code'],
         incoterm_location = jobform.cleaned_data['incoterm_location'],
-        invoice_to = site_to_invoice.current_address(),
-        delivery_to = site_to_deliver.current_address()
+        invoice_to =  jobform.cleaned_data['invoice_to'],
+        delivery_to = jobform.cleaned_data['delivery_to'],
     )
 
     new_job.save()
