@@ -26,7 +26,10 @@ body{
 }
 
 body {
-    margin: v.$body_margin_mobile;
+    --bodyMargin: #{v.$body_margin_mobile};
+    box-sizing: border-box;
+
+    margin: var(--bodyMargin);
     font-family: v.$f_contents;
     background: v.$c_bg_main;
     background: v.$g_bg_main;
@@ -38,7 +41,10 @@ button{
     font-family: v.$f_contents;
 
     background: transparent;
+
+    border: none;
 }
+
 
 a{
     color: v.$c_accent;
@@ -80,6 +86,11 @@ h3{
     width: 100%;
     padding: 0.4rem 0 0.3rem 0;
     border-bottom: 1px solid v.$c_tone_03;
+}
+
+h4{
+    margin: 0;
+    padding: 0;
 }
 
 input,
@@ -176,15 +187,18 @@ article{
 
 // || Page layout
 .page_container{
+    --pageContainerBaseWidth: 96vw;
+    --pageContainerWidth: calc(var(--pageContainerBaseWidth) - var(--bodyMargin) * 2);
+
     margin: 0;
-    width: 100%;
+    width: var(--pageContainerWidth);
 }
+
 @media screen and (min-width: 500px){
     body{
-        margin: v.$body_margin_desktop;
+        --bodyMargin: #{v.$body_margin_desktop};
     }
     .page_container{
-        width: 96%;
         margin: 0 auto 0;
     } 
 }
@@ -1374,7 +1388,7 @@ fieldset.form-row{
 }
 
 
-// || Responsive table (i.e. switches from a table to formatted rows when the screen is too narrow)
+// || Responsive tables (i.e. switches from a table to formatted rows when the screen is too narrow)
 .banded{
     tbody tr:nth-of-type(even){ 
         background: v.$c_tone_02;
@@ -1819,6 +1833,89 @@ fieldset.form-row{
     }
 }
 
+
+.statusEle{
+    display: block;
+    background: v.$c_tone_01;
+
+    &_icon{
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        background: v.$c_tone_04;
+        border-color: transparent;
+        height: v.px-to-rem(20);
+        width: v.px-to-rem(22);
+
+        font-weight: bold;
+
+        &-status_action{
+            color: v.$c_tone_01;
+            background: v.$c_accent-500;
+
+            &:hover{
+                background: v.$c_accent-300;
+            }
+        }
+        &-status_ok{
+            background: v.$c_secondary-800;
+            border-right: 1px solid v.$c_secondary-800;
+
+            &:hover{
+                background: v.$c_secondary-600;
+            }
+        }
+        &-status_attn{
+            color: v.$c_tone_01;
+            background: v.$c_flag_special;
+
+            &:hover{
+                background: v.$c_flag_special_bright;
+            }
+        }
+        &-status_warning{
+            color: v.$c_tone_01;
+            background: v.$c_warning;  
+
+            &:hover{
+                background: v.$c_warning_bright;
+            }
+        }
+    }
+
+    &_message{
+        position: absolute;
+        z-index: 50;
+        background: v.$c_tone_00;
+        border: 2px solid v.$c_tone-200;
+        padding: v.px-to-rem(4) v.px-to-rem(8);
+        box-shadow: 0 0 v.px-to-rem(12) v.px-to-rem(3) rgba(black, 0.2);
+
+        &-status_action{
+            border-color: v.$c_accent-500;
+        }
+        &-status_ok{
+            border-color: v.$c_secondary-800;
+        }
+        &-status_attn{
+            border-color: v.$c_flag_special;
+        }
+        &-status_warning{
+            border-color: v.$c_warning;
+        }
+        &-hidden{
+            display: none;
+            top: -9999px;
+            left: -9999px;
+        }
+    }
+
+
+
+}
+
+
 .status-ele{
     display: block;
     background: v.$c_tone_01;
@@ -1948,7 +2045,9 @@ fieldset.form-row{
     background: v.$g_bg_modal;
     color: v.$c_txt_main;
 
+    position: relative;
     &_closeButton{
+        position: absolute;
         top: v.px-to-rem(2);
         right: v.px-to-rem(2);
         z-index: 101;

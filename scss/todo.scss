@@ -1,102 +1,458 @@
 @use "variables" as v;
 
-/*  To-Do list formatting.
-    Contents:
-        || Layout
-        || Pinned comments section
-        || Common CSS adjustments (panel)
+/*  
+    To-Do list formatting, including the pinned comments modal.
 */
 
-// || Layout
-#id_todo_list_container{
-    display: flex;
-    flex-direction: row;
-    align-items: flex-start;
-    flex-wrap: wrap;
+$breakpoint_stacked_to_row: 895px;
+$breakpoint_set_min_modal_size: 650px;
+
+.empty-section-notice{
+    padding: 0.2rem 0.75rem;
 }
 
-// || Pinned comments section
-.comments{
-    h5{
+.todoList{
+    width: 100%;
+    box-sizing: border-box;
+
+    --borderRadius: #{v.px-to-rem(6)};
+
+    --cellPaddingY: #{v.px-to-rem(12)};
+    --cellPaddingX: #{v.px-to-rem(12)};
+
+    --colW-remove: #{v.px-to-rem(42)};
+    --colW-jobID: #{v.px-to-rem(150)};
+    --numStatuses: 5;
+    --statusIconW: #{v.px-to-rem(22)};
+    --statusIconGap: #{v.px-to-rem(3)};
+    --colW-status: calc(var(--statusIconW) * var(--numStatuses) + var(--statusIconGap) * (var(--numStatuses) - 1) + var(--cellPaddingX) * 2);
+    --colW-summary: calc((100% - var(--colW-jobID) - var(--colW-status)) / 5 * 2);
+    --colW-pinned: calc(100% - var(--colW-jobID) - var(--colW-status) - var(--colW-summary));
+
+    --gridCols: var(--colW-jobID) var(--colW-summary) var(--colW-status) var(--colW-pinned);
+    --cellPadding: var(--cellPaddingY) var(--cellPaddingX);
+    --rowHeight: #{v.px-to-rem(40)};
+
+    &_head{
+        display: none;
+    }
+
+    &_container{
+        display: flex;
+        flex-direction: column;
+        gap: v.px-to-rem(16);
+        padding: v.px-to-rem(16) 0;
+    }
+
+}
+
+.todoJob{
+    display: flex;
+    flex-direction: column;
+    justify-content: stretch;
+    box-sizing: border-box;
+    max-width: calc(var(--pageContainerWidth) - #{v.px-to-rem(8)});
+    box-shadow: 0 v.px-to-rem(2) v.px-to-rem(12) v.px-to-rem(3) rgba(black, .2);
+
+    border-radius: var(--borderRadius);
+    border: 1px solid v.$c_tone-600;
+
+    position: relative;
+    &_tdRemove{
+        position: absolute;
+        top: 0;
+        right: v.px-to-rem(4);
+
+        box-sizing: border-box;
+
+        display: flex;
+        align-items: center;
+        justify-content: start;
+
+        .delete-panel{
+            float: none;
+            margin: 0;
+            padding: 0;
+            width: v.px-to-rem(25);
+        }
+    }
+    &_id{
+        color: v.$c_txt_main;
+
+        // Goal: nudge down a bit so the baseline of the text looks centered
+        position: relative;
+        top: v.px-to-rem(2);
+    }
+    &_tdID{
+        box-sizing: border-box;
+
+        padding: 0;
+        a{
+            border-top-left-radius: var(--borderRadius);
+            border-top-right-radius: var(--borderRadius);
+            padding: var(--cellPadding);
+            color: v.$c_txt_main;
+            text-decoration: none;
+            background: v.$c_tone-500;
+            background: linear-gradient(180deg, v.$c_tone-500 0%, v.$c_tone-600 100%);
+            height: 100%;
+            box-sizing: border-box;
+            font-size: 1rem;
+            line-height: 1rem;
+
+            display: flex;
+            align-items: center;
+
+            &:hover{
+                background: v.$c_tone-400;
+                background: linear-gradient(180deg, v.$c_tone-400 0%, v.$c_tone-500 100%);
+            }
+        }
+
+    }
+    &_tdSummary{
+        box-sizing: border-box;
+
+        padding: 0;
+        a{
+            color: v.$c_txt_main;
+            text-decoration: none;
+            padding: var(--cellPadding);
+            background: v.$c_tone-800;
+            background: linear-gradient(180deg, v.$c_tone-800 0%, v.$c_tone-900 100%);
+            display: block;
+            box-sizing: border-box;
+            height: 100%;
+
+            &:hover{
+                background: v.$c_tone-700;
+                background: linear-gradient(180deg, v.$c_tone-700 0%, v.$c_tone-800 100%);
+            }
+        }
+    }
+    &_summaryText{
+        position: relative;
+        top: 2px;
+    }
+    &_tdStatus{
+        box-sizing: border-box;
+        padding: var(--cellPadding);
+        display: flex;
+        align-items: start;
+        gap: var(--statusIconGap);
+        background: v.$c_tone-800;
+        background: linear-gradient(180deg, v.$c_tone-800 0%, v.$c_tone-900 100%);
+
+        border-style: solid;
+        border-color: v.$c_tone-700;
+        border-width: 1px 0;
+    }
+    &_tdPinned{
+        box-sizing: border-box;
+        
+        background: v.$c_tone-800;
+        background: linear-gradient(180deg, v.$c_tone-800 0%, v.$c_tone-900 100%);
+
+        border-bottom-right-radius: var(--borderRadius);
+        border-bottom-left-radius: var(--borderRadius);
+        overflow: hidden;
+
+        display: flex;
+        gap: v.px-to-rem(4);
+        height: 100%;
+    }
+    &_pinnedHeading{
         margin: 0;
-        height: 1.8rem;
+        width: calc(1rem +  var(--cellPaddingX) * 2);
+        flex: 0 0 auto;
+        
+        background-image: url(../images/i-pin-filled-grey.svg);
+        background-repeat: no-repeat;
+        background-size: 1rem;
+        background-position: var(--cellPaddingY) var(--cellPaddingX);
+    }
 
-        border-top: 1px solid v.$c_tone_03;
+    &_pinnedComment{
+        width: 100%;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        gap: v.px-to-rem(8);
+        color: v.$c_txt_main;
+        border-style: solid;
+        border-color: transparent;
+        border-width: 0 0 0 4px;
 
+        background: v.$c_tone-800;
+        background: linear-gradient(45deg, v.$c_tone-800 0%, v.$c_tone-900 100%);
+
+        p{
+            margin: 0;
+        }
+
+        &-highlighted{
+            border-color: yellow;
+            background: v.$c_tone-700;
+            background: linear-gradient(45deg, rgba(white, .1) 0%, v.$c_tone-900 45%);
+        }
+
+        &-empty{
+            padding-left: v.px-to-rem(12);
+            border-color: v.$c_tone-800;
+            color: v.$c_tone-400;
+
+            &:hover{
+                color: v.$c_txt_main;
+            }
+        }
+
+        &:hover{
+            background: v.$c_tone-600;
+            background: linear-gradient(45deg, v.$c_tone-600 0%, v.$c_tone-700 100%);
+        }
+    }
+
+    &_pinnedPrivacyStatus{
+        display: none;
+    }
+
+    &_pinnedContents{
+        padding: var(--cellPaddingY) v.px-to-rem(6);
+        height: var(--rowHeight);
+        box-sizing: border-box;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        margin: 0;
+    }
+}
+
+.pinnedCommentsModal{
+    --heightHeading: #{v.px-to-rem(36)};
+    --spaceForAddingNew: #{v.px-to-rem(55)};
+    min-height: 40vh;
+    min-width: 17rem;
+    max-width: 100%;
+
+    position: relative;
+    &_heading{
+        margin: 0;
+        height: var(--heightHeading);
+        width: 100%;
+        box-sizing: border-box;
+        flex: 0 0 auto;
+        
         background-image: url(../images/i-pin-filled-grey.svg);
         background-color: v.$c_tone_02;
         background-repeat: no-repeat;
         background-size: 1rem;
-        background-position: 0.5rem center;
+        background-position: v.px-to-rem(12) center;
+
+        padding: v.px-to-rem(4) 0 0 v.px-to-rem(40);
+        font-size: v.px-to-rem(18);
+        font-weight: 700;
+        color: v.$c_tone-100;
+
+        display: flex;
+        align-items: center;
     }
 
-    .add-job-comment-simplified{
-        margin: 5px;
-        padding: 0.5rem;
-    }
-}
+    &_commentContainer{
+        --commentMarginY: #{v.px-to-rem(2)};
+        --commentBottomBorderWidth: #{v.px-to-rem(1)};
 
-p.empty-section-notice{
-    padding: 0.2rem 0.5rem;
-}
+        margin-bottom: var(--spaceForAddingNew);
 
+        max-height: calc(75vh - var(--spaceForAddingNew) - var(--heightHeading));
+        overflow-y: auto;
 
+        .one-comment{
+            padding: 0;
 
+            .wrapper{
+                margin: var(--commentMarginY) 5px;
+            }
 
+            .job-comment-cu-container{
+                background: v.$c_tone_950;
+                border-style: solid;
+                border-color: v.$c_tone-800;
+                border-width: 1px 0;
+                border-radius: 0;
 
-// || Common CSS adjustments
-.panel.job{
-    max-width: 400px;
-    box-shadow: v.$panel_shadow;
-
-    .panel-header{
-        border-bottom: none;
-    }
-
-    &:hover{
-        border: 1px solid v.$c_tone_06;
-        box-shadow: v.$panel_shadow_highlight;
-    }
-
-    .job-details p{
-        color: v.$c_txt_main;
-        margin: 0;
-        padding: 12px 10px;
-        background: v.$c_tone_02;
+                position: relative;
+                top: calc(0px - var(--commentMarginY) - var(--commentBottomBorderWidth));
+                padding-top: v.px-to-rem(5);
+            }
+        }
+        
     }
 
-    ul{
-        margin-top: 0;
-        margin-bottom: 0;
-        background: v.$c_accent_01;
-        color: v.$c_txt_main;
-        padding: 8px 24px;
-        border-top: 1px solid v.$c_accent;
-        border-bottom: 1px solid v.$c_accent;
+    &_addNewContainer{
+        border-top: 1px solid v.$c_tone-800;
+
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        padding: v.px-to-rem(8);
+        width: 100%;
+        box-sizing: border-box;
+
+        max-height: calc(100% - var(--heightHeading));
+        overflow-y: auto;
+
+        background: v.$c_tone_950;
     }
 
-    .comments{
-        border-top: 1px solid v.$c_tone_02;
-        margin: 0;
-        padding: 0;
-    }
-
-    .add-button.comment{
-        margin: 3px 5px;
-    }
-
-    .status-container{
-        margin: 0.3rem;
-
-        .status-ele{
-            margin-bottom: 0.3rem;
-            color: #f4f4f4;
+    .one-comment{
+        .main{
+            .contents p{
+                max-width: 70ch;
+            }
         }
     }
 
-    .temp-warning-msg{
-        position: absolute;
-        right: 0;
-        top: 2rem;
+    .job-comment-cu-container{
+        background: transparent;
+        border: none;
+    }
+
+    .create-comments-container .job-comment-cu-container{
+        margin: 0;
+    }
+    .panel{
+        margin: 0;
+        width: 100%;
     }
 }
+
+@media screen and (min-width: $breakpoint_set_min_modal_size){
+    .pinnedCommentsModal{
+        min-width: calc(#{$breakpoint_set_min_modal_size} - 12px);
+    }
+}
+
+@media screen and (min-width: $breakpoint_stacked_to_row){
+    .todoList{
+        max-width: 100%;
+
+        &_head{
+            display: table-header-group;
+        }
+
+        &_th{
+            padding: 0 v.px-to-rem(8) v.px-to-rem(6);
+            font-size: v.px-to-rem(20);
+        }
+
+        &_thRow{
+            /*
+                The 0px in grid-template-columns and the left margin are there to support:
+                    > A shadow around the row
+                    > The remove buttons being "loose" at the sides and not within that shadow
+    
+                This effect is achieved by absolute pos on the remove <td>, a margin on the row that's the same
+                width as the remove column would be, then positioning the remove button back where it was in the 
+                first place.
+            */
+            display: grid;
+            grid-template-columns: 0px var(--gridCols);
+            grid-template-rows: repeat(auto-fill, var(--rowHeight));
+            justify-items: start;
+            align-items: end; 
+            margin: 0 0 0 var(--colW-remove);
+        }
+
+        &_container{
+            gap: v.px-to-rem(8);
+            padding: 0;
+        }
+    }
+
+    .todoJob{
+        --spaceForRemove: var(--colW-remove);
+
+        display: grid;
+        grid-template-columns: var(--gridCols);
+        grid-template-rows: repeat(auto-fill, auto);
+        align-items: stretch;
+        justify-content: stretch;
+    
+        height: 100%;
+        width: calc(100% - var(--spaceForRemove));
+        max-width: 100%;
+        box-sizing: border-box;
+
+        border-width: 0;
+
+        // margin leaves space for absolute positioned remove button
+        // (which is needed to support the box-shadow around the rest of the row)
+        margin: 0 0 0 var(--spaceForRemove);
+
+        &_tdRemove{
+            right: auto;
+            left: calc(var(--spaceForRemove) * -1);
+            top: v.px-to-rem(6);
+    
+            .delete-panel{
+                span{
+                    right: auto;
+                    left: v.px-to-rem(28);
+                }
+            }
+        }
+
+        &_tdID a{
+            border-bottom-left-radius: var(--borderRadius);
+            border-top-right-radius: 0; 
+        }
+        &_tdPinned{
+            border-top-right-radius: var(--borderRadius);
+            border-bottom-left-radius: 0;
+        }
+        &_tdStatus{
+            border-width: 0;
+            background: v.$c_tone-700;
+            background: linear-gradient(180deg, v.$c_tone-700 0%, v.$c_tone-800 100%);
+        }
+        &_tdSummary{
+            a{
+                border-style: solid;
+                border-width: 0 1px;
+                border-color: transparent;
+                &:hover{
+                    border-color: v.$c_tone-600;
+                }
+            }
+        }
+        &_pinnedHeading{
+            height: 100%;
+        }
+        &_pinnedPrivacyStatus{
+            display: block;
+            margin: 4px 6px;
+    
+            min-width: 24px;
+            width: 24px;
+            height: 24px;
+            text-indent: -9999px;
+    
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: 24px 24px;
+            text-indent: -9999px;
+    
+            &-private{
+                background-image: url(../images/i-private-comment.svg);
+            }
+            &-public{
+                background-image: url(../images/i-speech-bubble.svg);
+            }
+        }
+        &_pinnedContents{
+            max-width: 100%;
+            padding: var(--cellPaddingY) 0;
+        }
+    }
+}
+

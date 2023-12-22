@@ -2095,6 +2095,7 @@ table.price-comparison{
 
     column-gap: v.px-to-rem(8);
     width: fit-content;
+    min-width: v.px-to-rem(300);
 
     &_heading{
         grid-area: heading;

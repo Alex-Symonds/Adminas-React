@@ -25,69 +25,115 @@
     {% else %}
     <h2>Home</h2>
     <h3>To-do List</h3>
-    <div id="id_todo_list_container">
-        {% for job in data %}
-        <article id="todo_panel_job_{{ job.id }}" class="panel job" data-job_id="{{ job.id }}">
-            <section class="job-details">
-                <button class="todo-list-remove delete-panel" data-job_id="{{ job.id }}"><span>remove</span></button>
-                <a href="{% url 'job' job.id %}">
-                    <h4 class="panel-header">{{ job.name }} <img src="{{ job.flag_url }}" alt="{{ job.flag_alt }}"></h4>
-                    <p>
-            {% if job.customer != None %}
+    <table class="todoList">
+        <thead class="todoList_head">
+            <tr class="todoList_thRow">
+                <th class="emptyTH"><span class="sr-only">remove from todo</span></th>
+                <th class="todoList_th">Job ID</th>
+                <th class="todoList_th">Summary</th>
+                <th class="todoList_th">Status</th>
+                <th class="todoList_th">Pinned Comments</th>
+            </tr>
+        </thead>
+        <tbody class="todoList_container">
+            {% for job in data %}
+            <tr id="todo_panel_job_{{ job.id }}" class="todoJob" data-job_id="{{ job.id }}">
+                <td class="todoJob_tdRemove">
+                    <button class="todo-list-remove delete-panel" data-job_id="{{ job.id }}"><span>remove</span></button>
+                </td>
+                <td class="todoJob_tdID">
+                    <a href="{% url 'job' job.id %}">
+                        <h4 class="todoJob_id">{{ job.name }} <img src="{{ job.flag_url }}" alt="{{ job.flag_alt }}"></h4>
+                    </a>
+                </td>
+                <td class="todoJob_tdSummary">
+                    <a href="{% url 'job' job.id %}">
+                        <span class="todoJob_summaryText">
+                    {% if job.customer != None %}
                         {{ job.customer }}{% if job.agent != None %} (via {% endif %}
-            {% endif %}
-            {% if job.agent != None %}
-                {{ job.agent }}{% if job.customer != None %}){% endif %}
-            {% endif %}
-         @ {{ job.currency }}&nbsp;{{ job.value }}
-                    </p>
+                    {% endif %}
+                    {% if job.agent != None %}
+                        {{ job.agent }}{% if job.customer != None %}){% endif %}
+                    {% endif %}
+                        @ {{ job.currency }}&nbsp;{{ job.value }}
+                        </span>
+                    </a>
+                </td>
+                <td class="todoJob_tdStatus">
+                    {% for status in job.status %}
+                    <div class="statusEle statusEle-todo">
+                        <button 
+                            type="button"
+                            class="statusEle_icon statusEle_icon-{{ status.0 }}"
+                            aria-label="status details" 
+                            data-toggletip_content="{{ status.1 }}"
+                        >
+                    {% if status.0 == 'status_ok' %}
+                            ok
+                    {% elif status.0 == 'status_attn' %}
+                            !
+                    {% elif status.0 == 'status_action' %}
+                            ?
+                    {% else %}
+                            -
+                    {% endif %}
+                            <span class="sr-only">click for details</span>
+                        </button>
+                        <span role="status" class="statusEle_message statusEle_message-{{status.0}} statusEle_message-todo">
+                        </span>
+                    </div>
+                {% endfor %}
+                </td>
+                <td class="todoJob_tdPinned">
+                    <div class="todoJob_pinnedHeading"><span class="hide">Pinned</span></div>
 
-            {% for status in job.status %}
-                {% if forloop.first %}
-                    <section class="status-container">
-                {% endif %}
+                    <button 
+                        data-target_id="id_pinned_comments_{{ job.id }}" 
+                        data-comment_id="{% if job.pinned_comments %}{{ job.pinned_comments.0.id }}{% else %}0{% endif %}"
+                        data-jobname="{{ job.name }}"
+                        class="pinnedModalOpener todoJob_pinnedComment 
+                    {% if job.pinned_comments %}
+                    {% with comment=job.pinned_comments.0 %}
+                                {% if comment.highlighted %}todoJob_pinnedComment-highlighted{% endif %}" 
+                    >
+                            <span class="sr-only">pinned comments for {{ job.name }}</span>
+                        {% if comment.private %}
+                            <span class="todoJob_pinnedPrivacyStatus todoJob_pinnedPrivacyStatus-private">[PRIVATE]</span>
+                        {% else %}
+                            <span class="todoJob_pinnedPrivacyStatus todoJob_pinnedPrivacyStatus-public">[public]</span>
+                        {% endif %}
+                            <p class="todoJob_pinnedContents">{{ comment.contents }}</p>
+                    {% endwith %}
+                    {% else %}
+                                todoJob_pinnedComment-empty" 
+                    >
+                            <p class="todoJob_pinnedContents">Click to add pinned comments</p>
+                    {% endif %}
+                    </button>
 
-                        <div class="status-ele {{ status.0 }}">
-                            <span class="icon">
-                {% if status.0 == 'status_ok' %}
-                                ok
-                {% elif status.0 == 'status_attn' %}
-                                !
-                {% elif status.0 == 'status_action' %}
-                                ?
-                {% else %}
-                                -
-                {% endif %}
-                            </span>
-                            <span class="message">{{ status.1 }}</span>
-                        </div>
-        
-                {% if forloop.last %}
+                    <section id="id_pinned_comments_{{ job.id }}" class="modalWrapper comments hide" data-url_comments="{% url 'api_comments' %}?job_id={{ job.id }}">
+                        <dialog class="modal pinnedCommentsModal">
+                            <button class="modal_closeButton close"><span>close</span></button>
+                            <h5 class="pinnedCommentsModal_heading"><span class="hide">Pinned </span>{{ job.name }}</h5>
+                            <section class="comment-container pinned streamlined persistent pinnedCommentsModal_commentContainer">
+                            {% if job.pinned_comments %}
+                            {% for comment in job.pinned_comments %}
+                                {% include "adminas/components/comment_collapse.html" with comment=comment %}
+                            {% endfor %}
+                            {% else %}
+                                <p class="empty-section-notice">No comments have been pinned.</p>
+                            {% endif %}
+                            </section>
+                            <div class="create-comments-container pinnedCommentsModal_addNewContainer">
+                                <button class="add-button comment comment-to-todolist pinnedCommentsModal_addNewButton" data-form_type="content-only">comment</button>
+                            </div>
+                        </dialog>
                     </section>
-                {% endif %}
+                </td>
+            </tr>
             {% endfor %}
-
-                </a>
-            </section>
-
-            
-            <section class="comments" data-url_comments="{% url 'api_comments' %}?job_id={{ job.id }}">
-            {% if job.pinned_comments %}
-                <h5><span class="hide">Pinned</span></h5>
-            {% endif %}
-                <section class="comment-container pinned streamlined not-persistent">
-            {% for comment in job.pinned_comments %}
-                    {% include "adminas/components/comment_collapse.html" with comment=comment %}
-            {% endfor %}
-                </section>
-                <div class="create-comments-container">
-                    <button class="add-button comment comment-to-todolist" data-form_type="content-only">comment</button>
-                </div>
-            </section>
-
-        </article>
-        {% endfor %}
-    </div>
+        </tbody>
+    </table>
     {% endif %}
 {% endblock %}
 

@@ -67,7 +67,9 @@ function jsMain() {
         /* Single-page files, but very small */
         `${PATH_WORKING_SCRIPTS}document_main.js`,
         `${PATH_WORKING_SCRIPTS}auto_address.js`,
-        `${PATH_WORKING_SCRIPTS}job_delete.js`
+        `${PATH_WORKING_SCRIPTS}job_delete.js`,
+        `${PATH_WORKING_SCRIPTS}todo_comments.js`,
+        `${PATH_WORKING_SCRIPTS}todo_status.js`,
       ],
       'main.js');
 }
