@@ -70,6 +70,7 @@ function jsMain() {
         `${PATH_WORKING_SCRIPTS}job_delete.js`,
         `${PATH_WORKING_SCRIPTS}todo_comments.js`,
         `${PATH_WORKING_SCRIPTS}todo_status.js`,
+        `${PATH_WORKING_SCRIPTS}modal.js`,
       ],
       'main.js');
 }

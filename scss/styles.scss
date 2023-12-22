@@ -815,10 +815,20 @@ fieldset.form-row{
 
     &_label{
         display: block;
-        margin: 0 0 v.px-to-rem(6) 0;
         padding-top:0.3rem;
         font-size: 1.1rem;
         font-weight: bold;
+    }
+
+    &_labelFieldContainer{
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+        align-items: start;
+
+        input{
+            margin: 0;
+        }
     }
 
     &_date,
