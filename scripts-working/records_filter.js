@@ -67,37 +67,63 @@ document.addEventListener('DOMContentLoaded', () => {
 async function open_filter_options(){
     let filter_container = document.getElementById(ID_FILTER_CONTROLS_CONTAINER);
     let filter_options_ele = await create_ele_filter_options();
-    filter_container.append(filter_options_ele);
+
+    const modal = create_generic_modal(filter_options_ele);
+    filter_container.append(modal);
+    open_modal(modal);
 }
 
-async function create_ele_filter_options(){
-    let filter_options_ele = create_generic_ele_formy_panel();
-    filter_options_ele.id = ID_FILTER_OPTIONS_ELE;
 
-    filter_options_ele.append(create_ele_filter_options_close_button());
+async function create_ele_filter_options(){
+    let filter_options_ele = document.createElement('form');
+    //filter_options_ele.classList.add(CSS_GENERIC_FORM_LIKE);
+    filter_options_ele.id = ID_FILTER_OPTIONS_ELE;
+    
     filter_options_ele.append(create_ele_filter_options_heading());
-    filter_options_ele.append(await create_ele_filter_options_body());
-    filter_options_ele.append(create_ele_filter_options_submit());
+
+    const ele = document.createElement('div');
+    ele.classList.add(CSS_MODAL_CONTENTS);
+    ele.classList.add("recordsFilter_formContents");
+    ele.classList.add("formy");
+
+    ele.append(await create_ele_filter_options_body());
+    ele.append(create_ele_filter_options_submit());
+
+    filter_options_ele.append(ele);
 
     return filter_options_ele;
 }
 
+// async function create_ele_filter_options(){
+//     let filter_options_ele = create_generic_ele_formy_panel();
+//     filter_options_ele.id = ID_FILTER_OPTIONS_ELE;
+//     filter_options_ele.classList.add()
+
+//     filter_options_ele.append(create_ele_filter_options_close_button());
+//     filter_options_ele.append(create_ele_filter_options_heading());
+//     filter_options_ele.append(await create_ele_filter_options_body());
+//     filter_options_ele.append(create_ele_filter_options_submit());
+
+//     return filter_options_ele;
+// }
+
 // Open Filter Options: Component
-function create_ele_filter_options_close_button(){
-    let btn = create_generic_ele_cancel_button();
-    btn.addEventListener('click', () => {
-        let ele = document.getElementById(ID_FILTER_OPTIONS_ELE);
-        if(ele !== null){
-            ele.remove();
-        }
-    });
-    return btn;
-}
+// function create_ele_filter_options_close_button(){
+//     let btn = create_generic_ele_cancel_button();
+//     btn.addEventListener('click', () => {
+//         let ele = document.getElementById(ID_FILTER_OPTIONS_ELE);
+//         if(ele !== null){
+//             ele.remove();
+//         }
+//     });
+//     return btn;
+// }
 
 
 function create_ele_filter_options_heading(){
     let ele = document.createElement('h4');
-    ele.classList.add(CSS_GENERIC_PANEL_HEADING);
+    // ele.classList.add(CSS_GENERIC_PANEL_HEADING);
+    ele.classList.add(CSS_MODAL_HEADING);
     ele.innerHTML = 'Filter Options';
     return ele;
 }
@@ -105,7 +131,7 @@ function create_ele_filter_options_heading(){
 
 async function create_ele_filter_options_body(){
     let ele = document.createElement('div');
-    ele.classList.add(CLASS_FILTER_OPTIONS_BODY);
+    ele.classList.add("formy_inputsContainer");
 
     for(let i = 0; i < RECORDS_FILTER_SETTINGS.length; i++){
         if(RECORDS_FILTER_SETTINGS[i].input_type === 'single-text'){
@@ -124,8 +150,14 @@ async function create_ele_filter_options_body(){
 
 
 function create_ele_filter_options_submit(){
-    let ele = create_generic_ele_submit_button();
-    ele.classList.add('full-width-button');
+    const container = document.createElement('div');
+    container.classList.add('formControls');
+
+    const ele = create_generic_ele_submit_button();
+    ele.classList.add('button-primary');
+    ele.classList.add('formControls_submit');
+    ele.classList.add('recordsFilter_submit');
+    ele.type = "button";
     ele.innerHTML = 'apply filter';
 
     ele.addEventListener('click', () => {
@@ -135,15 +167,35 @@ function create_ele_filter_options_submit(){
 }
 
 
+// function create_ele_filter_options_submit(){
+//     let ele = create_generic_ele_submit_button();
+//     ele.classList.add('full-width-button');
+//     ele.innerHTML = 'apply filter';
+
+//     ele.addEventListener('click', () => {
+//         reload_page_with_filters();
+//     });
+//     return ele;
+// }
+
+
 function create_ele_filter_option_base(FILTER_SETTINGS){
     // Use this for the stuff that'll be reused for each option, regardless of type
-    let ele = document.createElement('div');
-    
-    let label = create_generic_ele_label(FILTER_SETTINGS.title, ID_PREFIX_FILTER_FIELDS + FILTER_SETTINGS.id);
+    const ele = create_formy_labelFieldContainer();
+    const label = create_generic_ele_label(FILTER_SETTINGS.title, ID_PREFIX_FILTER_FIELDS + FILTER_SETTINGS.id);
+    label.classList.add("formy_label");
     ele.append(label);
 
     return ele;
 }
+
+
+function create_formy_labelFieldContainer(){
+    const ele = document.createElement('div');
+    ele.classList.add("formy_labelFieldContainer");
+    return ele;
+}
+
 
 function create_ele_filter_option_text_input(FILTER_SETTINGS){
     let ele = create_ele_filter_option_base(FILTER_SETTINGS);
@@ -160,17 +212,26 @@ function create_ele_filter_option_date_range(FILTER_SETTINGS){
     let ele = document.createElement('fieldset');
 
     let heading = document.createElement('legend');
+    heading.classList.add("formy_label");
     heading.innerHTML = FILTER_SETTINGS.title;
     ele.append(heading);
 
+    const container = document.createElement('div');
+    container.classList.add("recordsFilter_fieldsetContainer");
+
+    const labelInput1 = create_formy_labelFieldContainer();
     let idStartDate = `${ID_PREFIX_FILTER_FIELDS}${RANGE_START}${FILTER_SETTINGS.id}`;
-    ele.append(create_generic_ele_label('From', idStartDate));
-    ele.append(create_ele_filter_option_date_input(idStartDate));
+    labelInput1.append(create_generic_ele_label('From', idStartDate));
+    labelInput1.append(create_ele_filter_option_date_input(idStartDate));
+    container.append(labelInput1);
 
+    const labelInput2 = create_formy_labelFieldContainer();
     let idEndDate = `${ID_PREFIX_FILTER_FIELDS}${RANGE_END}${FILTER_SETTINGS.id}`;
-    ele.append(create_generic_ele_label('To', idEndDate));
-    ele.append(create_ele_filter_option_date_input(idEndDate));
+    labelInput2.append(create_generic_ele_label('To', idEndDate));
+    labelInput2.append(create_ele_filter_option_date_input(idEndDate));
+    container.append(labelInput2);
 
+    ele.append(container);
     return ele;
 }
 
@@ -270,6 +331,8 @@ function format_records_filter_options_as_list(){
             get_param_list.push(get_param);
         }
     }
+
+    console.log("get_param_list", get_param_list);
 
     return get_param_list;
 }

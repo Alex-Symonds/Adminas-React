@@ -37,15 +37,16 @@ function openPinnedCommentsModal(e){
     }
 
     const modalWrapper = document.getElementById(targetID);
-    modalWrapper.classList.remove('hide');
+    open_modal(modalWrapper);
+    // modalWrapper.classList.remove(CSS_HIDE);
     
-    const modalEle = modalWrapper.querySelector('.modal');
-    modalEle.show();
+    // const modalEle = modalWrapper.querySelector(`.${CSS_MODAL}`);
+    // modalEle.show();
 
-    const closeButton = modalWrapper.querySelector('.modal_closeButton');
+    const closeButton = modalWrapper.querySelector(`.${CSS_MODAL}_${CSS_CLOSE_BUTTON}`);
     if(closeButton !== undefined){
         closeButton.addEventListener('click', () => {
-            modalWrapper.classList.add('hide');
+            modalWrapper.classList.add(CSS_HIDE);
             modalEle.close();
         });
     }
@@ -157,7 +158,7 @@ function is_pinned_comments_modal(modalEle){
 
 
 function find_open_modal(){
-    const modalEles = document.querySelectorAll(".modal");
+    const modalEles = document.querySelectorAll(`.${CSS_MODAL}`);
     let modalEle = null;
     for(let i = 0; i < modalEles.length; i++){
         if(modalEles[i].open){

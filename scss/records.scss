@@ -7,6 +7,33 @@
 */
 
 // || Filter
+.recordsFilter{
+    &_fieldsetContainer{
+        display: flex;
+        flex-direction: column;
+        justify-content: start;
+        gap: 1rem;
+    }
+
+    &_submit{
+        width: fit-content;
+        padding: 0.5rem 1rem
+    }
+
+}
+@media screen and (min-width: 400px){
+    .recordsFilter{
+        &_fieldsetContainer{
+            flex-direction: row;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+    }
+}
+
+
+
+
 #filter_controls{
     margin: 1rem 0;
 
@@ -18,45 +45,50 @@
     #id_clear_filter_records{
         text-decoration: none;
     }
-    
-    #id_filter_options{
-        display: block;
-        width: 95%;
-        max-width: 310px;
-    
-        .filter-options-body{
-            &:first-of-type label{
-                border-top: none;
-                margin-bottom: 0;
-            }
-    
-            span{
-                padding: 0 0 0.2rem;
-                font-size: 0.9rem;
-                font-style: italic;
-                //color: v.$c_tone_06;  // This makes the "close" button on errors show the hover span at all times
-            }
-    
-            fieldset{
-                margin: 1.5rem 0.5rem 0;
-        
-                label{
-                    clear: both;
-                    font-size: 1rem;
-                    border: none;
-                    margin: 0.2rem 0 0.3rem 0;
-                    width: 3rem;
-                    float: left;
-                    text-align: right;
-                }
-        
-                input{
-                    float: left;
-                }
-            }
-        }
-    }  
 }
+    
+    // #id_filter_options{
+    //     display: block;
+    //     // width: 95%;
+    //     // max-width: 310px;
+    
+    //     .filter-options-body{
+    //         display: flex;
+    //         flex-direction: column;
+    //         gap: 0.5rem;
+
+    //         &:first-of-type label{
+    //             border-top: none;
+    //             margin-bottom: 0;
+    //         }
+    
+    //         span{
+    //             padding: 0 0 0.2rem;
+    //             font-size: 0.9rem;
+    //             font-style: italic;
+    //             //color: v.$c_tone_06;  // This makes the "close" button on errors show the hover span at all times
+    //         }
+    
+    //         fieldset{
+    //             margin: 1.5rem 0.5rem 0;
+        
+    //             label{
+    //                 clear: both;
+    //                 font-size: 1rem;
+    //                 border: none;
+    //                 margin: 0;
+    //                 width: 3rem;
+    //                 float: left;
+    //                 text-align: right;
+    //             }
+        
+    //             input{
+    //                 float: left;
+    //             }
+    //         }
+    //     }
+//     }  
+// }
 
 // || Responsive table
 #id_records{
@@ -139,3 +171,4 @@
         td:nth-of-type(16):before { content: "Products"; }
     }
 }
+
