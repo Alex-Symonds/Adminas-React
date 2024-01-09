@@ -1177,6 +1177,16 @@ class JobItem(AdminAuditTrail):
         return result
 
 
+    def get_display_str_dict(self):
+        result = {}
+        result['quantity'] = self.quantity
+        result['part_number'] = self.product.part_number
+        result['name'] = self.product.name
+        result['formatted_value'] = format_money(self.selling_price)
+
+        return result
+
+
     def display_str(self):
         """
             The "main" description to appear on documents and the webpage.
@@ -1191,7 +1201,7 @@ class JobItem(AdminAuditTrail):
         """
         # Used on the Records template
         return f'{self.display_str()} @ {self.job.currency}&nbsp;{format_money(self.selling_price)}'
- 
+
 
     # || JobItem.Update
     def update(self, form):

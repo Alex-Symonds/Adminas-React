@@ -35,90 +35,125 @@
 
     {% include "adminas/components/pagination_nav.html" with page_data=page_data %}
 
-    <table id="id_records" class="responsive-table banded">
-        <thead>
-            <tr>
-                <th>View</th>
-                <th>To-Do</th>
-                <th>Name</th>
-                <th>Agent</th>
-                <th>Customer</th>
-                <th>Country</th>
-                <th>Lang</th>
-                <th>Entered</th>
-                <th>Curr</th>
+    <div class="scrollingShadowsWrapper">
+        <div class="scrollingShadowsWrapper_scrollable recordsTableWrapper">
+            <table id="id_records" class="recordsTable">
+                <thead class="recordsTable_head">
+                    <tr>
+                        <th class="recordsTable_heading"></th>
+                        <th class="recordsTable_heading recordsTable_todoHeading">To-Do</th>
+                        <th class="recordsTable_heading">Name</th>
+                        <th class="recordsTable_heading">Agent</th>
+                        <th class="recordsTable_heading">Customer</th>
+                        <th class="recordsTable_heading">Country</th>
+                        <th class="recordsTable_heading">Lang</th>
+                        <th class="recordsTable_heading">Entered</th>
+                        
+                        <th class="recordsTable_heading">Inv to</th>
+                        <th class="recordsTable_heading">Quote</th>
+                        <th class="recordsTable_heading">PO Num</th>
+                        <th class="recordsTable_heading">Curr</th>
+                        <th class="recordsTable_heading">PO Value</th>
 
-                <th>Inv to</th>
-                <th>Quote</th>
-                <th>PO Num</th>
-                <th>PO Value</th>
+                        <th class="recordsTable_heading">INCO</th>
+                        <th class="recordsTable_heading">Deliver to</th>
 
-                <th>INCO</th>
-                <th>Deliver to</th>
-
-                <th>Products</th>
-            </tr>
-        </thead>
-        <tbody>
-            
-    {% for r in records %}
-            <tr>
-                <td><a href="{% url 'job' r.job_id %}">Link</a></td>
-                <td>
-        {% if r.is_todo %}
-                    <span class="todo-list-add">on</span>
-        {% else %}
-                    <button class="todo-list-add button-primary" data-job_id="{{ r.job_id }}">+</button>
-        {% endif %}
-                </td>
-                <td>{{ r.name }}</td>
-                <td>{{ r.agent }}</td>
-                <td>{{ r.customer }}</td>
-                <td>{{ r.country }}</td>
-                <td>{{ r.language }}</td>
-                <td>{{ r.created_on|date:"Y-m-d" }}</td>
-                <td>{{ r.currency }}</td>
-                <td>{{ r.invoice_to_name }}</td>
-                <td>{{ r.quote_ref }}</td>
-                <td>
-        {% if r.num_po > 1 %}
-                    <button class="list-show-btn button-primary-hollow">view</button>  
-                    <div class="po records-list panel hide popout">
-                        <button class="list-hide-btn close"><span>close</span></button>
-                        <h4 class="panel-header">Purchase Orders</h4>
-                        <ul>  
-            {% for po in r.po_list %}
-                            <li>{{ po }}</li>
+                        <th class="recordsTable_heading"></th>
+                    </tr>
+                </thead>
+                <tbody class="recordsTable_body">           
+            {% for r in records %}
+                    <tr class="recordsTable_row">
+                        <td class="recordsTable_link">
+                            <a class="recordsTable_linkToJobPage hoverSpan_container" href="{% url 'job' r.job_id %}">
+                                <svg aria-hidden="true" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="16px" height="16px" viewBox="0 0 512 512" enable-background="new 0 0 512 512" xml:space="preserve">
+                                    <path fill="#010101" d="M459.654,233.373l-90.531,90.5c-49.969,50-131.031,50-181,0c-7.875-7.844-14.031-16.688-19.438-25.813  l42.063-42.063c2-2.016,4.469-3.172,6.828-4.531c2.906,9.938,7.984,19.344,15.797,27.156c24.953,24.969,65.563,24.938,90.5,0  l90.5-90.5c24.969-24.969,24.969-65.563,0-90.516c-24.938-24.953-65.531-24.953-90.5,0l-32.188,32.219  c-26.109-10.172-54.25-12.906-81.641-8.891l68.578-68.578c50-49.984,131.031-49.984,181.031,0  C509.623,102.342,509.623,183.389,459.654,233.373z M220.326,382.186l-32.203,32.219c-24.953,24.938-65.563,24.938-90.516,0  c-24.953-24.969-24.953-65.563,0-90.531l90.516-90.5c24.969-24.969,65.547-24.969,90.5,0c7.797,7.797,12.875,17.203,15.813,27.125  c2.375-1.375,4.813-2.5,6.813-4.5l42.063-42.047c-5.375-9.156-11.563-17.969-19.438-25.828c-49.969-49.984-131.031-49.984-181.016,0  l-90.5,90.5c-49.984,50-49.984,131.031,0,181.031c49.984,49.969,131.031,49.969,181.016,0l68.594-68.594  C274.561,395.092,246.42,392.342,220.326,382.186z"/>
+                                </svg>
+                                <span class="hoverSpan_span recordsTable_linkToJobPageButtonText">job page</span>
+                                <span class="sr-only"> for {{ r.name }}</span>
+                            </a>
+                        </td> 
+                        <td class="recordsTable_todo">
+                            <button 
+                                class="hoverSpan_container todo-list-add recordsTable_todoButton recordsTable_todoButton-{% if r.is_todo %}on{% else %}off{% endif %}" 
+                                data-job_id="{{ r.job_id }}" 
+                                {% if r.is_todo %}disabled{% endif %}
+                            >
+                                <span class="hoverSpan_span recordsTable_todoButtonSpan">
+                                    {% if r.is_todo %}
+                                        on todo list
+                                    {% else %}
+                                        add to todo list
+                                    {% endif %}
+                                </span>
+                            </button>
+                        </td>
+                        <td class="recordsTable_name">{{ r.name }}</td>
+                        <td class="recordsTable_agent recordsTable_companyName">{{ r.agent }}</td>
+                        <td class="recordsTable_customer recordsTable_companyName">{{ r.customer }}</td>
+                        <td class="recordsTable_country">
+                            <div class="recordsTable_countryContainer hoverSpan_container">
+                                <span class="recordsTable_countryName hoverSpan_span">{{ r.country }}</span>
+                                <img class="recordsTable_countryFlag" src="{{ r.flag_url }}" alt="{{ r.flag_alt }}">
+                            </div>
+                        </td>
+                        <td class="recordsTable_language">{{ r.language }}</td>
+                        <td class="recordsTable_date">{{ r.created_on|date:"Y-m-d" }}</td>
+                        <td class="recordsTable_invoiceTo recordsTable_companyName">{{ r.invoice_to_name }}</td>
+                        <td class="recordsTable_quote">
+                            <span class="recordsTable_quoteSpan">
+                                {{ r.quote_ref }}
+                            </span>
+                        </td>
+                        <td class="recordsTable_po">
+                            <span class="recordsTable_poSpan">
+                            {% if r.num_po > 0 %}
+                                {% for po in r.po_list %}
+                                    {% if not forloop.first %}, {% endif %}{{ po }}
+                                {% endfor %}
+                            {% else %}-{% endif %}
+                            </span>
+                        </td>
+                        <td class="recordsTable_currency">{{ r.currency }}</td>
+                        <td class="recordsTable_value">{{ r.total_po_value }}</td>
+                        <td class="recordsTable_incoterm">{{ r.incoterm_code }}</td>
+                        <td class="recordsTable_deliveryTo recordsTable_companyName">{{ r.delivery_to_name }}</td>
+                        <td class="recordsTable_products">
+                {% for item in r.item_list %}
+                    {% if forloop.first %}
+                                <button class="recordsTable_productsButton list-show-btn hoverSpan_container">
+                                    <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" height="17px" viewBox="0 0 576 512"><path d="M576 216v16c0 13.255-10.745 24-24 24h-8l-26.113 182.788C514.509 462.435 494.257 480 470.37 480H105.63c-23.887 0-44.139-17.565-47.518-41.212L32 256h-8c-13.255 0-24-10.745-24-24v-16c0-13.255 10.745-24 24-24h67.341l106.78-146.821c10.395-14.292 30.407-17.453 44.701-7.058 14.293 10.395 17.453 30.408 7.058 44.701L170.477 192h235.046L326.12 82.821c-10.395-14.292-7.234-34.306 7.059-44.701 14.291-10.395 34.306-7.235 44.701 7.058L484.659 192H552c13.255 0 24 10.745 24 24zM312 392V280c0-13.255-10.745-24-24-24s-24 10.745-24 24v112c0 13.255 10.745 24 24 24s24-10.745 24-24zm112 0V280c0-13.255-10.745-24-24-24s-24 10.745-24 24v112c0 13.255 10.745 24 24 24s24-10.745 24-24zm-224 0V280c0-13.255-10.745-24-24-24s-24 10.745-24 24v112c0 13.255 10.745 24 24 24s24-10.745 24-24z"/></svg>
+                                    <span class="hoverSpan_span recordsTable_productsButtonSpan">view products</span>
+                                </button>
+                                <div class="modalWrapper hide">
+                                    <dialog class="modal">
+                                        <button class="modal_closeButton close"><span>close</span></button>
+                                        <h4 class="modal_heading recordsProductsModal_heading">Products</h4>
+                                        <ul class="modal_contents recordsProductsModal_list">
+                    {% endif %}
+                                            <li class="recordsProductsModal_listItem">
+                                                <span class="recordsProductsModal_listItemDescription">
+                                                    <span class="recordsProductsModal_listItemQuantityPartNumber">
+                                                        <span class="recordsProductsModal_listItemQuantity">{{ item.quantity }}&nbsp;x</span>
+                                                        <span class="recordsProductsModal_listItemPartNumber">[{{ item.part_number }}]</span>
+                                                    </span>
+                                                    <span class="recordsProductsModal_listItemName">{{ item.name }}</span>
+                                                </span>
+                                                <span class="recordsProductsModal_listItemPrice">{{ r.currency }}&nbsp;{{ item.formatted_value }}</span>
+                                            </li>
+                    {% if forloop.last %}
+                                        </ul>
+                                    </dialog>
+                                </div>
+                    {% endif %}
+                {% endfor %}
+                        </td>
+                    </tr>
             {% endfor %}
-                        </ul>
-                    </div>
-        {% else %}
-                        {{ r.po_list.0 }}
-        {% endif %}
-                </td>
-                <td>{{ r.total_po_value }}</td>
-                <td>{{ r.incoterm_code }}</td>
-                <td>{{ r.delivery_to_name }}</td>
-                <td>
-        {% for item in r.item_list %}
-            {% if forloop.first %}
-                        <button class="list-show-btn button-primary-hollow">view</button>
-                        <div class="product records-list panel hide popout">
-                            <button class="list-hide-btn close"><span>close</span></button>
-                            <h4 class="panel-header">Products</h4>
-                            <ul>
-            {% endif %}
-                                <li>{{ item|safe }}</li>
-            {% if forloop.last %}
-                            </ul>
-                        </div>
-            {% endif %}
-        {% endfor %}
-                </td>
-            </tr>
-    {% endfor %}
-        </tbody>
-    </table>
+                </tbody>
+            </table>
+        </div>
+    </div>
 {% endblock %}
 
 

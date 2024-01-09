@@ -6,7 +6,6 @@
         || Submit Filter Options
 */
 
-
 const ID_BEGIN_FILTER_BUTTON = 'id_filter_records';
 const ID_FILTER_OPTIONS_ELE = 'id_filter_options';
 const CLASS_FILTER_OPTIONS_BODY = 'filter-options-body';
@@ -52,7 +51,7 @@ const RECORDS_FILTER_SETTINGS = [
 
 
 
-// Evenet listeners for existing buttons
+// Event listeners for existing buttons
 document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById(ID_BEGIN_FILTER_BUTTON).addEventListener('click', () => {
@@ -76,7 +75,6 @@ async function open_filter_options(){
 
 async function create_ele_filter_options(){
     let filter_options_ele = document.createElement('form');
-    //filter_options_ele.classList.add(CSS_GENERIC_FORM_LIKE);
     filter_options_ele.id = ID_FILTER_OPTIONS_ELE;
     
     filter_options_ele.append(create_ele_filter_options_heading());
@@ -94,35 +92,9 @@ async function create_ele_filter_options(){
     return filter_options_ele;
 }
 
-// async function create_ele_filter_options(){
-//     let filter_options_ele = create_generic_ele_formy_panel();
-//     filter_options_ele.id = ID_FILTER_OPTIONS_ELE;
-//     filter_options_ele.classList.add()
-
-//     filter_options_ele.append(create_ele_filter_options_close_button());
-//     filter_options_ele.append(create_ele_filter_options_heading());
-//     filter_options_ele.append(await create_ele_filter_options_body());
-//     filter_options_ele.append(create_ele_filter_options_submit());
-
-//     return filter_options_ele;
-// }
-
-// Open Filter Options: Component
-// function create_ele_filter_options_close_button(){
-//     let btn = create_generic_ele_cancel_button();
-//     btn.addEventListener('click', () => {
-//         let ele = document.getElementById(ID_FILTER_OPTIONS_ELE);
-//         if(ele !== null){
-//             ele.remove();
-//         }
-//     });
-//     return btn;
-// }
-
 
 function create_ele_filter_options_heading(){
     let ele = document.createElement('h4');
-    // ele.classList.add(CSS_GENERIC_PANEL_HEADING);
     ele.classList.add(CSS_MODAL_HEADING);
     ele.innerHTML = 'Filter Options';
     return ele;
@@ -165,18 +137,6 @@ function create_ele_filter_options_submit(){
     });
     return ele;
 }
-
-
-// function create_ele_filter_options_submit(){
-//     let ele = create_generic_ele_submit_button();
-//     ele.classList.add('full-width-button');
-//     ele.innerHTML = 'apply filter';
-
-//     ele.addEventListener('click', () => {
-//         reload_page_with_filters();
-//     });
-//     return ele;
-// }
 
 
 function create_ele_filter_option_base(FILTER_SETTINGS){
@@ -331,8 +291,6 @@ function format_records_filter_options_as_list(){
             get_param_list.push(get_param);
         }
     }
-
-    console.log("get_param_list", get_param_list);
 
     return get_param_list;
 }

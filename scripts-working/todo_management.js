@@ -68,8 +68,18 @@ function update_frontend_after_removal(btn, job_id){
 
 
 function update_frontend_after_add(btn){
+    const CSS_TODO_CIRCLE_BUTTON_ON = "recordsTable_todoButton-on";
+    const CSS_TODO_CIRCLE_BUTTON_OFF = "recordsTable_todoButton-off";
+    const CSS_TODO_CIRCLE_BUTTON_SPAN = "recordsTable_todoButtonSpan";
+
     if(btn.classList.contains(CLASS_ADD_JOB_BTN)){
-        replace_todo_add_btn_with_on(btn);
+        btn.disabled = true;
+        btn.classList.remove(CSS_TODO_CIRCLE_BUTTON_OFF);
+        if(!btn.classList.contains(CSS_TODO_CIRCLE_BUTTON_ON)){
+            btn.classList.add(CSS_TODO_CIRCLE_BUTTON_ON);
+        }
+        const span = btn.querySelector(`.${CSS_TODO_CIRCLE_BUTTON_SPAN}`);
+        span.textContent = "on todo list";
     } 
 }
 
@@ -97,13 +107,4 @@ function remove_job_panel_from_todo_list(job_id){
     if(ele_to_remove != null){
         ele_to_remove.remove();
     }
-}
-
-
-function replace_todo_add_btn_with_on(btn){
-    let span = document.createElement('span');
-    span.classList.add(CLASS_ADD_JOB_BTN);
-    span.innerHTML = 'on';
-    btn.before(span);
-    btn.remove();
 }

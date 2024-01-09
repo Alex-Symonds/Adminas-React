@@ -7,6 +7,7 @@
         || Page layout
         || Nav bar
         || Footer
+        || Hover Spans
         || Buttons
         || Return to Job Link
         || Panels and Form-Likes
@@ -291,6 +292,34 @@ nav{
         }
     }
 }
+
+
+// || Hover Spans
+.hoverSpan {
+    &_container{
+        position: relative;
+
+        &:hover{
+            .hoverSpan_span{
+                @include v.visually-unhidden;
+                position: absolute;
+                z-index: 10;
+            }
+        }
+    }
+
+    &_span {
+        @include v.visually-hidden;
+        display: block;
+        pointer-events: none;
+        color: white;
+        border-radius: 5px;
+        background: rgba(v.$c_tone_00, 80%);
+        border: 1px solid v.$c_tone_00;
+        padding: v.px-to-rem(3) v.px-to-rem(9);
+    }
+}
+
 
 
 // || Buttons
@@ -2035,14 +2064,14 @@ fieldset.form-row{
 }
 
 .modal{ 
-    --scrollbarWidth: 14px;
+    --scrollbarWidth: 18px;
     --contentSideMargin: #{v.px-to-rem(8)};
 
     box-sizing: border-box;
     height: fit-content;
     width: fit-content;
     max-height: 80vh;
-    max-width: calc(100% - var(--scrollbarWidth));
+    max-width: calc(100vw - var(--scrollbarWidth) * 2);
     overflow: auto;
     padding: 0;
 

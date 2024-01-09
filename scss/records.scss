@@ -3,6 +3,7 @@
 /*  Records formatting.
     Contents:
         || Filter
+        || Products Modal
         || Responsive table
 */
 
@@ -31,9 +32,6 @@
     }
 }
 
-
-
-
 #filter_controls{
     margin: 1rem 0;
 
@@ -47,128 +45,724 @@
     }
 }
     
-    // #id_filter_options{
-    //     display: block;
-    //     // width: 95%;
-    //     // max-width: 310px;
-    
-    //     .filter-options-body{
-    //         display: flex;
-    //         flex-direction: column;
-    //         gap: 0.5rem;
 
-    //         &:first-of-type label{
-    //             border-top: none;
-    //             margin-bottom: 0;
-    //         }
-    
-    //         span{
-    //             padding: 0 0 0.2rem;
-    //             font-size: 0.9rem;
-    //             font-style: italic;
-    //             //color: v.$c_tone_06;  // This makes the "close" button on errors show the hover span at all times
-    //         }
-    
-    //         fieldset{
-    //             margin: 1.5rem 0.5rem 0;
-        
-    //             label{
-    //                 clear: both;
-    //                 font-size: 1rem;
-    //                 border: none;
-    //                 margin: 0;
-    //                 width: 3rem;
-    //                 float: left;
-    //                 text-align: right;
-    //             }
-        
-    //             input{
-    //                 float: left;
-    //             }
-    //         }
-    //     }
-//     }  
-// }
+// || Products Modal
+.recordsProductsModal{
+    --subtle: #{v.$c_tone_300};
+    --lineHeight: #{v.px-to-rem(18)};
 
-// || Responsive table
-#id_records{
-    .todo-list-add{
-        border-radius: 0.3rem;
-        padding: 0.3rem 0.5rem;
-        margin: 0 auto 0.2rem;
+    &_heading{
+        text-align: left;
     }
 
-    .list-show-btn{
-        border-radius: 0.3rem;
-        padding: 0.2rem 0.5rem;
-        margin: 0 auto 0; 
+    &_list{
+        list-style-type: none;
+        padding: 0;
+        text-align: start;
+        min-width: 260px;
     }
 
-    td{
+    &_listItem {
+        --paddingX: #{v.px-to-rem(8)};
+        --paddingY: #{v.px-to-rem(8)};
+
+        padding: 0 var(--paddingX) var(--paddingY);
+        display: flex;
+        flex-direction: column;
+        align-items: start;
+        gap: 0 v.px-to-rem(24);
+        box-sizing: border-box;
+        max-width: 100%;
+
+        &:not(:nth-of-type(1)){
+            padding-top: var(--paddingY);
+            border-top: 1px solid v.$c_tone_700;
+        }
+
+        &:nth-of-type(even){
+            background: rgba(v.$c_tone_900, 0.8);
+        }
+
+        /*
+            Goal #1: Emphasise quantity and name; de-emphasise part number and value.
+            Method #1: Add spans around each piece of info, enabling different text formatting
+
+            Goal #2: On wide screens, money should be justified end, while everything else should be justified start
+            Method #2: "Description" span to group "everything else", then justify: space-between
+
+            Goal #3: On narrow screens, quantity and part number should be together on the first row.
+            Method #3: "QuantityPartNumber" span to group those two spans
+        */
+
+        &Description{
+            flex: 2 1 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: start;
+            gap: 0 v.px-to-rem(8);
+            min-width: 0;
+            max-width: 100%;
+            box-sizing: border-box;
+        }
+
+        &QuantityPartNumber{
+            display: flex;
+            align-items: end;
+            gap: 0 v.px-to-rem(4);
+        }
+
+        &Quantity{
+            font-weight: 700;
+            line-height: var(--lineHeight);
+        }
+
+        &Name{
+            font-weight: 700;
+            line-height: var(--lineHeight);
+            max-width: min(100%, 70ch);
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+
+        &PartNumber{
+            color: var(--subtle);
+            font-size: v.px-to-rem(14);
+            line-height: var(--lineHeight);
+        }
+
+        &Price{
+            flex: 0 0 auto;
+            color: var(--subtle);
+            font-size: v.px-to-rem(14);
+            line-height: var(--lineHeight);
+            text-align: right;
+        }
+    }
+}
+@media screen and (min-width: 500px){
+    .recordsProductsModal{
+        &_listItem {
+            --paddingX: #{v.px-to-rem(16)};
+            --paddingY: #{v.px-to-rem(2)};
+
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: end;
+
+            &Description{
+                flex-grow: 0;
+                flex-direction: row;
+                align-items: end;
+            }
+
+            &Name{
+                max-width: 70ch;
+            }
+        }
+    }
+}
+
+
+
+// || Responsive Table
+.recordsTable{
+    --borderRadius: 0.5rem;
+    --borderColour: #{v.$c_tone-700};
+    --subtle: #{v.$c_tone-200};
+    --outerPaddingX: #{v.px-to-rem(12)};
+    --todoButtonSize: #{v.px-to-rem(16)};
+    --todoButtonPaddingX: #{v.px-to-rem(6)};
+    --beforeHeadingWidth: #{v.px-to-rem(70)};
+
+    min-width: 290px;
+    max-width: 98vw;
+
+    // Make it not behave like a table on mobile
+    display: flex;
+    justify-content: center;
+    width: 100%;
+
+    &_head{
+        display: none;
+    }
+
+    &_body{
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+
+        tr:nth-of-type(even){ 
+            background: rgba(v.$c_tone_900, 0.7);
+        }
+    }
+
+    &_row{
+        display: grid;
+        grid-template-columns: 3rem auto auto auto 1fr calc(var(--todoButtonSize) + var(--todoButtonPaddingX) * 2);
+        grid-template-rows: repeat(10, auto);
+        border: 1px solid var(--borderColour);
+        border-radius: var(--borderRadius);
+    }
+
+    /* 
+        <td>s arranged into grid
+        Grouped by their grid-rows, since some styles are row-specific
+    */
+    &_name,
+    &_todo{
+        grid-row: 1;
+        align-self: stretch;
+        background: var(--borderColour);
+    }
+    &_name{
+        grid-column-start: 1;
+        grid-column-end: 7;
+
+        padding: v.px-to-rem(8) var(--outerPaddingX) 0;
+        font-weight: 700;
+        font-size: v.px-to-rem(18);
+
+        border-top-left-radius: var(--borderRadius);
+    }
+    &_todo{
+        grid-column: 7;
+        border-top-right-radius: var(--borderRadius);
+
+        padding: var(--todoButtonPaddingX) var(--todoButtonPaddingX) 0;
+        display: flex;
+    }
+
+
+    &_country,
+    &_language,
+    &_date {
+        grid-row: 2;
+
+        background: var(--borderColour);
+        align-self: stretch;
+        font-size: v.px-to-rem(14);
+        color: var(--subtle);
+    }
+    &_country{
+        grid-column-start: 4;
+        grid-column-end: 8;
+        padding: v.px-to-rem(0) v.px-to-rem(6) v.px-to-rem(6);
+        display: flex;
+        align-items: center;
+    }
+    &_language{
+        grid-column: 3;
+        padding: v.px-to-rem(0) v.px-to-rem(6) v.px-to-rem(6);
+    }
+    &_date{
+        grid-column-start: 1;
+        grid-column-end: 3;
+        padding: v.px-to-rem(0) v.px-to-rem(6) v.px-to-rem(6) var(--outerPaddingX);
+    }
+
+
+    &_link,
+    &_products{
+        grid-row: 3;
+        align-self: stretch;
+
+        border-bottom: 1px solid var(--borderColour);
+    }
+    &_link{
+        grid-column-start: 1;
+        grid-column-end: 4;
+        padding: v.px-to-rem(8) 0 v.px-to-rem(8) var(--outerPaddingX);
+
+        display: flex;
+        justify-content: start;
+        align-items: center;
+    }
+    &_products{
+        grid-column-start: 4;
+        grid-column-end: 8;
+        padding: v.px-to-rem(8) var(--outerPaddingX) v.px-to-rem(8) 0;
+
+        display: flex;
+        justify-content: end;
+        align-items: center;
+    }
+
+
+    &_customer{
+        grid-row: 4;
+        grid-column-start: 1;
+        grid-column-end: 7;
+
+        padding: v.px-to-rem(6) var(--outerPaddingX) 0;
+        font-size: v.px-to-rem(18);
+        font-weight: 600;
+    }
+
+
+    &_agent{
+        grid-row: 5;
+        grid-column-start: 1;
+        grid-column-end: 8;
+
         position: relative;
+        top: v.px-to-rem(-2);
+        padding: 0 var(--outerPaddingX) v.px-to-rem(6);
+        border-bottom: 1px solid var(--borderColour);
+        align-self: stretch;
+        
+        font-size: v.px-to-rem(14);
+        color: var(--subtle);
+        &:before { 
+            content: "via"; 
+            padding-right: v.px-to-rem(3);
+        }
     }
 
-    .records-list{
-        position: absolute;
-        top: 0;
-        left: 0;
 
-        background: v.$c_tone_02;
-        z-index: 3;
-
-        min-width: 200px;
-        max-width: 85vw;
-
-        &.product{
-            width: 30rem;
-        }
-
-        &.po{
-            width: 15rem;
-        }
-
-        ul{
-            list-style-type: none;
-            padding: 0;
-            border-bottom: 1px solid v.$c_tone_03;
-
-            max-height: calc(90vh - 5rem);
-            overflow: auto;
-        }
-
-        li{
-            border-top: 1px solid v.$c_tone_03;
-            padding: 0.1rem 1rem;
-        }
-
+    &_currency,
+    &_value{
+        grid-row: 6;
+        font-weight: 700;
+        font-size: v.px-to-rem(18);
     }
-}
+    &_currency{
+        grid-column: 1;
+        
+        padding: v.px-to-rem(4) v.px-to-rem(8) v.px-to-rem(4) var(--outerPaddingX);
+    }
+    &_value{
+        grid-column-start: 2;
+        grid-column-end: 8;
 
-@media screen and (max-width: v.$breakpoint_table_to_rows){
-    #id_records{
-        button.todo-list-add{
-            padding: 0 0.5rem;
+        padding: v.px-to-rem(4) var(--outerPaddingX) v.px-to-rem(4) 0;
+    }
+
+
+    &_po{
+        grid-row: 7;
+        grid-column-start: 1;
+        grid-column-end: 8;
+
+        padding: v.px-to-rem(0) var(--outerPaddingX) v.px-to-rem(1);
+
+        display: flex;
+        align-items: start;
+
+        font-size: v.px-to-rem(14);
+        color: var(--subtle);
+        &:before { 
+            content: "PO Ref"; 
+            display: inline-block;
+            width: var(--beforeHeadingWidth);
         }
-        span.todo-list-add{
-            padding: 0;
+    }
+
+
+    &_quote{
+        grid-row: 8;
+        grid-column-start: 1;
+        grid-column-end: 8;
+
+        padding: v.px-to-rem(0) var(--outerPaddingX) v.px-to-rem(1);
+
+        display: flex;
+        align-items: start;
+
+        font-size: v.px-to-rem(14);
+        color: var(--subtle);
+        &:before { 
+            content: "Quote Ref"; 
+            display: inline-block;
+            width: var(--beforeHeadingWidth);
         }
+    }
     
-        td:nth-of-type(1):before { content: "View"; }
-        td:nth-of-type(2):before { content: "To-Do"; }
-        td:nth-of-type(3):before { content: "Job Ref."; }
-        td:nth-of-type(4):before { content: "Agent"; }
-        td:nth-of-type(5):before { content: "Customer"; }
-        td:nth-of-type(6):before { content: "Country"; }
-        td:nth-of-type(7):before { content: "Language"; }
-        td:nth-of-type(8):before { content: "Entered"; }
-        td:nth-of-type(9):before { content: "Currency"; }
-        td:nth-of-type(10):before { content: "Invoice to"; }
-        td:nth-of-type(11):before { content: "Quote Ref."; }
-        td:nth-of-type(12):before { content: "PO Number"; }
-        td:nth-of-type(13):before { content: "PO Value"; }
-        td:nth-of-type(14):before { content: "Incoterm"; }
-        td:nth-of-type(15):before { content: "Deliver to"; }
-        td:nth-of-type(16):before { content: "Products"; }
+
+    &_invoiceTo{
+        grid-row: 9;
+        grid-column-start: 1;
+        grid-column-end: 8;
+        align-self: stretch;
+
+        padding: v.px-to-rem(0) var(--outerPaddingX) v.px-to-rem(8);
+
+        border-bottom: 1px solid var(--borderColour);
+
+        font-size: v.px-to-rem(14);
+        color: var(--subtle);
+        &:before { 
+            content: "Invoice To"; 
+            display: inline-block;
+            width: var(--beforeHeadingWidth);
+        }
+    }
+
+
+    &_incoterm,
+    &_deliveryTo{
+        grid-row: 10;
+        align-self: stretch;
+    }
+    &_incoterm{
+        grid-column-start: 1;
+        grid-column-end: 2;
+        padding: v.px-to-rem(4) v.px-to-rem(6) v.px-to-rem(4) var(--outerPaddingX);
+        border-bottom-left-radius: var(--borderRadius);
+    }
+    &_deliveryTo{
+        grid-column-start: 2;
+        grid-column-end: 8;
+        padding: v.px-to-rem(4) var(--outerPaddingX) v.px-to-rem(4) 0;
+        border-bottom-right-radius: var(--borderRadius);
+    }
+
+
+    /* Shared across multiple <td>s */
+    &_companyName{
+        max-width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+
+    /* Bits and bobs inside the <td>s */
+    &_countryContainer{
+        display: inline-block;
+
+        width: fit-content;
+        height: fit-content;
+
+        &:hover{
+            .recordsTable_countryName{
+                transition-delay: 0.5s;
+                top: 0;
+                left: v.px-to-rem(18);
+                white-space: nowrap;
+                z-index: 50;
+            }
+        }
+    }
+
+
+    &_linkToJobPageButtonText {
+        top: v.px-to-rem(-2);
+        left: v.px-to-rem(20);
+    }
+    &_productsButtonSpan{
+        top: v.px-to-rem(-2);
+        right: v.px-to-rem(30);
+    }
+    &_productsButton,
+    &_linkToJobPage{
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        svg{
+            display: inline-block;
+            path{
+                fill: v.$c_accent-500;
+            }
+        }
+        &:hover{
+            .recordsTable_productsButtonSpan,
+            .recordsTable_linkToJobPageButtonText {
+                position: absolute;
+                white-space: nowrap;
+                transition-delay: 0.05s;
+            }
+
+            svg path{
+                fill: v.$c_accent-200;
+            }
+        }
+    }
+
+
+    &_poSpan,
+    &_quoteSpan {
+        max-width: 15rem;
+        text-wrap: nowrap;
+        overflow-x: auto;
+        display: inline;
+        align-self: center;
+    }
+
+
+    &_todoButton{
+        height: var(--todoButtonSize);
+        width: var(--todoButtonSize);
+        border: 2px solid v.$c_secondary-500;
+        border-radius: var(--todoButtonSize);
+        box-sizing: border-box;
+
+        align-self: start;
+
+        &-on{
+            background: v.$c_secondary-500;
+        }
+        &-off{
+            background: transparent;
+            &:hover{
+                background: v.$c_secondary-700;
+            }
+        }
+    }
+
+
+    &_todoButtonSpan{
+        top: 10px;
+        right: 0;
     }
 }
 
+// Move the records into side-by-side cards of equal widths
+@media screen and (min-width: 550px){
+    .recordsTable{
+        &_body{
+            display: grid;
+            grid-auto-flow: column;
+            grid-auto-columns: 1fr;
+        }
+    }
+}
+
+// Move the records into a traditional table (with horizontal scrolling, when needed)
+@media screen and (min-width: 600px){
+    .scrollingShadowsWrapper{
+        // Add shadows to indicate there is more content, accessible by scrolling
+        --opacityStart: 0;
+        --opacityEnd: 0;
+
+        --opacitySoftener: 0.5;
+        --shadowWidth: #{v.px-to-rem(25)};
+
+        border-style: solid;
+        border-color: rgba(black, .2);
+        border-width: 0 1px;
+
+        // Apply shadows via a single pseudo element with a gradient background
+        position: relative;
+        &:before{
+            display: block;
+            content: '';
+
+            pointer-events: none;
+
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            z-index: 100;
+            
+            background: linear-gradient(to right, 
+                rgba(0,0,0, calc(var(--opacityStart) * var(--opacitySoftener))) 0%, 
+                transparent var(--shadowWidth),
+                transparent calc(100% - var(--shadowWidth)),
+                rgba(0,0,0, calc(var(--opacityEnd) * var(--opacitySoftener))) 100% 
+            );
+        }
+    }
+
+    .recordsTableWrapper{
+        width: 100%;
+        max-width: 98vw;
+        overflow-x: auto;
+    }
+
+    .recordsTable{
+        // Undo everything we did to make it not table-y on mobile
+        --cellPadding: #{v.px-to-rem(4)} #{v.px-to-rem(8)};
+
+        display: table;
+        border-collapse: collapse;
+
+        &_head{
+            display: table-row-group;
+        }
+
+        // Apply heading formatting, now they're visible
+        &_heading{
+            text-align: start;
+            padding: v.px-to-rem(3) v.px-to-rem(6);
+
+            font-weight: 500;
+            color: v.$c_tone-200;
+
+            background: v.$c_tone_00;
+            border: v.px-to-rem(1) solid v.$c_tone_950;
+            border-bottom: v.px-to-rem(1) solid v.$c_tone_900;
+        }
+        &_todoHeading{
+            white-space: nowrap;
+        }
+
+        &_body{
+            display: table-row-group;
+        }
+
+        &_row{
+            display: table-row;
+        }
+
+        /* all cells in a row */
+        &_link,
+        &_todo,
+        &_name,
+        &_agent,
+        &_customer,
+        &_country,
+        &_language,
+        &_date,
+        &_currency,
+        &_invoiceTo,
+        &_quote,
+        &_po,
+        &_value,
+        &_incoterm,
+        &_deliveryTo,
+        &_products
+        {
+            display: table-cell;
+            padding: var(--cellPadding);
+            border: v.px-to-rem(1) solid v.$c_tone-700;
+        }
+
+        &_link,
+        &_todo,
+        &_name,
+        &_country,
+        &_language,
+        &_date,
+        &_currency,
+        &_quote,
+        &_incoterm,
+        &_products {
+            // table is set to width 100%. Left to its own devices, it stretches all columns to fill the space.
+            // I'd rather it saved the extra space for columns with contents of variable widths, rather than
+            // "wasting" any on columns containing things like icons, 2-3 letter codes, etc.
+            width: 1px;
+        }
+
+        // Make the <td>s look nice. Arranged in order of appearance
+        &_link{
+            white-space: nowrap;  
+            border-bottom-left-radius: 0;
+        }
+        &_todo{
+            text-align: center;
+            vertical-align: middle;
+
+            font-size: 0;
+
+            background: none;
+            border-radius: 0;
+        }
+        &_name{
+            font-weight: inherit;
+            font-size: inherit;
+            white-space: nowrap;
+
+            background: none;
+            border-radius: 0;  
+        }
+        &_agent{
+            position: static;
+
+            font-size: inherit;
+            color: inherit;
+
+            &:before{
+                display: none;
+            }
+        }
+        &_customer{
+            font-size: inherit;
+            font-weight: inherit;
+        }
+        &_country{
+            text-align: center;
+            vertical-align: middle;
+
+            background: none;
+        }
+        &_language{
+            text-align: center;
+            vertical-align: middle;
+
+            font-size: inherit;
+            color: inherit;
+
+            background: none;
+        }
+        &_date{
+            text-align: center;
+            vertical-align: middle;
+
+            white-space: nowrap;
+            font-size: inherit;
+            color: inherit;
+
+            background: none;
+        }
+        &_currency{
+            font-size: inherit;
+            font-weight: inherit;
+        }
+
+        &_invoiceTo,
+        &_quote,
+        &_po
+        {
+            font-size: inherit;
+            color: inherit;
+
+            &:before{
+                display: none;
+            }
+        }
+
+        &_poSpan,
+        &_quoteSpan {
+            display: inline;
+            max-width: 10rem;
+        }
+        &_value{
+            text-align: end;
+            font-size: inherit;
+            font-weight: inherit;
+        }
+        &_products{
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        /* Bits and bobs inside the <td>s */
+        &_productsButton{
+            width: 100%;
+        }
+
+        &_companyName{
+            max-width: 8rem;
+        }
+    }
+}
+
+// Adjust min/max <td> widths on wider screens
+@media screen and (min-width: 1920px){
+    .recordsTable{
+        --cellPadding: #{v.px-to-rem(4)} #{v.px-to-rem(10)};
+
+        &_companyName{
+            min-width: 12rem;
+            max-width: 12rem;
+        }
+
+        &_value{
+            min-width: 6rem;
+        }
+    }
+}
