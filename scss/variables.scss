@@ -126,7 +126,15 @@ $panel_shadow_highlight: 0 0 10px 1px rgba($c_accent, 50%);
     padding: 0;
     margin: -1px;
     overflow: hidden;
-    clip: rect(0, 0, 0, 0);
+    clip-path: inset(50%);
     white-space: nowrap;
     border: 0;
+}
+
+@mixin visually-unhidden{
+    position: static;
+    width: auto;
+    height: auto;
+    overflow: auto;
+    clip-path: none;
 }

@@ -74,6 +74,10 @@ $breakpoint_set_min_modal_size: 650px;
             margin: 0;
             padding: 0;
             width: v.px-to-rem(25);
+
+            span{
+                pointer-events: none;
+            }
         }
     }
     &_id{

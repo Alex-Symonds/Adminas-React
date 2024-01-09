@@ -1,4 +1,5 @@
 const CSS_MODAL = 'modal';
+const CSS_MODAL_CLOSE_BUTTON = 'modal_closeButton';
 const CSS_CLOSE_BUTTON = 'closeButton';
 const CSS_MODAL_WRAPPER = "modalWrapper";
 const CSS_MODAL_HEADING = "modal_heading";
@@ -11,10 +12,7 @@ function create_generic_modal(contents){
     const closeBtn = create_generic_ele_cancel_button();
     closeBtn.classList.add(`${CSS_MODAL}_${CSS_CLOSE_BUTTON}`);
     closeBtn.addEventListener('click', () => {
-        if(!wrapper.classList.contains(CSS_HIDE)){
-            wrapper.classList.add(CSS_HIDE);
-        }
-        dialog.close();
+        close_modal(dialog, wrapper);
     });
 
     dialog.append(closeBtn);
@@ -42,4 +40,45 @@ function open_modal(modalWrapper){
     modalWrapper.classList.remove(CSS_HIDE);
     const modalEle = modalWrapper.querySelector(`.${CSS_MODAL}`);
     modalEle.show();
+}
+
+function close_modal(dialog, wrapper = null){
+    const modalWrapper = wrapper === null ?
+        findModalWrapperFromChild(dialog)
+        : wrapper;
+
+    if(!modalWrapper.classList.contains(CSS_HIDE)){
+        modalWrapper.classList.add(CSS_HIDE);
+    }
+    dialog.close();
+}
+
+function findAllModalCloseButtons(){
+    return document.querySelectorAll(`.${CSS_MODAL_CLOSE_BUTTON}`);
+}
+
+function findModalDialogFromChild(child){
+    return child.closest(`.${CSS_MODAL}`);
+}
+
+function findModalDialogFromParent(parent){
+    return parent.querySelector(`.${CSS_MODAL}`);
+}
+
+function findModalWrapperFromChild(child){
+    return child.closest(`.${CSS_MODAL_WRAPPER}`);
+}
+
+function findModalWrapperFromParent(parent){
+    return parent.querySelector(`.${CSS_MODAL_WRAPPER}`);
+}
+
+function setupModalCloseButton(closeBtn){
+    const dialog = findModalDialogFromChild(closeBtn);
+    if(dialog !== null){
+        closeBtn.addEventListener('click', () => {
+            close_modal(dialog, null)
+        });
+        return;
+    }
 }

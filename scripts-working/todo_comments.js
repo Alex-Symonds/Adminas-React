@@ -38,10 +38,6 @@ function openPinnedCommentsModal(e){
 
     const modalWrapper = document.getElementById(targetID);
     open_modal(modalWrapper);
-    // modalWrapper.classList.remove(CSS_HIDE);
-    
-    // const modalEle = modalWrapper.querySelector(`.${CSS_MODAL}`);
-    // modalEle.show();
 
     const closeButton = modalWrapper.querySelector(`.${CSS_MODAL}_${CSS_CLOSE_BUTTON}`);
     if(closeButton !== undefined){
