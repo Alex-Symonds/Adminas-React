@@ -140,19 +140,8 @@ except:
     STATIC_ROOT = '/home/alexsymonds/Adminas-React/adminas/static/'
     MEDIA_ROOT = '/home/alexsymonds/Adminas-React/adminas/media/'
     WKHTMLTOPDF_CMD = r'/home/alexsymonds/pdf/wkhtml-install/usr/local/bin/wkhtmltopdf'
+    COUNTRIES_FLAG_URL = 'adminas/flags/{code}.gif'
 
-
-# STATIC_ROOT = '/home/alexsymonds/Adminas-React/adminas/static/'
-# MEDIA_ROOT = '/home/alexsymonds/Adminas-React/adminas/media/'
-
-# WKHTMLTOPDF_CMD = r'/home/alexsymonds/pdf/wkhtml-install/usr/local/bin/wkhtmltopdf'
-
-# if True:
-#     from decouple import config
-#     SECRET_KEY = config("SECRET_KEY")
-#     WKHTMLTOPDF_CMD = config("WKHTMLTOPDF_CMD")
-#     STATIC_ROOT = config("STATIC_ROOT")
-#     ALLOWED_HOSTS = ['127.0.0.1', 'alexsymonds.pythonanywhere.com']
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
