@@ -1,5 +1,4 @@
-{% extends "adminas/layout.html" %}
-
+{% extends "adminas/layout_base.html" %}
 
 {%  load static %}
 
@@ -11,209 +10,212 @@
     <link href="{% static 'adminas/styles/sales_pitch.css' %}" rel="stylesheet">
 {% endblock %}
 
-{% block body %}
-<div class="salesPitch">
+{% block htmlBody %}
+<body class="salesPitch">
 
-    <section class="hero"></section>
+    <section class="heroSection">
 
-    <div class="salesPitch_content">
-
-        <h2 class="mainHeading">
-            <img class="mainHeading_icon" src="{% static 'adminas/images/adminas-logo.svg' %}" alt="" width="70px" height="70px" />
-            <span class="mainHeading_name productName">Admin<span>as</span></span>
-            <p class="mainHeading_motto">
-                check, confirm, create
-            </p>
-            <div class="mainHeading_links">
-                <a class="mainHeading_login button-primary"  href="{% url 'login' %}">log in</a>
-                <a class="mainHeading_register button-primary-hollow" href="{% url 'register' %}">register</a>
-            </div>
-        </h2>
-
-        <section class="whatIs">
-            <h3 class="whatIs_heading">What is <span class="productName">Admin<span>as</span></span>?</h3>
-            <div class="contentWrapper">
-                <p class="whatIs_description">
-                    Adminas is an order entry program which administrators can use to enter a purchase order, check the prices and specifications are correct, then output an order confirmation and works order card as PDFs.
+        <div class="mainHeadingWrapper">
+            <h2 class="mainHeading">
+                <img class="mainHeading_icon" src="{% static 'adminas/images/adminas-logo.svg' %}" alt="" width="70px" height="70px" />
+                <span class="mainHeading_name productName">Admin<span>as</span></span>
+                <p class="mainHeading_motto">
+                    check, confirm, create
                 </p>
-            </div>
-        </section>
+                <div class="mainHeading_links">
+                    <a class="mainHeading_login button-primary"  href="{% url 'login' %}">log in</a>
+                    <a class="mainHeading_register button-primary-hollow" href="{% url 'register' %}">register</a>
+                </div>
+            </h2>
+        </div>
 
-        <section class="features">
-            <h3 class="features_heading">
-                <span class="productName">Admin<span>as</span></span> Features
-            </h3>
+    </section>
 
-            <div class="features_cardsContainer">
-                <section class="featureCard">
-                    <div class="featureCard_iconFrame">
-                        <img src="{% static 'adminas/images/feature-icon-price.svg' %}" alt="" width="55px" height="55px" class="featureCard_icon" />
-                    </div>
-                    <p class="featureCard_description">
-                        Check prices on a purchase order against both the standard list price and any applicable resale discounts.
-                    </p>
-                    <img srcset="   {% static 'adminas/images/screenie-prices-229.webp' %} 229w,
-                                    {% static 'adminas/images/screenie-prices-296.webp' %} 296w,
-                                    {% static 'adminas/images/screenie-prices-333.webp' %} 333w,
-                                    {% static 'adminas/images/screenie-prices-370.webp' %} 370w,
-                                    {% static 'adminas/images/screenie-prices-458-229x2.webp' %} 458w,
-                                    {% static 'adminas/images/screenie-prices-592-296x2.webp' %} 592w,
-                                    {% static 'adminas/images/screenie-prices-666-333x2.webp' %} 666w,
-                                    {% static 'adminas/images/screenie-prices-740-370x2.webp' %} 740w,
-                                    "
-                        sizes=" (min-width: 1000px) 370px,
-                                (min-width: 823px) 333px,
-                                (min-width: 750px) 296px,
-                                (min-width: 514px) 370px,
-                                (min-width: 430px) 333px,
-                                (min-width: 391px) 296px,
-                                229px
-                                "
-                                src="{% static 'adminas/images/screenie-prices-370.webp' %}" class="featureCard_screenie" alt="" 
-                    />
-                </section>
-                <section class="featureCard">
-                    <div class="featureCard_iconFrame">
-                        <img src="{% static 'adminas/images/feature-icon-modular.svg' %}" alt="" width="55px" height="55px" class="featureCard_icon" />
-                    </div>
-                    <p class="featureCard_description">
-                        Easy organisation of modular items: assign components, accessories and ancillary items to their parent item.
-                    </p>
-                    <img srcset="   {% static 'adminas/images/screenie-modules-229.webp' %} 229w,
-                                    {% static 'adminas/images/screenie-modules-296.webp' %} 296w,
-                                    {% static 'adminas/images/screenie-modules-333.webp' %} 333w,
-                                    {% static 'adminas/images/screenie-modules-370.webp' %} 370w,
-                                    {% static 'adminas/images/screenie-modules-458-229x2.webp' %} 458w,
-                                    {% static 'adminas/images/screenie-modules-592-296x2.webp' %} 592w,
-                                    {% static 'adminas/images/screenie-modules-666-333x2.webp' %} 666w,
-                                    {% static 'adminas/images/screenie-modules-740-370x2.webp' %} 740w,
-                                    "
-                        sizes=" (min-width: 1000px) 370px,
-                                (min-width: 823px) 333px,
-                                (min-width: 750px) 296px,
-                                (min-width: 514px) 370px,
-                                (min-width: 430px) 333px,
-                                (min-width: 391px) 296px,
-                                229px
-                                "
-                                src="{% static 'adminas/images/screenie-modules-370.webp' %}" class="featureCard_screenie" alt="" 
-                    />
-                </section>
-                <section class="featureCard">
-                    <div class="featureCard_iconFrame">
-                        <img src="{% static 'adminas/images/feature-icon-document.svg' %}" alt="" width="55px" height="55px" class="featureCard_icon" />
-                    </div>
-                    <p class="featureCard_description">
-                        Issue documents your way, distributing line items across as many order confirmations and works order cards as you need.
-                    </p>
-                    <img srcset="   {% static 'adminas/images/screenie-documents-229.webp' %} 229w,
-                                    {% static 'adminas/images/screenie-documents-296.webp' %} 296w,
-                                    {% static 'adminas/images/screenie-documents-333.webp' %} 333w,
-                                    {% static 'adminas/images/screenie-documents-370.webp' %} 370w,
-                                    {% static 'adminas/images/screenie-documents-458-229x2.webp' %} 458w,
-                                    {% static 'adminas/images/screenie-documents-592-296x2.webp' %} 592w,
-                                    {% static 'adminas/images/screenie-documents-666-333x2.webp' %} 666w,
-                                    {% static 'adminas/images/screenie-documents-740-370x2.webp' %} 740w,
-                                    "
-                        sizes=" (min-width: 1000px) 370px,
-                                (min-width: 823px) 333px,
-                                (min-width: 750px) 296px,
-                                (min-width: 514px) 370px,
-                                (min-width: 430px) 333px,
-                                (min-width: 391px) 296px,
-                                229px
-                                "
-                                src="{% static 'adminas/images/screenie-documents-370.webp' %}" class="featureCard_screenie" alt="" 
-                    />
-                </section>
-                <section class="featureCard">
-                    <div class="featureCard_iconFrame">
-                        <img src="{% static 'adminas/images/i-speech-bubble.svg' %}" alt="" width="55px" height="55px" class="featureCard_icon" />
-                    </div>
-                    <p class="featureCard_description">
-                        Public comments on each job keep everyone in the loop, while private comments allow users to add their own reminders and notes.
-                    </p>
-                    <img srcset="   {% static 'adminas/images/screenie-comments-229.webp' %} 229w,
-                                    {% static 'adminas/images/screenie-comments-296.webp' %} 296w,
-                                    {% static 'adminas/images/screenie-comments-333.webp' %} 333w,
-                                    {% static 'adminas/images/screenie-comments-370.webp' %} 370w,
-                                    {% static 'adminas/images/screenie-comments-458-229x2.webp' %} 458w,
-                                    {% static 'adminas/images/screenie-comments-592-296x2.webp' %} 592w,
-                                    {% static 'adminas/images/screenie-comments-666-333x2.webp' %} 666w,
-                                    {% static 'adminas/images/screenie-comments-740-370x2.webp' %} 740w,
-                                    "
-                        sizes=" (min-width: 1000px) 370px,
-                                (min-width: 823px) 333px,
-                                (min-width: 750px) 296px,
-                                (min-width: 514px) 370px,
-                                (min-width: 430px) 333px,
-                                (min-width: 391px) 296px,
-                                229px
-                                "
-                                src="{% static 'adminas/images/screenie-comments-370.webp' %}" class="featureCard_screenie" alt="" 
-                    />
-                </section>
-            </div>
-        </section>
 
+    <section class="whatIs">
+        <h3 class="whatIs_heading">What is <span class="productName">Admin<span>as</span></span>?</h3>
+        <div class="whatIs_background">
+            <p class="whatIs_description">
+                Adminas is an order entry program which administrators can use to enter a purchase order, check the prices and specifications are correct, then output an order confirmation and works order card as PDFs.
+            </p>
+        </div>
+    </section>
+
+    <section class="features">
+        <h3 class="features_heading">
+            <span class="productName">Admin<span>as</span></span> features
+        </h3>
+
+        <div class="features_cardsContainer">
+            <section class="featureCard">
+                <div class="featureCard_iconFrame">
+                    <img src="{% static 'adminas/images/feature-icon-price.svg' %}" alt="" width="55px" height="55px" class="featureCard_icon" />
+                </div>
+                <p class="featureCard_description">
+                    Check prices on a purchase order against both the standard list price and any applicable resale discounts.
+                </p>
+                <img srcset="   {% static 'adminas/images/screenie-prices-229.webp' %} 229w,
+                                {% static 'adminas/images/screenie-prices-296.webp' %} 296w,
+                                {% static 'adminas/images/screenie-prices-333.webp' %} 333w,
+                                {% static 'adminas/images/screenie-prices-370.webp' %} 370w,
+                                {% static 'adminas/images/screenie-prices-458-229x2.webp' %} 458w,
+                                {% static 'adminas/images/screenie-prices-592-296x2.webp' %} 592w,
+                                {% static 'adminas/images/screenie-prices-666-333x2.webp' %} 666w,
+                                {% static 'adminas/images/screenie-prices-740-370x2.webp' %} 740w,
+                                "
+                    sizes=" (min-width: 1000px) 370px,
+                            (min-width: 823px) 333px,
+                            (min-width: 750px) 296px,
+                            (min-width: 514px) 370px,
+                            (min-width: 430px) 333px,
+                            (min-width: 391px) 296px,
+                            229px
+                            "
+                            src="{% static 'adminas/images/screenie-prices-370.webp' %}" class="featureCard_screenie" alt="" 
+                />
+            </section>
+            <section class="featureCard">
+                <div class="featureCard_iconFrame">
+                    <img src="{% static 'adminas/images/feature-icon-modular.svg' %}" alt="" width="55px" height="55px" class="featureCard_icon" />
+                </div>
+                <p class="featureCard_description">
+                    Easy organisation of modular items: assign components, accessories and ancillary items to their parent item.
+                </p>
+                <img srcset="   {% static 'adminas/images/screenie-modules-229.webp' %} 229w,
+                                {% static 'adminas/images/screenie-modules-296.webp' %} 296w,
+                                {% static 'adminas/images/screenie-modules-333.webp' %} 333w,
+                                {% static 'adminas/images/screenie-modules-370.webp' %} 370w,
+                                {% static 'adminas/images/screenie-modules-458-229x2.webp' %} 458w,
+                                {% static 'adminas/images/screenie-modules-592-296x2.webp' %} 592w,
+                                {% static 'adminas/images/screenie-modules-666-333x2.webp' %} 666w,
+                                {% static 'adminas/images/screenie-modules-740-370x2.webp' %} 740w,
+                                "
+                    sizes=" (min-width: 1000px) 370px,
+                            (min-width: 823px) 333px,
+                            (min-width: 750px) 296px,
+                            (min-width: 514px) 370px,
+                            (min-width: 430px) 333px,
+                            (min-width: 391px) 296px,
+                            229px
+                            "
+                            src="{% static 'adminas/images/screenie-modules-370.webp' %}" class="featureCard_screenie" alt="" 
+                />
+            </section>
+            <section class="featureCard">
+                <div class="featureCard_iconFrame">
+                    <img src="{% static 'adminas/images/feature-icon-document.svg' %}" alt="" width="55px" height="55px" class="featureCard_icon" />
+                </div>
+                <p class="featureCard_description">
+                    Issue documents your way, distributing line items across as many order confirmations and works order cards as you need.
+                </p>
+                <img srcset="   {% static 'adminas/images/screenie-documents-229.webp' %} 229w,
+                                {% static 'adminas/images/screenie-documents-296.webp' %} 296w,
+                                {% static 'adminas/images/screenie-documents-333.webp' %} 333w,
+                                {% static 'adminas/images/screenie-documents-370.webp' %} 370w,
+                                {% static 'adminas/images/screenie-documents-458-229x2.webp' %} 458w,
+                                {% static 'adminas/images/screenie-documents-592-296x2.webp' %} 592w,
+                                {% static 'adminas/images/screenie-documents-666-333x2.webp' %} 666w,
+                                {% static 'adminas/images/screenie-documents-740-370x2.webp' %} 740w,
+                                "
+                    sizes=" (min-width: 1000px) 370px,
+                            (min-width: 823px) 333px,
+                            (min-width: 750px) 296px,
+                            (min-width: 514px) 370px,
+                            (min-width: 430px) 333px,
+                            (min-width: 391px) 296px,
+                            229px
+                            "
+                            src="{% static 'adminas/images/screenie-documents-370.webp' %}" class="featureCard_screenie" alt="" 
+                />
+            </section>
+            <section class="featureCard">
+                <div class="featureCard_iconFrame">
+                    <img src="{% static 'adminas/images/i-speech-bubble.svg' %}" alt="" width="55px" height="55px" class="featureCard_icon" />
+                </div>
+                <p class="featureCard_description">
+                    Public comments on each job keep everyone in the loop, while private comments allow users to add their own reminders and notes.
+                </p>
+                <img srcset="   {% static 'adminas/images/screenie-comments-229.webp' %} 229w,
+                                {% static 'adminas/images/screenie-comments-296.webp' %} 296w,
+                                {% static 'adminas/images/screenie-comments-333.webp' %} 333w,
+                                {% static 'adminas/images/screenie-comments-370.webp' %} 370w,
+                                {% static 'adminas/images/screenie-comments-458-229x2.webp' %} 458w,
+                                {% static 'adminas/images/screenie-comments-592-296x2.webp' %} 592w,
+                                {% static 'adminas/images/screenie-comments-666-333x2.webp' %} 666w,
+                                {% static 'adminas/images/screenie-comments-740-370x2.webp' %} 740w,
+                                "
+                    sizes=" (min-width: 1000px) 370px,
+                            (min-width: 823px) 333px,
+                            (min-width: 750px) 296px,
+                            (min-width: 514px) 370px,
+                            (min-width: 430px) 333px,
+                            (min-width: 391px) 296px,
+                            229px
+                            "
+                            src="{% static 'adminas/images/screenie-comments-370.webp' %}" class="featureCard_screenie" alt="" 
+                />
+            </section>
+        </div>
+    </section>
+
+    <div class="testimonialsWrapper">
         <section class="testimonials">
             <h3 class="testimonials_heading">
                 What <span class="productName">Admin<span>as</span></span> imaginary customers say
             </h3>
-            <section class="testimonialsContainer">
-                <section class="testimonial contentWrapper">
+            <section class="testimonials_container">
+                <section class="testimonialCard">
                     <img srcset="   {% static 'adminas/images/person1-90.webp' %} 1x,
                                     {% static 'adminas/images/person1-180-90x2.webp' %} 2x,
                                 "
-                                src="{% static 'adminas/images/person1-90.webp' %}" class="testimonial_image" alt="" 
+                                src="{% static 'adminas/images/person1-90.webp' %}" class="testimonialCard_image" alt="" 
                     />
-                    <p class="testimonial_name">
+                    <p class="testimonialCard_name">
                         Ms. S. Tokfoto
                     </p>
-                    <p class="testimonial_description">
+                    <p class="testimonialCard_description">
                         "If Adminas were a real product, which it isn't, I'd like the way users can't mess up the address book or the price lists. Since I'm not real either, I suppose this is the ideal software for me. Are any of us truly real?"
                     </p>
                 </section>
-                <section class="testimonial contentWrapper">
+                <section class="testimonialCard">
                     <img srcset="   {% static 'adminas/images/person2-90.webp' %} 1x,
                                     {% static 'adminas/images/person2-180-90x2.webp' %} 2x,
                                 "
-                                src="{% static 'adminas/images/person2-90.webp' %}" class="testimonial_image" alt="" 
+                                src="{% static 'adminas/images/person2-90.webp' %}" class="testimonialCard_image" alt="" 
                     />
-                    <p class="testimonial_name">
+                    <p class="testimonialCard_name">
                         Mr. Roy Altifre
                     </p>
-                    <p class="testimonial_description">
+                    <p class="testimonialCard_description">
                         "The price checker saves me some time, but I can't forgive Adminas for disrupting my shipping workflow, which heavily involves barging through address books and leaving a trail of devastation behind me."
                     </p>
                 </section>
-                <section class="testimonial contentWrapper">
+                <section class="testimonialCard">
                     <img srcset="   {% static 'adminas/images/person3-90.webp' %} 1x,
                                     {% static 'adminas/images/person3-180-90x2.webp' %} 2x,
                                 "
-                                src="{% static 'adminas/images/person3-90.webp' %}" class="testimonial_image" alt="" 
+                                src="{% static 'adminas/images/person3-90.webp' %}" class="testimonialCard_image" alt="" 
                     />
-                    <p class="testimonial_name">
-                        Ms. F. Aykpeep
+                    <p class="testimonialCard_name">
+                        Ms. Faye K. Pirsen
                     </p>
-                    <p class="testimonial_description">
+                    <p class="testimonialCard_description">
                         "I really liked the design, although I should mention that I wasn't wearing my glasses when I looked at it. My glasses are immensely powerful, I'm all but blind without them."
                     </p>
                 </section>
             </section>
         </section>
-
-        <section class="isItForMe">
-            <h3 class="isItForMe_heading">
-                Is <span class="productName">Admin<span>as</span></span> for me?</h3>
-            </h3>
-            <div class="contentWrapper">
-                <p class="isItForMe_description">
-                    No. It's just a demo, I made it to practice with Django and React and to see what it's like to make something like this with a proper database instead of abusing Excel. &#128516;
-                </p>
-            </div>
-        </section>
     </div>
-</div>
 
+    <section class="isItForMe">
+        <h3 class="isItForMe_heading">
+            Is <span class="productName">Admin<span>as</span></span> for me?</h3>
+        </h3>
+        <div class="isItForMe_background">
+            <p class="isItForMe_description">
+                No. It's just a demo, I made it to practice with Django and React and to see what it's like to make something like this with a proper database instead of abusing Excel. &#128516;
+            </p>
+        </div>
+    </section>
+</body>
 {% endblock %}

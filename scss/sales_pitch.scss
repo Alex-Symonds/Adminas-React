@@ -3,18 +3,17 @@
 
 /*
     Contents:
-        || SCSS Variables (breakpoints)
-        || Shared (mixin, productName, h3 headings)
+        || SCSS Variables
+        || Shared
         || Layout
-        || Hero image background
-        || Main heading (over hero image)
-        || Paragraph-only sections (what is, is it for me)
+        || Heading and Hero
+        || Paragraph-only sections
         || Features
         || Testimonials
         || Responsive
 */
 
-$constrain_to: 1000px;
+$constrain_to: 800px;
 
 $breakpoint_contentContainer: 500px;
 $breakpoint_testimonialsAsRows: 600px;
@@ -22,81 +21,225 @@ $breakpoint_featuresAsRows: 750px;
 $breakpoint_largerFont: 950px;
 $breakpoint_featuresTwoByTwo: 1002px;
 $breakpoint_testimonialsThreeCol: 1150px;
-$breakpoint_unconstrainedHeading: 1615px;
 
 
 // || Shared
 @mixin contentWrapperShared{
-    padding: 1.5rem 1.5rem;
-    border-radius: 0.5rem;
-
+    // A grey rectangular wrapper with rounded corners and a shadow. 
     width: fit-content;
     max-width: 100%;
     box-sizing: border-box;
-    background: rgba(v.$c_tone_02, 60%);
 
-    @media screen and (min-width: $breakpoint_contentContainer) {
-        padding: 1.75rem 2rem;
-        border-radius: 0.5rem;
+    background: rgba(v.$c_tone-800, 60%);
+
+    border-radius: 0.5rem;
+    border: 1px solid v.$c_tone-900;
+    box-shadow: 1px 1px v.px-to-rem(15) v.px-to-rem(1) rgba(black, .2);
+}
+
+@mixin sectionHeadings{
+    // Section headings for use on the sales pitch page
+
+    font-size: calc(var(--mainFontSize) * var(--headingFontMultiplier));
+    margin: 0 0 calc(var(--mainFontSize) * (var(--headingFontMultiplier) + 0.25)) 0;
+    padding: 0;
+    width: fit-content;
+
+    border: none;
+    align-self: start;
+
+    @media screen and (min-width: $breakpoint_largerFont){
+        --headingFontMultiplier: 1.5;
     }
 }
 
-.contentWrapper{
-    @include contentWrapperShared();
+@mixin paragraphOnlySection{
+    // A single paragraph, with a thick left-side-border, constrained to the
+    // content width
+
+    width: $constrain_to;
+    max-width: var(--maxWidthContent);
+
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+
+    &_background{
+        width: fit-content;
+        max-width: 100%;
+        box-sizing: border-box;
+        padding: 0 0.75rem;
+
+        @media screen and (min-width: $breakpoint_largerFont) {
+            padding: 0 v.px-to-rem(16);
+        }
+    }
+
+    &_heading{
+        @include sectionHeadings();
+    }
+
+    &_description{
+        --sideBorderWidth: 5px;
+        --paddingY: #{v.px-to-rem(16)};
+        --paddingX: #{v.px-to-rem(18)};
+
+        box-sizing: border-box;
+        margin: 0;
+        padding: var(--paddingY) var(--paddingX);
+        width: 70ch;
+        max-width: 100%;
+        
+        font-size: var(--mainFontSize);
+        line-height: calc(var(--mainFontSize) * 1.4);
+    
+        border-left: var(--sideBorderWidth) solid v.$c_accent_secondary;
+        border-top-right-radius: v.px-to-rem(4);
+        border-bottom-right-radius: v.px-to-rem(4);
+
+        background: rgba(black, .1);
+    
+        @media screen and (min-width: 500px){
+            font-size: calc(var(--mainFontSize) + 1px);
+        }
+
+        @media screen and (min-width: $breakpoint_largerFont){
+            --sideBorderWidth: 6px;
+            --paddingY: #{v.px-to-rem(20)};
+            --paddingX: #{v.px-to-rem(28)};
+        }  
+
+    }
 }
 
-// || Headings (h3)
-.whatIs_heading,
-.features_heading,
-.testimonials_heading,
-.isItForMe_heading{
-    font-size: 1.75rem;
-
-    border: none;
-    margin: 0 0 1.5rem 0;
-    padding: 0;
-    width: fit-content;
-}
 
 
 // || Layout
 .salesPitch{
+    --mainFontSize: #{v.px-to-rem(16)};
+    --headingFontMultiplier: 1.3;
+
+    --maxWidthContent: 94%;
     --contentSpacing: 6rem;
-    --heroHeight: 70vh;
-    --mainFontSize: 1.1rem;
-    
+
+    /*
+        Added clamp to better support zooming out, but it might help in other cases too.
+        Min/max are from googling common device resolutions.
+        360px was the smallest (= smart phone in landscape mode) and 1080px was the tallest. 
+        I decided to ignore the possibility of a desktop monitor in portrait mode on the grounds 
+        that /if/ someone goes to the trouble of rotating their desktop monitor, it's probably
+        because they like having more vertical content on their screen, so let's /not/ try to fill
+        most of it with an abstract and meaningless hero image.
+    */
+    --heroHeight: clamp(360px, 75vh, 1080px);
+
+    margin: 0; /* reset body */
+
     display: flex;
     flex-direction: column;
     align-items: center;
-    position: relative;
-}
-
-.salesPitch_content{
-    display: flex;
-    flex-direction: column;
     gap: var(--contentSpacing);
 
-    width: $constrain_to;
-    max-width: 94%;
-
     box-sizing: border-box;
+    position: relative;
+
+    padding: 0 0 var(--contentSpacing) 0;
+
+    color: v.$c_tone_100;
 }
 
 
-// || Hero image background
-.hero{
+
+// || Heading and Hero
+.mainHeadingWrapper{
+    width: $constrain_to;
+    max-width: var(--maxWidthContent);
+
+    position: relative;
+    z-index: 2;
+
+    display: flex;
+    align-items: center;
+}
+
+.mainHeading{
+    --adminasFontSize: 2.75rem;
+    --iconSize: calc(var(--adminasFontSize) * 1.25);
+    
+    border: none;
+    padding: 0;
+    width: fit-content;
+
+    margin: 0; /* reset */
+    
+    display: grid;
+    grid-template-columns: var(--iconSize) auto;
+    grid-template-rows: auto auto auto;
+    gap: 0 calc(var(--adminasFontSize) / 2.5);
+
+    &_icon{
+        align-self: center;
+        grid-row-start: 1;
+        grid-row-end: 3;
+        height: var(--iconSize);
+        width: var(--iconSize);
+    }
+    
+    &_name{
+        align-self: end;
+        grid-column-start: 2;
+    
+        line-height: var(--adminasFontSize);
+        font-size: var(--adminasFontSize);
+        font-weight: 400;
+    }
+    
+    &_motto{
+        grid-column-start: 2;
+        margin: 0;
+        padding: 0;
+        width: 100%;
+    
+        color: v.$c_tone_06;
+        font-size: calc(var(--adminasFontSize) * .4);
+        font-weight: 400;
+        text-align: center;
+    }
+    
+    &_links{
+        grid-column-start: 1;
+        grid-column-end: 3;
+        margin-top: 1.75rem;
+    
+        display: flex;
+        justify-content: space-between;
+        align-items: end;
+    }
+    
+    &_register,
+    &_login{
+        padding: 0.5rem 0;
+        width: 45%;
+    
+        font-size: calc(var(--adminasFontSize) / 2.75);
+        text-align: center;
+        text-decoration: none;  
+    }
+}
+
+.heroSection{
     --bigCircle: 8%;
     --midCircle: 1.5%;
     --smallCircle: 0.4%;
 
-    pointer-events: none;
-    position: absolute;
     height: var(--heroHeight);
     width: 100%;
-    z-index: -1;
+
+    position: relative;
+    display: flex;
+    justify-content: center;
 
     background-image:
-        linear-gradient(    rgba(black, .25) 0%, transparent 1.25rem),
         radial-gradient(    circle at calc(100% - var(--bigCircle) + var(--bigCircle)/5) calc(2% + var(--bigCircle) + var(--bigCircle)/5), 
                             v.$c_accent_03 0%,
                             v.$c_accent var(--bigCircle),
@@ -109,7 +252,7 @@ $breakpoint_unconstrainedHeading: 1615px;
                             v.$c_accent 0%,
                             v.$c_accent var(--midCircle),
                             transparent calc(var(--midCircle) + 1px)),
-        radial-gradient(    circle at calc(48% - var(--smallCircle) + var(--smallCircle)/5) calc(48% + var(--smallCircle) + var(--smallCircle)/5), 
+        radial-gradient(    circle at calc(25% - var(--smallCircle) + var(--smallCircle)/5) calc(25% + var(--smallCircle) + var(--smallCircle)/5), 
                             v.$c_accent 0%,
                             v.$c_accent var(--smallCircle),
                             transparent calc(var(--smallCircle) + 1px)),
@@ -121,7 +264,7 @@ $breakpoint_unconstrainedHeading: 1615px;
                             v.$c_accent 0%,
                             v.$c_accent var(--smallCircle),
                             transparent calc(var(--smallCircle) + 1px)),
-        linear-gradient(    rgba(black, .45) 0%, rgba(black, .3) 75%, transparent 100% ),  
+        linear-gradient(    rgba(black, .45) 0%, rgba(black, .3) 80%, transparent 100% ),  
     ;
 
     &::before{
@@ -131,141 +274,84 @@ $breakpoint_unconstrainedHeading: 1615px;
         width: 100%;
         position: absolute;
         opacity: 20%;
+        z-index: 1;
 
         background-image: url('../images/curves.svg#svgView(preserveAspectRatio(none))');
         background-repeat: no-repeat;
-        background-size: 1920px var(--heroHeight);
+        background-size: max(1920px, 100vw) var(--heroHeight);
         background-color: transparent;
         background-position: -37.5rem -3rem;
-    
-        position: relative;
     }
 }
 @media screen and (min-width: 400px){
-    .hero::before{
+    .heroSection::before{
         background-position: -35rem -3rem;
     }
 }
 @media screen and (min-width: $breakpoint_largerFont){
-    .hero::before{
+    .heroSection::before{
         background-position: -20rem -2rem;
+    }
+    .mainHeading{
+        position: relative;
+        top: 15%;
+        left: -2%;
     }
 }
 @media screen and (min-width: 1275px){
-    .hero::before{
+    .heroSection::before{
         background-position: 5% center;
     }
-}
-
-
-// || Main heading (over hero image)
-.mainHeading{
-    --adminasFontSize: 2.75rem;
-    --headingHeight: 10vh;
-    --iconSize: calc(var(--adminasFontSize) * 1.25);
-    --topMargin: calc(var(--heroHeight) / 2 - var(--headingHeight) / 2 - 5vh);
-    
-    align-self: start;
-    border: none;
-    margin: var(--topMargin) 0 calc(var(--heroHeight) - var(--topMargin) - var(--headingHeight) - var(--contentSpacing)) 0;
-    padding: 0;
-    width: fit-content;
-    
-    display: grid;
-    grid-template-columns: var(--iconSize) auto;
-    grid-template-rows: auto auto auto;
-    gap: 0 calc(var(--adminasFontSize) / 2.5);
-}
-
-.mainHeading_icon{
-    align-self: center;
-    grid-row-start: 1;
-    grid-row-end: 3;
-    height: var(--iconSize);
-    width: var(--iconSize);
-}
-
-.mainHeading_name{
-    align-self: end;
-    grid-column-start: 2;
-
-    line-height: var(--adminasFontSize);
-    font-size: var(--adminasFontSize);
-    font-weight: 400;
-}
-
-.mainHeading_motto{
-    grid-column-start: 2;
-    margin: 0;
-    padding: 0;
-    width: 100%;
-
-    color: v.$c_tone_06;
-    font-size: calc(var(--adminasFontSize) * .4);
-    font-weight: 400;
-    text-align: center;
-}
-
-.mainHeading_links{
-    grid-column-start: 1;
-    grid-column-end: 3;
-    margin-top: 1.75rem;
-
-    display: flex;
-    justify-content: space-between;
-}
-
-.mainHeading_register,
-.mainHeading_login{
-    padding: 0.5rem 0;
-    width: 45%;
-
-    font-size: calc(var(--adminasFontSize) / 2.75);
-    text-align: center;
-    text-decoration: none;  
+    .mainHeading{
+        position: relative;
+        top: 15%;
+        left: -4rem;
+    }
 }
 
 
 // || Paragraph-only sections
-.whatIs_description,
-.isItForMe_description{
-    box-sizing: border-box;
-    margin: 0;
-    padding: 1.5rem 2rem;
-    width: 70ch;
-    max-width: 100%;
-    
-    font-size: var(--mainFontSize);
+.whatIs{
+    @include paragraphOnlySection();
+}
 
-    border-left: 6px solid v.$c_accent_secondary;
+
+.isItForMe{
+    @include paragraphOnlySection();
 }
 
 
 // || Features
 .features{
+    width: $constrain_to;
+    max-width: var(--maxWidthContent);
+
     display: flex;
     flex-direction: column;
     align-items: center;
+
+    &_heading{
+        @include sectionHeadings();
+        align-self: start;
+    }
+    
+    &_cardsContainer{
+        --featureCardWidth: #{v.px-to-rem(370 + 18 * 2)};
+    
+        width: var(--featureCardWidth);
+        max-width: 100%;
+    
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 2rem;
+    }
 }
 
-.features_heading{
-    align-self: start;
-}
-
-.features_cardsContainer{
-    --featureCardWidth: 28rem;
-
-    width: var(--featureCardWidth);
-    max-width: 100%;
-
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    gap: 2rem;
-}
 
 .featureCard{
     @include contentWrapperShared();
+    padding: v.px-to-rem(22) v.px-to-rem(18);
 
     box-sizing: border-box;
     margin: 0;
@@ -276,52 +362,76 @@ $breakpoint_unconstrainedHeading: 1615px;
     flex-direction: column;
     align-items: center;
     column-gap: 1rem;
-}
 
-.featureCard_iconFrame{
-    --size: calc(var(--mainFontSize) * 3.5);
-
-    align-self: center;
-    height: var(--size);
-    width: var(--size);
-
-    background: v.$c_accent;
-    border-radius: 50%;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.featureCard_icon{
-    --iconSize: calc(var(--size) * .6875);
+    &_iconFrame{
+        --size: calc(var(--mainFontSize) * 3.5);
     
-    height: var(--iconSize);
-    width: var(--iconSize);
-}
-
-.featureCard_description{
-    margin: calc(var(--mainFontSize) * 1.75) 0;
-    width: 100%;
-
-    font-size: var(--mainFontSize);
+        align-self: center;
+        height: var(--size);
+        width: var(--size);
+    
+        background: v.$c_accent;
+        border-radius: 50%;
+    
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    &_icon{
+        --iconSize: calc(var(--size) * .6875);
+        
+        height: var(--iconSize);
+        width: var(--iconSize);
+    }
+    
+    &_description{
+        margin: calc(var(--mainFontSize) * 1.75) 0;
+        width: 100%;
+    
+        font-size: var(--mainFontSize);
+    }
 }
 
 
 // || Testimonials
-.testimonialsContainer{
-    box-sizing: border-box;
-    width: 100%; 
+.testimonialsWrapper{
+    // Coloured strip going all the way across the page
+    --spacing: 3rem;
+
+    align-self: stretch;
+    background: rgba(black, 0.4);
+    box-shadow: inset 0 0 v.px-to-rem(15) v.px-to-rem(3) rgba(black, .25);
 
     display: flex;
-    flex-direction: column;
-    align-items: center; 
-    gap: 3rem;
+    justify-content: center;
+
+    padding: v.px-to-rem(26) v.px-to-rem(6) v.px-to-rem(44);
 }
 
-.testimonial{
-    min-width: 15rem;
-    width: 19rem;
+.testimonials{
+    width: $constrain_to;
+    max-width: var(--maxWidthContent);
+
+    &_heading{
+        @include sectionHeadings();
+        margin-bottom: var(--spacing);
+    }
+
+    &_container{
+        box-sizing: border-box;
+        width: 100%; 
+    
+        display: flex;
+        flex-direction: column;
+        align-items: center; 
+        gap: var(--spacing);
+    }
+}
+
+
+.testimonialCard{
+    width: 20rem;
     max-width: 100%;
 
     font-size: var(--mainFontSize);
@@ -329,54 +439,51 @@ $breakpoint_unconstrainedHeading: 1615px;
     display: flex;
     flex-direction: column;
     align-items: center;
-}
 
-.testimonial_image{
-    --testimonialImageSize: 90px;
+    box-sizing: border-box;
 
-    height: var(--testimonialImageSize);
-    width: var(--testimonialImageSize);
-
-    border-radius: 100%;
-}
-
-.testimonial_name{
-    margin: 0.75rem 0 1rem;
-
-    font-size: calc(var(--mainFontSize) * 0.9);
-    font-weight: 500;
-}
-
-.testimonial_description{
-    margin: 0;
-    padding: 1.5rem 0 0;
-
-    color: v.$c_tone_07;
-    font-style: italic;
+    &_image{
+        --testimonialImageSize: 90px;
     
-    border-color: rgba(v.$c_tone_03, .65);
-    border-style: solid;
-    border-width: 1px 0 0 0;
-}
+        height: var(--testimonialImageSize);
+        width: var(--testimonialImageSize);
+    
+        border-radius: 100%;
 
-
-// || Responsive
-@media screen and (min-width: $breakpoint_unconstrainedHeading){
-    .mainHeading{
-        position: relative;
-        left: -15%;
+        // Let some of the BG through to darken the images, so they're less glaring
+        opacity: 90%;
     }
+    
+    &_name{
+        margin: 0.75rem 0 1rem;
+    }
+    
+    &_description{
+        margin: 0;
+        padding: 1rem 0 0;
+    
+        color: v.$c_tone-100;
+        font-style: italic;
+        
+        border-color: v.$c_accent-800;
+        border-style: solid;
+        border-width: 1px 0 0 0;
+    }
+
 }
 
+
+// || Responsive (general)
 @media screen and (min-width: $breakpoint_largerFont){
-    .salesPitch{
-        --mainFontSize: 1.25rem;
-    }
     .mainHeading{
         --adminasFontSize: 4rem;
     }
+    .testimonials{
+        padding: 0.5rem 2rem;
+    }
 }
 
+// || Responsive features
 @media screen and (min-width: $breakpoint_featuresAsRows) and (max-width: calc($breakpoint_featuresTwoByTwo - 1px)) {
     .features_cardsContainer{
         width: 50rem;
@@ -413,26 +520,26 @@ $breakpoint_unconstrainedHeading: 1615px;
             --contentCol: 2;
             --rightColWidth: var(--contentColWidth);
         }
-    }
 
-    .featureCard_iconFrame{
-        grid-column-start: var(--contentCol);
-        grid-row-start: 1;
-        justify-self: center;
-    }
-
-    .featureCard_description{
-        grid-column-start: var(--contentCol);
-        grid-row-start: 2;
-        width: 100%;
-        max-width: 100%;
-    }
-
-    .featureCard_screenie{
-        grid-column-start: var(--screenieCol);
-        grid-row-start: 1;
-        grid-row-end: end;
-        justify-self: center;
+        &_iconFrame{
+            grid-column-start: var(--contentCol);
+            grid-row-start: 1;
+            justify-self: center;
+        }
+    
+        &_description{
+            grid-column-start: var(--contentCol);
+            grid-row-start: 2;
+            width: 100%;
+            max-width: 100%;
+        }
+    
+        &_screenie{
+            grid-column-start: var(--screenieCol);
+            grid-row-start: 1;
+            grid-row-end: end;
+            justify-self: center;
+        }
     }
 }
 
@@ -442,38 +549,49 @@ $breakpoint_unconstrainedHeading: 1615px;
         grid-template-columns: auto auto;
         grid-template-rows: auto auto;
         width: fit-content;
+
+        --featureCardWidth: calc(#{v.px-to-rem(370)} + 4rem);
+    }
+    .featureCard{
+        padding: 1.75rem 2rem;
+        &_description{
+            font-size: calc(var(--mainFontSize) * 1.1);
+        }
     }
 }
 
+// || Responsive testimonials
 @media screen and (min-width: $breakpoint_testimonialsAsRows) and (max-width: calc(#{$breakpoint_testimonialsThreeCol} - 1px)){
-    .testimonial{
+    .testimonialCard{
         width: 100%;
 
         display: grid;
-        grid-template-columns: auto auto;
+        grid-template-columns: 9rem auto;
         grid-template-rows: auto auto;
         gap: 0 2rem;
-    }
 
-    .testimonial_image{
-        align-self: end;
-        justify-self: center;
-    }
+        padding: 0;
 
-    .testimonial_name{
-        align-self: start;
-        justify-self: center;
-        margin: 0.75rem 0 0;
-    }
-
-    .testimonial_description{
-        grid-column-start: 2;
-        grid-row-start: 1;
-        grid-row-end: 3;
-        align-self: center;
-        padding: 2rem 0 2rem 2rem;
-
-        border-width: 0 0 0 1px;
+        &_image{
+            align-self: end;
+            justify-self: center;
+        }
+    
+        &_name{
+            align-self: start;
+            justify-self: center;
+            margin: 0.75rem 0 0;
+        }
+    
+        &_description{
+            grid-column-start: 2;
+            grid-row-start: 1;
+            grid-row-end: 3;
+            align-self: center;
+            padding: 2rem 0 2rem 2rem;
+    
+            border-width: 0 0 0 1px;
+        }
     }
 }
 
@@ -482,17 +600,22 @@ $breakpoint_unconstrainedHeading: 1615px;
         display: flex;
         flex-direction: column;
         align-items: center;
+
+        &_heading{
+            align-self: start;
+        }
+
+        &_container{
+            width: 100%;
+    
+            display: flex;
+            flex-direction: row;
+            align-items: stretch;
+            justify-content: space-between;
+        }    
     }
 
-    .testimonials_heading{
-        align-self: start;
-    }
-
-    .testimonialsContainer{
-        width: 100%;
-
-        flex-direction: row;
-        align-items: stretch;
-        justify-content: space-between;
+    .testimonialCard{
+        width: calc(27%);
     }
 }
