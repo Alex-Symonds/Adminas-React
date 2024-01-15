@@ -26,7 +26,7 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['alexsymonds.pythonanywhere.com']
 
@@ -136,6 +136,7 @@ try:
     WKHTMLTOPDF_CMD = config("WKHTMLTOPDF_CMD")
     STATIC_ROOT = config("STATIC_ROOT")
     ALLOWED_HOSTS = ['127.0.0.1', 'alexsymonds.pythonanywhere.com']
+    DEBUG = True
 except:
     STATIC_ROOT = '/home/alexsymonds/Adminas-React/adminas/static/'
     MEDIA_ROOT = '/home/alexsymonds/Adminas-React/adminas/media/'
