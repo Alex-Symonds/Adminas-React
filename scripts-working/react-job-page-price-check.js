@@ -55,7 +55,7 @@ function JobPriceCheckUI(props){
 
     return [
         <section id="price_check_section" class="paired-section">
-            <h3>Prices</h3>
+            <JobSectionHeadingUI text={"Prices"} />
             { contents }
         </section>
     ]
@@ -68,7 +68,7 @@ function JobPriceCheckEmptyUI(props){
     if(!props.is_empty){
         return null;
     }
-    return <EmptySectionUI  message = {"Activates upon entering items."}/>
+    return <EmptySectionUI  message={"Activates upon entering items"} css={'jobPage_emptySection'} />
 }
 
 // || Price acceptance toggle

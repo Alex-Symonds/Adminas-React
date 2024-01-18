@@ -18,7 +18,7 @@
 
 {% block body %}
 
-    <h2>Document</h2>
+    <h2 class="pageHeading">Document</h2>
     <div class="subheading">{{ doc_title }}</div>
     <a class="return-to-job" href="{% url 'job' job_id %}">&laquo; return to Job</a>
    
@@ -27,13 +27,13 @@
 
     <section class="status-controls 
     {% if doc_version.issue_date %} issued">
-        <h3>Issued on {{ doc_version.issue_date }} (v{{ doc_version.version_number }})</h3>
+        <h3 class="sectionHeading">Issued on {{ doc_version.issue_date }} (v{{ doc_version.version_number }})</h3>
         <a class="filled" href="{% url 'doc_display' doc_version.id %}">view PDF</a>
         <button id="replace_document_btn" class="revert-replace">replace with new version</button>
 
     {% elif doc_version.active %} draft">
         <div class="status-header">
-            <h3>Draft (v{{ doc_version.version_number }})</h3>
+            <h3 class="sectionHeading">Draft (v{{ doc_version.version_number }})</h3>
             <a class="edit-icon" href="{% url 'doc_editor_page' %}?id={{ doc_version.id }}"><span>edit</span></a>
         </div>
         
@@ -44,7 +44,7 @@
         {% endif %}
 
     {% else %} deleted">
-        <h3>Deleted</h3>
+        <h3 class="sectionHeading">Deleted</h3>
         <p>To restore, contact an administrator.</p>
     {% endif %}
 
@@ -90,14 +90,14 @@
                 <div class="who-and-when"><span class="username">{{ sp_inst.created_by }}</span> on <span class="when">{{ sp_inst.created_on }}</span></div>
             </div>
     {% empty %}
-            <p class="no_special_instructions">No special instructions on this document.</p>
+            <p class="no-special-instructions empty-section-notice">No special instructions on this document</p>
     {% endfor %}
         </div>
     </section>
 
 
     <section class="document-item-lists">
-        <h3>Items</h3>
+        <h3 class="sectionHeading">Items</h3>
 
         <div class="document-item-lists-container">
 

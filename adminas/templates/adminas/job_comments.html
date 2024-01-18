@@ -18,7 +18,7 @@
 
 
 {% block body %}
-    <h2>Comments</h2>
+    <h2 class="pageHeading">Comments</h2>
     <div class="subheading">
         Job {{ job.name }} 
         <img src="{{ job.flag_url }}" alt="{{ job.flag_alt }}">
@@ -33,7 +33,7 @@
         <div class="comment-type-section filtered-comments">
             
             <section>
-                <h3>Pinned by {{ user.username }}</h3>
+                <h3 class="sectionHeading">Pinned by {{ user.username }}</h3>
                 <div class="comment-container pinned streamlined persistent">
     {% for p in pinned %}
                     {% include "adminas/components/comment_collapse.html" with comment=p %}
@@ -44,7 +44,7 @@
             </section>
 
             <section>
-                <h3>Highlighted by {{ user.username }}</h3>
+                <h3 class="sectionHeading">Highlighted by {{ user.username }}</h3>
                 <div class="comment-container highlighted persistent">
     {% for h in highlighted %}
                     {% include "adminas/components/comment_full.html" with comment=h %}
@@ -57,7 +57,7 @@
         </div>
 
         <section class="comment-type-section all-comments">
-            <h3>All</h3>
+            <h3 class="sectionHeading">All</h3>
     {% if page_data.has_other_pages %}
             <div class="subheading">page {{ page_data.number }} of {{ page_data.paginator.num_pages }}</div>
     {% endif %}

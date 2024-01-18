@@ -10,7 +10,7 @@
 function JobDocumentsUI(props){
     return [
         <section class="job-doc-section job-section">
-            <h3>Documents</h3>
+            <JobSectionHeadingUI text={"Documents"} />
             <div className={"jobDocsOut_contentWrapper"}>
                 <JobDocumentsSubsection
                     docList = { props.docList }

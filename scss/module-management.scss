@@ -2,13 +2,17 @@
 
 /*  Module Management page formatting.
     Contents:
-        || Panel formatting
+        || General
         || Modular items
         || Pop-up "bucket" menu
 */
 
-// || Panel formatting
 
+// || General
+.edit-slot-filler-btn{
+    position: relative;
+    top: -3px;
+}
 
 // || Modular item layout and formatting
 .modular-item-container{

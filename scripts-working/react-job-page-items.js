@@ -31,7 +31,7 @@ function JobItems(props){
 
     return [
         <section id="job_items_section" class="job-section">
-            <h3>Items</h3>
+            <h3 className={"sectionHeading"}>Items</h3>
             <div class="job-items-container">
                 <button 
                     id="open_item_form_btn" 
@@ -98,7 +98,7 @@ function JobItemsExisting(props){
     const details_parent = get_details_parent(activeDetails, props.items_list);
    
     if(props.items_list.length == 0){
-        return <EmptySectionUI message='No items have been entered.' />
+        return <EmptySectionUI message={'No items have been entered'} css={'jobPage_emptySection'} />
     }
 
     // item_list is a JobItem-centric list, with parent-JobItem-centric slot assignment data.
@@ -810,9 +810,7 @@ function JobItemsCreator(props){
     return [
         <Modal close={props.editor.off}>
             <div className={"jobItemsCreator"}>
-                <h3 class="modal_heading">
-                    Add New Items
-                </h3>
+                <h3 className={"modal_heading"}>Add New Items</h3>
                 <div className={"modal_contents"}>
                     <BackendErrorUI 
                         message = { backendError.message }

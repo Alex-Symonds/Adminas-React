@@ -217,6 +217,14 @@
 
 }
 
+.included,
+.excluded{
+    margin: 1rem 0;
+
+    li{
+        padding-bottom: v.px-to-rem(5);
+    }
+}
 
 .document-item-lists{
     width: 100%;
@@ -410,7 +418,6 @@
         display: flex;
         justify-content: space-between;
 
-        box-sizing: border-box;
         width: 100%;
 
         border: 1px solid v.$c_tone_03;
@@ -430,6 +437,11 @@
 
 .document-sections-wrapper .subsection{
     margin-left: 0;
+}
+
+.no-special-instructions{
+    margin: 0.75rem;
+    padding: 0.5rem 0.75rem;
 }
 
 .subsection.special-instructions{
@@ -463,10 +475,6 @@
         &:hover{
             background-position: 5px 4px;
         }
-    }
-
-    p{
-        padding: 0 0.5rem;
     }
 
     .add-button{

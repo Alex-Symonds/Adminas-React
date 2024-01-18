@@ -28,7 +28,6 @@ $breakpoint_testimonialsThreeCol: 1150px;
     // A grey rectangular wrapper with rounded corners and a shadow. 
     width: fit-content;
     max-width: 100%;
-    box-sizing: border-box;
 
     background: rgba(v.$c_tone-800, 60%);
 
@@ -67,7 +66,6 @@ $breakpoint_testimonialsThreeCol: 1150px;
     &_background{
         width: fit-content;
         max-width: 100%;
-        box-sizing: border-box;
         padding: 0 0.75rem;
 
         @media screen and (min-width: $breakpoint_largerFont) {
@@ -84,14 +82,13 @@ $breakpoint_testimonialsThreeCol: 1150px;
         --paddingY: #{v.px-to-rem(16)};
         --paddingX: #{v.px-to-rem(18)};
 
-        box-sizing: border-box;
         margin: 0;
         padding: var(--paddingY) var(--paddingX);
         width: 70ch;
         max-width: 100%;
         
         font-size: var(--mainFontSize);
-        line-height: calc(var(--mainFontSize) * 1.4);
+        line-height: 1.4;
     
         border-left: var(--sideBorderWidth) solid v.$c_accent_secondary;
         border-top-right-radius: v.px-to-rem(4);
@@ -133,19 +130,20 @@ $breakpoint_testimonialsThreeCol: 1150px;
     */
     --heroHeight: clamp(360px, 75vh, 1080px);
 
-    margin: 0; /* reset body */
-
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: var(--contentSpacing);
 
-    box-sizing: border-box;
     position: relative;
 
     padding: 0 0 var(--contentSpacing) 0;
 
     color: v.$c_tone_100;
+
+    font-family: v.$f_contents;
+    background: v.$c_bg_main;
+    background: v.$g_bg_main;
 }
 
 
@@ -189,7 +187,7 @@ $breakpoint_testimonialsThreeCol: 1150px;
         align-self: end;
         grid-column-start: 2;
     
-        line-height: var(--adminasFontSize);
+        line-height: 1;
         font-size: var(--adminasFontSize);
         font-weight: 400;
     }
@@ -353,7 +351,6 @@ $breakpoint_testimonialsThreeCol: 1150px;
     @include contentWrapperShared();
     padding: v.px-to-rem(22) v.px-to-rem(18);
 
-    box-sizing: border-box;
     margin: 0;
     width: var(--featureCardWidth);
     max-width: 100%;
@@ -419,7 +416,6 @@ $breakpoint_testimonialsThreeCol: 1150px;
     }
 
     &_container{
-        box-sizing: border-box;
         width: 100%; 
     
         display: flex;
@@ -439,8 +435,6 @@ $breakpoint_testimonialsThreeCol: 1150px;
     display: flex;
     flex-direction: column;
     align-items: center;
-
-    box-sizing: border-box;
 
     &_image{
         --testimonialImageSize: 90px;

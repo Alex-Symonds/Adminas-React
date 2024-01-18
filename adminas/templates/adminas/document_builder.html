@@ -25,13 +25,13 @@
 
 {% block body %}
 
-    <h2>Document Builder</h2>
+    <h2 class="pageHeading">Document Builder</h2>
     <div class="subheading">{{ doc_title }}</div>
     <a class="return-to-job" href="{% url 'job' job_id %}">&laquo; return to Job</a>
 
 <div class="document-sections-wrapper edit-document"> 
     <section class="status-controls draft">
-        <h3>Working on document</h3>
+        <h3 class="sectionHeading">Working on document</h3>
 
     {% if doc_id == 0 %}
         <p class="filled disabled">preview PDF</p>
@@ -105,7 +105,7 @@
                 <div class="who-and-when"><span class="username">{{ sp_inst.created_by }}</span> on <span class="when">{{ sp_inst.created_on }}</span></div>
             </div>
     {% empty %}
-            <p class="no-special-instructions">No special instructions on this document.</p>
+            <p class="no-special-instructions empty-section-notice">No special instructions on this document</p>
     {% endfor %}
         </div>
     </section>

@@ -329,7 +329,7 @@ function JobPageContentsWrapper(props){
 function JobHeadingUI(props){
     return [
             <div class="jobPageHeading">
-                <h2 className={"jobPageHeading_heading"}>
+                <h2 className={"pageHeading jobPageHeading_heading"}>
                     Job { props.job_name }
                 </h2>
                 <JobSubHeadingUI  
@@ -347,6 +347,11 @@ function JobSubHeadingUI(props){
         </div>
     }
     return null;
+}
+
+
+function JobSectionHeadingUI(props){
+    return <h3 className={"sectionHeading"}>{props.text}</h3>
 }
 
 

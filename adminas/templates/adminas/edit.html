@@ -17,16 +17,16 @@
 {% endblock %}
 
 {% block body %}
-    <h2>{{ task_name }} Job</h2>
+    <h2 class="pageHeading">{{ task_name }} Job</h2>
     {% if job_id != 0 %}
     <button id="delete_job_btn" class="button-warning">delete</button>
     {% endif %}
-    <div class="job_form_container">
+    <div class="job_form_container{% if job_id != 0 %} job_form_container-editMode{% endif %}">
         <form action="{% url 'api_job' %}" method='POST'>
             {% csrf_token %}
             <input type='hidden' name='job_id' value='{{ job_id }}'>
 
-            <h3>Identification</h3>
+            <h3 class="sectionHeading">Identification</h3>
             <div class="form-row">
                 <label for="{{ job_form.name.auto_id }}">{{ job_form.name.label }}</label>
                 <div>{{ job_form.name }}</div>
@@ -57,7 +57,7 @@
                 <div>{{ job_form.language }}</div>
             </div>
 
-            <h3>Payment</h3>
+            <h3 class="sectionHeading">Payment</h3>
             <div class="form-row">
                 <label for="{{ job_form.invoice_to.auto_id }}">{{ job_form.invoice_to.label }}</label>
                 <div class="address-dropdown">{{ job_form.invoice_to }}</div>
@@ -72,25 +72,26 @@
                 <div>{{ job_form.payment_terms }}</div>
             </div>
 
-            <h3>Delivery</h3>
+            <h3 class="sectionHeading">Delivery</h3>
             <div class="form-row">
                 <label for="{{ job_form.delivery_to.auto_id }}">{{ job_form.delivery_to.label }}</label>
                 <div class="address-dropdown">{{ job_form.delivery_to }}</div>
                 <div class="display-address" id="display-addr-delivery"></div>
             </div>
-            <fieldset class="form-row">
+            <fieldset class="form-row editJob_incoterm">
                 <legend>Incoterm</legend>
-                <div>
+                <div class="editJob_incotermCode">
                     <label for="{{ job_form.incoterm_code.auto_id }}">Term</label>
-                    <div>{{ job_form.incoterm_code }}</div>
+                    {{ job_form.incoterm_code }}
                 </div>
-                <div>
+                <div class="editJob_incotermLocation">
                     <label for="{{ job_form.incoterm_location.auto_id }}">Location</label>
-                    <div>{{ job_form.incoterm_location }}</div>
+                    {{ job_form.incoterm_location }}
                 </div>
             </fieldset>
-            <hr>
-            <input id="submit_btn" type="submit" value="submit">
+            <input class="editJob_submitButton" type="submit" 
+                value="{% if job_id != 0 %}edit{% else %}create{% endif %}"
+            >
         </form>
     </div>
 
