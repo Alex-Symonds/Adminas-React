@@ -243,7 +243,7 @@
 
         padding: var(--todoButtonPaddingX) var(--todoButtonPaddingX) 0;
         display: flex;
-        align-items: center;
+        align-items: start;
     }
 
 
@@ -445,6 +445,8 @@
     &_todoWrapper{
         display: flex;
         align-items: start;
+        width: var(--todoButtonSize);
+        height: var(--todoButtonSize);
     }
 
     &_countryContainer{
@@ -772,6 +774,7 @@
         &_todoWrapper{
             justify-content: center;
             align-items: center;
+            width: 100%;
         }
 
         &_companyName{
