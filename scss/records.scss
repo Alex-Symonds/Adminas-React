@@ -54,19 +54,6 @@
     }
 }
 
-// #filter_controls{
-//     margin: 1rem 0;
-
-//     #id_filter_records, #id_clear_filter_records{
-//         margin: 0 1rem 0 0;
-//         padding: 0.3rem 0.5rem;
-//     }
-    
-//     #id_clear_filter_records{
-//         text-decoration: none;
-//     }
-// }
-    
 
 // || Products Modal
 .recordsProductsModal{
@@ -224,7 +211,7 @@
 
     &_row{
         display: grid;
-        grid-template-columns: 3rem auto auto auto 1fr calc(var(--todoButtonSize) + var(--todoButtonPaddingX) * 2);
+        grid-template-columns: 3.5rem auto auto auto 1fr calc(var(--todoButtonSize) + var(--todoButtonPaddingX) * 2);
         grid-template-rows: repeat(10, auto);
         border: 1px solid var(--borderColour);
         border-radius: var(--borderRadius);
@@ -353,8 +340,9 @@
     }
     &_currency{
         grid-column: 1;
-        
+    
         padding: v.px-to-rem(4) v.px-to-rem(8) v.px-to-rem(4) var(--outerPaddingX);
+        margin-right: 0.75rem;
     }
     &_value{
         grid-column-start: 2;
@@ -508,6 +496,8 @@
     &_productsButton{
         background: transparent;
         border: none;
+        border: 1px solid v.$c_accent-800;
+        border-radius: v.px-to-rem(4);
     }
 
 
@@ -523,7 +513,10 @@
 
     &_todoButton{
         height: var(--todoButtonSize);
+        min-width: var(--todoButtonSize);
         width: var(--todoButtonSize);
+        max-width: var(--todoButtonSize);
+
         border: 2px solid v.$c_secondary-500;
         border-radius: var(--todoButtonSize);
         box-sizing: border-box;
