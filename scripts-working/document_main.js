@@ -28,7 +28,7 @@ async function replace_issued_document(){
     let request_options = get_request_options('POST');
     let resp_data = await update_backend(`${URL_DOC_MAIN}?doc_id=${DOC_ID}&task=replace`, request_options);
 
-    console.log(resp_data);
+    // console.log(resp_data);
 
     if(status_is_good(resp_data, 201)){
         window.location.href = resp_data[KEY_LOCATION];

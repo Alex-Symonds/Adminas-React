@@ -50,7 +50,6 @@ function jsModuleManagement(){
 function jsRecords(){
   return gulp.src([
     `${PATH_WORKING_SCRIPTS}records_filter.js`,
-    `${PATH_WORKING_SCRIPTS}records_list_toggle.js`,
     `${PATH_WORKING_SCRIPTS}records_modal.js`,
     `${PATH_WORKING_SCRIPTS}records_scrollShadows.js`,
   ])
