@@ -53,9 +53,7 @@ const RECORDS_FILTER_SETTINGS = [
 
 // Event listeners for existing buttons
 document.addEventListener('DOMContentLoaded', () => {
-    console.log("initialising");
     document.getElementById(ID_BEGIN_FILTER_BUTTON).addEventListener('click', () => {
-        console.log("click!");
         open_filter_options();
     });
 
