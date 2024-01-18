@@ -243,6 +243,7 @@
 
         padding: var(--todoButtonPaddingX) var(--todoButtonPaddingX) 0;
         display: flex;
+        align-items: center;
     }
 
 
@@ -474,8 +475,6 @@
         justify-content: center;
 
         svg{
-            display: inline-block;
-            max-width: fit-content;
             path{
                 fill: v.$c_accent-500;
             }
@@ -496,8 +495,6 @@
     &_productsButton{
         background: transparent;
         border: none;
-        border: 1px solid v.$c_accent-800;
-        border-radius: v.px-to-rem(4);
     }
 
 
