@@ -256,6 +256,7 @@
 
         padding: var(--todoButtonPaddingX) var(--todoButtonPaddingX) 0;
         display: flex;
+        align-items: center;
     }
 
 
@@ -486,8 +487,6 @@
         justify-content: center;
 
         svg{
-            display: inline-block;
-            max-width: fit-content;
             path{
                 fill: v.$c_accent-500;
             }

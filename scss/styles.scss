@@ -37,10 +37,10 @@ body {
     //line-height: 1.5; // Comments are the only place where accessible line-heights are beneficial
     -webkit-font-smoothing: antialiased;
 }
-img, picture, video, canvas, svg {
-    display: block;
-    max-width: 100%;
-}
+// img, picture, video, canvas, svg {
+//     display: block;
+//     max-width: 100%;
+// }
 input, button, textarea, select {
     font: inherit;
 }
