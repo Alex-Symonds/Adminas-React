@@ -11,6 +11,7 @@ const ID_FILTER_OPTIONS_ELE = 'id_filter_options';
 const CLASS_FILTER_OPTIONS_BODY = 'filter-options-body';
 const ID_FILTER_CONTROLS_CONTAINER = 'filter_controls';
 const ID_PREFIX_FILTER_FIELDS = 'id_filter_';
+const CSS_CLASS_RECORDS_FILTER_WRAPPER = 'recordsFilterWrapper';
 
 const FALLBACK_STR = '-';
 const RANGE_START = 's';
@@ -64,8 +65,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // || Open menu
 async function open_filter_options(){
-    let filter_container = document.getElementById(ID_FILTER_CONTROLS_CONTAINER);
-    let filter_options_ele = await create_ele_filter_options();
+    const filter_container = document.querySelector(`.${CSS_CLASS_RECORDS_FILTER_WRAPPER}`);
+    const filter_options_ele = await create_ele_filter_options();
 
     const modal = create_generic_modal(filter_options_ele);
     filter_container.append(modal);
