@@ -19,12 +19,12 @@
 {% block body %}
     
     {% if not user.is_authenticated %}
-    <h2>Welcome to <span class="adminas-name">Adminas</span>!</h2>
+    <h2 class="pageHeading">Welcome to <span class="adminas-name">Adminas</span>!</h2>
     <p>Please <a href="{% url 'login' %}">log in</a> or <a href="{% url 'register' %}">register</a> to begin.</p>
 
     {% else %}
-    <h2>Home</h2>
-    <h3>To-do List</h3>
+    <h2 class="pageHeading">Home</h2>
+    <h3 class="sectionHeading">To-do List</h3>
     <table class="todoList">
         <thead class="todoList_head">
             <tr class="todoList_thRow">
@@ -43,7 +43,7 @@
                 </td>
                 <td class="todoJob_tdID">
                     <a href="{% url 'job' job.id %}">
-                        <h4 class="todoJob_id">{{ job.name }} <img src="{{ job.flag_url }}" alt="{{ job.flag_alt }}"></h4>
+                        <h4 class="todoJob_id">{{ job.name }} <img src="{{ job.flag_url }}" alt="{{ job.flag_alt }}" class="todoJob_countryFlag"></h4>
                     </a>
                 </td>
                 <td class="todoJob_tdSummary">

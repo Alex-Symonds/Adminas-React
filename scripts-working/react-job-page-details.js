@@ -24,9 +24,11 @@ function JobDetails(props){
 function JobDetailsUI(props){
     return [
         <section className={"job-section jobDetails"}>
-            <h3>General Details</h3>
-            <div class="extended-subheading">
-                <a href={ props.data.url } class="edit-icon"><span>edit</span></a>
+            <div class="sectionHeadingWrapper">
+                <JobSectionHeadingUI text={"General Details"} />
+            {/* <div class="extended-subheading"> */}
+                <a href={ props.data.url } class="edit-icon sectionHeadingWrapper_editIcon"><span>edit</span></a>
+            {/* </div> */}
             </div>
             <JobDetailsIdSectionUI      data = { props.data } />
             <JobDetailsPaymentSectionUI currency = { props.currency }

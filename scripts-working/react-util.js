@@ -55,7 +55,7 @@ function format_timestamp(timeStr){
 
 // || "Small" components (spans, icons)
 function JobItemIdIcon(props){
-    return <JobItemNameTagSpan  css = " id"
+    return <JobItemNameTagSpan  css = "id"
                                 name = { props.ji_id } 
                                 />
 }
@@ -272,7 +272,7 @@ function LoadingErrorUI(props){
 }
 
 function EmptySectionUI(props){
-    return <p class="empty-section-notice">{ props.message }</p>
+    return <p className={`empty-section-notice${ props.css !== undefined ? ` ${props.css}` : ''}`}>{ props.message }</p>
 }
 
 const useFetch = url => {

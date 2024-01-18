@@ -14,7 +14,7 @@
 function JobPo(props){
     return [
         <section id="job_po_section" class="job-section">
-            <h3>Purchase Orders</h3>
+            <JobSectionHeadingUI text={"Purchase Orders"} />
             <JobPoCreate    
                 actions_po = { props.actions_po }
                 currency = { props.currency }
@@ -143,7 +143,7 @@ function JobPoDiscrepancyUI(props){
 // Container to hold the elements for each individual PO
 function JobPoList(props){
     if(props.poList.length === 0){
-        return <EmptySectionUI message='No purchase orders have been entered.' />
+        return <EmptySectionUI message={'No purchase orders have been entered'} css={'jobPage_emptySection'} />
     }
 
     // manage edit mode: only one PO should be editable at a time

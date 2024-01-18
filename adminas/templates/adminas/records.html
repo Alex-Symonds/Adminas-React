@@ -21,9 +21,9 @@
 {% endblock %}
 
 {% block body %}
-    <h2>Records</h2>
+    <h2 class="pageHeading">Records</h2>
 
-    <div id="filter_controls">
+    <div class="recordsFilterWrapper">
         <p>Showing <strong>{{ filter_count }}</strong> of <strong>{{ total_count }}</strong> records.</p>
         <button id="id_filter_records" class="button-primary">filter options</button>
         {% if total_count > filter_count %}

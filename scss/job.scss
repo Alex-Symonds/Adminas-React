@@ -65,10 +65,6 @@ $breakpoint_docsCardsToTable: 453px;
     margin: 1rem 0;
 }
 
-.empty-section-notice{
-    padding: 0 1rem;
-}
-
 .burgerMenu{
     --size: #{v.px-to-rem(12)};
 
@@ -79,8 +75,6 @@ $breakpoint_docsCardsToTable: 453px;
 
     height: calc(var(--size) + #{ v.px-to-rem(18) });
     width: calc(var(--size) + #{ v.px-to-rem(18) });
-
-    box-sizing: border-box;
 
     background: rgba(v.$c_tone_950, .5);
     border-radius: 50%;
@@ -123,6 +117,17 @@ $breakpoint_docsCardsToTable: 453px;
 }
 
 
+.more-icon:hover span{
+    display: block;
+    white-space: nowrap;
+    padding: v.px-to-rem(2) v.px-to-rem(4);
+    width: fit-content;
+    left: auto;
+    top: 0;
+    right: 26px;
+}
+
+
 
 // || Sidebar
 .jobSideNav{
@@ -140,8 +145,7 @@ $breakpoint_docsCardsToTable: 453px;
     max-width: 100vw;
     height: 100%;
     min-height: 100vh;
-    box-sizing: border-box;
-    
+
     display: flex;
     flex-direction: column;
     height: calc(100vh - v.$body_margin_mobile * 2);
@@ -191,10 +195,9 @@ $breakpoint_docsCardsToTable: 453px;
     &_subheading{
         margin: 0;
         padding: 0;
-        line-height: v.px-to-rem(18);
+        line-height: 1;
         font-size: v.px-to-rem(18);
-        font-weight: 700;
-    
+
         overflow: hidden;
         white-space: nowrap;
         text-overflow: ellipsis;
@@ -222,7 +225,6 @@ $breakpoint_docsCardsToTable: 453px;
     }
 
     &_button{
-        box-sizing: border-box;
         padding: v.px-to-rem(8) v.px-to-rem(16);
         width: 100%;
         
@@ -259,7 +261,7 @@ $breakpoint_docsCardsToTable: 453px;
     width: calc(var(--size) * 2);
     border-radius: calc(var(--size) / 2);
 
-    line-height: var(--fontSize);
+    line-height: 1;
     font-size: var(--fontSize);
 
     position: relative;
@@ -343,12 +345,13 @@ $breakpoint_docsCardsToTable: 453px;
 
 @media screen and (min-width: $breakpoint_permaShowJobNav){
     .jobSideNav{
-        position: static;
+        // position: static;
+        position: relative;
+        left: calc(var(--mainContentSideMargins) / -2);
         z-index: 1;
         min-width: var(--w);
         width: var(--w);
         padding: var(--desktopPadding);
-
     }
 
     .jobSideNav_closeButton{
@@ -360,9 +363,8 @@ $breakpoint_docsCardsToTable: 453px;
     }
 
     .jobPage{
-        --gapSize: 1rem;
+        --gapSize: 0.5rem;
         max-width: calc(100% - var(--gapSize));
-        box-sizing: border-box;
         gap: var(--gapSize);
     }
 }
@@ -373,7 +375,6 @@ $breakpoint_docsCardsToTable: 453px;
 .job-heading-with-status{
 
     .job-heading-with-extra{
-        box-sizing: border-box;
         width: 100%;
         padding: 0.4rem 0 0.4rem 0.4rem;
         background: #555;
@@ -446,7 +447,7 @@ $breakpoint_docsCardsToTable: 453px;
 .status-indicator{
     display: flex;
     width: 100%;
-    margin-top: 0.5rem;
+    margin: 0.5rem 0 0 0.5rem;
     font-size: 0.9rem;
     color: v.$c_tone_04;
     font-weight: bold;
@@ -520,6 +521,10 @@ $breakpoint_docsCardsToTable: 453px;
 
     display: flex;
     max-width: 96%;
+
+    &_emptySection{
+        margin: 1rem v.px-to-rem(6);
+    }
 }
 
 
@@ -540,7 +545,7 @@ $breakpoint_docsCardsToTable: 453px;
     .jobSummary_contentsLayout{
         display: grid;
         grid-template-rows: auto auto auto auto auto;
-        grid-template-columns: 50% 50%;
+        grid-template-columns: calc(50% - #{v.px-to-rem(8)}) calc(50% - #{v.px-to-rem(8)});
         grid-template-areas: 
             "status status"
             "timeValue timeValue"
@@ -570,19 +575,17 @@ $breakpoint_docsCardsToTable: 453px;
 .jobSummaryTimestamp_text,
 .jobSummaryOrderValue_text{
     padding: v.px-to-rem(8) v.px-to-rem(12);
-    font-size: v.px-to-rem(24);
+    font-size: v.px-to-rem(20);
     font-weight: 700;
     margin: 0;
 }
 
 .jobSummaryTimestamp{
-    box-sizing: border-box;
     width: v.px-to-rem(160);
     max-width: 100%;
 }
 
 .jobSummaryOrderValue{
-    box-sizing: border-box;
     width: v.px-to-rem(320);
     max-width: 100%;
 }
@@ -594,6 +597,11 @@ $breakpoint_docsCardsToTable: 453px;
         list-style: none;
         max-height: v.px-to-rem(210);
         overflow-y: auto;
+    }
+
+    &_listItem{
+        padding: v.px-to-rem(6) v.px-to-rem(6);
+        border-bottom: 1px solid v.$c_tone_600;
     }
 
     &_poRef{
@@ -646,7 +654,20 @@ $breakpoint_docsCardsToTable: 453px;
 .jobCommentSection{
     width: v.px-to-rem(708);
     max-width: 100%;
+
+    &-stacked{
+        margin-top: 2rem;
+    }
 }
+
+.seeAllNComments{
+    margin: v.px-to-rem(14) 0 0 v.px-to-rem(8);
+}
+
+.commentSection_empty{
+    margin: v.px-to-rem(10) v.px-to-rem(12);
+}
+
 
 
 // || Documents Section
@@ -669,7 +690,6 @@ $breakpoint_docsCardsToTable: 453px;
 
     li{
         margin-top: 0.3rem;
-        box-sizing: border-box;
 
         a{
             display: flex;
@@ -911,7 +931,6 @@ $breakpoint_docsCardsToTable: 453px;
 
         background: v.$c_tone_03;
         border-left: 3px solid v.$c_tone_05;
-        box-sizing: border-box;
 
         h4{
             margin: 0 0 0 1rem;
@@ -927,8 +946,7 @@ $breakpoint_docsCardsToTable: 453px;
         overflow-y: auto;
     
         width: calc(100% - 5px);
-        box-sizing: border-box;
-    
+
         padding: 0.3rem;
     
         border-color: transparent transparent v.$c_tone_04 v.$c_tone_05;
@@ -938,8 +956,6 @@ $breakpoint_docsCardsToTable: 453px;
         background: v.$c_tone_01;
 
         position: relative;
-
-        
     }
 
     .expand-collapse{
@@ -956,7 +972,6 @@ $breakpoint_docsCardsToTable: 453px;
     border-bottom: 1px solid v.$c_tone_04;
 
     margin: 1rem 0 0 2rem;
-    box-sizing: border-box;
 
     &:first-of-type{
         margin: 0.3rem 0 0 0;
@@ -1081,7 +1096,6 @@ $breakpoint_docsCardsToTable: 453px;
         .intro-line{
             display: flex;
             align-items: center;
-            box-sizing: border-box;
             width: 100%;
             padding: 0.2rem 0.1rem 0.2rem 0.4rem;
             background: v.$c_accent_02;
@@ -1221,7 +1235,6 @@ $breakpoint_docsCardsToTable: 453px;
         width: 100%;
 
         padding: 0.1rem 0.5rem;
-        box-sizing: border-box;
         border-left: 3px solid transparent;
     }
 
@@ -1336,7 +1349,6 @@ $breakpoint_docsCardsToTable: 453px;
             width: 96%;
             max-width: 450px;
 
-            box-sizing: border-box;
             margin: 0.5rem 0 0 0;
             padding: 0.3rem 0.2rem;
 
@@ -1484,17 +1496,8 @@ $breakpoint_docsCardsToTable: 453px;
 // When the details panel won't fit at the side of the table, fix it to the
 // top of the page and give it a scroll bar.
 @media screen and (max-width: 1360px){
-    .existing-items-container{
-        box-sizing: border-box;
-    }
-
-    .more-icon span{
-        left: -26px;
-    }
-
     .jobitems-details{
         width: 100%;
-        box-sizing: border-box;
 
         margin: 0;
         padding: 0;
@@ -1552,7 +1555,6 @@ $breakpoint_docsCardsToTable: 453px;
         box-shadow: 0 0 20px 1px rgba(black, 50%);
 
         width: calc(100% - 1rem);
-        box-sizing: border-box;
         margin: 1rem 0 0 1rem;
 
 
@@ -1616,9 +1618,7 @@ $breakpoint_docsCardsToTable: 453px;
     }
 
     .ref{
-        box-sizing: border-box;
         max-width: 440px;
-
     }
 
     tr{
@@ -1701,7 +1701,6 @@ $breakpoint_docsCardsToTable: 453px;
             width: 99%;
             max-width: 450px;
 
-            box-sizing: border-box;
             margin: 0.5rem 0 0 0;
             padding: 0.3rem 0.2rem;
 
@@ -1738,7 +1737,6 @@ $breakpoint_docsCardsToTable: 453px;
                 padding: 0.08rem 0.5rem 0 0;
             }
 
-            box-sizing: border-box;
             border-left: 3px solid v.$c_accent_secondary;
             background: v.$c_tone_00;
             font-size: 0.9rem;
@@ -1822,11 +1820,12 @@ $breakpoint_docsCardsToTable: 453px;
 
 
 #price_check_table{
+    .name-tag{
+        margin: 0;
+    }
+
     .ji_id{
         text-align: left;
-        .name-tag.id{
-            margin: 0;
-        }
     }
     .resale-percentage .name-tag::before{
         content: 'RD';
@@ -1914,7 +1913,6 @@ $breakpoint_docsCardsToTable: 453px;
 
             width: 100%;
 
-            box-sizing: border-box;
             margin: 0.5rem 0 0 0.1rem;
             padding: 0.3rem 0.2rem;
 
@@ -2094,8 +2092,10 @@ table.price-comparison{
     ;
 
     column-gap: v.px-to-rem(8);
-    width: fit-content;
-    min-width: v.px-to-rem(300);
+
+    min-width: 100%;
+    width: 100%;
+    max-width: 100%;
 
     &_heading{
         grid-area: heading;
@@ -2108,39 +2108,37 @@ table.price-comparison{
         align-self: center;
         justify-self: end;
         margin-right: v.px-to-rem(4);
+
+        display: block;
+        background: v.$c_tone_01;
+        border: 1px solid v.$c_tone_04;
+    
+        border-color: v.$c_accent-500;
     }
-}
+    &_unassignedMsg{
+        margin-right: 3px;
+        display: inline-block;
+        font-size: v.px-to-rem(12);
+        padding: v.px-to-rem(4) v.px-to-rem(8);
+    }
 
-.jobDocsOutSubsection_unassigned{
-    display: block;
-    background: v.$c_tone_01;
-    border: 1px solid v.$c_tone_04;
-
-    border-color: v.$c_warning;
-}
-
-.jobDocsOutSubsection_unassignedMsg{
-    padding: 0.2rem 1rem;
-    margin-right: 3px;
-    display: inline-block;
-}
-
-.jobDocsOutSubsection_unassignedIcon{
-    display: inline-block;
-    border-right: 1px solid transparent;
-    width: 1rem;
-    padding: 0.2rem 0.4rem;
-    text-align: center;
-    font-weight: bold;
-
-    color: v.$c_tone_01;
-    background: v.$c_warning;
+    &_unassignedIcon{
+        display: inline-block;
+        border-right: 1px solid transparent;
+        width: v.px-to-rem(24);
+        padding: 0.2rem 0.4rem;
+        text-align: center;
+        font-weight: bold;
+    
+        color: v.$c_tone_01;
+        background: v.$c_accent-500;
+    }
 }
 
 
 .documentsOutTable{
     grid-area: docsTable;
-    margin: 0.3rem;
+    margin: v.px-to-rem(18) 0.3rem v.px-to-rem(2);
     border-collapse: collapse;
 
     th{
@@ -2155,7 +2153,6 @@ table.price-comparison{
     &_editCol {
         border: 1px solid v.$c_tone_03;
         height: 2rem;
-        box-sizing: border-box;
     }
 
     .edit-icon{
@@ -2178,6 +2175,7 @@ table.price-comparison{
         width: var(--widthDateCol);
         max-width: var(--widthDateCol);
         padding: 0.1rem 0.5rem;
+        white-space: nowrap;
     }
 
     &_statusCol{
@@ -2218,7 +2216,6 @@ table.price-comparison{
         width: 100%;
 
         padding: 0.1rem 0.5rem;
-        box-sizing: border-box;
         border-left: 3px solid transparent;
 
         &-draft{
@@ -2231,12 +2228,30 @@ table.price-comparison{
 }
 
 
-@media screen and (max-width: $breakpoint_docsCardsToTable){
+@media screen and (min-width: $breakpoint_docsCardsToTable){
+    .jobDocsOutSubsection{
+        min-width: v.px-to-rem(300);
+        width: fit-content;
+        max-width: fit-content;
 
-    .jobDocsOutSubsection_unassignedMsg{
-        font-size: v.px-to-rem(12);
-        padding: v.px-to-rem(4) v.px-to-rem(8);
+        &_unassignedMsg{
+            padding: 0.2rem 1rem;
+        }
     }
+}
+
+/* 
+NOTE: MAX-WIDTH used here, instead of min-width
+-------------------------------------------------------------
+On mobile, the <table> should not behave like a table, so 
+many table-y defaults are adjusted to get it looking right. 
+On desktop, the <table> should largely behave like a table,
+so the table-y defaults are good.
+If mobile were the "main" version of the CSS, many table defaults 
+would need to be restored in the media query.
+Seems more efficient to deviate from mobile-first in this case.
+*/
+@media screen and (max-width: calc(#{$breakpoint_docsCardsToTable} - 1px)){
     .documentsOutTable{   
         width: calc(100% - 0.6rem);
         max-width: 100%;
@@ -2272,7 +2287,6 @@ table.price-comparison{
             min-width: 268px;
             max-width: 100%;
     
-            box-sizing: border-box;
             margin: 0.5rem 0 0 0;
             padding: 0.3rem 0.2rem;
     
@@ -2331,7 +2345,6 @@ table.price-comparison{
             width: 100%;
     
             padding: 0.1rem 0.5rem;
-            box-sizing: border-box;
             border-left: 3px solid transparent;
     
             &-draft{
@@ -2356,7 +2369,6 @@ table.price-comparison{
 
         width: 100%;
         max-width: 100%;
-        box-sizing: border-box;
     }
 }
 
@@ -2385,9 +2397,8 @@ table.price-comparison{
         margin: 0.3rem 0 0 0;
         padding: 0 v.px-to-rem(6);
         width: 100%;
-        box-sizing: border-box;
         font-size: v.px-to-rem(14);
-        line-height: v.px-to-rem(14);
+        line-height: 1;
 
         display: flex;
         flex-direction: row;

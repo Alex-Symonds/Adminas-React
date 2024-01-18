@@ -13,6 +13,52 @@
     padding: 0.3rem 1.5rem;
 }
 
+.job_form_container{
+    &-editMode{
+        margin-top: 3rem;
+    }
+}
+
+.editJob{
+    &_incoterm.form-row{
+        gap: 1rem;
+    }
+
+    &_incotermCode,
+    &_incotermLocation{
+        select,
+        input{
+            height: 1.75rem;
+        }
+    }
+
+    &_submitButton{
+        display: block;
+        margin: 2rem auto 0;
+        font-size: 1.2rem;
+        background: v.$c_accent;
+        background: v.$g_button_main;
+        color: v.$c_txt_main;
+        font-weight: bold;
+        height: 2.5rem;
+        width: 98%;
+        max-width: 15rem;
+        border-radius: 0.4rem;
+        border: 1px solid v.$c_accent_02;
+    
+        &:hover{
+            color: v.$c_txt_alt;
+            background: v.$c_accent_03;
+            background: v.$g_button_hover;
+            box-shadow: 0 0 3px 1px v.$c_tone_02;
+        }
+    
+        @media screen and (min-width:500px){
+            margin: 3rem 0 0;
+        }
+    }
+}
+
 #submit_btn{
     display: block;
     margin: 1rem auto 0;

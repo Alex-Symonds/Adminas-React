@@ -12,9 +12,6 @@ $breakpoint_set_min_modal_size: 650px;
 }
 
 .todoList{
-    width: 100%;
-    box-sizing: border-box;
-
     --borderRadius: #{v.px-to-rem(6)};
 
     --cellPaddingY: #{v.px-to-rem(12)};
@@ -33,6 +30,9 @@ $breakpoint_set_min_modal_size: 650px;
     --cellPadding: var(--cellPaddingY) var(--cellPaddingX);
     --rowHeight: #{v.px-to-rem(40)};
 
+    display: block;
+    width: 100%;
+
     &_head{
         display: none;
     }
@@ -50,8 +50,6 @@ $breakpoint_set_min_modal_size: 650px;
     display: flex;
     flex-direction: column;
     justify-content: stretch;
-    box-sizing: border-box;
-    max-width: calc(var(--pageContainerWidth) - #{v.px-to-rem(8)});
     box-shadow: 0 v.px-to-rem(2) v.px-to-rem(12) v.px-to-rem(3) rgba(black, .2);
 
     border-radius: var(--borderRadius);
@@ -62,8 +60,6 @@ $breakpoint_set_min_modal_size: 650px;
         position: absolute;
         top: 0;
         right: v.px-to-rem(4);
-
-        box-sizing: border-box;
 
         display: flex;
         align-items: center;
@@ -87,9 +83,10 @@ $breakpoint_set_min_modal_size: 650px;
         position: relative;
         top: v.px-to-rem(2);
     }
+    &_countryFlag{
+        display: inline-block;
+    }
     &_tdID{
-        box-sizing: border-box;
-
         padding: 0;
         a{
             border-top-left-radius: var(--borderRadius);
@@ -100,9 +97,8 @@ $breakpoint_set_min_modal_size: 650px;
             background: v.$c_tone-500;
             background: linear-gradient(180deg, v.$c_tone-500 0%, v.$c_tone-600 100%);
             height: 100%;
-            box-sizing: border-box;
             font-size: 1rem;
-            line-height: 1rem;
+            line-height: 1;
 
             display: flex;
             align-items: center;
@@ -115,8 +111,6 @@ $breakpoint_set_min_modal_size: 650px;
 
     }
     &_tdSummary{
-        box-sizing: border-box;
-
         padding: 0;
         a{
             color: v.$c_txt_main;
@@ -125,7 +119,6 @@ $breakpoint_set_min_modal_size: 650px;
             background: v.$c_tone-800;
             background: linear-gradient(180deg, v.$c_tone-800 0%, v.$c_tone-900 100%);
             display: block;
-            box-sizing: border-box;
             height: 100%;
 
             &:hover{
@@ -139,7 +132,6 @@ $breakpoint_set_min_modal_size: 650px;
         top: 2px;
     }
     &_tdStatus{
-        box-sizing: border-box;
         padding: var(--cellPadding);
         display: flex;
         align-items: start;
@@ -152,8 +144,6 @@ $breakpoint_set_min_modal_size: 650px;
         border-width: 1px 0;
     }
     &_tdPinned{
-        box-sizing: border-box;
-        
         background: v.$c_tone-800;
         background: linear-gradient(180deg, v.$c_tone-800 0%, v.$c_tone-900 100%);
 
@@ -190,10 +180,6 @@ $breakpoint_set_min_modal_size: 650px;
         background: v.$c_tone-800;
         background: linear-gradient(45deg, v.$c_tone-800 0%, v.$c_tone-900 100%);
 
-        p{
-            margin: 0;
-        }
-
         &-highlighted{
             border-color: yellow;
             background: v.$c_tone-700;
@@ -223,11 +209,10 @@ $breakpoint_set_min_modal_size: 650px;
     &_pinnedContents{
         padding: var(--cellPaddingY) v.px-to-rem(6);
         height: var(--rowHeight);
-        box-sizing: border-box;
+        line-height: 1;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
-        margin: 0;
     }
 }
 
@@ -243,7 +228,6 @@ $breakpoint_set_min_modal_size: 650px;
         margin: 0;
         height: var(--heightHeading);
         width: 100%;
-        box-sizing: border-box;
         flex: 0 0 auto;
         
         background-image: url(../images/i-pin-filled-grey.svg);
@@ -300,7 +284,6 @@ $breakpoint_set_min_modal_size: 650px;
         left: 0;
         padding: v.px-to-rem(8);
         width: 100%;
-        box-sizing: border-box;
 
         max-height: calc(100% - var(--heightHeading));
         overflow-y: auto;
@@ -338,6 +321,7 @@ $breakpoint_set_min_modal_size: 650px;
 
 @media screen and (min-width: $breakpoint_stacked_to_row){
     .todoList{
+        display: table;
         max-width: 100%;
 
         &_head{
@@ -346,7 +330,9 @@ $breakpoint_set_min_modal_size: 650px;
 
         &_th{
             padding: 0 v.px-to-rem(8) v.px-to-rem(6);
-            font-size: v.px-to-rem(20);
+            font-size: v.px-to-rem(18);
+            font-weight: 500;
+            color: v.$c_tone-100;
         }
 
         &_thRow{
@@ -378,14 +364,12 @@ $breakpoint_set_min_modal_size: 650px;
 
         display: grid;
         grid-template-columns: var(--gridCols);
-        grid-template-rows: repeat(auto-fill, auto);
         align-items: stretch;
         justify-content: stretch;
     
         height: 100%;
         width: calc(100% - var(--spaceForRemove));
         max-width: 100%;
-        box-sizing: border-box;
 
         border-width: 0;
 
@@ -420,6 +404,7 @@ $breakpoint_set_min_modal_size: 650px;
             background: linear-gradient(180deg, v.$c_tone-700 0%, v.$c_tone-800 100%);
         }
         &_tdSummary{
+            line-height: 1;
             a{
                 border-style: solid;
                 border-width: 0 1px;

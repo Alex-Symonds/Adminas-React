@@ -26,12 +26,15 @@ function JobComments(props){
     let num_comments = props.comments === null ? 0 : props.comments.length;
     return [
         <section id="job_comments" class="job-section">
-            <h3>Comments</h3>
-            <a href={`${ props.commentsURL }&page=1`}>See all { num_comments } comments</a>
+            <JobSectionHeadingUI text={"Comments"} />
+            <a href={`${ props.commentsURL }&page=1`} className={"seeAllNComments return-to-job"}>
+                See all { num_comments } comments &raquo;
+            </a>
             <JobCommentsSubsection  
                 actions = { props.commentsActions }
                 comments = { props.comments }
                 commentsEditor = { props.commentsEditor }
+                css = { "jobCommentSection-stacked" }
                 sectionName = { PINNED_STRING }
                 username = { props.username } 
             />                                         
@@ -39,6 +42,7 @@ function JobComments(props){
                 actions = { props.actionsComments }
                 comments = { props.comments } 
                 commentsEditor = { props.commentsEditor }
+                css = { "jobCommentSection-stacked" }
                 sectionName = { HIGHLIGHTED_STRING }
                 username = { props.username }
             />
@@ -50,7 +54,7 @@ function JobComments(props){
 function JobCommentsSubsection(props){
     var commentsFiltered = filter_comments(props.comments, props.sectionName);
     return [
-        <section class="subsection jobCommentSection">
+        <section className={`subsection jobCommentSection${props.css !== undefined ? " " + props.css : ""}`}>
             <h4>{ capitaliseFirstLetter(props.sectionName) } by {props.username}</h4>
             <div class={ 'comment-container ' + props.sectionName }>
                 <CommentsEmpty  
@@ -88,7 +92,7 @@ function CommentsEmpty(props){
     if (props.comments !== null && props.comments.length > 0){
         return null;
     }
-    return <EmptySectionUI message = {`No comments have been ${ props.verbed }.`} />
+    return <EmptySectionUI message = {`No comments have been ${ props.verbed }.`} css={"commentSection_empty"} />
 }
 
 // || Individual Comments

@@ -10,7 +10,7 @@
 // || Main section
 function JobSummary(props){
     return  <section id="job_summary" class="job-section jobSummary">
-                <h3>Summary</h3>
+                <JobSectionHeadingUI text={"Summary"} />
                 <div className={"jobSummary_contentsLayout"}>
                     <SubsectionWrapper extraClasses={"jobSummaryStatus"}>
                         <h4>Status</h4>
@@ -31,6 +31,7 @@ function JobSummary(props){
                         actions = { props.actions_comments }
                         comments = { props.comments }
                         commentsEditor = { props.commentsEditor }
+                        css = { "jobCommentSection-summary" }
                         sectionName = { PINNED_STRING }
                         username = { props.username } 
                     /> 
@@ -78,10 +79,10 @@ function JobSummary_CustomerReference(props){
                 <h4>Customer Reference{props.po_list.length > 1 ? "s" : ""}</h4>
                 <ul className={"jobSummaryCustomerRef_list"}>
                     { props.po_list.length === 0 ?
-                        <li>TBC</li>
+                        <li className={"empty-section-notice"}>TBC</li>
                         :
                         props.po_list.map((po, idx) => {
-                            return  <li key={`${po}_${idx}`}>
+                            return  <li key={`${po}_${idx}`} className={"jobSummaryCustomerRef_listItem"}>
                                         <span className={ "jobSummaryCustomerRef_poRef" }>
                                             { po.reference }
                                         </span>
@@ -112,7 +113,7 @@ function JobSummary_Items(props){
                 <h4>{hasOverflow ? "Top " : ""}Items</h4>
                 <ul className={"jobSummaryItems_list"}>
                     { topN.length === 0 ?
-                        <li>No items have been entered</li>
+                        <li className={"empty-section-notice"}>No items have been entered</li>
                         :
                         topN.map((item) => {
                             return  <li key={`${ item.ji_id }`} className={"jobSummaryItems_item"}>

@@ -3,30 +3,33 @@
 {% load static %}
 
 {% block htmlBody %}
-    <body>
+    <body class="appBody">
         <div class='page_container'>
-            <h1><span class="productName">Admin<span>as</span></h1>
-            <nav>
-                <ul>
+            <h1 class="adminasMainHeading">
+                <img class="adminasMainHeading_icon" src="{% static 'adminas/images/adminas-logo.svg' %}" alt="" width="17px" height="17px" />
+                <span class="productName">Admin<span>as</span>
+            </h1>
+            <nav class="adminasMainNav">
+                <ul class="adminasMainNav_list">
 {% if user.is_authenticated %}
-                    <li>
-                        <a href="{% url 'index' %}">Home</a>
+                    <li class="adminasMainNav_listItem">
+                        <a href="{% url 'index' %}" class="adminasMainNav_navLink">Home</a>
                     </li>
-                    <li>
-                        <a href="{% url 'records' %}">Records</a>
+                    <li class="adminasMainNav_listItem">
+                        <a href="{% url 'records' %}" class="adminasMainNav_navLink">Records</a>
                     </li>
-                    <li>
-                        <a href="{% url 'job_editor_page' %}">New</a>
+                    <li class="adminasMainNav_listItem">
+                        <a href="{% url 'job_editor_page' %}" class="adminasMainNav_navLink">New</a>
                     </li>
-                    <li>
-                        <a href="{% url 'logout' %}">Log out</a>
+                    <li class="adminasMainNav_listItem">
+                        <a href="{% url 'logout' %}" class="adminasMainNav_navLink">Log out</a>
                     </li>
 {% else %}
-                    <li>
-                        <a href="{% url 'login' %}">Log in</a>
+                    <li class="adminasMainNav_listItem">
+                        <a href="{% url 'login' %}" class="adminasMainNav_navLink">Log in</a>
                     </li>
-                    <li>
-                        <a href="{% url 'register' %}">Register</a>
+                    <li class="adminasMainNav_listItem">
+                        <a href="{% url 'register' %}" class="adminasMainNav_navLink">Register</a>
                     </li>
 {% endif %}
 
@@ -37,11 +40,11 @@
                 {% endblock %}
             </main>
             <div class="credits">
-                <h6>Credits</h6>
-                <ul>
-                    <li><a href="https://icons8.com/icon/103912/private-lock">Private Lock icon by Icons8</a></li>
-                    <li><a href="https://icons8.com/icon/476/pin">Pin icon by Icons8</a></li>
-                    <li><a href="https://icons8.com/icon/7873/pin">Pin icon by Icons8</a></li>
+                <h6 class="credits_heading">Credits</h6>
+                <ul class="credits_list">
+                    <li class="credits_listItem"><a href="https://icons8.com/icon/103912/private-lock">Private Lock icon by Icons8</a></li>
+                    <li class="credits_listItem"><a href="https://icons8.com/icon/476/pin">Pin icon by Icons8</a></li>
+                    <li class="credits_listItem"><a href="https://icons8.com/icon/7873/pin">Pin icon by Icons8</a></li>
                 </ul>
             </div>
         </div>

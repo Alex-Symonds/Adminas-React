@@ -20,34 +20,35 @@
 */
 
 
-// || HTML tag adjustments
-html,
-body{
-    min-height: 100vh;
+:root{
+    --mainContentSideMargins: 24px;
 }
 
-body {
-    --bodyMargin: #{v.$body_margin_mobile};
+
+// || CSS Reset
+// https://www.joshwcomeau.com/css/custom-css-reset/
+*, *::before, *::after {
     box-sizing: border-box;
-
-    margin: var(--bodyMargin);
-    font-family: v.$f_contents;
-    background: v.$c_bg_main;
-    background: v.$g_bg_main;
-    color: v.$c_txt_main;
+}
+* {
+    margin: 0;
+}
+body {
+    //line-height: 1.5; // Comments are the only place where accessible line-heights are beneficial
+    -webkit-font-smoothing: antialiased;
+}
+img, picture, video, canvas, svg {
+    display: block;
+    max-width: 100%;
+}
+input, button, textarea, select {
+    font: inherit;
+}
+p, h1, h2, h3, h4, h5, h6 {
+    overflow-wrap: break-word;
 }
 
-
-button{
-    font-size: 1rem;
-    font-family: v.$f_contents;
-
-    background: transparent;
-
-    border: none;
-}
-
-
+// My resets
 a{
     color: v.$c_accent;
     &:hover{
@@ -55,70 +56,41 @@ a{
     }
 }
 
-h1{
-    margin: 0;
+h1, h2, h3, h4, h5, h6 {
     padding: 0;
-    font-size: 1.3rem;
-
-    border-left: 3px solid v.$c_tone_03;
-    padding: 0.1rem 0.5rem 0.3rem;
-    margin-top: 0.1rem;
-}
-
-h2,
-h3,
-h4,
-h5,
-h6{
     font-family: v.$f_heading;
 }
 
-h2 {
-    color: v.$c_txt_main;
-    margin-top: 2rem;
-    margin-bottom: 0;
-    width: 100%;
-    padding-bottom: 0.2rem;
-    border-bottom: 1px solid v.$c_txt_main;
-}
-
-h3{
-    margin-top: 1.7rem;
-    margin-bottom: 0;
-    width: 100%;
-    padding: 0.4rem 0 0.3rem 0;
-    border-bottom: 1px solid v.$c_tone_03;
-}
-
-h4{
-    margin: 0;
-    padding: 0;
-}
 
 input,
 select,
 textarea{
     margin-top: 3px;
     background: v.$c_tone_00;
-    border: 1px solid v.$c_accent_02;
+    border: 1px solid v.$c_accent-700;
     border-radius: 3px;
     color: v.$c_txt_main;
 
-    &:active,
-    &:focus{
-        outline: thin dotted;
+    &:active{
         background: v.$c_tone_01;
+        border: 1px solid v.$c_accent-500;
+    }
+    &:focus{
+        outline: thin dotted rgba(white, 0.5);
+        outline-offset: v.px-to-rem(2);
+        background: v.$c_tone_01;
+        border: 1px solid v.$c_accent-600;
     }        
 }
 
 input{
-    height: 1.3rem;
+    height: v.px-to-rem(28);
     padding: 0.2rem 0.5rem;
 }
 
 select{
     max-width: 100%;
-    height: 1.7rem;
+    height: v.px-to-rem(28);
     padding: 0.2rem 0.3rem;
 }
 
@@ -127,7 +99,7 @@ textarea{
     font-family: v.$f_contents;
     font-size: 0.9rem;
     padding: 3px 5px;
-    box-sizing: border-box;
+    line-height: 1.5rem;
 }
 
 // On Chrome, the calendar icon on calendar picker inputs blends in with the background. This makes it light enough to stand out.
@@ -137,10 +109,17 @@ textarea{
 
 article{
     padding: 0;
-    margin: 0;
 }
 
 
+
+// || Body class
+.appBody{    
+    font-family: v.$f_contents;
+    background: v.$c_bg_main;
+    background: v.$g_bg_main;
+    color: v.$c_txt_main;
+}
 
 
 // || Heading classes
@@ -157,10 +136,34 @@ article{
     }
 }
 
+
+.pageHeading{
+    margin: v.px-to-rem(20) 0 0 0;
+    padding: v.px-to-rem(8) 0 v.px-to-rem(8) v.px-to-rem(14);
+    width: 100%;
+
+    font-family: v.$f_heading;
+    font-size: 1.25rem;
+    font-weight: 500;
+
+    border-left: 3px solid v.$c_accent-500;
+    border-top-right-radius: v.px-to-rem(4);
+    border-bottom-right-radius: v.px-to-rem(4);
+
+    background: v.$c_tone_950;
+}
+
 .subheading{
-    margin-top: 0px;
-    font-size: 1.1rem;
-    font-weight: bold;
+    margin: 0;
+    padding: 0 0 v.px-to-rem(8) v.px-to-rem(14);
+    font-size: 1rem;
+    color: v.$c_tone_200;
+
+    border-left: 3px solid v.$c_accent-500;
+
+    position: relative;
+    top: v.px-to-rem(-7);
+    background: v.$c_tone_950;
 }
 
 .extended-subheading{
@@ -186,23 +189,63 @@ article{
 }
 
 
+.sectionHeading{
+    padding: v.px-to-rem(4) 0 v.px-to-rem(3) v.px-to-rem(3);
+    margin: v.px-to-rem(28) 0 0 0;
+    width: 100%;
+
+    font-family: v.$f_heading;
+    font-size: v.px-to-rem(18);
+    font-weight: 500;
+
+    border-bottom: 1px solid v.$c_tone_700;
+}
+
+
+.sectionHeadingWrapper{
+    position: relative;
+
+    &_editIcon.edit-icon{
+        position: absolute;
+        top: 0;
+        right: 0;
+
+        border-top-left-radius: 0.25rem;
+        border-top-right-radius: 0.25rem;
+
+        &:hover{
+            background-position: 5px 5px;
+            background-color: transparent;
+            border-bottom: 2px solid v.$c_accent-500;
+            background-color: rgba(white, 0.1);
+    
+            span{
+                transition-delay: 0.05s;
+                color: white;
+                border-radius: 5px;
+                background: rgba(v.$c_tone_00, 80%);
+                border: 1px solid v.$c_tone_00;
+    
+                display: block;
+                width: 3rem;
+            }
+        }
+
+
+    }
+}
+
 
 // || Page layout
 .page_container{
-    --pageContainerBaseWidth: 96vw;
-    --pageContainerWidth: calc(var(--pageContainerBaseWidth) - var(--bodyMargin) * 2);
-
     margin: 0;
-    width: var(--pageContainerWidth);
+    width: 100%;
 }
 
-@media screen and (min-width: 500px){
-    body{
-        --bodyMargin: #{v.$body_margin_desktop};
-    }
-    .page_container{
-        margin: 0 auto 0;
-    } 
+.page_contents{
+    width: calc(100% - var(--mainContentSideMargins));
+    margin: 0 auto 0;
+    min-height: 100vh;
 }
 
 .existing-items-container{
@@ -215,45 +258,48 @@ article{
 
 
 // || Nav bar
-nav{
-    ul{
+.adminasMainHeading{
+    font-size: 1.3rem;
+    border-left: 3px solid v.$c_tone_03;
+    padding: v.px-to-rem(3) v.px-to-rem(8) v.px-to-rem(3);
+    background: rgba(black, .2);
+
+    &_icon{
+        display: inline-block;
+        position: relative;
+        top: v.px-to-rem(1);
+        margin-right: v.px-to-rem(1);
+    }
+}
+
+.adminasMainNav{
+    &_list{
         display: flex;
-        flex-direction: row;
+        gap: v.px-to-rem(12);
 
         margin: 0;
-        padding: 0;
+        padding: 0 v.px-to-rem(3);
 
-        border: 1px solid v.$c_tone_03;
-        border-left-width: 0;
-        border-right-width: 0;
+        border-style: solid;
+        border-color: v.$c_tone_600;
+        border-width: 0 0 1px 3px;
+        border-top: 1px solid v.$c_tone_800;
+
         list-style: none;
 
-        background: v.$c_bg_main;
-        background: v.$g_bg_main;
-
-        // This bit applies a box shadow, but prevents the shadow from going over the top of the Adminas heading
-        position: relative;
-        &:before{
-            position: absolute;
-            content: '';
-            top: 0;
-            left: 0;
-            bottom: 0;
-            right: 0;
-            z-index: -1;
-            box-shadow: 0px 0px 15px 8px rgb(15,15,15);
-        }
+        background: rgba(black, .2);
+        box-shadow: 0 8px 12px 0 rgba(0, 0, 0, 0.15);
     }
-    li,
-    li a{
+
+    &_navLink{
+        display: block;
+
         font-size: 0.95rem;
-        height: 1.2rem;
-        padding: 0.5rem 0.4rem;
+        padding: 0.5rem v.px-to-rem(8);
 
         text-decoration: none;
         color: v.$c_txt_main;
-    }
-    li a{
+
         border-bottom: 3px solid transparent;
         &:hover{
             color: v.$c_txt_main_highlight;
@@ -266,22 +312,41 @@ nav{
 
 // || Footer
 .credits{
-    border: 1px solid v.$c_tone_02;
-    border-radius: 0.3rem;
-    font-size: 0.8rem;
+    border-top: 1px solid rgba(v.$c_tone_800, .2);
+    font-size: v.px-to-rem(10);
     margin-top: 5rem;
     padding: 4px 8px;
 
-    h6{
+    display: flex;
+    align-items: center;
+
+    &_heading{
         padding: 0;
         margin: 0;
-        color: v.$c_tone_05;
+        color: v.$c_tone_700;
+        font-size: v.px-to-rem(10);
+        font-weight: 500;
     }
 
-    ul{
+    &_list{
+        display: flex;
+        align-items: start;
+        gap: 0;
         list-style-type: none;
         margin: 0;
-        padding: 0.1rem 0.3rem;
+        padding-inline-start: v.px-to-rem(10);
+    }
+
+    &_listItem{
+        display: flex;
+        &:not(:nth-of-type(1)){
+            &:before{
+                display: block;
+                content: ", ";
+                color: v.$c_tone_800;
+                padding-right: 0.25rem;
+            }
+        }
     }
 
     a{
@@ -318,6 +383,10 @@ nav{
         background: rgba(v.$c_tone_00, 80%);
         border: 1px solid v.$c_tone_00;
         padding: v.px-to-rem(3) v.px-to-rem(9);
+        
+        font-family: v.$f_contents;
+        font-size: v.px-to-rem(14);
+        line-height: 1;
     }
 }
 
@@ -530,7 +599,7 @@ nav{
     &:hover:enabled{
         background-position: 5px 5px;
         background-color: transparent;
-        border-bottom: 2px solid white;
+        border-bottom: 2px solid v.$c_accent-500;
 
         span{
             transition-delay: 0.05s;
@@ -671,7 +740,7 @@ nav{
     border-radius: 8px;
     padding: 6px 8px;
     width: fit-content;
-    margin: 0.5rem 0 0 0;
+    margin: 0.75rem 0 0 0;
     text-decoration: none;
     
     &:hover{
@@ -687,7 +756,6 @@ nav{
 .panel{
     display: inline-block;
     position: relative;
-    box-sizing: border-box;
 
     border: 1px solid v.$c_tone_03;
     border-radius: 3px; //8px;
@@ -707,8 +775,6 @@ nav{
 
     .panel-header{
         font-size: 1rem;
-
-        width: calc(100% - 16px);
 
         border-top-left-radius: 3px;
         border-top-right-radius: 3px;
@@ -767,7 +833,7 @@ nav{
     }
 
     &_input{
-        height: 1rem;
+        height: 1.75rem;
         font-size: 0.9rem;
     }
 
@@ -825,7 +891,6 @@ fieldset.form-row{
     min-width: 270px;
     width: fit-content;
     max-width: 100%;
-    box-sizing: border-box;
 
     &_productDesc{
         display: block;
@@ -834,7 +899,6 @@ fieldset.form-row{
         margin: v.px-to-rem(8) 0 0 v.px-to-rem(4);
         border-left: 3px solid v.$c_accent_secondary;
         padding: v.px-to-rem(5) v.px-to-rem(8);
-        box-sizing: border-box;
     
         max-width: 92%;
 
@@ -864,7 +928,6 @@ fieldset.form-row{
     &_date,
     &_select,
     &_input{
-        box-sizing: border-box;
         height: 1.7rem;
         margin: 0;
     }
@@ -891,7 +954,6 @@ fieldset.form-row{
         background: v.$c_tone_02;
         margin: 1rem auto 0;
         width: 97%;
-        box-sizing: border-box;
 
         &:first-child{
             border-top: none;
@@ -909,8 +971,6 @@ fieldset.form-row{
         border-radius: 5px;
         background: rgba(white, .15);
         width: 100%;
-        max-width: 100%;
-        box-sizing: border-box;
         max-width: v.$MAX_WIDTH;
     }
 
@@ -979,7 +1039,6 @@ fieldset.form-row{
 
     &_formRowsContainer{
         max-width: 100%;
-        box-sizing: border-box;
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -1006,7 +1065,6 @@ fieldset.form-row{
 .formControls{
     margin: 0;
 
-    box-sizing: border-box;
     width: 100%;
     height: 100%;
     white-space: nowrap;
@@ -1040,7 +1098,7 @@ fieldset.form-row{
     &_label{
         --size: v.px-to-rem(14);
         font-size: var(--size);
-        line-height: var(--size);
+        line-height: 1;
     }
 }
 
@@ -1075,14 +1133,13 @@ fieldset.form-row{
 
         margin: 0;
         font-size: 0.9rem;
-        line-height: 0.9rem;
+        line-height: 1;
         width: v.px-to-rem(70);
         border-top-left-radius: 0;
         border-bottom-left-radius: 0;
         border-top-right-radius: 2rem;
         border-bottom-right-radius: 2rem;
         min-width: 0;
-        box-sizing: border-box;
     }
 }
 
@@ -1127,7 +1184,6 @@ fieldset.form-row{
         background: v.$c_tone_02;
         margin: 1rem auto 0;
         width: 97%;
-        box-sizing: border-box;
 
         :first-child{
             border-top: none;
@@ -1270,8 +1326,7 @@ fieldset.form-row{
         border-top-left-radius: 0;
         border-bottom-left-radius: 0;
         min-width: 0;
-        line-height: 0.9rem;
-        box-sizing: border-box;
+        line-height: 1;
     } 
 }
 
@@ -1382,6 +1437,22 @@ fieldset.form-row{
             content: 'id ';
         }
     }
+}
+
+
+.empty-section-notice{
+    margin: 0;
+    padding: v.px-to-rem(8) v.px-to-rem(16) v.px-to-rem(8) v.px-to-rem(14);
+    width: fit-content;
+
+    display: block;
+    font-style: italic;
+    color: v.$c_tone-200;
+    
+    border-left: 3px solid v.$c_tone-800;
+    border-bottom-right-radius: v.px-to-rem(6);
+    border-top-right-radius: v.px-to-rem(6);
+    background: linear-gradient(to right, rgba(white, .05) 0%, rgba(white, .02) 100%); 
 }
 
 
@@ -1786,7 +1857,6 @@ fieldset.form-row{
     textarea{
         padding: 8px;
         width: 100%;
-        box-sizing: border-box;
     }
 
     .checkbox-container{
@@ -1969,6 +2039,7 @@ fieldset.form-row{
         padding: 0.2rem 0.4rem;
         text-align: center;
         font-weight: bold;
+        width: 1.75rem;
     }
 
     .message{
@@ -2015,11 +2086,9 @@ fieldset.form-row{
 // || Errors
 .bigErrorMessage{
     --contentSideMargin: #{v.px-to-rem(8)};
-    box-sizing: border-box;
     max-width: 80ch;
 
     &_heading{
-        box-sizing: border-box;
         width: 100%;
         margin: 0;
         border-color: v.$c_warning;
@@ -2068,7 +2137,6 @@ fieldset.form-row{
     --scrollbarWidth: 18px;
     --contentSideMargin: #{v.px-to-rem(8)};
 
-    box-sizing: border-box;
     height: fit-content;
     width: fit-content;
     max-height: 80vh;
@@ -2102,7 +2170,6 @@ fieldset.form-row{
 
     &_heading{
         margin: 0;
-        box-sizing: border-box;
         border-color: v.$c_tone-600;
         padding: v.px-to-rem(14) calc(var(--contentSideMargin) * 2) v.px-to-rem(8);
         width: 100%;

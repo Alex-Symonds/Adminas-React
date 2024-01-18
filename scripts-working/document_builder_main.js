@@ -30,6 +30,7 @@ const CLASS_SPECIAL_INSTRUCTION_EDIT = 'edit-special-instruction-btn';
 const CLASS_SPECIAL_INSTRUCTION_DELETE = 'delete-special-instruction-btn';
 const CLASS_LOCAL_NAV = 'status-controls';
 
+const CLASS_INSTRUCTIONS_EMPTY_MESSAGE = 'no-special-instructions';
 const CLASS_INSTRUCTIONS_SECTION = 'special-instructions';
 const CLASS_ONE_SPECIAL_INSTRUCTION = 'read_row';
 
@@ -297,7 +298,7 @@ function get_special_instructions_as_list(){
     let parent_ele = container_ele.querySelector('.existing');
 
     Array.from(parent_ele.children).forEach(ele => {
-        if(!ele.classList.contains('no-special-instructions')){
+        if(!ele.classList.contains(CLASS_INSTRUCTIONS_EMPTY_MESSAGE)){
             let d = {};
             // All special instructions must have an 'id' key.
             // New special instructions won't have an assigned ID yet, so use 0
@@ -556,7 +557,7 @@ function delete_ele_special_instruction(btn){
 
 function update_emptiness_of_special_instructions(){
     let section_div = document.querySelector('.special-instructions');
-    let none_p = section_div.querySelector('.no-special-instructions');
+    let none_p = section_div.querySelector(`.${CLASS_INSTRUCTIONS_EMPTY_MESSAGE}`);
 
     let want_none_p = section_div.querySelector('.' + CLASS_ONE_SPECIAL_INSTRUCTION) == null;
     let have_none_p = none_p != null;
@@ -573,8 +574,8 @@ function update_emptiness_of_special_instructions(){
 
 function create_ele_empty_special_instructions(){
     let p = document.createElement('p');
-    p.classList.add('no_special_instructions');
-    p.innerHTML = "No special instructions on this document.";
+    p.classList.add(CLASS_INSTRUCTIONS_EMPTY_MESSAGE);
+    p.innerHTML = "No special instructions on this document";
     return p;
 }
 

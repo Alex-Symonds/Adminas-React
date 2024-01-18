@@ -170,6 +170,7 @@ function create_ele_filter_option_text_input(FILTER_SETTINGS){
 
 function create_ele_filter_option_date_range(FILTER_SETTINGS){
     let ele = document.createElement('fieldset');
+    ele.classList.add("recordsFilter_fieldset");
 
     let heading = document.createElement('legend');
     heading.classList.add("formy_label");
