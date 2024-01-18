@@ -56,7 +56,7 @@
                         <th class="recordsTable_heading">PO Value</th>
 
                         <th class="recordsTable_heading">INCO</th>
-                        <th class="recordsTable_heading">Deliver to</th>
+                        <th class="recordsTable_heading">Deliver&nbsp;to</th>
 
                         <th class="recordsTable_heading"></th>
                     </tr>
@@ -74,19 +74,21 @@
                             </a>
                         </td> 
                         <td class="recordsTable_todo">
-                            <button 
-                                class="hoverSpan_container todo-list-add recordsTable_todoButton recordsTable_todoButton-{% if r.is_todo %}on{% else %}off{% endif %}" 
-                                data-job_id="{{ r.job_id }}" 
-                                {% if r.is_todo %}disabled{% endif %}
-                            >
-                                <span class="hoverSpan_span recordsTable_todoButtonSpan">
-                                    {% if r.is_todo %}
-                                        on todo list
-                                    {% else %}
-                                        add to todo list
-                                    {% endif %}
-                                </span>
-                            </button>
+                            <div class="recordsTable_todoWrapper">
+                                <button 
+                                    class="hoverSpan_container todo-list-add recordsTable_todoButton recordsTable_todoButton-{% if r.is_todo %}on{% else %}off{% endif %}" 
+                                    data-job_id="{{ r.job_id }}" 
+                                    {% if r.is_todo %}disabled{% endif %}
+                                >
+                                    <span class="hoverSpan_span recordsTable_todoButtonSpan">
+                                        {% if r.is_todo %}
+                                            on todo list
+                                        {% else %}
+                                            add to todo list
+                                        {% endif %}
+                                    </span>
+                                </button>
+                            </div>
                         </td>
                         <td class="recordsTable_name">{{ r.name }}</td>
                         <td class="recordsTable_agent recordsTable_companyName">{{ r.agent }}</td>

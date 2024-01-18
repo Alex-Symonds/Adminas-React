@@ -20,8 +20,11 @@
 }
 
 .editJob{
-    &_incoterm.form-row{
-        gap: 1rem;
+    &_incoterm{
+        margin-top: 1.5rem;
+        &.form-row{
+            gap: 1rem;
+        }
     }
 
     &_incotermCode,

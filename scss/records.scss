@@ -442,6 +442,11 @@
 
 
     /* Bits and bobs inside the <td>s */
+    &_todoWrapper{
+        display: flex;
+        align-items: start;
+    }
+
     &_countryContainer{
         display: inline-block;
 
@@ -764,6 +769,11 @@
         }
 
         /* Bits and bobs inside the <td>s */
+        &_todoWrapper{
+            justify-content: center;
+            align-items: center;
+        }
+
         &_companyName{
             max-width: 8rem;
         }
