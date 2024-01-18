@@ -225,11 +225,11 @@
     &_todo{
         grid-row: 1;
         background: var(--borderColour);
+        align-self: stretch; // To spread the background colour all the way down
     }
     &_name{
         grid-column-start: 1;
         grid-column-end: 7;
-        align-self: stretch;
 
         padding: v.px-to-rem(8) var(--outerPaddingX) 0;
         font-weight: 700;
@@ -242,7 +242,9 @@
         border-top-right-radius: var(--borderRadius);
 
         padding: var(--todoButtonPaddingX) var(--todoButtonPaddingX) 0;
+        
         display: flex;
+        justify-content: center;
         align-items: start;
     }
 
@@ -441,11 +443,14 @@
     }
 
 
-    /* Bits and bobs inside the <td>s */
+    /* Bits and bobs inside the <td>s (pretending to not be <td>s) */
     &_todoWrapper{
         display: flex;
+        justify-content: center;
         align-items: start;
+
         width: var(--todoButtonSize);
+        max-width: var(--todoButtonSize);
         height: var(--todoButtonSize);
     }
 
@@ -775,6 +780,7 @@
             justify-content: center;
             align-items: center;
             width: 100%;
+            max-width: 100%;
         }
 
         &_companyName{
