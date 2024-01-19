@@ -239,7 +239,8 @@
 
         padding: var(--todoButtonPaddingX) var(--todoButtonPaddingX) 0;
         
-        display: inline-block;
+        display: block;
+        background: green;
         
         // display: flex;
         // justify-content: center;
