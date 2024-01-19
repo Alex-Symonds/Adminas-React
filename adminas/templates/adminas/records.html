@@ -74,7 +74,7 @@
                             </a>
                         </td> 
                         <td class="recordsTable_todo">
-                            <div class="recordsTable_todoWrapper">
+                            <!-- <div class="recordsTable_todoWrapper"> -->
                                 <button 
                                     class="hoverSpan_container todo-list-add recordsTable_todoButton recordsTable_todoButton-{% if r.is_todo %}on{% else %}off{% endif %}" 
                                     data-job_id="{{ r.job_id }}" 
@@ -88,7 +88,7 @@
                                         {% endif %}
                                     </span>
                                 </button>
-                            </div>
+                            <!-- </div> -->
                         </td>
                         <td class="recordsTable_name">{{ r.name }}</td>
                         <td class="recordsTable_agent recordsTable_companyName">{{ r.agent }}</td>
