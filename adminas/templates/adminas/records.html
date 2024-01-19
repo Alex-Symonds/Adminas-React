@@ -74,21 +74,19 @@
                             </a>
                         </td> 
                         <td class="recordsTable_todo">
-                            <!-- <div class="recordsTable_todoWrapper"> -->
-                                <button 
-                                    class="hoverSpan_container todo-list-add recordsTable_todoButton recordsTable_todoButton-{% if r.is_todo %}on{% else %}off{% endif %}" 
-                                    data-job_id="{{ r.job_id }}" 
-                                    {% if r.is_todo %}disabled{% endif %}
-                                >
-                                    <span class="hoverSpan_span recordsTable_todoButtonSpan">
-                                        {% if r.is_todo %}
-                                            on todo list
-                                        {% else %}
-                                            add to todo list
-                                        {% endif %}
-                                    </span>
-                                </button>
-                            <!-- </div> -->
+                            <button 
+                                class="hoverSpan_container todo-list-add recordsTable_todoButton recordsTable_todoButton-{% if r.is_todo %}on{% else %}off{% endif %}" 
+                                data-job_id="{{ r.job_id }}" 
+                                {% if r.is_todo %}disabled{% endif %}
+                            >
+                                <span class="hoverSpan_span recordsTable_todoButtonSpan">
+                                    {% if r.is_todo %}
+                                        on todo list
+                                    {% else %}
+                                        add to todo list
+                                    {% endif %}
+                                </span>
+                            </button>
                         </td>
                         <td class="recordsTable_name">{{ r.name }}</td>
                         <td class="recordsTable_agent recordsTable_companyName">{{ r.agent }}</td>

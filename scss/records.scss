@@ -239,12 +239,9 @@
 
         padding: var(--todoButtonPaddingX) var(--todoButtonPaddingX) 0;
         
-        display: block;
-        background: green;
-        
-        // display: flex;
-        // justify-content: center;
-        // align-items: start;
+        display: flex;
+        justify-content: center;
+        align-items: start;
     }
 
 
@@ -510,27 +507,29 @@
     }
 
 
-    // &_todoWrapper{
-    //     display: flex;
-    //     justify-content: center;
-    //     align-items: start;
-    // }
     &_todoButton{
         height: var(--todoButtonSize);
-        min-width: var(--todoButtonSize);
-        width: var(--todoButtonSize);
-        max-width: var(--todoButtonSize);
+        // min-width: var(--todoButtonSize);
+        // width: var(--todoButtonSize);
+        // max-width: var(--todoButtonSize);
+        min-width: 16px;
+        width: 16px;
+        max-width: 16px;
 
-        flex: 0 0 var(--todoButtonSize);
+
+        // flex: 0 0 var(--todoButtonSize);
+        flex: 0 0 16px;
 
         border: 2px solid v.$c_secondary-500;
         border-radius: var(--todoButtonSize);
+        border-radius: 16px;
         box-sizing: border-box;
 
         align-self: start;
 
         &-on{
             background: v.$c_secondary-500;
+            background: cyan;
         }
         &-off{
             background: transparent;
