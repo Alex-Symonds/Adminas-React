@@ -207,7 +207,6 @@
 
     &_row{
         display: grid;
-        //grid-template-columns: 3.5rem auto auto auto 1fr calc(var(--todoButtonSize) + var(--todoButtonPaddingX) * 2);
         grid-template-columns: 3.5rem auto auto auto 1fr auto;
         grid-template-rows: repeat(10, auto);
         border: 1px solid var(--borderColour);
@@ -510,16 +509,12 @@
 
     &_todoButton{
         height: var(--todoButtonSize);
-        // min-width: var(--todoButtonSize);
-        // width: var(--todoButtonSize);
-        // max-width: var(--todoButtonSize);
-        // flex: 0 0 var(--todoButtonSize);
+        width: var(--todoButtonSize);
+        flex: 0 0 var(--todoButtonSize);
 
         border: 2px solid v.$c_secondary-500;
         border-radius: var(--todoButtonSize);
         box-sizing: border-box;
-
-        // align-self: start;
 
         &-on{
             background: v.$c_secondary-500;
