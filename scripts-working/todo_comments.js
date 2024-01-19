@@ -1,6 +1,7 @@
 /*
     Handles clicking the pinned comment on a todo list row to open a modal containing all
-    pinned comments and a button to add new ones.
+    pinned comments and a button to add new ones, and adds animation to buttons within
+    the modal.
 
     Notes:
     > This assumes that the Django template has already created a dialog element for 
@@ -11,6 +12,7 @@
       editing/creating/deleting stuff is in job_comments.js
     
     Contents:
+        || Animated Add Pinned Comment Editor
         || Modal Opener
         || Control Front-End Update
         || Extract Data
@@ -20,12 +22,50 @@
 
 
 document.addEventListener('DOMContentLoaded', () => {
+
     const BUTTON_CLASS = "pinnedModalOpener";
     document.querySelectorAll(`.${BUTTON_CLASS}`).forEach(btn => {
         btn.addEventListener('click', (e) => openPinnedCommentsModal(e));
     });
 
+    initialiseAnimatedAddCommentEditor();
 })
+
+
+// || Animated Add Pinned Comment Editor
+function initialiseAnimatedAddCommentEditor(){
+    const CSS_TODO_ADD_BUTTON = 'pinnedCommentsModal_addNewButton';
+    const CSS_CLASS_ADD_PINNED_CONTAINER = 'pinnedCommentsModal_addNewContainer';
+
+    document.querySelectorAll(`.${CSS_TODO_ADD_BUTTON}`).forEach(btn => {
+        btn.addEventListener('click', () =>{
+            handleClickAddPinnedToTodo(btn);
+            const animated = findAnimatedDOMElement(btn);
+            animateAndThen(animated, `${CSS_CLASS_ADD_PINNED_CONTAINER}-open`, null);
+        });
+    });
+
+    function handleClickAddPinnedToTodo(btn){
+        close_jobcomment_editor();
+        const editor_ele = create_ele_jobcomment_editor(DEFAULT_COMMENT_ID, btn.dataset.form_type !== VALUE_FORM_TYPE_CONTENT_ONLY, false, TASK_CREATE_COMMENT);
+
+        const closeButton = editor_ele.querySelector(`.close`);
+        closeButton.addEventListener('click', () => {
+            const animated = findAnimatedDOMElement(closeButton);
+            animateAndThen(animated, `${CSS_CLASS_ADD_PINNED_CONTAINER}-close`, () => {
+                close_jobcomment_editor();
+                unhide_all_by_class(CSS_TODO_ADD_BUTTON);
+            });
+        });
+
+        btn.after(editor_ele);
+        hide_all_by_class(CSS_TODO_ADD_BUTTON);
+    }
+
+    function findAnimatedDOMElement(child){
+        return child.closest(`.${CSS_CLASS_ADD_PINNED_CONTAINER}`);
+    }
+}
 
 
 // || Modal Opener
@@ -43,7 +83,10 @@ function openPinnedCommentsModal(e){
     if(closeButton !== undefined){
         closeButton.addEventListener('click', () => {
             modalWrapper.classList.add(CSS_HIDE);
-            modalEle.close();
+            const modalEle = modalWrapper.querySelector(`.${CSS_MODAL}`);
+            if(modalEle){
+                modalEle.close();
+            }
         });
     }
 }

@@ -102,7 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
 function open_jobcomment_editor_for_create(btn){
     close_jobcomment_editor();
 
-    let editor_ele = create_ele_jobcomment_editor(DEFAULT_COMMENT_ID, btn.dataset.form_type !== VALUE_FORM_TYPE_CONTENT_ONLY, TASK_CREATE_COMMENT);
+    let editor_ele = create_ele_jobcomment_editor(DEFAULT_COMMENT_ID, btn.dataset.form_type !== VALUE_FORM_TYPE_CONTENT_ONLY, true, TASK_CREATE_COMMENT);
     btn.after(editor_ele);
 
     update_visibility_add_comment_button(false);
@@ -117,7 +117,7 @@ function open_jobcomment_editor_for_update(btn){
     let section_ele = comment_ele.closest('.' + CLASS_COMMENTS_CONTAINER);
     let want_checkboxes = !(section_ele != null && section_ele.classList.contains(CLASS_COMMENTS_CONTAINER_PINNED));
 
-    let editor_ele = create_ele_jobcomment_editor(comment_ele.dataset.comment_id, want_checkboxes);
+    let editor_ele = create_ele_jobcomment_editor(comment_ele.dataset.comment_id, want_checkboxes, true);
     editor_ele = populate_ele_jobcomment_editor_with_existing(editor_ele, comment_ele, want_checkboxes);
     comment_ele.prepend(editor_ele);
 
@@ -133,6 +133,7 @@ function close_jobcomment_editor(){
 
     let comment_ele = editor_ele.closest('.' + CLASS_COMMENT);
     editor_ele.remove();
+
     if(comment_ele != null){
         update_visibility_comment_content(comment_ele, true);
     }
@@ -143,12 +144,12 @@ function close_jobcomment_editor(){
 }
 
 
-function create_ele_jobcomment_editor(comment_id, want_checkboxes, task_name = null){
+function create_ele_jobcomment_editor(comment_id, want_checkboxes, wantDefaultClose, task_name = null){
     let settings = get_settings_jobcomment_editor(task_name);
     let form_type_attr = want_checkboxes ? VALUE_FORM_TYPE_FULL : VALUE_FORM_TYPE_CONTENT_ONLY;
 
     let container = create_ele_jobcomment_editor_base();
-    container.append(create_ele_jobcomment_editor_close_button());
+    container.append(create_ele_jobcomment_editor_close_button(wantDefaultClose));
     container.append(create_ele_jobcomment_editor_heading(settings.title));
     container.append(create_ele_jobcomment_editor_contents_input());
     if(want_checkboxes) container.append(create_ele_jobcomment_editor_checkbox_container());       
@@ -238,12 +239,14 @@ function create_ele_jobcomment_editor_save_button(comment_id, form_type, save_fu
 }
 
 
-function create_ele_jobcomment_editor_close_button(){
+function create_ele_jobcomment_editor_close_button(wantDefaultClose){
     let close_btn = create_generic_ele_cancel_button();
 
-    close_btn.addEventListener('click', () => {
-        close_jobcomment_editor();
-    });
+    if(wantDefaultClose){
+        close_btn.addEventListener('click', () => {
+            close_jobcomment_editor();
+        });
+    }
 
     return close_btn;
 }

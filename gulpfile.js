@@ -69,6 +69,7 @@ function jsMain() {
         `${PATH_WORKING_SCRIPTS}document_main.js`,
         `${PATH_WORKING_SCRIPTS}auto_address.js`,
         `${PATH_WORKING_SCRIPTS}job_delete.js`,
+        `${PATH_WORKING_SCRIPTS}animation_helper.js`,
         `${PATH_WORKING_SCRIPTS}todo_comments.js`,
         `${PATH_WORKING_SCRIPTS}todo_status.js`,
         `${PATH_WORKING_SCRIPTS}modal.js`,
