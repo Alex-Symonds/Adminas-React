@@ -203,10 +203,6 @@
         flex-direction: column;
         gap: 1rem;
         width: 100%;
-
-        tr:nth-of-type(even){ 
-            background: rgba(v.$c_tone_900, 0.7);
-        }
     }
 
     &_row{
@@ -225,7 +221,7 @@
     &_todo{
         grid-row: 1;
         background: var(--borderColour);
-        align-self: stretch; // To spread the background colour all the way down
+        align-self: stretch; // To fill the row with the background colour
     }
     &_name{
         grid-column-start: 1;
@@ -444,16 +440,6 @@
 
 
     /* Bits and bobs inside the <td>s (pretending to not be <td>s) */
-    &_todoWrapper{
-        display: flex;
-        justify-content: center;
-        align-items: start;
-
-        width: var(--todoButtonSize);
-        max-width: var(--todoButtonSize);
-        height: var(--todoButtonSize);
-    }
-
     &_countryContainer{
         display: inline-block;
 
@@ -521,11 +507,18 @@
     }
 
 
+    // &_todoWrapper{
+    //     display: flex;
+    //     justify-content: center;
+    //     align-items: start;
+    // }
     &_todoButton{
         height: var(--todoButtonSize);
         min-width: var(--todoButtonSize);
         width: var(--todoButtonSize);
         max-width: var(--todoButtonSize);
+
+        flex: 0 0 var(--todoButtonSize);
 
         border: 2px solid v.$c_secondary-500;
         border-radius: var(--todoButtonSize);
