@@ -289,7 +289,16 @@ $breakpoint_set_min_modal_size: 650px;
         overflow-y: auto;
 
         background: v.$c_tone_950;
+
+        &-open{
+            animation: animate-add-pinned-open 0.5s ease-in;
+        }
+
+        &-close{
+            animation: animate-add-pinned-open 0.5s ease-out reverse;
+        }
     }
+
 
     .one-comment{
         .main{
@@ -312,6 +321,27 @@ $breakpoint_set_min_modal_size: 650px;
         width: 100%;
     }
 }
+
+
+@keyframes animate-add-pinned-open {
+	0% {
+		max-height: 0;
+        overflow: hidden;
+		opacity: 0;
+	}
+    99%{
+        max-height: calc(100% - var(--heightHeading));
+        overflow: hidden;
+		opacity: 1;	
+    }
+	100% {
+		max-height: calc(100% - var(--heightHeading));
+        overflow: auto;
+		opacity: 1;	
+	}
+}
+
+
 
 @media screen and (min-width: $breakpoint_set_min_modal_size){
     .pinnedCommentsModal{
