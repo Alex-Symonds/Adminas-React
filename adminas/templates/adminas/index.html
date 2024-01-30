@@ -115,7 +115,7 @@
                         <dialog class="modal pinnedCommentsModal">
                             <button class="modal_closeButton close"><span>close</span></button>
                             <h5 class="pinnedCommentsModal_heading"><span class="hide">Pinned </span>{{ job.name }}</h5>
-                            <section class="comment-container pinned streamlined persistent pinnedCommentsModal_commentContainer">
+                            <section class="comment-container pinned streamlined pinnedCommentsModal_commentContainer">
                             {% if job.pinned_comments %}
                             {% for comment in job.pinned_comments %}
                                 {% include "adminas/components/comment_collapse.html" with comment=comment %}
@@ -125,8 +125,7 @@
                             {% endif %}
                             </section>
                             <div class="create-comments-container pinnedCommentsModal_addNewContainer">
-                                <!-- <button class="add-button comment comment-to-todolist pinnedCommentsModal_addNewButton" data-form_type="content-only">comment</button> -->
-                                <button class="add-button pinnedCommentsModal_addNewButton" data-form_type="content-only">comment</button>
+                                <button class="add-button addComment pinnedCommentsModal_addNewButton" data-form_type="content-only">comment</button>
                             </div>
                         </dialog>
                     </section>

@@ -280,31 +280,6 @@ def manage_modules(request, job_id):
     return render(request, 'adminas/manage_modules.html', data)
 
 
-def comments_page(request):
-    job = get_object(Job, key = 'job_id', get_params = request.GET)
-    if is_error(job):
-        return render_with_error(job)
-
-    # Paginate "all comments"
-    # (Assumption: users will only pin/highlight a few comments, so pagination won't be needed there)
-    # (Assertion: if they pin/highlight a bajillion comments, it's their own fault if they have to scroll a lot)
-    setting_for_order_by = '-created_on'
-    all_comments = job.get_all_comments(request.user, setting_for_order_by)
-
-    page = get_page(all_comments, request.GET)
-    if is_error(page):
-        return render_with_error(page)
-
-    return render(request, 'adminas/job_comments.html', {
-        'customer_via_agent': get_customer_via_agent_string(job),
-        'job': job.get_dict(),
-        'pinned': job.get_pinned_comments(request.user, setting_for_order_by),
-        'highlighted': job.get_highlighted_comments(request.user, setting_for_order_by),
-        'all_comments': None if page == None else page.object_list,
-        'page_data': page
-    })
-
-
 def job_editor_page(request):
     # Use cases:
     #   1) Blank form for a new job
@@ -421,11 +396,12 @@ def api_comments(request):
             respond_with_error(job)
 
         comment = create_comment(comment_form, request.user, job)
+        comment_dict = comment.get_dict(request.user)
         return JsonResponse({
             'id': comment.id,
-            'created_on': formats.date_format(comment.created_on, "DATETIME_FORMAT")
+            'created_on': comment.created_on,
+            'created_on_str': comment_dict['created_on_str']
         }, status = 201)
-
 
 
 def api_draft_documents(request):
@@ -1034,7 +1010,7 @@ def api_data(request):
             response_data = get_dict_job_page_root(job)
 
             setting_for_order_by = '-created_on'
-            response_data['comments_url'] = f"{reverse('comments_page')}?job_id={job.id}"
+            # response_data['comments_url'] = f"{reverse('comments_page')}?job_id={job.id}"
             response_data['comments_api'] = reverse('api_comments')
             response_data['username'] = request.user.username
             response_data['comments'] = job.get_all_comments(request.user, setting_for_order_by)

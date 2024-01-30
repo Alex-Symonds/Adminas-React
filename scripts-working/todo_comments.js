@@ -12,9 +12,9 @@
       editing/creating/deleting stuff is in job_comments.js
     
     Contents:
-        || Animated Add Pinned Comment Editor
         || Modal Opener
         || Control Front-End Update
+        || Animated Add Pinned Comment Editor
         || Extract Data
         || Find DOM Elements
         || Update Todo List Element
@@ -30,42 +30,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     initialiseAnimatedAddCommentEditor();
 })
-
-
-// || Animated Add Pinned Comment Editor
-function initialiseAnimatedAddCommentEditor(){
-    const CSS_TODO_ADD_BUTTON = 'pinnedCommentsModal_addNewButton';
-    const CSS_CLASS_ADD_PINNED_CONTAINER = 'pinnedCommentsModal_addNewContainer';
-
-    document.querySelectorAll(`.${CSS_TODO_ADD_BUTTON}`).forEach(btn => {
-        btn.addEventListener('click', () =>{
-            handleClickAddPinnedToTodo(btn);
-            const animated = findAnimatedDOMElement(btn);
-            animateAndThen(animated, `${CSS_CLASS_ADD_PINNED_CONTAINER}-open`, null);
-        });
-    });
-
-    function handleClickAddPinnedToTodo(btn){
-        close_jobcomment_editor();
-        const editor_ele = create_ele_jobcomment_editor(DEFAULT_COMMENT_ID, btn.dataset.form_type !== VALUE_FORM_TYPE_CONTENT_ONLY, false, TASK_CREATE_COMMENT);
-
-        const closeButton = editor_ele.querySelector(`.close`);
-        closeButton.addEventListener('click', () => {
-            const animated = findAnimatedDOMElement(closeButton);
-            animateAndThen(animated, `${CSS_CLASS_ADD_PINNED_CONTAINER}-close`, () => {
-                close_jobcomment_editor();
-                unhide_all_by_class(CSS_TODO_ADD_BUTTON);
-            });
-        });
-
-        btn.after(editor_ele);
-        hide_all_by_class(CSS_TODO_ADD_BUTTON);
-    }
-
-    function findAnimatedDOMElement(child){
-        return child.closest(`.${CSS_CLASS_ADD_PINNED_CONTAINER}`);
-    }
-}
 
 
 // || Modal Opener
@@ -95,7 +59,7 @@ function openPinnedCommentsModal(e){
 // || Control Front-End Update
 function toggle_todo_list(comment_ele, new_status, toggled_attribute){
     const task = 'pinned' === toggled_attribute && !new_status ?
-        'delete'
+        'unpin'
         : 'update';
     const commentData = {
         ...get_comment_data_from_comment_ele(comment_ele),
@@ -113,13 +77,13 @@ function update_todo_list_row_pinned(commentData, task){
     }
 
     const displayedCommentWasEdited = buttonEleOrNull.dataset.comment_id === commentData.id;
-    if(displayedCommentWasEdited || task === 'create'){
+    if((displayedCommentWasEdited && commentData.pinned) || task === 'create'){
         update_ele_todo_pinned_comment(
             buttonEleOrNull, 
             commentData,
             buttonEleOrNull.dataset.jobName,
         );
-    } else if(task === 'delete') {
+    } else if(task === 'unpin' || task === 'delete'){
         const data = get_data_for_next_pinned_comment(commentData.id);
         if(data !== null){
             update_ele_todo_pinned_comment(
@@ -140,6 +104,42 @@ function update_todo_list_row_pinned(commentData, task){
                 buttonEleOrNull.dataset.jobName,
             );
         }
+    }
+}
+
+
+// || Animated Add Pinned Comment Editor
+function initialiseAnimatedAddCommentEditor(){
+    const CSS_TODO_ADD_BUTTON = 'pinnedCommentsModal_addNewButton';
+    const CSS_CLASS_ADD_PINNED_CONTAINER = 'pinnedCommentsModal_addNewContainer';
+
+    document.querySelectorAll(`.${CSS_TODO_ADD_BUTTON}`).forEach(btn => {
+        btn.addEventListener('click', () =>{
+            handleClickAddPinnedToTodo(btn);
+            const animated = findAnimatedDOMElement(btn);
+            animateAndThen(animated, `${CSS_CLASS_ADD_PINNED_CONTAINER}-open`, null);
+        });
+    });
+
+    function handleClickAddPinnedToTodo(btn){
+        close_jobcomment_editor();
+        const editor_ele = create_ele_jobcomment_editor(DEFAULT_COMMENT_ID, false, TASK_CREATE_COMMENT);
+
+        const closeButton = editor_ele.querySelector(`.close`);
+        closeButton.addEventListener('click', () => {
+            const animated = findAnimatedDOMElement(closeButton);
+            animateAndThen(animated, `${CSS_CLASS_ADD_PINNED_CONTAINER}-close`, () => {
+                close_jobcomment_editor();
+                unhide_all_by_class(CSS_TODO_ADD_BUTTON);
+            });
+        });
+
+        btn.after(editor_ele);
+        hide_all_by_class(CSS_TODO_ADD_BUTTON);
+    }
+
+    function findAnimatedDOMElement(child){
+        return child.closest(`.${CSS_CLASS_ADD_PINNED_CONTAINER}`);
     }
 }
 

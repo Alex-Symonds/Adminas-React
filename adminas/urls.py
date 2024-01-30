@@ -11,7 +11,6 @@ urlpatterns = [
     path('document/editor', views.document_editor_page, name='doc_editor_page'),
     path('job/<int:job_id>', views.job, name='job'),
     path('job/<int:job_id>/manage_modules', views.manage_modules, name='manage_modules'),
-    path('job/comments', views.comments_page, name='comments_page'),
     path('job_editor', views.job_editor_page, name='job_editor_page'),
     path('records', views.records, name='records'),
     path('api/comments', views.api_comments, name='api_comments'),

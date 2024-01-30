@@ -29,11 +29,13 @@ function JobSummary(props){
                     </div>
                     <JobCommentsSubsection
                         actions = { props.actions_comments }
-                        comments = { props.comments }
+                        comments = { props.comments.filter(c => c.pinned) }
                         commentsEditor = { props.commentsEditor }
                         css = { "jobCommentSection-summary" }
-                        sectionName = { PINNED_STRING }
+                        heading = { "Pinned" }
+                        emptyMessage = { "No comments have been pinned" }
                         username = { props.username } 
+                        wantCollapsable = { true }
                     /> 
                     <JobSummary_Items 
                         currency = { props.currency }
