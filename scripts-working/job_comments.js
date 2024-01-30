@@ -22,10 +22,8 @@
 
 const ATTR_LABEL_FORM_TYPE = 'data-form_type';
 const CLASS_ADD_BUTTON = 'add-button';
-const CLASS_ADD_BUTTON_COMMENT = `${CLASS_ADD_BUTTON}.comment`;
+const CLASS_ADD_BUTTON_COMMENT = `${CLASS_ADD_BUTTON}.addComment`;
 const CLASS_EMPTINESS_MESSAGE = 'empty-section-notice';
-const CLASS_EMPTINESS_NOT_PERSISTENT = 'not-persistent';
-const CLASS_EMPTINESS_PERSISTENT = 'persistent';
 const CLASS_COMMENT = 'one-comment';
 const CLASS_COMMENT_CONTENTS = 'contents';
 const CLASS_COMMENT_CONTROLS = 'controls';
@@ -39,19 +37,16 @@ const CLASS_COMMENT_OWNERSHIP = 'ownership';
 const CLASS_COMMENT_PINNED_TOGGLE = 'pinned-toggle';
 const CLASS_COMMENT_SECTION = 'comments';
 const CLASS_COMMENTS_CONTAINER = 'comment-container';
-const CLASS_COMMENTS_CONTAINER_ALL = 'all-comments';
 const CLASS_COMMENTS_CONTAINER_HIGHLIGHTED = 'highlighted';
 const CLASS_COMMENTS_CONTAINER_PINNED = 'pinned';
 const CLASS_CREATE_COMMENT_CONTAINER = 'create-comments-container';
-const CLASS_HIGHLIGHTED_CSS = 'highlighted';
-const CLASS_JOB_PANEL = 'panel.job';
+const CLASS_HIGHLIGHTED_COMMENT = 'highlighted';
 const CLASS_PINNED_TOGGLE = 'pinned-toggle';
 const CLASS_PINNED_BTN_ON = 'pin-on';
 const CLASS_PINNED_BTN_OFF = 'pin-off';
 const CLASS_PREFIX_FOR_COMMENT_ID = 'id-';
 const CLASS_PRIVACY_STATUS = 'privacy-status';
 const CLASS_SAVE_BTN = 'save';
-const CLASS_STREAMLINED_WANTED = 'streamlined';
 const CLASS_TODO_HAS_JOB_ID = 'todoJob';
 const DEFAULT_COMMENT_ID = '0';
 const ID_COMMENT_TEXTAREA = 'id_comment_contents';
@@ -60,7 +55,6 @@ const ID_COMMENT_CHECKBOX_PINNED = 'id_pinned_checkbox';
 const ID_COMMENT_CHECKBOX_PRIVATE = 'id_private_checkbox';
 const ID_PREFIX_JOB_PANEL_ON_TODO_LIST = 'todo_panel_job_';
 const KEY_COMMENT_OWNERSHIP_STRING = 'footer_str';
-const SECTION_NAMES = ['all-comments', 'pinned', 'highlighted'];
 const STR_FALLBACK = '???';
 const TASK_CREATE_COMMENT = 'create';
 const VALUE_FORM_TYPE_CONTENT_ONLY = 'content-only';
@@ -69,12 +63,6 @@ const VALUE_FORM_TYPE_FULL = 'full';
 
 
 document.addEventListener('DOMContentLoaded', () => {
-
-    document.querySelectorAll(`.${CLASS_ADD_BUTTON_COMMENT}`).forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            open_jobcomment_editor_for_create(e.target);
-        })
-    });
 
     document.querySelectorAll('.' + CLASS_COMMENT_EDIT_BTN).forEach(btn => {
         btn.addEventListener('click', (e) => {
@@ -99,26 +87,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 // || Editor
-function open_jobcomment_editor_for_create(btn){
-    close_jobcomment_editor();
-
-    let editor_ele = create_ele_jobcomment_editor(DEFAULT_COMMENT_ID, btn.dataset.form_type !== VALUE_FORM_TYPE_CONTENT_ONLY, true, TASK_CREATE_COMMENT);
-    btn.after(editor_ele);
-
-    update_visibility_add_comment_button(false);
-    hide_all_by_class(CLASS_COMMENT_EDIT_BTN);    
-}
-
-
 function open_jobcomment_editor_for_update(btn){
     close_jobcomment_editor();
 
     let comment_ele = btn.closest('.' + CLASS_COMMENT);
-    let section_ele = comment_ele.closest('.' + CLASS_COMMENTS_CONTAINER);
-    let want_checkboxes = !(section_ele != null && section_ele.classList.contains(CLASS_COMMENTS_CONTAINER_PINNED));
-
-    let editor_ele = create_ele_jobcomment_editor(comment_ele.dataset.comment_id, want_checkboxes, true);
-    editor_ele = populate_ele_jobcomment_editor_with_existing(editor_ele, comment_ele, want_checkboxes);
+    let editor_ele = create_ele_jobcomment_editor(comment_ele.dataset.comment_id, true);
+    editor_ele = populate_ele_jobcomment_editor_with_existing(editor_ele, comment_ele, false);
     comment_ele.prepend(editor_ele);
 
     update_visibility_comment_content(comment_ele, false);
@@ -144,15 +118,15 @@ function close_jobcomment_editor(){
 }
 
 
-function create_ele_jobcomment_editor(comment_id, want_checkboxes, wantDefaultClose, task_name = null){
+function create_ele_jobcomment_editor(comment_id, wantDefaultClose, task_name = null){
     let settings = get_settings_jobcomment_editor(task_name);
-    let form_type_attr = want_checkboxes ? VALUE_FORM_TYPE_FULL : VALUE_FORM_TYPE_CONTENT_ONLY;
+    let form_type_attr = VALUE_FORM_TYPE_CONTENT_ONLY;
 
     let container = create_ele_jobcomment_editor_base();
     container.append(create_ele_jobcomment_editor_close_button(wantDefaultClose));
     container.append(create_ele_jobcomment_editor_heading(settings.title));
     container.append(create_ele_jobcomment_editor_contents_input());
-    if(want_checkboxes) container.append(create_ele_jobcomment_editor_checkbox_container());       
+    // if(want_checkboxes) container.append(create_ele_jobcomment_editor_checkbox_container());       
     container.append(create_ele_jobcomment_editor_controls_container(comment_id, form_type_attr, settings.save_funct));        
 
     return container;
@@ -199,19 +173,19 @@ function create_ele_jobcomment_editor_contents_input(){
 }
 
 
-function create_ele_jobcomment_editor_checkbox_container(){
-    let container = document.createElement('div');
-    container.classList.add(CLASS_COMMENT_INPUT_CHECKBOX_CONTAINER);
+// function create_ele_jobcomment_editor_checkbox_container(){
+//     let container = document.createElement('div');
+//     container.classList.add(CLASS_COMMENT_INPUT_CHECKBOX_CONTAINER);
     
-    container.append(create_generic_ele_label('Private', ID_COMMENT_CHECKBOX_PRIVATE));
-    container.append(create_generic_ele_checkbox(ID_COMMENT_CHECKBOX_PRIVATE, true));
-    container.append(create_generic_ele_label('Pin', ID_COMMENT_CHECKBOX_PINNED));
-    container.append(create_generic_ele_checkbox(ID_COMMENT_CHECKBOX_PINNED));
-    container.append(create_generic_ele_label('Highlight', ID_COMMENT_CHECKBOX_HIGHLIGHTED));
-    container.append(create_generic_ele_checkbox(ID_COMMENT_CHECKBOX_HIGHLIGHTED))
+//     container.append(create_generic_ele_label('Private', ID_COMMENT_CHECKBOX_PRIVATE));
+//     container.append(create_generic_ele_checkbox(ID_COMMENT_CHECKBOX_PRIVATE, true));
+//     container.append(create_generic_ele_label('Pin', ID_COMMENT_CHECKBOX_PINNED));
+//     container.append(create_generic_ele_checkbox(ID_COMMENT_CHECKBOX_PINNED));
+//     container.append(create_generic_ele_label('Highlight', ID_COMMENT_CHECKBOX_HIGHLIGHTED));
+//     container.append(create_generic_ele_checkbox(ID_COMMENT_CHECKBOX_HIGHLIGHTED))
 
-    return container;
-}
+//     return container;
+// }
 
 
 function create_ele_jobcomment_editor_controls_container(comment_id, form_type, save_funct){
@@ -262,26 +236,26 @@ function create_ele_jobcomment_editor_delete_button(){
 }
 
 
-function populate_ele_jobcomment_editor_with_existing(editor_ele, comment_ele, want_settings){
+function populate_ele_jobcomment_editor_with_existing(editor_ele, comment_ele){
     let old_contents = comment_ele.querySelector('.' + CLASS_COMMENT_CONTENTS).innerHTML.trim();
     editor_ele.querySelector('#' + ID_COMMENT_TEXTAREA).value = html_tags_to_newlines(old_contents);
 
-    if(want_settings){
-        let is_private = string_to_boolean(comment_ele.dataset.is_private);
-        if(is_private !== null){
-            editor_ele.querySelector('#' + ID_COMMENT_CHECKBOX_PRIVATE).checked = is_private;
-        }
+    // if(want_settings){
+    //     let is_private = string_to_boolean(comment_ele.dataset.is_private);
+    //     if(is_private !== null){
+    //         editor_ele.querySelector('#' + ID_COMMENT_CHECKBOX_PRIVATE).checked = is_private;
+    //     }
 
-        let is_pinned = string_to_boolean(comment_ele.dataset.is_pinned);
-        if(is_pinned !== null){
-            editor_ele.querySelector('#' + ID_COMMENT_CHECKBOX_PINNED).checked = is_pinned;
-        }
+    //     let is_pinned = string_to_boolean(comment_ele.dataset.is_pinned);
+    //     if(is_pinned !== null){
+    //         editor_ele.querySelector('#' + ID_COMMENT_CHECKBOX_PINNED).checked = is_pinned;
+    //     }
     
-        let is_highlighted = string_to_boolean(comment_ele.dataset.is_highlighted);
-        if(is_highlighted !== null){
-            editor_ele.querySelector('#' + ID_COMMENT_CHECKBOX_HIGHLIGHTED).checked = is_highlighted;
-        }      
-    }
+    //     let is_highlighted = string_to_boolean(comment_ele.dataset.is_highlighted);
+    //     if(is_highlighted !== null){
+    //         editor_ele.querySelector('#' + ID_COMMENT_CHECKBOX_HIGHLIGHTED).checked = is_highlighted;
+    //     }      
+    // }
 
     return editor_ele;
 }
@@ -352,12 +326,12 @@ async function save_new_job_comment(btn){
 
     if(status_is_good(response_data, 201)){
         data['id'] = response_data['id'];
-        data[KEY_COMMENT_OWNERSHIP_STRING] = `You on ${response_data['created_on']}`;
+        data[KEY_COMMENT_OWNERSHIP_STRING] = `You on ${response_data['created_on_str']}`;
         data['job_id'] = get_job_id_for_comments(btn);
-        update_job_page_comments_after_create(data); 
+        update_job_comments_after_create(data); 
     }
     else {
-        update_job_page_comments_after_failed_create(response_data, btn);
+        update_job_comments_after_failed_create(response_data, btn);
     }
 }
 
@@ -370,10 +344,10 @@ async function save_updated_job_comment(btn){
         data['id'] = btn.dataset.comment_id;
         data[KEY_COMMENT_OWNERSHIP_STRING] = get_ownership_string_from_existing_comment(btn);
         data['job_id'] = get_job_id_for_comments(btn);
-        update_job_page_comments_after_update(data);
+        update_job_comments_after_update(data);
     }
     else {
-        update_job_page_comments_after_failed_update(response_data, btn);
+        update_job_comments_after_failed_update(response_data, btn);
     }
 }
 
@@ -382,9 +356,9 @@ async function delete_job_comment(btn){
     let comment_ele = btn.closest('.' + CLASS_COMMENT);
     let data = await update_backend_delete_comment(btn, comment_ele.dataset.comment_id);
     if(status_is_good(data, 204)){
-        update_job_page_comments_after_delete(comment_ele.dataset.comment_id);
+        update_job_comments_after_delete(comment_ele.dataset.comment_id);
     } else {
-        update_job_page_comments_after_failed_update(data, btn);       
+        update_job_comments_after_failed_update(data, btn);       
     }
 }
 
@@ -500,13 +474,8 @@ function format_comment_data_for_be(data){
 
 
 function get_job_id_for_comments(ele_in_job_panel){
-    if(typeof JOB_ID !== 'undefined'){
-        return JOB_ID;
-    }
-
-    let job_panel = ele_in_job_panel.closest(`.${CLASS_JOB_PANEL}`);
-    if(job_panel !== null){
-        return job_panel.dataset.job_id;
+    if(typeof window.JOB_ID !== 'undefined'){
+        return window.JOB_ID;
     }
 
     let todoJobEle = ele_in_job_panel.closest(`.${CLASS_TODO_HAS_JOB_ID}`);
@@ -526,18 +495,12 @@ function get_ownership_string_from_existing_comment(editor_save_btn){
 
 
 // || Frontend Response
-function update_job_page_comments_after_create(comment_obj){
+function update_job_comments_after_create(comment_obj){
     close_jobcomment_editor();
 
     let class_to_find_comment = get_class_to_find_comment(comment_obj['id']);
-    add_comment_to_section(class_to_find_comment, CLASS_COMMENTS_CONTAINER_ALL, comment_obj);
-
     if(comment_obj['pinned']){
         add_comment_to_section(class_to_find_comment, CLASS_COMMENTS_CONTAINER_PINNED, comment_obj);
-    }
-
-    if(comment_obj['highlighted']){
-        add_comment_to_section(class_to_find_comment, CLASS_COMMENTS_CONTAINER_HIGHLIGHTED, comment_obj);
     }
 
     remove_all_jobcomment_warnings();
@@ -545,19 +508,19 @@ function update_job_page_comments_after_create(comment_obj){
 }
 
 
-function update_job_page_comments_after_update(response){
+function update_job_comments_after_update(data){
     close_jobcomment_editor();
 
-    document.querySelectorAll(`.${CLASS_PREFIX_FOR_COMMENT_ID}${response['id']}`).forEach(ele =>{
-        update_comment_ele(response, ele);
+    document.querySelectorAll(`.${CLASS_PREFIX_FOR_COMMENT_ID}${data['id']}`).forEach(ele =>{
+        update_comment_ele(data, ele);
     });
 
-    update_comment_presence_in_all_filtered_sections(response);
-    update_todo_list_row_pinned(response, 'update');
+    update_comment_presence_in_one_filtered_section(response, 'pinned');
+    update_todo_list_row_pinned(data, 'update');
 }
 
 
-function update_job_page_comments_after_delete(comment_id){
+function update_job_comments_after_delete(comment_id){
     document.querySelectorAll(`.${CLASS_PREFIX_FOR_COMMENT_ID}${comment_id}`).forEach(ele =>{
         let container = ele.closest(`.${CLASS_COMMENTS_CONTAINER}`);
         ele.remove();
@@ -567,7 +530,7 @@ function update_job_page_comments_after_delete(comment_id){
 }
 
 
-function update_job_page_comments_after_failed_create(response_data, submit_btn){
+function update_job_comments_after_failed_create(response_data, submit_btn){
     let create_comment_container = submit_btn.closest(`.${CLASS_CREATE_COMMENT_CONTAINER}`);
     close_jobcomment_editor();
     remove_all_jobcomment_warnings();
@@ -577,7 +540,7 @@ function update_job_page_comments_after_failed_create(response_data, submit_btn)
 }
 
 
-function update_job_page_comments_after_failed_update(response_data, btn){
+function update_job_comments_after_failed_update(response_data, btn){
     let comment_ele = btn.closest('.' + CLASS_COMMENT)
     close_jobcomment_editor();
 
@@ -602,9 +565,9 @@ function add_error_comment_creation_failed(error_message_ele, button_container){
 }
 
 
-function create_ele_comment(data, want_streamlined_comment){
+function create_ele_comment(data){
     let container_ele = create_ele_comment_base(data);
-    container_ele.append(create_ele_comment_contents_wrapper(data, want_streamlined_comment));
+    container_ele.append(create_ele_comment_contents_wrapper(data));
     add_event_listeners_to_comment_icons(container_ele);
 
     return container_ele;    
@@ -617,10 +580,9 @@ function create_ele_comment_base(data){
     container_ele.classList.add(CLASS_COMMENT);
     container_ele.classList.add(`${CLASS_PREFIX_FOR_COMMENT_ID}${data['id']}`);
     if(data['highlighted']){
-        container_ele.classList.add(CLASS_HIGHLIGHTED_CSS);
+        container_ele.classList.add(CLASS_HIGHLIGHTED_COMMENT);
     }
     
-
     container_ele.setAttribute('data-comment_id', data['id']);
     container_ele.setAttribute('data-is_private', data['private']);
     container_ele.setAttribute('data-is_pinned', data['pinned']);
@@ -630,21 +592,18 @@ function create_ele_comment_base(data){
 }
 
 
-function create_ele_comment_contents_wrapper(data, want_streamlined_comment){
-    let my_tag = want_streamlined_comment ? 'details' : 'div';
-    let details_like_ele = document.createElement(my_tag);
+function create_ele_comment_contents_wrapper(data){
+    let details_like_ele = document.createElement('details');
     details_like_ele.classList.add('wrapper');
-
-    let child_tag = want_streamlined_comment ? 'summary' : 'div';
-    details_like_ele.append(create_ele_comment_body(data, child_tag));
+    details_like_ele.append(create_ele_comment_body(data));
     details_like_ele.append(create_ele_comment_footer(data));
 
     return details_like_ele;
 }
 
 
-function create_ele_comment_body(data, tag){
-    let summary_like_ele = document.createElement(tag);
+function create_ele_comment_body(data){
+    let summary_like_ele = document.createElement('summary');
     summary_like_ele.classList.add('comment-body');
     summary_like_ele.append(create_ele_comment_body_contents(data['private'], data['contents']));
     return summary_like_ele;
@@ -697,8 +656,8 @@ function create_ele_comment_ownership(data){
     if(KEY_COMMENT_OWNERSHIP_STRING in data){
         str = data[KEY_COMMENT_OWNERSHIP_STRING];
     }
-    else if('created_by' in data && 'created_on' in data){
-        str = `${data['created_by']} on ${data['created_on']}`; 
+    else if('created_by' in data && 'created_on_str' in data){
+        str = `${data['created_by']} on ${data['created_on_str']}`; 
     }
     result.innerHTML = str;
     
@@ -766,16 +725,6 @@ function add_event_listeners_to_comment_icons(comment_div){
          toggle_status(e.target, 'highlighted');
     });
 
-}
-
-
-function update_comment_presence_in_all_filtered_sections(response){
-    for(let i = 0; i < SECTION_NAMES.length; i++){
-        if(SECTION_NAMES[i] != CLASS_COMMENTS_CONTAINER_ALL){
-            update_comment_presence_in_one_filtered_section(response, SECTION_NAMES[i]);
-        }
-    }
-    return;
 }
 
 
@@ -905,12 +854,12 @@ function update_ele_comment_pinned_status(comment_ele, is_pinned){
 function update_ele_comment_highlighted_status(comment_ele, is_highlighted){
     comment_ele.setAttribute('data-is_highlighted', is_highlighted);
 
-    let have_highlighted = comment_ele.classList.contains(CLASS_HIGHLIGHTED_CSS);
+    let have_highlighted = comment_ele.classList.contains(CLASS_HIGHLIGHTED_COMMENT);
     if(is_highlighted && !have_highlighted){
-        comment_ele.classList.add(CLASS_HIGHLIGHTED_CSS);
+        comment_ele.classList.add(CLASS_HIGHLIGHTED_COMMENT);
     }
     else if(!is_highlighted && have_highlighted){
-        comment_ele.classList.remove(CLASS_HIGHLIGHTED_CSS);
+        comment_ele.classList.remove(CLASS_HIGHLIGHTED_COMMENT);
     }
 }
 
@@ -964,8 +913,8 @@ function add_comment_to_section(class_to_find_comment, section_name, comment_dat
         return;
     }
 
-    let want_streamline_comment = section_ele.classList.contains(CLASS_STREAMLINED_WANTED);
-    var comment_ele = create_ele_comment(comment_data, want_streamline_comment);
+
+    var comment_ele = create_ele_comment(comment_data);
     section_ele.prepend(comment_ele);
     handle_section_emptiness(section_ele, section_name);
 }
@@ -1035,114 +984,48 @@ function find_comment_section_ele(all_section_instances, job_id, section_name){
 
 
 function handle_section_emptiness(comment_section_ele, section_name=STR_FALLBACK){
-    let is_empty = comment_section_ele.querySelectorAll(`.${CLASS_COMMENT}`).length === 0;
-    let settings = get_settings_comment_section_emptiness(comment_section_ele, is_empty);
+    const wantEmptyMessage = comment_section_ele.querySelectorAll(`.${CLASS_COMMENT}`).length === 0;
+    const existingEmptyMessage = comment_section_ele.querySelector(`.${CLASS_EMPTINESS_MESSAGE}`)
 
-    if(settings.want_add && settings.existing === null){
-        add_new_comment_emptiness_element(comment_section_ele, section_name, settings.class_indicating_task);
+    if(wantEmptyMessage && existingEmptyMessage === null){
+        add_new_comment_emptiness_element(comment_section_ele, section_name);
     }
-    else if(settings.want_remove && settings.existing !== null){
-        settings.existing.remove();
+    else if(!wantEmptyMessage && existingEmptyMessage !== null){
+        existingEmptyMessage.remove();
     }
-
-    return;
 }
 
 
-function get_settings_comment_section_emptiness(comment_section_ele, section_is_empty){
-    /*
-    Use Case #1 (Persistent):
-    Space is only allocated to comments when there are comments to display. When it
-    becomes empty, the comment section should collapse to nothing, therefore any other 
-    contents - so far, just a heading - should be removed. When it ceases to be 
-    empty, all the other contents must be re-added too.
-       
-    Use Case #2 (Not Persistent):
-    There is a space on the page for comments, which is always there. When it becomes
-    empty it should display a message declaring its emptiness (so it's clear nothing
-    has gone wrong). When it ceases to be empty, this message should be removed.
-
-    Commonalities:
-    Both need to do something when the section becomes or ceases to be empty.
-    Both need to "add stuff" in one situation and "remove stuff" in the other.
-    */
-    // Settings for added/removed comment sections
-    if(comment_section_ele.classList.contains(CLASS_EMPTINESS_NOT_PERSISTENT)){
-        return {
-            existing: comment_section_ele.parentElement.querySelector('h5'),
-            want_add: !section_is_empty,
-            want_remove: section_is_empty,
-            class_indicating_task: CLASS_EMPTINESS_NOT_PERSISTENT
-        }
-    }
-    // Settings for persistent comment sections which display an emptiness note
-    else if(comment_section_ele.classList.contains(CLASS_EMPTINESS_PERSISTENT)){
-        return {
-            existing: comment_section_ele.querySelector(`.${CLASS_EMPTINESS_MESSAGE}`),
-            want_add: section_is_empty,
-            want_remove: !section_is_empty,
-            class_indicating_task: CLASS_EMPTINESS_PERSISTENT
-        }
-    }
-    return null;
-}
-
-
-function add_new_comment_emptiness_element(comment_section_ele, section_name, class_indicating_task){
+function add_new_comment_emptiness_element(comment_section_ele, section_name){
     // Some "paths" to this function don't need to work out section_name for their own purposes, so the argument will be missing.
-    // Try to work out the section name here. If you can't, no big deal: the two functions later are designed to handle STR_FALLBACK.
+    // Try to work out the section name here. If you can't, no big deal: the function later is designed to handle STR_FALLBACK.
     if(section_name === STR_FALLBACK){
         let attempted_section_name = find_comment_section_name_in_classlist(comment_section_ele);
         if(attempted_section_name !== null){
             section_name = attempted_section_name;
         }
     }
-
-    if(class_indicating_task === CLASS_EMPTINESS_NOT_PERSISTENT){
-        var ele = create_ele_heading_for_conditional_comment_section(section_name);
-        comment_section_ele.before(ele);
-    }
-    else if(class_indicating_task === CLASS_EMPTINESS_PERSISTENT){
-        var ele = create_ele_emptiness_explanation_for_comment_section(section_name);
-        comment_section_ele.prepend(ele);
-    }
-
-    return;      
+    var ele = create_ele_emptiness_explanation_for_comment_section(section_name);
+    comment_section_ele.prepend(ele);
 }
 
-function create_ele_heading_for_conditional_comment_section(section_name){        
-    let h5 = document.createElement('h5');
-
-    let span = document.createElement('span');
-    span.classList.add(CSS_HIDE);
-
-    if(section_name === STR_FALLBACK){
-        span.innerHTML = 'Comments';
-    }
-    else{
-        span.innerHTML = section_name;
-    }
-
-    h5.append(span);
-
-    return h5;
-}
 
 function create_ele_emptiness_explanation_for_comment_section(section_name){
     let p = document.createElement('p');
     p.classList.add(CLASS_EMPTINESS_MESSAGE);
 
     if(section_name == CLASS_COMMENTS_CONTAINER_HIGHLIGHTED || section_name == CLASS_COMMENTS_CONTAINER_PINNED){
-        p.innerHTML = `No comments have been ${section_name}.`;
+        p.innerHTML = `No comments have been ${section_name}`;
     }
     else {
-        p.innerHTML = 'No comments yet.';
+        p.innerHTML = 'No comments yet';
     }
     return p;
 }
 
 
 function find_comment_section_name_in_classlist(ele){
+    const SECTION_NAMES = [CLASS_COMMENTS_CONTAINER_PINNED, CLASS_COMMENTS_CONTAINER_HIGHLIGHTED];
     for(let s = 0; s < SECTION_NAMES.length; s++){
         if(ele.classList.contains(SECTION_NAMES[s])){
             return SECTION_NAMES[s];

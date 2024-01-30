@@ -662,38 +662,3 @@ def filter_jobs(get_params):
 
     return jobs
 
-
-def get_comment_page_dict(job, request):
-    if is_error(job):
-        return render_with_error(request, {'status': 400})
-
-    if request.GET.get('orderBy') == 'oldestFirst':
-        setting_for_order_by = 'created_on'
-    else:
-        setting_for_order_by = '-created_on'
-
-    all_comments = job.get_all_comments(request.user, setting_for_order_by)
-
-    # Paginate "all comments"
-    # (Assumption: users will only pin/highlight a few comments, so pagination won't be needed there)
-    # (Assertion: if they pin/highlight a bajillion comments, it's their own fault if they have to scroll a lot)
-    page = get_page(all_comments, request.GET)
-    if is_error(page):
-        return None
-    
-    pinnedComments = job.get_pinned_comments(request.user, setting_for_order_by) \
-        if request.GET.get('pinned') == 'true' else None
-
-    highlightedComments = job.get_highlighted_comments(request.user, setting_for_order_by) \
-        if request.GET.get('highlighted') == 'true' else None
-
-    return {
-        'customer_via_agent': get_customer_via_agent_string(job),
-        'job': job.get_dict(),
-        'showPinned': request.GET.get('pinned') == 'true',
-        'pinned': pinnedComments,
-        'showHighlighted': request.GET.get('highlighted') == 'true',
-        'highlighted': highlightedComments,
-        'all_comments': None if page == None else page.object_list,
-        'page_data': page
-    }

@@ -127,7 +127,6 @@ function useJobState(URL_GET_DATA, job_id){
         URL_MODULE_MANAGEMENT: get_if_defined(data, 'URL_MODULE_MANAGEMENT', initialState.URL_MODULE_MANAGEMENT),
         URL_ITEMS: get_if_defined(data, 'items_url', initialState.URL_ITEMS),
         URL_DOCS: get_if_defined(data, 'docbuilder_url', initialState.URL_DOCS),
-        URL_COMMENTS: get_if_defined(data, 'comments_url', initialState.URL_COMMENTS),
         API_COMMENTS: get_if_defined(data, 'comments_api', initialState.API_COMMENTS),
         username: get_if_defined(data, 'username', initialState.username),
         comments: get_if_defined(data, 'comments', initialState.comments),
@@ -419,7 +418,6 @@ function createCommentsActions(comments, updateJobKey, apiComments, reportError)
     const ID_KEY = 'id';
 
     function create_comment(comment_attributes){
-        console.log("create_comment called", comment_attributes);
         updateJobKey(JOB_KEY, [
             ...comments,
             comment_attributes
