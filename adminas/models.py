@@ -552,6 +552,7 @@ class Job(AdminAuditTrail):
         result['currency'] = self.currency
         result['customer'] = self.customer.name if self.agent != None else None
         result['delivery_to'] = self.delivery_to.display_str_newlines()
+        result['flag_url'] = self.country.flag
         result['id'] = self.id
         result['incoterm_code'] = self.incoterm_code
         result['incoterm_location'] = self.incoterm_location
@@ -699,7 +700,6 @@ class Job(AdminAuditTrail):
         result = []
         for c in all_comments:
             comm = c.get_dict(user)
-            comm['created_on'] = formats.date_format(comm['created_on'], "DATETIME_FORMAT")
             result.append(comm)
 
         if(len(result) == 0):
@@ -1075,6 +1075,7 @@ class JobComment(AdminAuditTrail):
         result['user_is_owner'] = self.created_by == user
         result['created_by'] = self.created_by.username if self.created_by != user else 'You'
         result['created_on'] = self.created_on
+        result['created_on_str'] = formats.date_format(self.created_on, "DATETIME_FORMAT")
         result['contents'] = self.contents
         result['private'] = self.private
         result['highlighted'] = self.is_highlighted_by(user)

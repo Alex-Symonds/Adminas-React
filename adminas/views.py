@@ -23,7 +23,7 @@ from adminas.util import anonymous_user, dict_from_json, error_page, debug, get_
     get_dict_job_page_root, get_dict_todo, get_dict_record, get_dict_manage_modules, get_page, get_customer_via_agent_string, \
     filter_jobs, get_dict_currency, create_jobmodule, get_object, anonymous_user_json, get_param_from_dict, get_value_from_json, \
     get_param_from_get_params, is_error, render_with_error, create_job, create_comment, create_po, create_jobitem, create_document, \
-    error, respond_with_error, get_comment, extract_toggle_data
+    error, respond_with_error, get_comment, extract_toggle_data, get_comment_page_dict
 
 
 # || Page views
@@ -282,27 +282,12 @@ def manage_modules(request, job_id):
 
 def comments_page(request):
     job = get_object(Job, key = 'job_id', get_params = request.GET)
-    if is_error(job):
-        return render_with_error(job)
+    comments_dict = get_comment_page_dict(job, request)
+    if is_error(comments_dict):
+        return render_with_error(request, {'status': 400})
 
-    # Paginate "all comments"
-    # (Assumption: users will only pin/highlight a few comments, so pagination won't be needed there)
-    # (Assertion: if they pin/highlight a bajillion comments, it's their own fault if they have to scroll a lot)
-    setting_for_order_by = '-created_on'
-    all_comments = job.get_all_comments(request.user, setting_for_order_by)
+    return render(request, 'adminas/job_comments.html', comments_dict)
 
-    page = get_page(all_comments, request.GET)
-    if is_error(page):
-        return render_with_error(page)
-
-    return render(request, 'adminas/job_comments.html', {
-        'customer_via_agent': get_customer_via_agent_string(job),
-        'job': job.get_dict(),
-        'pinned': job.get_pinned_comments(request.user, setting_for_order_by),
-        'highlighted': job.get_highlighted_comments(request.user, setting_for_order_by),
-        'all_comments': None if page == None else page.object_list,
-        'page_data': page
-    })
 
 
 def job_editor_page(request):
@@ -421,10 +406,22 @@ def api_comments(request):
             respond_with_error(job)
 
         comment = create_comment(comment_form, request.user, job)
+        comment_dict = comment.get_dict(request.user)
         return JsonResponse({
             'id': comment.id,
-            'created_on': formats.date_format(comment.created_on, "DATETIME_FORMAT")
+            'created_on': comment.created_on,
+            'created_on_str': comment_dict['created_on_str']
         }, status = 201)
+    
+    elif request.method == 'GET':
+        job = get_object(Job, key = 'job_id', get_params = request.GET)
+        comments_dict = get_comment_page_dict(job, request)
+        if is_error(comments_dict):
+            respond_with_error()
+        else:
+            return JsonResponse({
+                'data': comments_dict
+            }, status = 200)
 
 
 

@@ -2,7 +2,7 @@ function Modal({children, close}){
     const ref = React.useRef();
 
     React.useLayoutEffect(() => {
-        ref.current.showModal();
+        ref.current.show();
     }, []);
 
     function dialogClose(){

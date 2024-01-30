@@ -71,29 +71,15 @@ function useJobMenu(){
 
 
 function useCommentsEditor(){
-    // For comments, the active_edit state stores an ID AND a section name instead of just the ID. This is because
-    // a comment which is both pinned and highlighted will appear in both sections, so using the ID alone would result in 
-    // an unnecessary second editor window (for the comment with the same ID, but in the other section).
-    const [editCommentInSection, setEditCommentInSection] = React.useState([null, null]);
+    const [editCommentInSection, setEditCommentInSection] = React.useState(null);
 
-    function openIfValid(commentIDAndSection){
-        if(commentIDAndSection !== null && commentIDAndSection.includes("_")){
-            setEditCommentInSection(commentIDAndSection.split("_"));
-            return;
-        }
-        setEditCommentInSection([null, null]);
-    }
-
-    function convertToIDStr(idAndSectionArr){
-        return idAndSectionArr[0] !== null && idAndSectionArr[1] != null ?
-            `${idAndSectionArr[0]}_${idAndSectionArr[1]}`
-            : null;
+    function open(id){
+        setEditCommentInSection(id);
     }
 
     return {
-        activeIDStr: convertToIDStr(editCommentInSection),
-        set: openIfValid,
-        convertToIDStr
+        activeIDStr: editCommentInSection,
+        set: open,
     }
 
 }
@@ -432,6 +418,15 @@ function createCommentsActions(comments, updateJobKey, apiComments, reportError)
     const JOB_KEY = 'comments';
     const ID_KEY = 'id';
 
+    function create_comment(comment_attributes){
+        console.log("create_comment called", comment_attributes);
+        updateJobKey(JOB_KEY, [
+            ...comments,
+            comment_attributes
+        ]);
+    }
+
+
     function update_comment(comment_id, comment_attributes){
         try{
             const updatedComment = getUpdatedObjectFromList(
@@ -448,7 +443,7 @@ function createCommentsActions(comments, updateJobKey, apiComments, reportError)
         updateJobKey(JOB_KEY, comments.filter(ele => ele[ID_KEY] !== comment_id));
     }
 
-    const actions = get_actions_object(apiComments, null, update_comment, remove_comment);
+    const actions = get_actions_object(apiComments, create_comment, update_comment, remove_comment);
 
     return actions;
 }
