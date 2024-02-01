@@ -40,7 +40,8 @@ function JobComments(props){
     const paginated = usePagination(filteredAndSortedComments, numCommentsPerPage);
 
     return [
-        <section class="jobComments">
+
+        <section class="jobComments jobNarrowSection">
             { jobCommentsModal.activeModal === jobCommentsModal.options.filter ?
                 <JobCommentsFilterModal
                     editor = { jobCommentsModal.filterEditor }
@@ -62,37 +63,49 @@ function JobComments(props){
                     : null
             }
 
-            <JobSectionHeadingUI text={"Comments"} />
+            <JobSectionHeadingNarrowUI text={"Comments"} />
 
             <AddButton 
                 label={"comment"}
-                css={"jobComments_addButton"}
+                css={"jobComments_addButton jobNarrowSection_content"}
                 onClick={ jobCommentsModal.newCommentEditor.on }
             />
 
-            <div class="jobComments_viewExisting">
-                <JobCommentsControls 
-                    orderByKit = { orderByKit }
-                    filterEditor = { jobCommentsModal.filterEditor }
-                />
-                <JobCommentsSubsection  
-                    actions = { props.commentsActions }
-                    heading = { filterKit.heading }
-                    comments = { paginated.page }
-                    commentsEditor = { props.commentsEditor }
-                    css = { "jobComments_container" }
-                    emptyMessage = { "No comments on this job match the current filter settings" }
-                    username = { props.username } 
-                    wantCollapsable = { false }
-                />
-                <PaginationControls
-                    currentPage = { paginated.currentPage }
-                    numPages = { paginated.numPages }
-                    changePageTo = { paginated.changePageTo }
-                    pageNumsForButtons = { paginated.getDisplayPageNumbersForNav(1, 1, 1, 1) }
-                />
-            </div>                                  
+            <div class="jobComments_viewExistingWrapper jobNarrowSection_content">
+                <div class="jobComments_viewExisting">
+                    <JobCommentsControls 
+                        orderByKit = { orderByKit }
+                        filterEditor = { jobCommentsModal.filterEditor }
+                    />
+                    <PaginationControls
+                        css = {'above'}
+                        currentPage = { paginated.currentPage }
+                        numPages = { paginated.numPages }
+                        changePageTo = { paginated.changePageTo }
+                        pageNumsForButtons = { paginated.getDisplayPageNumbersForNav(1, 1, 1, 1) }
+                    />
+                    <JobCommentsSubsection  
+                        actions = { props.commentsActions }
+                        heading = { `${filterKit.heading} (${orderByKit.heading.toLowerCase()})` }
+                        comments = { paginated.page }
+                        commentsEditor = { props.commentsEditor }
+                        css = { "jobComments_container" }
+                        emptyMessage = { "No comments on this job match the current filter settings" }
+                        username = { props.username } 
+                        wantCollapsable = { false }
+                    />
+                    <PaginationControls
+                        css = {'below'}
+                        currentPage = { paginated.currentPage }
+                        numPages = { paginated.numPages }
+                        changePageTo = { paginated.changePageTo }
+                        pageNumsForButtons = { paginated.getDisplayPageNumbersForNav(1, 1, 1, 1) }
+                    />
+
+                </div>  
+            </div>                                
         </section>
+
     ]
 }
 
@@ -133,38 +146,34 @@ function useJobCommentsModal(){
 
 
 function useSortByDate(){
-    const ORDER_BY_OPTIONS = {
-        newestFirst: {
+    const INIT_IDX = 0;
+    const ORDER_BY_OPTIONS = [
+        {
             id: 'newestFirst',
-            displayStr: 'Newest first'
+            displayStr: 'Newest first',
+            f: (a, b) => b - a,
         },
-        oldestFirst: {
-            id: 'oldestFirst',
-            displayStr: 'Oldest first'
+        {   id: 'oldestFirst',
+            displayStr: 'Oldest first',
+            f: (a, b) => a - b,
         }
-    }
-    const ORDER_BY_FUNCTIONS = {
-        [ORDER_BY_OPTIONS.newestFirst.id]: (a, b) => b - a,
-        [ORDER_BY_OPTIONS.oldestFirst.id]: (a, b) => a - b,
-    }
+    ]
 
-    const [orderByCode, setOrderByCode] = React.useState(ORDER_BY_OPTIONS.newestFirst.id);
+    const [orderByIdx, setOrderByIdx] = React.useState(INIT_IDX);
 
-    function updateOrderBy(newOrderByCode){
-        function validate(newOrderByCode){
-            return Object.entries(ORDER_BY_OPTIONS).some((element) => element[1].id === newOrderByCode);
-        }
-        if(validate(newOrderByCode)){
-            setOrderByCode(newOrderByCode);
-            return;
+    function updateOrderBy(newOrderByID){
+        const activeOptionIdx = ORDER_BY_OPTIONS.findIndex(optionObj => optionObj.id === newOrderByID);
+        if(activeOptionIdx !== -1){
+            setOrderByIdx(activeOptionIdx);
         }
     }
 
     return {
-        activeID: orderByCode,
-        activeSortByDate: ORDER_BY_FUNCTIONS[orderByCode],
+        activeID: ORDER_BY_OPTIONS[orderByIdx].id,
+        activeSortByDate: ORDER_BY_OPTIONS[orderByIdx].f,
         options: ORDER_BY_OPTIONS,
         update: updateOrderBy,
+        heading: ORDER_BY_OPTIONS[orderByIdx].displayStr,
     }
 }
 
@@ -186,20 +195,25 @@ function JobCommentsControls(props){
     const ID_ORDER_BY_SELECT = "id_commentOrderSelect";
     return <div class="jobComments_controls">
             <button
-                class="buttonSecondary jobComments_filterButton"
+                class="jobComments_filterButton"
                 onClick={ handleClick }
             >
-                filter
+                <span class="jobComments_filterButtonText">filter</span>
             </button>
 
             <form class={"orderByForm jobComments_orderByForm"}>
-                <label htmlFor={ID_ORDER_BY_SELECT}>Order by</label>
-                <select id={ID_ORDER_BY_SELECT} onChange={ (e) => handleChange(e) }>
-                    { Object.entries(props.orderByKit.options).map(value => {
-                            return  <option key={value[1].id}
-                                        value={value[1].id}
+                <label htmlFor={ID_ORDER_BY_SELECT} className={"sr-only"}>Order by</label>
+                <select 
+                    className={"jobComments_orderBySelect"}
+                    id={ID_ORDER_BY_SELECT} 
+                    onChange={ (e) => handleChange(e) }
+                >
+                    { props.orderByKit.options.map(data => {
+                            return  <option key = {data.id}
+                                        value = {data.id}
+                                        selected = { data.id === props.orderByKit.activeID }
                                     >
-                                        { value[1].displayStr }
+                                        { data.displayStr }
                                     </option>
                         })
                     }
@@ -324,14 +338,6 @@ function useCommentsFilter(){
             filter, so it should also be ignored by the heading.
             If this results in a blank heading, return a default.
         */
-        function getHeadingForState(filterState, trueStr, falseStr){
-            return filterState === STATE_LIST.true ?
-                    trueStr
-                    : filterState === STATE_LIST.false ?
-                        falseStr
-                        : "";
-        }
-
         const headingPieces = [
             getHeadingForState(filterPinned, "Pinned", "Unpinned"),
             getHeadingForState(filterHighlighted, "Highlighted", "Unhighlighted"),
@@ -348,6 +354,14 @@ function useCommentsFilter(){
         return heading !== "" ?
             heading
             : "All Comments";
+
+        function getHeadingForState(filterState, trueStr, falseStr){
+            return filterState === STATE_LIST.true ?
+                    trueStr
+                    : filterState === STATE_LIST.false ?
+                        falseStr
+                        : "";
+        }
     }
 
     function applyTo(comments){
@@ -393,7 +407,7 @@ function JobCommentsSubsection(props){
     return [
         <section className={`subsection jobCommentSection${props.css !== undefined ? " " + props.css : ""}`}>
             <h4>{ props.heading }</h4>
-            <div className={'commentContainer'}>
+            <div className={'subsection_contentWrapper commentContainer'}>
                 <CommentsEmpty  
                     comments = { props.comments }
                     emptyMessage = { props.emptyMessage } 
@@ -857,7 +871,8 @@ function useCommentEditor(actions, editor, comment){
 // || Pagination
 function PaginationControls(props){
     return [ 
-        <div class="pagination">
+        <div className={`pagination pagination-${props.css}`}>
+            <span class="sr-only">pages</span>
             {   props.pageNumsForButtons.map((pageNum, idx) => {
                     const wantSeparatorAfterThisButton = 
                         idx < props.pageNumsForButtons.length - 1

@@ -21,7 +21,7 @@ function JobPo(props){
                 job_id =  { props.job_id }
                 URL_GET_DATA = {props.URL_GET_DATA}
             />
-            <WarningSubsection  
+            <WarningSubsection
                 message = "All POs should be in the same currency as the job."
                 show_warning = { props.has_invalid_currency_po }
                 title = "Error: Currency Mismatch"
@@ -54,7 +54,7 @@ function JobPoCreate(props){
     const editor = get_editor_object('create_po_form', activeEdit, setActiveEdit);
 
     return [
-        <div class="job-po-form-container">
+        <div>
             <button 
                 id="toggle_po_form_btn" 
                 class="add-button" 
@@ -119,7 +119,7 @@ function JobPoDiscrepancyUI(props){
     }
 
     return [
-        <div class="po-discrepancy warning subsection">
+        <div class="jobPO_discrepancy warning subsection ">
             <h4>Discrepancy</h4>
             <p>Sum of PO values does not match sum of line item selling prices.</p>
             <div class="subsection">
@@ -162,7 +162,7 @@ function JobPoList(props){
 
 function JobPoListUI(props){
     return [
-        <div class="job-po-container">
+        <div>
             <table id="po_table" class="banded">
                 <thead>
                     <tr>

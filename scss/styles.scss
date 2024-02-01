@@ -814,6 +814,11 @@ article{
         border-bottom: 0;
     }
 
+    &_contentWrapper{
+        padding: v.px-to-rem(5);
+        max-width: 100%;
+    }
+
     &.warning{
         border-left: 3px solid v.$c_warning_bright;
 
@@ -1452,46 +1457,100 @@ fieldset.form-row{
 
 
 // || Pagination
-.pagination_controls{
-    margin: 1.5rem 0;
-    height: 2rem;
-
+.pagination{
     display: flex;
-    max-width: v.$MAX_WIDTH;
+    justify-content: end;
+    gap: v.px-to-rem(3);
 
-    a{
-        text-decoration: none;
+    padding: 0 v.px-to-rem(4) 0 0;
+
+    position: relative;
+
+    &:before{
+        content: 'pages';
+        display: block;
+        padding: 0 v.px-to-rem(5) 0 0;
+        color: v.$c_tone-300;
     }
 
-    a,
-    span{
-        flex: 1;
-        text-align: center;
-        border: 1px solid v.$c_tone_03;
-        padding: 0.4rem;
+    &-above{
+        bottom: v.px-to-rem(-3);
+    }
+    &-below{
+        top: v.px-to-rem(-3);
     }
 
-    .disabled-link{
-        font-style: italic;
-        color: v.$c_tone_02;
+    &_button{
+        --borderRadius: 0.25rem;
+
+        color: v.$c_tone-200;
+
+        background: none;
+        border: none;
+        border-bottom: v.px-to-rem(2) solid transparent;
+        border-top-left-radius: var(--borderRadius);
+        border-top-right-radius: var(--borderRadius);
+
+        &:disabled{
+            color: v.$c_tone-50;
+            border-color: v.$c_accent-500;
+            background: rgba(black, 0.3);
+        }
+
+        &:not(:disabled):hover{
+            color: v.$c_txt_main;
+            border-color: v.$c_accent-300;
+            background: rgba(white, 0.1);
+        }
     }
 
-    a:hover{
-        border: 1px solid v.$c_accent_02;
-        background: v.$g_button_main;
-        color: v.$c_txt_on_accent;
-        font-weight: bold;
+    &_separator{
+        align-self: end;
+        color: v.$c_tone-500;
     }
 
-    :first-child{
-        border-top-left-radius: 1rem;
-        border-bottom-left-radius: 1rem;
-    }
-    :last-child{
-        border-top-right-radius: 1rem;
-        border-bottom-right-radius: 1rem;
+    &_controls{
+        margin: 1.5rem 0;
+        height: 2rem;
+    
+        display: flex;
+        max-width: v.$MAX_WIDTH;
+    
+        a{
+            text-decoration: none;
+        }
+    
+        a,
+        span{
+            flex: 1;
+            text-align: center;
+            border: 1px solid v.$c_tone_03;
+            padding: 0.4rem;
+        }
+    
+        .disabled-link{
+            font-style: italic;
+            color: v.$c_tone_02;
+        }
+    
+        a:hover{
+            border: 1px solid v.$c_accent_02;
+            background: v.$g_button_main;
+            color: v.$c_txt_on_accent;
+            font-weight: bold;
+        }
+    
+        :first-child{
+            border-top-left-radius: 1rem;
+            border-bottom-left-radius: 1rem;
+        }
+        :last-child{
+            border-top-right-radius: 1rem;
+            border-bottom-right-radius: 1rem;
+        }
     }
 }
+
 
 
 // || Responsive tables (i.e. switches from a table to formatted rows when the screen is too narrow)
@@ -1505,7 +1564,6 @@ fieldset.form-row{
 #po_table,
 #price_check_table,
 .responsive-table{
-    margin: 0.3rem;
     border-collapse: collapse;
  
     th,
@@ -1585,9 +1643,7 @@ fieldset.form-row{
     position: relative;
 
     min-width: 250px;
-    max-width: v.$MAX_WIDTH;
-
-    padding: 2px 5px 0;
+    max-width: min(100%, v.$MAX_WIDTH);
 
     summary{
         list-style: none;
@@ -2246,49 +2302,3 @@ fieldset.form-row{
 }
 
 
-.pagination{
-    position: relative;
-    top: v.px-to-rem(-4);
-
-    display: flex;
-    justify-content: end;
-    gap: v.px-to-rem(2);
-
-    padding: 0 v.px-to-rem(4) 0 0;
-
-    &:before{
-        content: 'pages';
-        display: block;
-        padding: 0 v.px-to-rem(5) 0 0;
-        color: v.$c_tone-300;
-    }
-
-    &_button{
-        --borderRadius: 0.25rem;
-
-        color: v.$c_tone-200;
-
-        background: none;
-        border: none;
-        border-bottom: v.px-to-rem(2) solid transparent;
-        border-top-left-radius: var(--borderRadius);
-        border-top-right-radius: var(--borderRadius);
-
-        &:disabled{
-            color: v.$c_tone-50;
-            border-color: v.$c_accent-500;
-            background: rgba(black, 0.5);
-        }
-
-        &:not(:disabled):hover{
-            color: v.$c_txt_main;
-            border-color: v.$c_accent-300;
-            background: rgba(white, 0.1);
-        }
-    }
-
-    &_separator{
-        align-self: end;
-        color: v.$c_tone-500;
-    }
-}

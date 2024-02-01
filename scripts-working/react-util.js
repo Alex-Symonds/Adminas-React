@@ -90,7 +90,7 @@ function WarningSubsection(props){
         return null;
     }
     return [
-        <div class="warning subsection">
+        <div className={`warning subsection${props.css !== undefined ? " " + props.css : ""}`}>
             <h4>{ props.title ? props.title : "Warning" }</h4>
             <p>{ props.message }</p>
         </div>

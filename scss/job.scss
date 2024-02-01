@@ -25,7 +25,6 @@ $breakpoint_docsCardsToTable: 453px;
         || Price Comparison Table
         || Outgoing Docs Table
         || Modals
-
 */
 
 .jobPageContentsWrapper{
@@ -71,16 +70,11 @@ $breakpoint_docsCardsToTable: 453px;
     height: calc(var(--size) + #{ v.px-to-rem(18) });
     width: calc(var(--size) + #{ v.px-to-rem(18) });
 
-    background: rgba(v.$c_tone_950, .5);
-    border-radius: 50%;
-
     overflow: hidden;
 
     display: flex;
     align-items: center;
     justify-content: center;
-
-    border: v.px-to-rem(2) solid rgba(v.$c_tone_500, .5);
 
     &_button{
         --stripeColor: #{v.$c_tone_200};
@@ -262,41 +256,39 @@ $breakpoint_docsCardsToTable: 453px;
     }
 }
 
+
 @media screen and (min-width: v.$breakpoint_jobNavNoStretch){
     .jobSideNav{
-        max-width: var(--w);
+        max-width: var(--jobSidebarW);
 
         &-open{
-            min-width: var(--w);
-            width: var(--w);
+            min-width: var(--jobSidebarW);
+            width: var(--jobSidebarW);
         }
-    }
 
-    .jobSideNav_closeButton{
-        right: v.px-to-rem(-10);
+        &_closeButton{
+            right: v.px-to-rem(-10);
+        }
     }
 }
 
 
 @media screen and (min-width: v.$breakpoint_permaShowJobNav){
     .jobSideNav{
-        // position: static;
         position: relative;
         left: calc(var(--mainContentSideMargins) / -2);
         z-index: 1;
-        min-width: var(--w);
-        width: var(--w);
+        min-width: var(--jobSidebarW);
+        width: var(--jobSidebarW);
         padding: var(--desktopPadding);
-    }
 
-    .jobSideNav_closeButton{
-        display: none;
+        &_closeButton{
+            display: none;
+        }
     }
-
     .burgerMenu{
         display: none;
     }
-
     .jobPage{
         --gapSize: 0.5rem;
         max-width: calc(100% - var(--gapSize));
@@ -349,6 +341,7 @@ $breakpoint_docsCardsToTable: 453px;
     }
 }
 
+
 #job_status_strip{
     margin-top: 2rem;
     border-bottom-color: v.$c_tone_04;
@@ -366,12 +359,14 @@ $breakpoint_docsCardsToTable: 453px;
     }
 }
 
+
 .job-status-ele-container{
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem 0.7rem;
     padding: 0.7rem;
 }
+
 
 .details-toggle{
     border-bottom: 1px dotted white;
@@ -452,15 +447,40 @@ $breakpoint_docsCardsToTable: 453px;
 
 // || Layout
 .jobPage{
-    --w: #{v.$sidebarWidthOnDesktop};
-
+    --jobSidebarW: #{v.$sidebarWidthOnDesktop};
     display: flex;
-    //max-width: 96%;
 
     &_emptySection{
         margin: 1rem v.px-to-rem(6);
     }
 }
+
+
+.jobNarrowSection{
+    // Display the contents of a job section in the middle of the page.
+    // The underline of the section heading should stretch all the way 
+    // across, but the text should be aligned with the start of the content.
+
+    display: grid;
+    grid-template-columns: min(1fr, 300px) auto 1fr;
+
+    &_header{
+        grid-column-start: 1;
+        grid-column-end: 4;
+
+        display: grid;
+        grid-template-columns: subgrid;
+    }
+
+    &_headerText{
+        grid-column: 2;
+    }
+
+    &_content{
+        grid-column: 2;
+    }
+}
+
 
 
 // || Summary section
@@ -595,20 +615,282 @@ $breakpoint_docsCardsToTable: 453px;
     }
 }
 
-.seeAllNComments{
-    margin: v.px-to-rem(14) 0 0 v.px-to-rem(8);
-}
-
 .commentSection_empty{
     margin: v.px-to-rem(10) v.px-to-rem(12);
 }
 
-.commentContainer{
-    max-width: 100%;
+
+.jobComments{
+    --jobCommentsGap: #{v.px-to-rem(4)};
+
+    // display: flex;
+    // flex-direction: column;
+    // align-items: start;
+    // gap: var(--jobCommentsGap);
+
+    position: relative;
+
+    &_addButton{
+        // position: absolute;
+        // top: calc(3.125rem + #{v.px-to-rem(7)} + var(--jobCommentsGap));
+        // left: 0;
+        // margin: 0;
+        // z-index: 4;
+
+        grid-column: 2;
+    }
+
+    &_filterButton{
+        position: absolute;
+        top: 0;
+        right: 0;
+        z-index: 3;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        border: 0;
+        border-radius: 13px;
+        border: 1px solid transparent;
+    
+        height: 30px;
+        width: 30px;
+    
+        background-image: url(../images/i-filter-hollow.svg);
+        background-color: transparent;
+        background-repeat: no-repeat;
+        background-position: right 5px top 2px;
+        background-size: 24px 24px;
+        text-indent: -9999px;
+    
+        &:hover{
+            border: 1px solid v.$c_tone_05;
+    
+            color: v.$c_txt_main;
+            font-weight: bold;
+    
+            background-image: url(../images/i-filter-filled.svg);
+            background-color: v.$c_tone_02;
+            animation-duration: 0.2s;
+            animation-fill-mode: forwards;
+            animation-name: expand_open_filter_button;
+        }   
+    }
+
+    &_filterButtonText{
+        position: relative;
+        left: -12px;
+        line-height: 1rem;
+        font-size: 1rem;
+    }
+
+    &_controls{
+        position: relative;
+        height: 30px;
+    }
+
+    &_viewExistingWrapper{
+        // When this is here, the comments resize to fit narrower screens.
+        // If it's moved to the viewExisting element and the wrapper is removed,
+        // the comments go "WAHEEEEY!" and refuse to shrink.
+        min-width: 0;
+        max-width: 100%;
+    }
+
+    &_viewExisting{
+        display: flex;
+        flex-direction: column;
+        width: max-content;
+        max-width: 100%;
+        gap: v.px-to-rem(5);
+    }
+
+    &_orderByForm{
+        position: absolute;
+        top: 1px;
+        right: 42px;
+        z-index: 2;
+    }
+
+    &_orderBySelect{
+        background: rgba(black, 0.125);
+        border-color: v.$c_tone-700;
+        margin: 0;
+        font-size: v.px-to-rem(14);
+    }
+
+    &_container{
+        margin-top: 0;
+        padding-bottom: v.px-to-rem(6);
+    }
 }
 
-.one-comment{
-    max-width: min(100%, 700px);
+
+@keyframes expand_open_filter_button {
+    from {
+        width: 30px;
+        text-indent: -9999px;
+    }
+
+    95%{
+        text-indent: -9999px;
+    }
+    
+    to {
+        width: 6rem;
+        text-indent: 0;
+    }
+}
+
+
+@media screen and (min-width: 650px){
+/* 
+    As the distance between the "add comments" button and the filter/sort controls 
+    grows, the impression of the three of them forming a "controls bar" is lost.
+
+    Maintaining the vertical position for the "controls bar" effect makes the 
+    comments look bunched up against the heading.
+*/
+    .jobComments{
+        &_addButton{
+            // Add it back into the document flow
+            position: static;
+            align-self: start;
+        }
+
+        &_viewExisting{
+            // With all the spreading out we just did, /this/ looks bunched up
+            gap: v.px-to-rem(7);
+        }
+    }
+}
+
+
+
+
+.orderByForm{
+    display: flex;
+    flex-direction: column;
+    align-items: end;
+    width: max-content;
+}
+
+
+.commentFilterEditor{
+    &_form{
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+
+        padding: 0.75rem 0;
+    }
+}
+
+
+.radioFilter{
+    --outerBorderRadius: 0.25rem;
+    --normalBorderWidth: 1px;
+
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    justify-items: stretch;
+
+    border: 1px solid v.$c_tone-900;
+    
+    &_optionStr{
+        text-align: center;
+    }
+
+    &_optionLabel{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        font-size: v.px-to-rem(14);
+
+        padding: v.px-to-rem(6) v.px-to-rem(8);
+
+        border: var(--normalBorderWidth) solid v.$c_tone-600;
+        
+        // Remove borders around middle element to prevent double borders
+        &:nth-of-type(2){
+            border-width: var(--normalBorderWidth) 0;
+        }
+
+        // Add rounded borders to the first and last of type
+        &:nth-of-type(1){
+            border-top-left-radius: var(--outerBorderRadius);
+            border-bottom-left-radius: var(--outerBorderRadius);
+
+            &:before,
+            &:after{
+                border-top-left-radius: var(--outerBorderRadius);
+                border-bottom-left-radius: var(--outerBorderRadius);
+            }
+        }
+        &:nth-of-type(3){
+            border-top-right-radius: var(--outerBorderRadius);
+            border-bottom-right-radius: var(--outerBorderRadius);
+
+            &:before,
+            &:after{
+                border-top-right-radius: var(--outerBorderRadius);
+                border-bottom-right-radius: var(--outerBorderRadius); 
+            }
+        }
+
+        &-unchecked{
+            color: v.$c_tone-200;
+        }
+        &-checked{
+            background: v.$c_tone-800;
+            color: v.$c_tone-50;
+
+            position: relative;
+
+            /*  
+                When an element is selected, the goal is for its border to brighten.
+                This is an issue for the middle element, because it lacks left and right borders:
+                they were removed, to avoid doubled borders between elements.
+                Solution: for all elements, instead of brightening the actual border, add a 
+                transparent pseudo element over the top, with brightened borders.
+            */
+            &:before{
+                content: '';
+                display: block;
+                width: calc(100% + var(--normalBorderWidth) * 2);
+                height: calc(100% + var(--normalBorderWidth) * 2);
+
+                position: absolute;
+                bottom: calc(-1 * var(--normalBorderWidth));
+                left: calc(-1 * var(--normalBorderWidth));
+
+                border: var(--normalBorderWidth) solid v.$c_tone_400;
+            }
+
+            /*
+                When an element is selected, the goal is for the bottom border to be thicker
+                and in the accent colour.
+                When borders have different colours, CSS defaults to a bevel join at the 
+                corners. I would prefer for the bottom border to take the entire corner.
+                Solution: another pseudo element. Set height and width to what I want for my
+                "border", background to the colour, then posiiton it over the bototm border.
+            */
+            &:after{
+                content: '';
+                display: block;
+                width: calc(100% + var(--normalBorderWidth) * 2);
+                height: 2px;
+
+                position: absolute;
+                bottom: calc(-1 * var(--normalBorderWidth));
+                left: calc(-1 * var(--normalBorderWidth));
+                background: v.$c_accent-500;
+            }
+
+        }
+    }
 }
 
 
@@ -951,7 +1233,7 @@ $breakpoint_docsCardsToTable: 453px;
         border-bottom: none;
     }
 
-    .subsection-heading{
+    .subsection_heading{
         font-size: 1rem;
 
         .desc{
@@ -1108,16 +1390,6 @@ $breakpoint_docsCardsToTable: 453px;
     }
 
 }
-
-// #container_edit_item{
-//     min-width: 260px;
-//     width: fit-content;
-//     max-width: calc(100% - 16px);
-
-//     .temp-warning-msg{
-//         margin-top: 1.2rem;
-//     }
-// }
 
 
 // || Items Table
@@ -1554,6 +1826,19 @@ $breakpoint_docsCardsToTable: 453px;
 
 
 // || PO Section
+.poEditor{
+    &_poNumInput{
+        width: 100%;
+    }
+}
+
+.jobPO{
+    &_discrepancy{
+        width: fit-content;
+        max-width: 100%;
+    }
+}
+
 #po_table{
     .value{
         text-align: right;
@@ -2169,7 +2454,6 @@ table.price-comparison{
     }
 }
 
-
 @media screen and (min-width: $breakpoint_docsCardsToTable){
     .jobDocsOutSubsection{
         min-width: v.px-to-rem(300);
@@ -2355,202 +2639,3 @@ Seems more efficient to deviate from mobile-first in this case.
         }
     }
 }
-
-.poEditor{
-    &_poNumInput{
-        width: 100%;
-    }
-}
-
-
-.jobComments{
-    display: flex;
-    flex-direction: column;
-    align-items: start;
-
-    &_addButton{
-        align-self: start;
-    }
-
-    &_filterButton{
-
-        padding: v.px-to-rem(4) v.px-to-rem(16);
-    }
-
-    &_controls{
-        display: flex;
-        justify-content: space-between;
-        align-items: end;
-    }
-
-    &_viewExisting{
-        display: flex;
-        flex-direction: column;
-        width: max-content;
-        max-width: 100%;
-        gap: 0.75rem;
-    }
-
-    &_orderByForm{
-        align-self: end;
-    }
-
-    &_container{
-        margin-top: 0;
-    }
-}
-
-.orderByForm{
-    display: flex;
-    flex-direction: column;
-    align-items: end;
-    width: max-content;
-}
-
-
-.commentFilterEditor{
-    &_form{
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-
-        padding: 0.75rem 0;
-    }
-}
-
-
-.radioFilter{
-    --outerBorderRadius: 0.25rem;
-    --normalBorderWidth: 1px;
-
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    justify-items: stretch;
-
-    border: 1px solid v.$c_tone-900;
-    
-    &_optionStr{
-        text-align: center;
-    }
-
-    &_optionLabel{
-        display: flex;
-        justify-content: center;
-        align-items: center;
-
-        font-size: v.px-to-rem(14);
-
-        padding: v.px-to-rem(6) v.px-to-rem(8);
-
-        border: var(--normalBorderWidth) solid v.$c_tone-600;
-        
-        // Remove borders around middle element to prevent double borders
-        &:nth-of-type(2){
-            border-width: var(--normalBorderWidth) 0;
-        }
-
-        // Add rounded borders to the first and last of type
-        &:nth-of-type(1){
-            border-top-left-radius: var(--outerBorderRadius);
-            border-bottom-left-radius: var(--outerBorderRadius);
-
-            &:before,
-            &:after{
-                border-top-left-radius: var(--outerBorderRadius);
-                border-bottom-left-radius: var(--outerBorderRadius);
-            }
-        }
-        &:nth-of-type(3){
-            border-top-right-radius: var(--outerBorderRadius);
-            border-bottom-right-radius: var(--outerBorderRadius);
-
-            &:before,
-            &:after{
-                border-top-right-radius: var(--outerBorderRadius);
-                border-bottom-right-radius: var(--outerBorderRadius); 
-            }
-        }
-
-        &-unchecked{
-            color: v.$c_tone-200;
-        }
-        &-checked{
-            background: v.$c_tone-800;
-            color: v.$c_tone-50;
-
-            position: relative;
-
-            /*  
-                The middle element had its side borders removed to avoid double borders,
-                but if the middle element is checked, the borders between it and the
-                left and right elements should be bright.
-                Easy way to achieve this: make the bright "border" a pseudo element so
-                it can work independently of the actual borders.
-            */
-            &:before{
-                content: '';
-                display: block;
-                width: calc(100% + var(--normalBorderWidth) * 2);
-                height: calc(100% + var(--normalBorderWidth) * 2);
-
-                position: absolute;
-                bottom: calc(-1 * var(--normalBorderWidth));
-                left: calc(-1 * var(--normalBorderWidth));
-
-                border: var(--normalBorderWidth) solid v.$c_tone_400;
-            }
-
-            /*
-                When borders have different colours, CSS defaults to a bevel join
-                at the corners. I would prefer the "bottom border" took the entire 
-                corner.
-            */
-            &:after{
-                content: '';
-                display: block;
-                width: calc(100% + var(--normalBorderWidth) * 2);
-                height: 2px;
-
-                position: absolute;
-                bottom: calc(-1 * var(--normalBorderWidth));
-                left: calc(-1 * var(--normalBorderWidth));
-                background: v.$c_accent-500;
-            }
-
-        }
-    }
-}
-
-
-
-
-// .radioFilter{
-
-//     display: grid;
-//     grid-template-columns: 1fr 1fr 1fr;
-//     justify-items: stretch;
-//     gap: 1rem;
-
-//     &_optionLabel{
-//         display: flex;
-//         justify-content: center;
-
-//         font-size: v.px-to-rem(14);
-
-//         padding: 0.25rem v.px-to-rem(2);
-
-//         border-width: 0 0 2px 0;
-//         border-style: solid;
-        
-//         &-unchecked{
-//             border-color: v.$c_tone_800;
-//         }
-//         &-checked{
-//             background: v.$c_tone_700;
-//             border-color: v.$c_accent_500;
-//         }
-//     }
-// }
-
-
-
