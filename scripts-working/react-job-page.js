@@ -339,6 +339,12 @@ function JobSectionHeadingUI(props){
     return <h3 className={"sectionHeading"}>{props.text}</h3>
 }
 
+function JobSectionHeadingNarrowUI(props){
+    return  <h3 className={"sectionHeading jobNarrowSection_header"}>
+                <span className={"jobNarrowSection_headerText"}>{props.text}</span>
+            </h3>
+}
+
 
 function JobContentsUI(props){
     return props.jobMenu.activeTab === TAB_NAMES.details ?

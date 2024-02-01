@@ -54,8 +54,8 @@ function JobPriceCheckUI(props){
     }
 
     return [
-        <section id="price_check_section" class="paired-section">
-            <JobSectionHeadingUI text={"Prices"} />
+        <section id="price_check_section" class="jobPriceCheck jobNarrowSection">
+            <JobSectionHeadingNarrowUI text={"Prices"} />
             { contents }
         </section>
     ]
@@ -68,7 +68,7 @@ function JobPriceCheckEmptyUI(props){
     if(!props.is_empty){
         return null;
     }
-    return <EmptySectionUI  message={"Activates upon entering items"} css={'jobPage_emptySection'} />
+    return <EmptySectionUI  message={"Activates upon entering items"} css={'jobPage_emptySection jobNarrowSection_content'} />
 }
 
 // || Price acceptance toggle
@@ -96,7 +96,7 @@ function PriceAcceptanceToggleUI(props){
     var css_class = props.is_accepted ? 'on' : 'off';
     var display_text = props.is_accepted ? 'accepted' : 'NOT ACCEPTED';
     return [
-        <div id="price_confirmation_status">
+        <div id="price_confirmation_status" className={"jobNarrowSection_content"}>
             <div class={'status-indicator ' + css_class}>
                 <span class="status-name">selling price is</span>
                 <button id="price_confirmation_button" onClick={ props.toggle_acceptance }>{ display_text }</button>
@@ -144,7 +144,7 @@ function usePriceAcceptanceToggle(URL_GET_DATA, job_id, price_accepted_state){
 // || Comparison table wrapper
 function JobPriceCheckSummaryUI(props){
     return [
-        <div class="subsection jobPriceCheckComparison">
+        <div class="subsection jobPriceCheckComparison jobNarrowSection_content">
             <h4>Comparison to List Price</h4>
             <PriceComparisonTable   
                 currency = { props.currency }
@@ -166,29 +166,21 @@ function JobPriceCheckDetails(props){
     const [activeEdit, setActiveEdit] = React.useState(null);
     const editor_state = getter_and_setter(activeEdit, setActiveEdit);
 
-    return <JobPriceCheckDetailsUI  
-                actions_items = { props.actions_items }
-                currency = { props.currency }
-                items_list = { props.items_list }
-                editor_state = { editor_state }
-            />
-}
-
-function JobPriceCheckDetailsUI(props){
     return [
-        <div class="subsection jobPriceCheckDetails">
+        <div class="subsection jobPriceCheckDetails jobNarrowSection_content">
             <h4>Details</h4>
-            <table id="price_check_table" class="banded">
-                <JobPriceCheckDetailsTableHeadUI    
-                    currency = { props.currency } 
-                />
-                <JobPriceCheckDetailsTableBodyUI    
-                    actions_items = { props.actions_items }
-                    active_edit = { props.active_edit }
-                    items_list = { props.items_list }
-                    editor_state = { props.editor_state }
-                />
-            </table>
+            <div class="subsection_contentWrapper">
+                <table id="price_check_table" class="banded">
+                    <JobPriceCheckDetailsTableHeadUI    
+                        currency = { props.currency } 
+                    />
+                    <JobPriceCheckDetailsTableBodyUI    
+                        actions_items = { props.actions_items }
+                        editor_state = { editor_state }
+                        items_list = { props.items_list }
+                    />
+                </table>
+            </div>
         </div>
     ]
 }
@@ -223,7 +215,6 @@ function JobPriceCheckDetailsTableBodyUI(props){
             {props.items_list.map((item) => 
                 <JobPriceCheckDetailsTableRow   key = { item.ji_id.toString() }
                                                 actions_items = { props.actions_items }
-                                                active_edit = { props.active_edit }
                                                 data = { item }
                                                 editor_state = { props.editor_state }
                                                 />
