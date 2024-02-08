@@ -68,7 +68,11 @@ function JobPriceCheckEmptyUI(props){
     if(!props.is_empty){
         return null;
     }
-    return <EmptySectionUI  message={"Activates upon entering items"} css={'jobPage_emptySection jobNarrowSection_content'} />
+    return  <EmptySectionUI  
+                message={"Activates upon entering items"} 
+                css={'jobPage_emptySection jobNarrowSection_content'} 
+            />
+
 }
 
 // || Price acceptance toggle

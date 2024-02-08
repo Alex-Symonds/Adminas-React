@@ -69,10 +69,21 @@ function get_unassigned_quantity(target_doc_type, docQuantities, totalQuantityAl
 function JobDocumentsSubsectionUI(props){
     return [
         <div className={`subsection jobDocsOut_subsection`}>
-            <h4 className={"jobDocsOut_subsectionHeading"}>{ props.title }</h4>
-            <a href={ props.url_builder } class="add-button jobDocsOut_subsectionAddButton">New { props.doc_type }</a>
-            <JobDocumentsUnassignedItemsUI  unassigned_qty = { props.unassigned_qty } />
-            <JobDocumentsOutgoingTable   doc_list = { props.doc_list } />
+            <h4 className={"jobDocsOut_subsectionHeading"}>
+                { props.title }
+            </h4>
+            <a  href={ props.url_builder } 
+                class="add-button jobDocsOut_subsectionAddButton"
+            >
+                New { props.doc_type }
+            </a>
+            <JobDocumentsUnassignedItemsUI  
+                unassigned_qty = { props.unassigned_qty } 
+            />
+            <JobDocumentsOutgoingTable 
+                doc_list = { props.doc_list } 
+                doc_type = { props.doc_type }
+            />
         </div>
     ]
 }
@@ -97,7 +108,10 @@ function JobDocumentsUnassignedItemsUI(props){
 
 function JobDocumentsOutgoingTable(props){
     if(props.doc_list == null || props.doc_list.length == 0){
-        return null;
+        return  <EmptySectionUI 
+                    message={`No ${props.doc_type} documents yet`} 
+                    css={'jobDocsOut_emptySection'} 
+                />;
     }
     return [
         <table className={"documentsOutTable banded"}>
