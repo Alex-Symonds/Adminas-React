@@ -127,10 +127,10 @@ function get_status_documents(data){
         var issued_qty = parseInt(doc.qty_on_issued);
         var draft_qty = parseInt(doc.qty_on_draft);
 
-        if(data.total_qty_all_items == issued_qty){
+        if(issued_qty > 0 && data.total_qty_all_items == issued_qty){
             result.push([STATUS_CODE_OK, prefix + "ok"]);
         }
-        else if(data.total_qty_all_items == issued_qty + draft_qty){
+        else if(issued_qty + draft_qty > 0 && data.total_qty_all_items == issued_qty + draft_qty){
             result.push([STATUS_CODE_ACTION, prefix + "pending"]);
         }
         else{
