@@ -11,7 +11,6 @@
         || Job Details Section
         || PO Section
         || Comments Section
-        || Documents Section
         || Items Section
         || Items Table
         || Price Check Section
@@ -24,12 +23,11 @@
 $breakpoint_docsCardsToTable: 453px;
 $jobPage_gapWhenSidebarStaysOn: 0.5rem;
 
-$px_width_jobDetailsPanel: 500;
-$width_jobDetailsPanel: #{v.px-to-rem($px_width_jobDetailsPanel)};
+$px_width_jobTwinPanel: 500;
+$width_jobTwinPanel: #{v.px-to-rem($px_width_jobTwinPanel)};
 $gap_jobDetailsPanels: 4rem;
-$breakpoint_jobDetailsPO_asRowNoSidebar: v.px-to-rem($px_width_jobDetailsPanel * 2) + $gap_jobDetailsPanels;
+$breakpoint_jobDetailsPO_asRowNoSidebar: v.px-to-rem($px_width_jobTwinPanel * 2) + $gap_jobDetailsPanels;
 $breakpoint_jobDetailsPO_asRowWithSidebar: $breakpoint_jobDetailsPO_asRowNoSidebar + $jobPage_gapWhenSidebarStaysOn + v.$sidebarWidthOnDesktop + v.px-to-rem(8 * 2);
-
 
 // || Misc (Buttons and warnings)
 .add-button{
@@ -296,6 +294,8 @@ $breakpoint_jobDetailsPO_asRowWithSidebar: $breakpoint_jobDetailsPO_asRowNoSideb
     &_emptySection{
         grid-column: 2;
         margin: 1rem v.px-to-rem(6);
+        width: v.$MAX_WIDTH;
+        max-width: 100%;
     }
 }
 
@@ -405,33 +405,36 @@ $breakpoint_jobDetailsPO_asRowWithSidebar: $breakpoint_jobDetailsPO_asRowNoSideb
     gap: 1rem;
 }
 
+.jobSummaryStatus{
+    &_container{
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem 0.7rem;
+        padding: 0.7rem;
+    }
+}
 
-@media screen and (min-width: 561px){
+@media screen and (min-width: 930px){
     .jobSummary_contentsLayout{
         display: grid;
-        grid-template-rows: auto auto auto auto auto;
-        grid-template-columns: calc(50% - #{v.px-to-rem(8)}) calc(50% - #{v.px-to-rem(8)});
+        grid-template-rows: auto v.px-to-rem(88) auto auto;
+        grid-template-columns: auto 1fr;
         grid-template-areas: 
             "status status"
-            "timeValue timeValue"
+            "timeValue items"
+            "customerRef items"
             "pinned pinned"
-            "items customerRef"
         ;
         gap: v.px-to-rem(16);
     }
 
     .jobSummaryStatus{
         grid-area: status;
-
-        &_container{
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.5rem 0.7rem;
-            padding: 0.7rem;
-        }
+        align-self: start;
     }
     .timeValueContainer{
         grid-area: timeValue;
+        align-self: start;
     }
     .jobCommentSection{
         grid-area: pinned;
@@ -542,7 +545,7 @@ $breakpoint_jobDetailsPO_asRowWithSidebar: $breakpoint_jobDetailsPO_asRowNoSideb
 // || Job Details Section
 .jobDetails{
     $breakpoint_addressKeyValueToRow: 400px;
-    --jobDetailsWidth: #{$width_jobDetailsPanel};
+    --jobDetailsWidth: #{$width_jobTwinPanel};
     --jobDetailsLabelWidth: 8rem;
 
     width: var(--jobDetailsWidth);
@@ -616,7 +619,7 @@ $breakpoint_jobDetailsPO_asRowWithSidebar: $breakpoint_jobDetailsPO_asRowNoSideb
 
 // || PO Section
 .jobPO{
-    width: $width_jobDetailsPanel;
+    width: $width_jobTwinPanel;
     max-width: 100%;
 
     &_headerContent{
@@ -1937,6 +1940,13 @@ $breakpoint_jobDetailsPO_asRowWithSidebar: $breakpoint_jobDetailsPO_asRowNoSideb
 
 
 // || Price Check Section
+.jobPriceCheck{
+    &_contentsWrapper{
+        grid-column: 2;
+    }
+}
+
+
 .jobPriceCheckDetails {
     width: fit-content;
     max-width: 100%;
@@ -2329,6 +2339,7 @@ table.price-comparison{
 
 // || Documents Section
 .jobDocsOut{
+    --widthJobDocsTable: #{v.px-to-rem(400)};
 
     &_contentWrapper{
         grid-column: 2;
@@ -2364,8 +2375,18 @@ table.price-comparison{
         margin: 0;
     }
 
+    &_emptySection{
+        grid-area: docsTable;
+        width: var(--widthJobDocsTable);
+        max-width: 100%;
+
+        margin: v.px-to-rem(8);
+        align-self: start; 
+    }
+
     &_subsectionHeading{
         grid-area: heading;
+        align-self: start;
     }
 
     &_subsectionAddButton{
@@ -2471,7 +2492,7 @@ table.price-comparison{
     --widthStatusCol: #{v.px-to-rem(78)};
     --widthEditCol: #{v.px-to-rem(33)};
 
-    width: v.px-to-rem(400);
+    width: var(--widthJobDocsTable);
 
     &_dateCol{
         min-width: var(--widthDateCol);
