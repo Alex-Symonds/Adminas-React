@@ -5,17 +5,15 @@
 }
 
 @function px-to-rem($px-num){
-    @return calc($px-num / 16) + rem;
+    @return calc($px-num / 16) * 1rem;
 }
 
 
 // These appear in a React hook as well, so always update both
-$sidebarWidthOnDesktop: #{px-to-rem(240)};
-$breakpoint_jobNavNoStretch: #{calc($sidebarWidthOnDesktop * 2)};
-$breakpoint_permaShowJobNav: #{calc($sidebarWidthOnDesktop * 5)};
+$sidebarWidthOnDesktop: px-to-rem(240);
+$breakpoint_jobNavNoStretch: $sidebarWidthOnDesktop * 2;
+$breakpoint_permaShowJobNav: $sidebarWidthOnDesktop * 5;
 
-
-  
 $f_adminas: Roboto, sans-serif;
 $f_heading: 'Arial', sans-serif;
 $f_contents: 'Calibri', sans-serif;
@@ -28,7 +26,6 @@ $body_margin_desktop: 8px;
 
 $c_bg_main: rgb(34, 35, 36);
 $g_bg_main: linear-gradient(45deg, rgb(34, 35, 36) 0%, rgb(40, 40, 41) 35%, rgb(56, 58, 58) 100%);
-//$g_bg_modal: linear-gradient(45deg, rgb(34, 35, 36) 35%, rgb(39, 40, 41) 100%);
 $g_bg_modal: linear-gradient(45deg, rgb(48, 50, 51) 35%, rgb(57, 58, 59) 100%);
 
 $c_txt_main: #F6F6F6;

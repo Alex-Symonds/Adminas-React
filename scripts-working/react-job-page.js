@@ -12,28 +12,28 @@
 */
 
 // || Consts
-const TAB_NAMES = {
-    summary: "Summary", 
-    details: "Job Details",
-    comments: "Comments",
-    docs_in: "Incoming Docs",
-    docs_out: "Outgoing Docs",
-    items: "Items",
-    pricecheck: "Price Check"
-}
 
-const TABS = [
-    TAB_NAMES.summary, 
-    TAB_NAMES.details,
-    TAB_NAMES.comments,
-    TAB_NAMES.docs_in,
-    TAB_NAMES.docs_out,
-    TAB_NAMES.items,
-    TAB_NAMES.pricecheck
-]
 
 // || Hooks
 function useJobMenu(){
+    const TAB_NAMES = {
+        summary: "Summary", 
+        detailsAndPO: "Details & PO",
+        comments: "Comments",
+        docs_out: "Documents",
+        items: "Items",
+        pricecheck: "Price Check"
+    }
+    
+    const TABS = [
+        TAB_NAMES.summary, 
+        TAB_NAMES.detailsAndPO,
+        TAB_NAMES.comments,
+        TAB_NAMES.docs_out,
+        TAB_NAMES.items,
+        TAB_NAMES.pricecheck
+    ]
+    
     const [menuIsOpen, setMenuIsOpen] = React.useState(true);
     const [activeTab, setActiveTab] = React.useState(TABS[0]);
 
@@ -66,6 +66,8 @@ function useJobMenu(){
         close: closeJobMenu,
         activeTab,
         updateActiveTab,
+        TABS,
+        TAB_NAMES
     }
 }
 
@@ -83,7 +85,6 @@ function useCommentsEditor(){
     }
 
 }
-
 
 
 function useJobState(URL_GET_DATA, job_id){
@@ -276,10 +277,11 @@ function JobPageUI(props){
         <div className={"jobPage"}>
             <JobSideNav 
                 activeTab = { props.jobMenu.activeTab }
+                getCSS = { props.jobMenu.getCSS }
                 isOpen = { props.jobMenu.isOpen }
                 close = { props.jobMenu.close }
                 updateActiveTab = { props.jobMenu.updateActiveTab }
-                TABS = { TABS }
+                TABS = { props.jobMenu.TABS }
                 names = { props.job.names }
                 job_id = { props.job_id}
                 URL_GET_DATA = { props.URL_GET_DATA} 
@@ -341,17 +343,28 @@ function JobSectionHeadingUI(props){
 
 function JobSectionHeadingNarrowUI(props){
     return  <h3 className={"sectionHeading jobNarrowSection_header"}>
-                <span className={"jobNarrowSection_headerText"}>{props.text}</span>
+                <span className={"jobNarrowSection_headerText"}>
+                    {props.text}
+                </span>
             </h3>
 }
 
 
 function JobContentsUI(props){
-    return props.jobMenu.activeTab === TAB_NAMES.details ?
-            <JobDetails 
+    const TAB_NAMES = props.jobMenu.TAB_NAMES;
+
+    return props.jobMenu.activeTab === TAB_NAMES.detailsAndPO ?
+            <JobDetailsAndPO 
                 currency = { props.job.currency }   
                 job_id = { props.job_id }
                 URL_GET_DATA = { props.URL_GET_DATA }
+
+                actions_po = { props.poActions }
+                poList = { props.job.poList }
+                difference = { props.calc.difference }
+                total_po_value = { props.calc.total_po_value }
+                total_items_value = { props.calc.total_items_value }
+                has_invalid_currency_po = { props.calc.has_invalid_currency_po }
             />
         : props.jobMenu.activeTab === TAB_NAMES.comments ?
             <JobComments
@@ -368,18 +381,6 @@ function JobContentsUI(props){
                 docQuantities = { props.doc_quantities}
                 totalQuantityAllItems = { props.calc.total_qty_all_items }
                 job_id = { props.job_id } 
-            />
-        : props.jobMenu.activeTab === TAB_NAMES.docs_in ?
-            <JobPo  
-                actions_po = { props.poActions }
-                poList = { props.job.poList }
-                currency = { props.job.currency }
-                difference = { props.calc.difference }
-                job_id = { props.job_id }
-                total_po_value = { props.calc.total_po_value }
-                total_items_value = { props.calc.total_items_value }
-                has_invalid_currency_po = { props.calc.has_invalid_currency_po }
-                URL_GET_DATA = { props.URL_GET_DATA }
             />
         : props.jobMenu.activeTab === TAB_NAMES.items ?
             <JobItems   
@@ -567,7 +568,6 @@ function createItemsActions(itemsList, updateJobKey, urlItems, URL_GET_DATA, job
     
         // No more shortcuts: compare the old value to the new
         const new_quantity = item_attributes.quantity;
-    
         var index = items_list.findIndex(i => i.ji_id === parseInt(item_id));
         if(index === -1){
             // Fallback to true: better an unnecessary fetch to telling the user everything is ok when it isn't

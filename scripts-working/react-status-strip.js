@@ -16,7 +16,7 @@ function JobStatusStrip(props){
     var status_list = list_of_job_statuses(props.status_data);
 
     return [
-        <div class="job-status-ele-container">
+        <div class="jobSummaryStatus_container">
             {status_list.map((tuple, index) =>
                 <JobStatusElementUI key = {index}
                                     status_code = {tuple[0]}

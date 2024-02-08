@@ -5,7 +5,6 @@
     Contents:
         || Main section
         || JobItem General Formatting
-        || Button to hide/show the create form
         || Existing Table
             > Includes helper functions to rearrange item_list slot assignments to be product-centric
         || Details
@@ -30,9 +29,9 @@ function JobItems(props){
     const editor = get_editor_object('create_items_form', activeEdit, setActiveEdit);
 
     return [
-        <section id="job_items_section" class="job-section">
-            <h3 className={"sectionHeading"}>Items</h3>
-            <div class="job-items-container">
+        <section class="jobItems jobNarrowSection">
+            <JobSectionHeadingNarrowUI text = {"Items"} />
+            <div class="jobItems_contentWrapper">
                 <button 
                     id="open_item_form_btn" 
                     class="add-button" 
@@ -73,21 +72,6 @@ function WarningMessageSpan(props){
 }
 
 
-// || Button to hide/show the create form
-// function JobItemsCreatorButtonUI(props){
-//     if(props.editor.is_active){
-//         return null;
-//     }
-
-//     return <button 
-//                 id="open_item_form_btn" 
-//                 class="add-button" 
-//                 onClick={ props.editor.on }
-//                 >
-//                 Add Items
-//             </button>
-// }
-
 // || Existing
 function JobItemsExisting(props){
     const [activeEdit, setActiveEdit] = React.useState(null);
@@ -120,7 +104,7 @@ function JobItemsExisting(props){
 
 function JobItemsExistingUI(props){
     return [
-        <div class="existing-items-container">
+        <div class="jobItems_existingAndDetailsContainer">
             <JobItemsExistingTable
                 currency = { props.currency } 
                 details_parent = { props.details_parent }
@@ -159,7 +143,7 @@ function JobItemsExistingTable(props){
     const css_class = props.details_parent === null ? 'banded' : 'details-visible';
 
     return [
-        <table id="jobitems_table" class={ css_class }>
+        <table id="jobitems_table" class={ `jobItems_existing ${css_class}` }>
             <thead>
                 <tr>
                     <th>id</th>
@@ -288,10 +272,6 @@ function JobItemRowModularContentsUI(props){
 
 // || Details
 function JobItemsDetailsContainer(props){
-    if(props.details_parent === null){
-        return null;
-    }
-
     function details_off(){
         props.details_state.set(null);
     }
@@ -299,14 +279,18 @@ function JobItemsDetailsContainer(props){
     const [isExpanded, setIsExpanded] = React.useState(false);
     const expanded_state = getter_and_setter(isExpanded, setIsExpanded);
 
-    const expanded_class = isExpanded ? " expanded" : "";
     return [
-        <div class="jobitems-details">
-            <div class="header">
-                <h4>item details</h4>
-                <CancelButton   cancel = { details_off } />
+        <div className={`jobItems_detailsWrapper jobItems_detailsWrapper-${isExpanded ? "expanded" : "retracted"}${props.details_parent === null ? " jobItems_detailsWrapper-inactive" : " jobItems_detailsWrapper-active"}`}>
+            <div class="jobItems_detailsHeaderStrip">
+                <h4 className={"jobItems_detailsHeader"}>item details</h4>
+                <CancelButton   cancel = { details_off } css = { "jobItems_closeDetailsButton" } />
             </div>
-            <div class={"jobitems-details-container" + expanded_class}>
+            <div class={"jobItems_detailsContent"}>
+
+            { props.details_parent === null ?
+                <p className={"jobItems_noSelectionMessage"}>Select an item to view details</p>
+            :
+            <>
                 <JobItem    actions_items = { props.actions_items }
                             currency = {props.currency}
                             data = { props.details_parent }
@@ -323,7 +307,10 @@ function JobItemsDetailsContainer(props){
                                             data = { props.product_slot_assignments[mod.product_id.toString()] }
                         />)
                 }
+            </>
+            }
             </div>
+
             <ExpandCollapseToggle   expanded_state = { expanded_state } />
         </div>
     ]
@@ -338,7 +325,14 @@ function ExpandCollapseToggle(props){
         props.expanded_state.set(toggle_to);
     }
 
-    return <button class={"expand-collapse " + css_class } onClick={ handle_click }><span>{ display_text }</span></button>
+    return <div className={"jobItems_detailsExpandCollapseWrapper"}>
+                <button 
+                    class={"jobItems_detailsExpandCollapseButton jobItems_detailsExpandCollapseButton-" + css_class } 
+                    onClick={ handle_click }
+                >
+                    <span class={"sr-only"}>{ display_text }</span>
+                </button>
+            </div>
 }
 
 function get_details_parent(parent_id, data){
@@ -428,7 +422,7 @@ function JobItem(props){
 // JobItem Reader
 function JobItemReaderUI(props){
     return [
-        <div class="job-item-container">
+        <div class="jobItems_detailsJobItem">
             <JobItemHeadingUI   
                                 description = { props.data.description }
                                 ji_id = { props.data.ji_id }
@@ -757,7 +751,7 @@ function initialise_products_list(item_list){
 // || Product
 function JobItemProductUI(props){
     return [
-        <div class="job-item-container product">
+        <div class="jobItems_detailsJobItem product">
             <JobItemHeadingUI   description = { props.data.description }
                                 ji_id = { null }
                                 part_number = { props.data.part_number }

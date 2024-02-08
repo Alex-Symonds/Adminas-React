@@ -596,6 +596,10 @@
         display: table;
         border-collapse: collapse;
 
+        tbody tr:nth-of-type(even){ 
+            background: rgba(white, 0.075);
+        }
+
         &_head{
             display: table-row-group;
         }
