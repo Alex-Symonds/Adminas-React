@@ -55,6 +55,9 @@ h1, h2, h3, h4, h5, h6 {
     padding: 0;
     font-family: v.$f_heading;
 }
+table{
+    border-collapse: collapse;
+}
 
 
 input,
@@ -201,15 +204,14 @@ article{
     position: relative;
 
     &_editIcon.edit-icon{
-        position: absolute;
-        top: 0;
-        right: 0;
-
+        // position: absolute;
+        // top: 0;
+        // right: 0;
+        
         border-top-left-radius: 0.25rem;
         border-top-right-radius: 0.25rem;
 
         &:hover{
-            background-position: 5px 5px;
             background-color: transparent;
             border-bottom: 2px solid v.$c_accent-500;
             background-color: rgba(white, 0.1);
@@ -217,6 +219,7 @@ article{
             span{
                 transition-delay: 0.05s;
                 color: white;
+                font-size: v.px-to-rem(14);
                 border-radius: 5px;
                 background: rgba(v.$c_tone_00, 80%);
                 border: 1px solid v.$c_tone_00;
@@ -225,8 +228,6 @@ article{
                 width: 3rem;
             }
         }
-
-
     }
 }
 
@@ -841,6 +842,33 @@ article{
         border-bottom: none;
     }
 }
+
+
+.warningSubSubsection{
+    max-width: 100%;
+    padding-bottom: v.px-to-rem(4);
+
+    &_heading{
+        padding: v.px-to-rem(6);
+        border: 2px solid v.$c_warning;
+        border-left: none;
+        background: v.$c_warning_darker;
+        border-top-right-radius: 1rem;
+        border-bottom-right-radius: 1rem;
+        width: 9rem;
+        font-weight: 500;
+
+        display: flex;
+        align-items: center;
+        justify-content: start;
+        gap: v.px-to-rem(6);
+    }
+    &_text{
+        margin-top: 0.25rem;
+        padding: 0.5rem;
+    }
+}
+
 
 .read_row{
     border-bottom: 1px solid v.$c_tone_02;
@@ -1564,8 +1592,6 @@ fieldset.form-row{
 #po_table,
 #price_check_table,
 .responsive-table{
-    border-collapse: collapse;
- 
     th,
     td{
         padding: 0.1rem 0.5rem;

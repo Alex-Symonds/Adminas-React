@@ -13,33 +13,50 @@
 // || Main section
 function JobPo(props){
     return [
-        <section id="job_po_section" class="job-section">
-            <JobSectionHeadingUI text={"Purchase Orders"} />
-            <JobPoCreate    
-                actions_po = { props.actions_po }
-                currency = { props.currency }
-                job_id =  { props.job_id }
-                URL_GET_DATA = {props.URL_GET_DATA}
-            />
-            <WarningSubsection
-                message = "All POs should be in the same currency as the job."
-                show_warning = { props.has_invalid_currency_po }
-                title = "Error: Currency Mismatch"
-            />
-            <JobPoDiscrepancyUI 
-                currency = { props.currency}
-                difference = { props.difference }
-                poList = { props.poList }
-                total_po_value = { props.total_po_value }
-                total_items_value = { props.total_items_value }
-            />
-            <JobPoList          
-                actions_po = { props.actions_po }
-                currency = { props.currency } 
-                poList = { props.poList }
-                job_id = { props.job_id }
-                URL_GET_DATA = { props.URL_GET_DATA }
-            />
+        <section class="jobPO jobPanelSection">
+            <h3 className={"jobPanelSection_headingWrapper"}>
+                <span className={"jobPO_headerContent jobPanelSection_headingContent"}>
+                    Purchase Orders
+                </span>
+            </h3>
+            <div className="jobPO_content">
+                <JobPoCreate    
+                    actions_po = { props.actions_po }
+                    currency = { props.currency }
+                    job_id =  { props.job_id }
+                    URL_GET_DATA = {props.URL_GET_DATA}
+                />
+            { props.has_invalid_currency_po ?
+                <WarningSubSubsectionUI
+                    message = {"All POs should be in the same currency as the job."}
+                    title = {"Error: Currency Mismatch"}
+                />
+                : null
+            }
+            { props.difference === 0 || props.poList.length === 0 ?
+                null
+                :
+                <WarningSubSubsectionUI
+                    message = {"Sum of PO values does not match sum of line item selling prices."}
+                    title = {"Discrepancy"}
+                >
+                    <JobPoDiscrepancyUI 
+                        currency = { props.currency}
+                        difference = { props.difference }
+                        poList = { props.poList }
+                        total_po_value = { props.total_po_value }
+                        total_items_value = { props.total_items_value }
+                    />
+                </WarningSubSubsectionUI>
+            }
+                <JobPOReceived 
+                    actions_po = { props.actions_po }
+                    currency = { props.currency } 
+                    poList = { props.poList }
+                    job_id = { props.job_id }
+                    URL_GET_DATA = { props.URL_GET_DATA }
+                />
+            </div>
         </section>
     ]
 }
@@ -54,7 +71,7 @@ function JobPoCreate(props){
     const editor = get_editor_object('create_po_form', activeEdit, setActiveEdit);
 
     return [
-        <div>
+        <div class="jobPO_addPO">
             <button 
                 id="toggle_po_form_btn" 
                 class="add-button" 
@@ -77,6 +94,7 @@ function JobPoCreate(props){
 
 // "Create mode" wrapper for the JobPoEditor
 function JobPoAddNew(props){
+
     if(!props.editor.is_active){
         return null;
     }
@@ -114,16 +132,9 @@ function JobPoAddNew(props){
 // || Discrepancy Warning
 // Subsection showing the difference between total PO value and total line items value. Conditionally displayed when there's a mismatch with prices.
 function JobPoDiscrepancyUI(props){
-    if(props.difference === 0 || props.poList.length === 0){
-        return null;
-    }
-
     return [
-        <div class="jobPO_discrepancy warning subsection ">
-            <h4>Discrepancy</h4>
-            <p>Sum of PO values does not match sum of line item selling prices.</p>
-            <div class="subsection">
-                <h5 class="subsection_heading">Comparison: Items to PO</h5>
+            <div class="jobPO_comparisonTableWrapper">
+                <h5 class="jobPO_comparisonTableHeading">Comparison: Items to PO</h5>
                 <PriceComparisonTable   
                     currency = {props.currency}
                     difference = {props.difference}
@@ -133,19 +144,30 @@ function JobPoDiscrepancyUI(props){
                     second_value = {props.total_items_value}
                 />
             </div>
-        </div>
     ]
 }
 
 
-
 // || Existing POs
 // Container to hold the elements for each individual PO
-function JobPoList(props){
-    if(props.poList.length === 0){
-        return <EmptySectionUI message={'No purchase orders have been entered'} css={'jobPage_emptySection'} />
-    }
+function JobPOReceived(props){
+    return  <div className={"jobPO_receivedSection"}>
+                <h4 className={"jobPO_subsectionHeading jobPanelSection_subsectionHeading"}>Received</h4>
+                { props.poList.length === 0 ?
+                    <EmptySectionUI message={'No purchase orders have been entered'} css={'jobPage_emptySection'} />
+                :
+                    <JobPoList          
+                        actions_po = { props.actions_po }
+                        currency = { props.currency } 
+                        poList = { props.poList }
+                        job_id = { props.job_id }
+                        URL_GET_DATA = { props.URL_GET_DATA }
+                    />
+                }
+            </div>
+}
 
+function JobPoList(props){
     // manage edit mode: only one PO should be editable at a time
     const [activeEdit, setActiveEdit] = React.useState(null);
     const editor_state = getter_and_setter(activeEdit, setActiveEdit);
@@ -162,7 +184,7 @@ function JobPoList(props){
 
 function JobPoListUI(props){
     return [
-        <div>
+        <div class="jobPO_poListWrapper">
             <table id="po_table" class="banded">
                 <thead>
                     <tr>
@@ -474,7 +496,7 @@ function usePOEditor(poData, URL_GET_DATA, state_submit, state_delete, editor){
             value: poValue,
             date_received: dateReceived,
             currency: currency,
-            job: props.job_id
+            job: window.JOB_ID
         };   
     }
 

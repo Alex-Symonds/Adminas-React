@@ -30,7 +30,7 @@ function JobSideNav(props){
                 props.TABS.map((tabName) => {
                     return  <li>
                                 <button
-                                    className={`jobSideNav_button ${tabName === props.activeTab ? "jobSideNav_button-on" : ""}`}
+                                    className={`jobSideNav_button${tabName === props.activeTab ? " jobSideNav_button-on" : ""}`}
                                     onClick={ () => props.updateActiveTab(tabName) }
                                     disabled={ tabName === props.activeTab }
                                     >

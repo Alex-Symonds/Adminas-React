@@ -86,6 +86,8 @@ function InvalidIconUI(props){
 }
 
 function WarningSubsection(props){
+    // Displays a warning message inside a "subsection": red background on the heading, red left side border.
+    // If this boggles the eyes, consider using WarningSubSubsectionUI instead.
     if(!props.show_warning){
         return null;
     }
@@ -93,6 +95,24 @@ function WarningSubsection(props){
         <div className={`warning subsection${props.css !== undefined ? " " + props.css : ""}`}>
             <h4>{ props.title ? props.title : "Warning" }</h4>
             <p>{ props.message }</p>
+        </div>
+    ]
+}
+
+function WarningSubSubsectionUI(props){
+    // Sometimes there's already a subsection and the warning text/content must go inside it.
+    // If the subsection-within-a-subsection formatting boggles the eyes, use this instead.
+    return [
+        <div className={`warningSubSubsection${props.css !== undefined ? " " + props.css : ""}`}>
+            <h4 className={"warningSubSubsection_heading"}>
+                <img src={`${window.PATH_IMAGES}i-warning.svg`}  height="18px" aria-hidden="true" />
+                { props.title ? props.title : "Warning" }
+            </h4>
+            <p className={"warningSubSubsection_text"}>{ props.message }</p>
+            { props.children === undefined ?
+                null
+                : props.children
+            }
         </div>
     ]
 }
@@ -120,7 +140,7 @@ function DeleteButton(props){
 
 function CancelButton(props){
     // Needs cancel() for onClick
-    return <button class="close" onClick = { props.cancel }><span>close</span></button>
+    return <button className={`close${props.css === undefined ? "" : " " + props.css}`} onClick = { props.cancel }><span>close</span></button>
 }
 
 function EditorControls(props){

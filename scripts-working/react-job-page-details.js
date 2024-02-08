@@ -23,25 +23,33 @@ function JobDetails(props){
 
 function JobDetailsUI(props){
     return [
-        <section className={"job-section jobDetails"}>
-            <div class="sectionHeadingWrapper">
-                <JobSectionHeadingUI text={"General Details"} />
-            {/* <div class="extended-subheading"> */}
-                <a href={ props.data.url } class="edit-icon sectionHeadingWrapper_editIcon"><span>edit</span></a>
-            {/* </div> */}
-            </div>
-            <JobDetailsIdSectionUI      data = { props.data } />
-            <JobDetailsPaymentSectionUI currency = { props.currency }
-                                        data = { props.data } />
-            <JobDetailsDeliverySectionUI    data = { props.data } />
+        <section className={"jobDetails jobPanelSection"}>
+
+            <h3 className={"jobPanelSection_headingWrapper"}>
+                <span className={"jobDetails_headerContent jobPanelSection_headingContent"}>
+                    General Details
+                    <a href={ props.data.url } class="edit-icon sectionHeadingWrapper_editIcon"><span>edit</span></a>
+                </span>
+            </h3>
+
+            <JobDetailsIdSectionUI
+                data = { props.data } 
+            />
+            <JobDetailsPaymentSectionUI 
+                currency = { props.currency }
+                data = { props.data } 
+            />
+            <JobDetailsDeliverySectionUI
+                data = { props.data } 
+            />
         </section>
     ]
 }
 
 function JobDetailsIdSectionUI(props){
     return [
-        <section class="subsection">
-            <h4>Identification</h4>
+        <section class="jobDetails_subsection">
+            <h4 className={"jobDetails_subsectionHeading jobPanelSection_subsectionHeading"}>Identification</h4>
             <JobDetailsReadRowUI heading="Name" value={props.data.name} />
             <JobDetailsReadRowUI heading="Agent" value={props.data.agent} />
             <JobDetailsReadRowUI heading="Customer" value={props.data.customer} />
@@ -54,30 +62,32 @@ function JobDetailsIdSectionUI(props){
 
 function JobDetailsPaymentSectionUI(props){
     return [
-        <section id="job_payment_section" class="subsection">
-            <h4>Payment</h4>
-            <JobDetailsReadRowUI heading="Invoice address" value={props.data.invoice_to} />
-            <JobDetailsReadRowUI heading="Currency" value={props.currency} />
-            <JobDetailsReadRowUI heading="Payment terms" value={props.data.payment_terms} />
+        <section class="jobDetails_subsection">
+            <h4 className={"jobDetails_subsectionHeading jobPanelSection_subsectionHeading"}>Payment</h4>
+            <JobDetailsReadRowUI heading="Invoice address" value={props.data.invoice_to} cssModifier={"wrap"} />
+            <JobDetailsReadRowUI heading="Currency" value={props.currency} cssModifier={"wrap"} />
+            <JobDetailsReadRowUI heading="Payment terms" value={props.data.payment_terms} cssModifier={"wrap"} />
         </section>
     ]
 }
 
 function JobDetailsDeliverySectionUI(props){
     return [
-        <section id="job_delivery_section" class="subsection">
-            <h4>Delivery</h4>
-            <JobDetailsReadRowUI heading="Delivery address" value={props.data.delivery_to} />
-            <JobDetailsReadRowUI heading="Incoterm" value={props.data.incoterm_code + ' ' + props.data.incoterm_location} />
+        <section class="jobDetails_subsection">
+            <h4 className={"jobDetails_subsectionHeading jobPanelSection_subsectionHeading"}>Delivery</h4>
+            <JobDetailsReadRowUI heading="Delivery address" value={props.data.delivery_to} cssModifier={"wrap"} />
+            <JobDetailsReadRowUI heading="Incoterm" value={props.data.incoterm_code + ' ' + props.data.incoterm_location} cssModifier={"wrap"} />
         </section>
     ] 
 }
 
 function JobDetailsReadRowUI(props){
     return [
-        <div className={"read_row jobDetails_row"}>
-            <span class="row-label">{props.heading}: </span>
-            <span>{props.value}</span>
+        <div className={`jobDetails_row${props.cssModifier === undefined ? "" : ` jobDetails_row-${props.cssModifier}`}`}>
+            <span class="jobDetails_rowLabel">{props.heading}: </span>
+            <span className={`jobDetails_rowContent${props.cssModifier === undefined ? "" : ` jobDetails_rowContent-${props.cssModifier}`}`}>
+                {props.value}
+            </span>
         </div>
     ]
 }

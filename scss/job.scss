@@ -1,37 +1,34 @@
 @use "variables" as v;
 
-@font-face {
-    font-family: "Noto Sans";
-    src: url(../fonts/NotoSans-Regular.ttf);
-}
-
-
-$breakpoint_docsCardsToTable: 453px;
-
 /*  Job formatting.
     Contents:
+        || SCSS Variables 
         || Misc (Buttons and warnings)
-        || Status Strip
-        || Status indicator (todo, price confirmation)
+        || Burger Menu
         || Layout
         || Summary section
+        || Job Details & PO Section
         || Job Details Section
+        || PO Section
         || Comments Section
         || Documents Section
         || Items Section
         || Items Table
-        || PO Section
         || Price Check Section
         || Price Comparison Table
-        || Outgoing Docs Table
+        || Documents Section
         || Modals
 */
 
-.jobPageContentsWrapper{
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-}
+// || SCSS Variables (probably breakpoints or used in breakpoints)
+$breakpoint_docsCardsToTable: 453px;
+$jobPage_gapWhenSidebarStaysOn: 0.5rem;
+
+$px_width_jobDetailsPanel: 500;
+$width_jobDetailsPanel: #{v.px-to-rem($px_width_jobDetailsPanel)};
+$gap_jobDetailsPanels: 4rem;
+$breakpoint_jobDetailsPO_asRowNoSidebar: v.px-to-rem($px_width_jobDetailsPanel * 2) + $gap_jobDetailsPanels;
+$breakpoint_jobDetailsPO_asRowWithSidebar: $breakpoint_jobDetailsPO_asRowNoSidebar + $jobPage_gapWhenSidebarStaysOn + v.$sidebarWidthOnDesktop + v.px-to-rem(8 * 2);
 
 
 // || Misc (Buttons and warnings)
@@ -39,9 +36,11 @@ $breakpoint_docsCardsToTable: 453px;
     margin: 0.3rem 0 0.3rem 0.3rem;
 }
 
+
 #toggle_po_form_btn{
     margin-top: 0.4rem;
 }
+
 
 .ji-edit{
     margin-right: 0;
@@ -51,14 +50,24 @@ $breakpoint_docsCardsToTable: 453px;
     }
 }
 
+
 #toggle_item_form_btn{
     margin-top: 3px;
 }
 
-.warning.subsection{
-    margin: 1rem 0;
+
+.more-icon:hover span{
+    display: block;
+    white-space: nowrap;
+    padding: v.px-to-rem(2) v.px-to-rem(4);
+    width: fit-content;
+    left: auto;
+    top: 0;
+    right: 26px;
 }
 
+
+// || Burger Menu
 .burgerMenu{
     --size: #{v.px-to-rem(12)};
 
@@ -106,18 +115,6 @@ $breakpoint_docsCardsToTable: 453px;
 }
 
 
-.more-icon:hover span{
-    display: block;
-    white-space: nowrap;
-    padding: v.px-to-rem(2) v.px-to-rem(4);
-    width: fit-content;
-    left: auto;
-    top: 0;
-    right: 26px;
-}
-
-
-
 // || Sidebar
 .jobSideNav{
     --desktopPadding: #{v.px-to-rem(16)};
@@ -157,6 +154,12 @@ $breakpoint_docsCardsToTable: 453px;
         padding: 0;
     }
 
+    &_mobileOnly{
+        display: block;
+    }
+    &_desktopOnly{
+        display: none;
+    }
 
     &_closeButton{
         position: relative;
@@ -240,7 +243,61 @@ $breakpoint_docsCardsToTable: 453px;
     }
 
 }
+@media screen and (min-width: v.$breakpoint_jobNavNoStretch){
+    .jobSideNav{
+        max-width: var(--jobSidebarW);
 
+        &-open{
+            min-width: var(--jobSidebarW);
+            width: var(--jobSidebarW);
+        }
+
+        &_closeButton{
+            right: v.px-to-rem(-10);
+        }
+    }
+}
+@media screen and (min-width: v.$breakpoint_permaShowJobNav){
+    .jobSideNav{
+        position: relative;
+        left: calc(var(--mainContentSideMargins) / -2);
+        z-index: 1;
+        min-width: var(--jobSidebarW);
+        width: var(--jobSidebarW);
+        padding: var(--desktopPadding);
+
+        &_closeButton{
+            display: none;
+        }
+        &_mobileOnly{
+            display: none;
+        }
+        &_desktopOnly{
+            display: block;
+        }
+    }
+    .burgerMenu{
+        display: none;
+    }
+    .jobPage{
+        --jobSidebarGap: #{$jobPage_gapWhenSidebarStaysOn};
+        max-width: calc(100% - var(--jobSidebarGap));
+        gap: var(--jobSidebarGap);
+    }
+}
+
+
+
+// || Layout
+.jobPage{
+    --jobSidebarW: #{v.$sidebarWidthOnDesktop};
+    display: flex;
+
+    &_emptySection{
+        grid-column: 2;
+        margin: 1rem v.px-to-rem(6);
+    }
+}
 
 .jobPageHeading{
     &_heading,
@@ -256,204 +313,12 @@ $breakpoint_docsCardsToTable: 453px;
     }
 }
 
-
-@media screen and (min-width: v.$breakpoint_jobNavNoStretch){
-    .jobSideNav{
-        max-width: var(--jobSidebarW);
-
-        &-open{
-            min-width: var(--jobSidebarW);
-            width: var(--jobSidebarW);
-        }
-
-        &_closeButton{
-            right: v.px-to-rem(-10);
-        }
-    }
-}
-
-
-@media screen and (min-width: v.$breakpoint_permaShowJobNav){
-    .jobSideNav{
-        position: relative;
-        left: calc(var(--mainContentSideMargins) / -2);
-        z-index: 1;
-        min-width: var(--jobSidebarW);
-        width: var(--jobSidebarW);
-        padding: var(--desktopPadding);
-
-        &_closeButton{
-            display: none;
-        }
-    }
-    .burgerMenu{
-        display: none;
-    }
-    .jobPage{
-        --gapSize: 0.5rem;
-        max-width: calc(100% - var(--gapSize));
-        gap: var(--gapSize);
-    }
-}
-
-
-
-// || Status Strip
-.job-heading-with-status{
-
-    .job-heading-with-extra{
-        width: 100%;
-        padding: 0.4rem 0 0.4rem 0.4rem;
-        background: #555;
-        border-bottom: none;
-    
-        // "Turn off" undesirable site-wide h2 formatting, then shrink the h2 so the indicator "fits"
-        h2{
-            display: inline-block;
-            width: auto;
-            margin: 0;
-            padding: 0;
-            border-bottom: none;
-        }
-    
-        // The indicator is a flexbox, so use a wrapper to apply some "display: inline-block" goodness.
-        .indicator-wrapper{
-            display: inline-block;
-            padding: 0 0 0 1rem;
-        }
-    
-        // Shrink the status-indicator (default is 100% width, to "clear its row"); adjust position to fit nicely with the h2 text.
-        .status-indicator{
-            width: auto;
-            margin-top: 0;
-            position: relative;
-            top: -0.2rem;
-
-            .todo-list-toggle{
-                padding-top: 0;
-            }
-
-            .status-name{
-                background: v.$c_tone_02;
-                border-color: v.$c_tone_01;
-            }
-        }
-    }
-}
-
-
-#job_status_strip{
-    margin-top: 2rem;
-    border-bottom-color: v.$c_tone_04;
-    border-left-color: v.$c_tone_05;
-
-    h4{
-        margin: 0;
-        font-size: 1rem;
-        background: v.$c_tone_03;
-        width: 100%;
-    }
-
-    .subsection{
-        margin-left: 0;
-    }
-}
-
-
-.job-status-ele-container{
+.jobPageContentsWrapper{
     display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem 0.7rem;
-    padding: 0.7rem;
-}
-
-
-.details-toggle{
-    border-bottom: 1px dotted white;
-}
-
-
-// || Status indicator (todo, price confirmation)
-.status-indicator{
-    display: flex;
+    flex-direction: column;
     width: 100%;
-    margin: 0.5rem 0 0 0.5rem;
-    font-size: 0.9rem;
-    color: v.$c_tone_04;
-    font-weight: bold;
-
-    :first-child,
-    :last-child{
-        border: 1px solid v.$c_tone_03;
-    }
-    :first-child{
-        border-top-left-radius: 0.2rem;
-        border-bottom-left-radius: 0.2rem;
-    }
-    :last-child{
-        border-top-right-radius: 0.95rem;
-        border-bottom-right-radius: 0.95rem;  
-    }
-
-    .status-name{
-        display: block;
-        padding: 0.1rem 0.5rem 0.1rem 1rem;
-        width: fit-content;
-        color: white;
-    }
-
-    button{
-        display: block;
-        padding: 0.1rem 1rem 0.1rem 0.7rem;
-        
-        color: v.$c_tone_06;
-        border: 1px solid v.$c_tone_03;
-        border-left: 3px solid v.$c_tone_05;
-
-        &.todo-list-toggle{
-            background: v.$c_tone_01;
-            &:hover{
-                background: v.$c_tone_03;
-            }
-        }
-
-        &#price_confirmation_button{
-            background: transparent;
-
-            &:hover{
-                background: v.$c_tone_03;
-            }
-        }
-
-    }
-
-    &.on{
-        button,
-        button#price_confirmation_button{
-            color: v.$c_accent_secondary;
-            border: 1px solid v.$c_accent_secondary_03;
-            border-left: 3px solid v.$c_accent_secondary;
-
-            min-width: 49px;    // <- this prevents "font-weight: bold" on hover from making the element "twitch" on to-do
-            &:hover{
-                background: v.$g_button_secondary;
-                color: black;
-                font-weight: bold;
-            }
-        }
-    }
 }
 
-
-// || Layout
-.jobPage{
-    --jobSidebarW: #{v.$sidebarWidthOnDesktop};
-    display: flex;
-
-    &_emptySection{
-        margin: 1rem v.px-to-rem(6);
-    }
-}
 
 
 .jobNarrowSection{
@@ -462,7 +327,7 @@ $breakpoint_docsCardsToTable: 453px;
     // across, but the text should be aligned with the start of the content.
 
     display: grid;
-    grid-template-columns: min(1fr, 300px) auto 1fr;
+    grid-template-columns: 1fr auto 1fr;
 
     &_header{
         grid-column-start: 1;
@@ -470,16 +335,58 @@ $breakpoint_docsCardsToTable: 453px;
 
         display: grid;
         grid-template-columns: subgrid;
+
     }
 
     &_headerText{
         grid-column: 2;
+        min-width: 0;
     }
 
     &_content{
         grid-column: 2;
+        min-width: 0;
     }
 }
+
+
+.jobPanelSection{
+    // Display a section in panel style.
+    // Used when showing two small sections on a single page.
+    //margin: v.px-to-rem(28) 0 0 0;
+    border-left: 3px solid v.$c_tone-400;
+    border-bottom: 1px solid v.$c_tone_03;
+
+    &_headingWrapper{
+        background: v.$c_tone-800;
+        width: 100%;
+        max-width: 100%;
+    }
+
+    &_headingContent{
+        padding: v.px-to-rem(4) 0 v.px-to-rem(3) v.px-to-rem(6);
+        font-family: v.$f_heading;
+        font-size: v.px-to-rem(18);
+        font-weight: 500;
+    }
+
+    &_subsectionHeading{
+        --h4BorderRadius: 1rem;
+
+        padding: v.px-to-rem(5);
+        max-width: 100%;
+        font-weight: 500;
+        font-size: v.px-to-rem(16);
+        line-height: v.px-to-rem(16);
+        background: v.$c_tone-800;
+        border-top-right-radius: var(--h4BorderRadius);
+        border-bottom-right-radius: var(--h4BorderRadius);
+
+        display: flex;
+        align-items: center;
+    } 
+}
+
 
 
 
@@ -489,6 +396,7 @@ $breakpoint_docsCardsToTable: 453px;
     flex-direction: column;
     gap: 1rem;
 }
+
 .timeValueContainer{
     display: flex;
     flex-wrap: wrap;
@@ -496,6 +404,8 @@ $breakpoint_docsCardsToTable: 453px;
     max-width: 100%;
     gap: 1rem;
 }
+
+
 @media screen and (min-width: 561px){
     .jobSummary_contentsLayout{
         display: grid;
@@ -512,6 +422,13 @@ $breakpoint_docsCardsToTable: 453px;
 
     .jobSummaryStatus{
         grid-area: status;
+
+        &_container{
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem 0.7rem;
+            padding: 0.7rem;
+        }
     }
     .timeValueContainer{
         grid-area: timeValue;
@@ -591,18 +508,340 @@ $breakpoint_docsCardsToTable: 453px;
 }
 
 
+// || Job Details & PO Section
+.jobDetailsPO{
+    grid-row: 2;
+
+    width: 100%;
+
+    &_wrapper{
+        grid-column: 2;
+
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: $gap_jobDetailsPanels;
+        min-width: 0%;
+        max-width: 100%;
+
+        padding: v.px-to-rem(28) 0 0 0;
+
+        @media screen and (min-width: $breakpoint_jobDetailsPO_asRowNoSidebar){
+            flex-direction: row;
+        }
+        @media screen and (min-width: v.$breakpoint_permaShowJobNav){
+            flex-direction: column;
+        }
+        @media screen and (min-width: $breakpoint_jobDetailsPO_asRowWithSidebar){
+            flex-direction: row;
+        }
+    }
+}
+
+
 // || Job Details Section
 .jobDetails{
-    width: v.px-to-rem(500);
+    $breakpoint_addressKeyValueToRow: 400px;
+    --jobDetailsWidth: #{$width_jobDetailsPanel};
+    --jobDetailsLabelWidth: 8rem;
+
+    width: var(--jobDetailsWidth);
     max-width: 100%;
 
-    &_row{
+    &_headerContent{
+        max-width: 100%;
+
         display: flex;
-        align-items: stretch;
-        height: 100%;
+        align-items: center;
+        justify-content: space-between;
     }
+
+    &_subsection{
+        margin: 1rem 0 0 0;
+
+        &.warning{
+            border-left: 3px solid v.$c_warning_bright;
     
+            .intro-line, h4{
+                background: v.$c_warning;
+            }
+    
+            p{
+                margin: 0;
+                padding: 0.5rem;
+            }
+        }
+    }
+
+    &_subsectionHeading{
+       width: var(--jobDetailsLabelWidth);
+       margin-bottom: v.px-to-rem(4);
+    }
+
+    &_row{
+        display: grid;
+        grid-template-columns: var(--jobDetailsLabelWidth) 1fr;
+
+        padding: v.px-to-rem(3) 0;
+
+        border-bottom: 1px solid v.$c_tone_02;
+
+        &-wrap{
+            display: flex;
+            flex-direction: column; 
+            @media screen and (min-width: #{$breakpoint_addressKeyValueToRow}){
+                display: grid;
+            }
+        }
+    }
+
+    &_rowLabel{
+        display: inline-block;
+        min-width: var(--jobDetailsLabelWidth);
+        max-width: min(100%, var(--jobDetailsLabelWidth));
+
+        margin-left: v.px-to-rem(11);
+    }
+
+    &_rowContent{
+        &-wrap{
+            padding-left: v.px-to-rem(32);
+            @media screen and (min-width: #{$breakpoint_addressKeyValueToRow}){
+                padding-left: 0;
+            }
+        }
+    }
 }
+
+
+// || PO Section
+.jobPO{
+    width: $width_jobDetailsPanel;
+    max-width: 100%;
+
+    &_headerContent{
+        display: flex;
+        align-items: center;
+        height: v.px-to-rem(33);
+    }
+
+    &_content{
+        display: flex;
+        flex-direction: column;
+        gap: v.px-to-rem(22);
+    }
+
+    &_subsectionHeading{
+        width: 8rem;
+    }
+
+    &_receivedSection{
+        display: flex;
+        flex-direction: column;
+        gap: v.px-to-rem(12);
+        padding-bottom: v.px-to-rem(12);
+    }
+
+    &_poListWrapper{
+        margin: 0 v.px-to-rem(4);
+
+        @media screen and (min-width: 400px){
+            margin: 0 v.px-to-rem(8);
+        }
+    }
+
+    &_comparisonTableWrapper{
+        margin: v.px-to-rem(8) 0 0 v.px-to-rem(4);
+        width: fit-content;
+        max-width: calc(100% - #{v.px-to-rem(16)});
+        padding: 0 0 v.px-to-rem(3) 0;
+
+        @media screen and (min-width: 400px){
+            margin: v.px-to-rem(8) 0 0 v.px-to-rem(16);
+        }
+    }
+
+    &_comparisonTableHeading{
+        padding: v.px-to-rem(6);
+        background: rgba(black, 0.3);
+        border-left: 2px solid v.$c_warning;
+        width: 100%;
+    }
+}
+
+
+.poEditor{
+    &_poNumInput{
+        width: 100%;
+    }
+}
+
+
+#po_table{
+    .value{
+        text-align: right;
+    }
+
+    .ref{
+        max-width: 440px;
+    }
+
+    tr{
+        position: relative;
+
+        &.invalid{
+            border-width: 1px 1px 1px 3px;
+            border-style: solid;
+            border-color: v.$c_warning v.$c_warning v.$c_warning v.$c_warning_bright;
+            background: v.$c_warning_darker;
+
+            .invalid-icon{
+                position: relative;
+                top: 0.1rem;
+
+                width: 1.2rem;
+                height: 1.2rem;
+
+                margin-right: 0.5rem;                
+
+                span{
+                    left: 26px;
+                    right: auto;
+                }
+            }
+
+            .value{
+                border-bottom: 1px solid red;
+            }
+        }
+    }
+
+    .panel{
+        position: fixed;
+        bottom: 0;
+
+        background: v.$c_tone_01;
+        z-index: 3;
+
+        box-shadow: v.$panel_shadow;
+    }
+}
+
+
+@media screen and (max-width: 700px){
+
+    #po_table{
+        width: 100%;
+
+        .panel{
+            position: absolute;
+            top: 0;
+            left: 50%;
+            bottom: auto;
+            transform: translate(-50%);
+        }
+
+        thead tr{
+            position: absolute;
+            top: -9999px;
+            left: -9999px;
+        }
+
+        td{
+            display: inline-block;
+            padding: 0.1rem 0.4rem;
+            border: none;
+            text-align: left;
+            vertical-align: middle;
+            height: auto;
+        }
+
+        tbody {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        tbody tr{
+            display: grid;
+            grid-template-columns: 6rem 8rem auto min-content;
+            grid-template-rows: auto repeat(2, 1.5rem);
+            grid-template-areas: 
+                "ref ref ref edit"
+                "date_on_po date_received . ."
+                "value value value value"
+            ;
+
+            min-width: 250px;
+            max-width: 450px;
+
+            margin: 0.5rem 0 0 0;
+            padding: 0.3rem 0.2rem;
+
+            border: 1px solid v.$c_tone_00;
+            box-shadow: 0 0 10px 1px rgba(black, 35%);
+        }
+
+
+        .ref{
+            grid-area: ref;
+
+            font-size: 1.2rem;
+            font-weight: bold;
+
+            max-width: min(400px, 76vw);
+            overflow-wrap: break-word;
+            
+            &:before{
+                content: 'PO #';
+                display: inline-block;
+                padding: 0 0.5rem 0 0;
+            }
+        }
+        .date_on_po{
+            grid-area: date_on_po;
+            white-space: nowrap;
+        }
+        .date_received{
+            grid-area: date_received;
+
+            &:before{
+                content: 'rcvd.';
+                display: inline-block;
+                padding: 0.08rem 0.5rem 0 0;
+            }
+
+            border-left: 3px solid v.$c_accent_secondary;
+            background: v.$c_tone_00;
+            font-size: 0.9rem;
+            padding: 0.08rem 0.4rem;
+            white-space: nowrap;
+        }
+        .value{
+            grid-area: value;
+            text-align: left;
+        }
+        tr.invalid .value{
+            border-bottom: none;
+        }
+
+        .edit{
+            grid-area: edit;
+           padding: 0 v.px-to-rem(5);
+        }
+    }
+}
+
+@media screen and (min-width: 400px){
+    #po_table{
+        tbody tr{
+            grid-template-columns: 6rem 8rem auto v.px-to-rem(16);
+            min-width: 286px;
+        }
+    }
+}
+
+
 
 
 // || Comments Section
@@ -623,20 +862,9 @@ $breakpoint_docsCardsToTable: 453px;
 .jobComments{
     --jobCommentsGap: #{v.px-to-rem(4)};
 
-    // display: flex;
-    // flex-direction: column;
-    // align-items: start;
-    // gap: var(--jobCommentsGap);
-
     position: relative;
 
     &_addButton{
-        // position: absolute;
-        // top: calc(3.125rem + #{v.px-to-rem(7)} + var(--jobCommentsGap));
-        // left: 0;
-        // margin: 0;
-        // z-index: 4;
-
         grid-column: 2;
     }
 
@@ -749,8 +977,8 @@ $breakpoint_docsCardsToTable: 453px;
     As the distance between the "add comments" button and the filter/sort controls 
     grows, the impression of the three of them forming a "controls bar" is lost.
 
-    Maintaining the vertical position for the "controls bar" effect makes the 
-    comments look bunched up against the heading.
+    Once that occurs, maintaining the vertical position for the "controls bar" 
+    effect makes the comments look bunched up against the heading. This fixes that.
 */
     .jobComments{
         &_addButton{
@@ -765,8 +993,6 @@ $breakpoint_docsCardsToTable: 453px;
         }
     }
 }
-
-
 
 
 .orderByForm{
@@ -894,260 +1120,73 @@ $breakpoint_docsCardsToTable: 453px;
 }
 
 
-// || Documents Section
-.job-doc-section{
-    .status-ele{
-        margin-left: calc(0.2rem + 3px);    // Line up with <li>s. <ul> left padding = 0.2rem; <ul> left margin = 3px; 
-        width: max-content;
-        margin-top: 0.5rem;
-    }
-
-    .subsection{
-        padding-bottom: 0.7rem;
-    }
-
-    ul{
-        list-style-type: none;
-        margin: 1rem 3px 0;
-        padding: 0 0 0 0.2rem;
-    }
-
-    li{
-        margin-top: 0.3rem;
-
-        a{
-            display: flex;
-            justify-content: left;
-
-            margin: 0;
-            padding: 0 0.9rem 0 0;
-            text-decoration: none;
-
-            border-radius: 1rem;
-            border-top-left-radius: 0.2rem;
-            border-bottom-left-radius: 0.2rem;
-            border: 1px solid v.$c_tone_04;
-            
-            background: transparent;
-
-            &:hover{
-                background: v.$c_tone_02;
-            }
-        }
-
-        .doc-details{
-            flex-grow: 2;
-
-            display: flex;
-            flex-flow: wrap;
-            justify-content: space-between;
-
-            max-width: calc(100% - 2rem); // "icon" has width: 1rem; +1rem to roughly cover borders/padding etc.
-        }
-
-        .icon{
-            display: block;
-
-            min-width: 1rem;
-            width: 1rem;
-            max-width: 1rem;
-            
-            padding: 0.35rem 0.3rem;
-
-            font-family: Noto Sans, sans-serif;
-            font-size: 0.9rem;
-            text-align: center;
-
-            border-top-left-radius: 0.2rem;
-            border-bottom-left-radius: 0.2rem;
-            border-right: 3px solid v.$c_tone_03;
-        }
-
-        &.issued a{
-            border-color: v.$c_accent_secondary_02;
-            color: v.$c_accent_secondary;
-
-            .icon{
-                border-color: v.$c_accent_secondary_03;
-            }
-            
-            &:hover{
-                border-color: v.$c_accent_secondary_03;
-
-                .icon{
-                    background: v.$c_accent_secondary_02;
-                    color: white;
-                    border-color: v.$c_accent_secondary;
-                }
-            }
-        }
-
-        &.draft a{
-            border-color: v.$c_accent;
-            color: v.$c_accent;
-
-            .icon{
-                border-color: v.$c_accent_03;
-            }
-
-            &:hover{
-                border-color: v.$c_accent_03;
-
-                .icon{
-                    color: v.$c_tone_00;
-                    background: v.$c_accent;
-                    border-color: v.$c_accent_04;
-                }
-            }
-        }
-
-        &.invalid a{
-            border-color: v.$c_warning;
-            color: v.$c_txt_warning_g;
-            background: v.$c_tone_02;
-
-            .icon{
-                border-color: v.$c_warning;
-            }
-
-            .doc-date{
-                color: v.$c_tone_05;
-            }
-
-            &:hover{
-                border-color: v.$c_warning_bright;
-                background: v.$c_tone_03;
-
-                .icon{
-                    color: v.$c_txt_warning_g;
-                    background: v.$c_warning;
-                    border-color: v.$c_warning_bright;
-                }
-            }
-
-        }
-
-        .invalid-icon{
-            top: 0.15rem;
-            width: 1rem;
-            height: 1rem;
-
-            span{
-                font-size: 0.8rem;
-            }
-        }
-
-        span{
-            padding: 0.3rem 0.7rem;
-        }
-        .name{
-            flex-grow: 2;
-            max-width: 100%;
-            overflow-wrap: break-word;
-        }
-
-        &.draft .doc-date{
-            font-size: 0.9rem;
-            font-style: italic;
-            color: v.$c_accent_02;
-        }
-        .num-items{
-            color: white;
-            padding: 0.35rem 1rem 0.3rem 0.35rem;
-            font-size: 0.9rem;
-        }
-
-    }
-
-    .add-button{
-        display: flex;
-        align-items: center;
-        color: v.$c_txt_main;
-        padding: 0;
-        text-decoration: none;
-        font-size: 1rem;
-
-        &:hover{
-            animation-name: expand_add_document;
-        }
-    }
-
-    .issued-icon,
-    .saved-icon{
-        display: block;
-        width: 1rem;
-        text-align: center;
-        padding: 0.3rem 0.3rem;
-        font-weight: bold;
-        font-size: 0.9rem;
-        border-right: 3px solid white;
-
-        color: white;
-        background: v.$c_tone_01;
-    }
-    .issued-icon{
-        border-color: v.$c_accent_secondary_02;
-    }
-    .saved-icon{
-        border-color: v.$c_accent;
-    }
-}
-
-@keyframes expand_add_document{
-    from {
-        width: 30px;
-        text-indent: -9999px;
-    }
-
-    95%{
-        text-indent: -9999px;
-    }
-    
-    to {
-        width: 8rem;
-        text-indent: 44px;
-    }
-}
-
 
 // || Items Section
-.existing-items-container{
-    width: 100%;
+.jobItems{
 
-    .multi-parent-warning{
-        margin: 0.5rem;
-        padding: 0.5rem;
+    &_contentWrapper{
+        grid-column: 2;
+    }
+
+    &_existingAndDetailsContainer{
+        width: 100%;
+    
+        .multi-parent-warning{
+            margin: 0.5rem;
+            padding: 0.5rem;
+            background: v.$c_tone_02;
+            color: v.$c_tone_06;
+    
+            emphasis{
+                font-weight: bold;
+                font-style: italic;
+                color: v.$c_tone_07;
+            }
+        }
+    
+        span.desc{
+            margin: v.px-to-rem(8) 0 0 0.75rem;
+        }
+
+    }
+
+    &_detailsWrapper{
+        position: fixed;
+        top: 0;
+        right: 0;
+        z-index: 50;
+        width: 100%;
+
+        margin: 0;
+        padding: 0;
+
+        border-bottom: 1px solid v.$c_tone_03;
+        box-shadow: 0 0 30px 20px rgba(black, 80%);
         background: v.$c_tone_02;
-        color: v.$c_tone_06;
 
-        emphasis{
-            font-weight: bold;
-            font-style: italic;
-            color: v.$c_tone_07;
+        display: grid;
+        grid-template-rows: 35px 1fr 44px;
+        grid-template-columns: 100%;
+        
+        &-retracted{
+            height: 50dvh;
+        }
+        &-expanded{
+            height: 100dvh;
+        }
+
+        &-inactive{
+            @include v.visually-hidden;
         }
     }
 
-    span.desc{
-        margin: v.px-to-rem(8) 0 0 0.75rem;
-    }
-}
-
-.jobitems-details{
-    position: fixed;
-    top: 0;
-    right: 0;
-    z-index: 50;
-
-    width: 40rem;
-    box-shadow: 0 0 15px 15px rgba(black, 33%);
-
-    .header{
+    &_detailsHeaderStrip{
         position: relative;
         max-height: 35px;
         height: 35px;
         min-height: 35px;
 
-        width: calc(100% - 5px);
+        width: 100%;
 
         display: flex;
         align-items: center;
@@ -1155,240 +1194,424 @@ $breakpoint_docsCardsToTable: 453px;
 
         background: v.$c_tone_03;
         border-left: 3px solid v.$c_tone_05;
-
-        h4{
-            margin: 0 0 0 1rem;
-        }
     }
 
-    .jobitems-details-container{
+    &_detailsHeader{
+        margin: 0 0 0 1rem;
+    }
+
+    &_noSelectionMessage{
+        padding: 0.5rem 1rem;
+        color: v.$c_tone-100;
+        align-self: start;
+    }
+
+    &_detailsContent{
+        flex-grow: 2;
+
         display: flex;
         flex-direction: column;
         align-items: center;
-    
-        height: calc(100vh - 35px - 1px); // less header, less 1px to show the end
-        overflow-y: auto;
-    
-        width: calc(100% - 5px);
+        padding: v.px-to-rem(4) v.px-to-rem(4);
 
-        padding: 0.3rem;
-    
         border-color: transparent transparent v.$c_tone_04 v.$c_tone_05;
         border-style: solid;
         border-width: 0 0 1px 3px;
 
         background: v.$c_tone_01;
 
-        position: relative;
+        overflow-y: auto;
     }
 
-    .expand-collapse{
-        width: 100%;
-        height: 0;
-    }
-    
-}
+    &_detailsExpandCollapseWrapper{
+        height: 44px;
 
-.job-item-container{
-    max-width: 35rem;
-    width: calc(100% - 0.5rem);
-    padding: 0;
-    border-bottom: 1px solid v.$c_tone_04;
-
-    margin: 1rem 0 0 2rem;
-
-    &:first-of-type{
-        margin: 0.3rem 0 0 0;
-        width: 100%;
-        max-width: 40rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
-    .ji-list{
-        padding: 0.1rem 0 0.3rem 0;
+    &_detailsExpandCollapseButton{
+        width: 60px;
+        height: 40px;
+        background-size: 30px;
+        background-repeat: no-repeat;
+        background-color: transparent;
+        background-position: center;
 
-        table{
-            margin-left: 0.8rem;
-            color: v.$c_tone_06;
+        border: none;
 
-            .desc{
-                padding: 0 0.4rem;
+        &-expand{
+            background-image: url(../images/i-chevron-down.svg);
+            &:hover{
+                background-image: url(../images/i-chevron-down-blue.svg);
+            }
+        }
+
+        &-collapse{
+            background-image: url(../images/i-chevron-up.svg);
+            &:hover{
+                background-image: url(../images/i-chevron-up-blue.svg);
             }
         }
     }
 
-    .product-quantity{
-        display: inline-block;
-        padding: 0.3rem 0.5rem;
-        font-size: 1.1rem;
-        font-weight: bold;
-    }
+    &_detailsJobItem{
+        --indentLeft: 1rem;
 
-    a{
-        text-decoration: none;
-    }
+        width: calc(100% - var(--indentLeft));
+        max-width: min(35rem, 100%);
+        
+        background: v.$c_tone-950;
 
-    .subsection{
-        margin: 0;
-        border-left: 3px solid v.$c_tone_04;
-        border-bottom: none;
-    }
+        border-bottom: 1px solid v.$c_tone_04;
+        box-shadow: 0 0 20px 1px rgba(black, 50%);
 
-    .subsection_heading{
-        font-size: 1rem;
-
-        .desc{
-            &:before,
-            &:after{
-                content: '"';
-            }
-
-            margin: 0.2rem 0 0 0;
-            font-style: italic;
-            font-weight: normal;
-            font-size: 0.95rem;
-            color: v.$c_tone_06;
-
-            padding: 0.1rem;
-        }
-    }
-
-    ul{
-        margin: 3px 0 0 0;
-        padding-bottom: 0.3rem;
-    }
-
-    li{
-        color: v.$c_tone_06;
-    }
-
-    .assignment-icon{
-        display: inline-block;
-        border: 1px solid v.$c_tone_00;
-        border-radius: 0.2rem;
-        font-size: 0.75rem;
-        margin: 0;
-        padding: 0;
-        margin: 0 0.1rem;
+        margin: 1rem 0 0 var(--indentLeft);
     
-        span{
-            display: block;
-            float: left;
-            padding: 1px 6px;
-            margin: 0;
-        }
-    
-        .label{
-            border-top-left-radius: 0.15rem;
-            border-bottom-left-radius: 0.15rem;
-            border-right: 2px solid v.$c_accent_secondary;
-            background: v.$c_tone_01;
-            color: v.$c_tone_06;
-        }
-        .status{
-            background: v.$c_tone_01;
-            font-weight: bold;
-        }
-       
-        &:last-of-type{
-            border-bottom: 1px solid v.$c_tone_00;
-        }
-    }
-
-    .money{
-        padding: 4px 2px 10px 0.75rem;
-
-        .selling_price{
-            font-size: 1.2rem;
-            font-weight: bold;
-            margin-left: 0.5rem;
-        }
-
-    }
-
-    .std-accs-container{
-        border-left: 3px solid v.$c_tone_04;
-
-        p{
-            padding: 0.2rem 0 0.2rem 0.4rem;
-            width: calc(100% - 0.4rem);
-            background: v.$c_tone_02; 
-            margin: 0;
-        }
-    }
-
-    .module-status-section{
-        .intro-line{
-            display: flex;
-            align-items: center;
+        &:first-of-type{
             width: 100%;
-            padding: 0.2rem 0.1rem 0.2rem 0.4rem;
-            background: v.$c_accent_02;
+            margin: 0;
+            max-width: 40rem;
+        }
 
-            .display-text{
-                flex-grow: 2;
-            }
-            &:after{
-                content: '';
-                display: table;
-                clear: both;
-            }
-
-            .warning-msg{
-                margin: 0 0.5rem 0 0.5rem;
-                padding: 0 0.7rem 0.2rem 0.3rem;
-            
-                .msg{
-                    position: relative;
-                    top: -0.1rem;
-                }
-            
-                .invalid-icon{
-                    top: 0.2rem;
+        .ji-list{
+            padding: 0.1rem 0 0.3rem 0;
+    
+            table{
+                margin: 0;
+                color: v.$c_tone_06;
+    
+                .desc{
+                    padding: 0 0.4rem;
                 }
             }
-        }
-    }
 
-    .assignments{
-        border-left: 3px solid v.$c_tone_04;
-        border-color: rgb(212, 199, 163);
-        .intro-line{
-            background: v.$c_product_dark;
+            .name-tag{
+                position: absolute;
+                top: -9999px;
+                left: -9999px;
+            }
         }
-    }
-
-    .modules-ok{
-        border-left: 3px solid v.$c_accent_secondary;
-        .intro-line{
-            background: v.$c_tone_02;
+    
+        .product-quantity{
+            display: inline-block;
+            padding: 0.3rem 0.5rem;
+            font-size: 1.1rem;
+            font-weight: bold;
         }
-    }  
-
-    .modules-incomplete{
-        border-left: 3px solid red;
-        .intro-line{
-            background: v.$c_warning_dark;
+    
+        a{
+            text-decoration: none;
         }
-    }
-
-    .modules-excess{
-        border-left: 3px solid v.$c_flag_special_bright;
-        .intro-line{
-            background: v.$c_flag_special_dark;
+    
+        .subsection{
+            margin: 0;
+            border-left: 3px solid v.$c_tone_04;
+            border-bottom: none;
         }
+    
+        .subsection_heading{
+            font-size: 1rem;
+    
+            .desc{
+                &:before,
+                &:after{
+                    content: '"';
+                }
+    
+                margin: 0.2rem 0 0 0;
+                font-style: italic;
+                font-weight: normal;
+                font-size: 0.95rem;
+                color: v.$c_tone_06;
+    
+                padding: 0.1rem;
+            }
+        }
+    
+        ul{
+            margin: 3px 0 0 0;
+            padding-bottom: 0.3rem;
+        }
+    
         li{
             color: v.$c_tone_06;
         }
-    } 
-
-    &.product .subsection,
-    .subsection.product{
-        .subsection-heading{
-            background: v.$c_product_dark;
+    
+        .assignment-icon{
+            display: inline-block;
+            border: 1px solid v.$c_tone_00;
+            border-radius: 0.2rem;
+            font-size: 0.75rem;
+            margin: 0;
+            padding: 0;
+            margin: 0 0.1rem;
+        
+            span{
+                display: block;
+                float: left;
+                padding: 1px 6px;
+                margin: 0;
+            }
+        
+            .label{
+                border-top-left-radius: 0.15rem;
+                border-bottom-left-radius: 0.15rem;
+                border-right: 2px solid v.$c_accent_secondary;
+                background: v.$c_tone_01;
+                color: v.$c_tone_06;
+            }
+            .status{
+                background: v.$c_tone_01;
+                font-weight: bold;
+            }
+           
+            &:last-of-type{
+                border-bottom: 1px solid v.$c_tone_00;
+            }
         }
-        border-color: v.$c_product_light;
-    }
+    
+        .money{
+            padding: 4px 2px 10px 0.75rem;
+    
+            &.subsection{
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                flex-wrap: wrap;
 
+                .selling_price{
+                    font-size: 1.2rem;
+                    font-weight: bold;
+                    margin-left: 0;
+                }
+            }
+        }
+    
+        .std-accs-container{
+            border-left: 3px solid v.$c_tone_04;
+    
+            p{
+                padding: 0.2rem 0 0.2rem 0.4rem;
+                width: calc(100% - 0.4rem);
+                background: v.$c_tone_02; 
+                margin: 0;
+            }
+        }
+    
+        .module-status-section{
+            .intro-line{
+                display: flex;
+                align-items: center;
+                flex-wrap: wrap;
+                width: 100%;
+                padding: 0.2rem 0.1rem 0.2rem 0.4rem;
+                background: v.$c_accent_02;
+    
+                .display-text{
+                    flex-grow: 2;
+                }
+                &:after{
+                    content: '';
+                    display: table;
+                    clear: both;
+                }
+    
+                .warning-msg{
+                    margin: 0 0.5rem 0 0.5rem;
+                    padding: 0 0.7rem 0.2rem 0.3rem;
+                
+                    .msg{
+                        position: relative;
+                        top: -0.1rem;
+                    }
+                
+                    .invalid-icon{
+                        top: 0.2rem;
+                    }
+                }
+            }
+        }
+
+        .edit-icon span{
+            right: 0;
+        }
+    
+        .assignments{
+            border-left: 3px solid v.$c_tone_04;
+            border-color: rgb(212, 199, 163);
+
+            .intro-line{
+                justify-content: space-between;
+                flex-wrap: wrap;
+                background: v.$c_product_dark;
+
+                .usage-counters{
+                    padding-top: 0.3rem;
+                }
+            }
+        }
+    
+        .modules-ok{
+            border-left: 3px solid v.$c_accent_secondary;
+            .intro-line{
+                background: v.$c_tone_02;
+            }
+        }  
+    
+        .modules-incomplete{
+            border-left: 3px solid red;
+            .intro-line{
+                background: v.$c_warning_dark;
+            }
+        }
+    
+        .modules-excess{
+            border-left: 3px solid v.$c_flag_special_bright;
+            .intro-line{
+                background: v.$c_flag_special_dark;
+            }
+            li{
+                color: v.$c_tone_06;
+            }
+        } 
+    
+        &.product .subsection,
+        .subsection.product{
+            .subsection-heading{
+                background: v.$c_product_dark;
+            }
+            border-color: v.$c_product_light;
+        }
+    }
+}
+
+
+@media screen and (min-width: 1470px){
+    .jobItems{
+        
+        &_existingAndDetailsContainer{
+        /*
+            Goals: 
+            * The table should neither grow nor shrink
+            * Details should "try to be" 40rem wide, regardless of content, but can shrink to fit on the page
+
+            Solution:
+            * Set the column for details to 1fr
+            * Set the width of the grid element as a whole to the desired width (table + 40rem details + a gap)
+            * Set the max-width of the grid element to the space remaining on the screen
+
+            Result:
+            The max-width togetehr with 1fr makes details shrink when needed; the width pushes it to 40rem when it can.
+
+            Note:
+            max-width is based around 100vw rather than 100% because anything using 100% as a basis blew out the 
+            container.
+        */
+            --maxWidthJobItems: calc(100vw - var(--jobSidebarW) - var(--jobSidebarGap) - 3rem);
+            --widthForTable: 48rem;
+            --widthForDetails: 40rem;
+            --tableDetailsSpacer: 1rem;
+
+            display: grid;
+            grid-template-columns: var(--widthForTable) 1fr;
+            grid-template-rows: auto auto;
+            grid-template-areas: 
+            "table details"
+            ". details"
+            ;
+            justify-items: stretch;
+            align-items: start;
+            gap: var(--tableDetailsSpacer);
+
+            width: calc(var(--widthForTable) + var(--widthForDetails) + var(--tableDetailsSpacer));
+            max-width: var(--maxWidthJobItems);
+        }
+
+        &_existing{
+            grid-area: table;
+            justify-self: start;
+            align-self: start;
+        }
+
+        &_detailsWrapper{
+            grid-area: details;
+
+            position: static;
+            box-shadow: none;
+
+            &-inactive{
+                @include v.visually-unhidden;
+                position: static;
+            }
+        }
+
+        &_closeDetailsButton{
+            @include v.visually-hidden;
+        }
+
+        &_detailsWrapper{
+            grid-template-rows: 35px 1fr;
+
+            &-retracted,
+            &-expanded{
+                min-height: v.px-to-rem(56);
+                height: fit-content;
+            }
+        }
+
+        &_detailsContent{
+            align-items: start;
+            padding: v.px-to-rem(4);
+        }
+        
+        &_detailsExpandCollapseWrapper{
+            display: none;
+        }
+
+        &_detailsJobItem{
+            --indentLeft: 1.5rem;
+            box-shadow: none;
+
+            .money{
+                &.subsection{
+                    display: block;
+
+                    .selling_price{
+                        margin-left: 0.5rem;
+                    }
+                }
+            }
+
+            .assignments{
+                .intro-line{
+                    justify-content: start;
+                    flex-wrap: nowrap;
+                }
+            }
+
+            .module-status-section {
+                .intro-line{
+                    flex-wrap: nowrap;
+                }
+            }
+
+            .edit-icon span{
+                right: 26px;
+            }
+
+            .ji-list{ 
+                table{
+                    margin-left: v.px-to-rem(13);
+                }
+
+                .name-tag{
+                    position: static;
+                }
+            }
+        }
+    }
 }
 
 
@@ -1398,6 +1621,14 @@ $breakpoint_docsCardsToTable: 453px;
     .quantity,
     .selling_price{
         text-align: right;
+    }
+
+    .product_name{
+        width: 15rem;
+        max-width: 15rem;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
     }
 
     .modular{
@@ -1522,10 +1753,8 @@ $breakpoint_docsCardsToTable: 453px;
 
 }
 
-
+// The table won't fit on a narrow screen, so arrange each <tr> into a three-row grid
 @media screen and (max-width: 700px){
-    // The table won't fit on a narrow screen, so arrange each <tr> into a three-row grid
-
     #jobitems_table{
         // Make it stop behaving like a table
         width: 100%;
@@ -1707,283 +1936,6 @@ $breakpoint_docsCardsToTable: 453px;
 }
 
 
-// When the details panel won't fit at the side of the table, fix it to the
-// top of the page and give it a scroll bar.
-@media screen and (max-width: 1360px){
-    .jobitems-details{
-        width: 100%;
-
-        margin: 0;
-        padding: 0;
-
-        border-bottom: 1px solid v.$c_tone_03;
-        box-shadow: 0 0 30px 20px rgba(black, 80%);
-        background: v.$c_tone_02;
-
-        .jobitems-details-container{
-            align-items: center;
-            height: fit-content;
-            max-height: 45vh;
-            padding: 0;
-        }
-
-        .jobitems-details-container.expanded{
-            height: calc(100vh - 2.1rem - 41px);
-            max-height: calc(100vh - 2.1rem - 41px);
-        }
-
-        .expand-collapse{
-            float: none;
-            height: 40px;
-
-            background-size: 30px;
-            background-repeat: no-repeat;
-            background-color: transparent;
-            background-position: center;
-
-            span{
-                top: -1rem;
-                right: calc(50% - 2rem);
-            }
-
-            &.expand{
-                background-image: url(../images/i-chevron-down.svg);
-                &:hover{
-                    background-image: url(../images/i-chevron-down-blue.svg);
-                }
-            }
-
-            &.collapse{
-                background-image: url(../images/i-chevron-up.svg);
-                &:hover{
-                    background-image: url(../images/i-chevron-up-blue.svg);
-                }
-            }
-        }
-
-    }
-
-
-    .job-item-container{
-        background: #333;
-        box-shadow: 0 0 20px 1px rgba(black, 50%);
-
-        width: calc(100% - 1rem);
-        margin: 1rem 0 0 1rem;
-
-
-        &:first-of-type{
-            margin: 0.3rem 0 0 0;
-            width: 100%;
-            max-width: 40rem;
-        }        
-
-        // Make the price list icon go under the price if there's no space
-        .money.subsection{
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-
-            .selling_price{
-                margin-left: 0;
-            }
-        }
-
-        // Make the usage counters go under the id and price if there's no space
-        .assignments .intro-line{
-            justify-content: space-between;
-            flex-wrap: wrap;
-
-            .usage-counters{
-                padding-top: 0.3rem;
-            }
-        }
-
-        // Make the invalid warning message drop to another line
-        .module-status-section .intro-line{
-            flex-wrap: wrap;
-        }
-
-        .edit-icon span{
-            right: 0;
-        }
-
-        // Get rid of the price list icon if there's no space
-        .ji-list{ 
-            table {
-                margin: 0;
-            }
-
-            .name-tag{
-                position: absolute;
-                top: -9999px;
-                left: -9999px;
-            }
-        }
-    }
-}
-
-
-// || PO Section
-.poEditor{
-    &_poNumInput{
-        width: 100%;
-    }
-}
-
-.jobPO{
-    &_discrepancy{
-        width: fit-content;
-        max-width: 100%;
-    }
-}
-
-#po_table{
-    .value{
-        text-align: right;
-    }
-
-    .ref{
-        max-width: 440px;
-    }
-
-    tr{
-        position: relative;
-
-        &.invalid{
-            border-width: 1px 1px 1px 3px;
-            border-style: solid;
-            border-color: v.$c_warning v.$c_warning v.$c_warning v.$c_warning_bright;
-            background: v.$c_warning_darker;
-
-            .invalid-icon{
-                position: relative;
-                top: 0.1rem;
-
-                width: 1.2rem;
-                height: 1.2rem;
-
-                margin-right: 0.5rem;                
-
-                span{
-                    left: 26px;
-                    right: auto;
-                }
-            }
-
-            .value{
-                border-bottom: 1px solid red;
-            }
-        }
-    }
-
-    .panel{
-        position: fixed;
-        bottom: 0;
-
-        background: v.$c_tone_01;
-        z-index: 3;
-
-        box-shadow: v.$panel_shadow;
-    }
-}
-@media screen and (max-width: 700px){
-
-    #po_table{
-        .panel{
-            position: absolute;
-            top: 0;
-            left: 50%;
-            bottom: auto;
-            transform: translate(-50%);
-        }
-
-        thead tr{
-            position: absolute;
-            top: -9999px;
-            left: -9999px;
-        }
-
-        td{
-            display: inline-block;
-            padding: 0.1rem 0.4rem;
-            border: none;
-            text-align: left;
-            vertical-align: middle;
-            height: auto;
-        }
-
-        tbody tr{
-            display: grid;
-            grid-template-columns: 6rem 9rem auto min-content;
-            grid-template-rows: auto repeat(2, 1.5rem);
-            grid-template-areas: 
-                "ref ref ref edit"
-                "date_on_po date_received . ."
-                "value value value value"
-            ;
-
-            min-width: 286px;
-            width: 99%;
-            max-width: 450px;
-
-            margin: 0.5rem 0 0 0;
-            padding: 0.3rem 0.2rem;
-
-            border: 1px solid v.$c_tone_00;
-            box-shadow: 0 0 10px 1px rgba(black, 35%);
-        }
-
-
-        .ref{
-            grid-area: ref;
-
-            font-size: 1.2rem;
-            font-weight: bold;
-
-            max-width: min(400px, 76vw);
-            overflow-wrap: break-word;
-            
-            &:before{
-                content: 'PO #';
-                display: inline-block;
-                padding: 0 0.5rem 0 0;
-            }
-        }
-        .date_on_po{
-            grid-area: date_on_po;
-            white-space: nowrap;
-        }
-        .date_received{
-            grid-area: date_received;
-
-            &:before{
-                content: 'received';
-                display: inline-block;
-                padding: 0.08rem 0.5rem 0 0;
-            }
-
-            border-left: 3px solid v.$c_accent_secondary;
-            background: v.$c_tone_00;
-            font-size: 0.9rem;
-            padding: 0.08rem 0.4rem;
-            white-space: nowrap;
-        }
-        .value{
-            grid-area: value;
-            text-align: left;
-        }
-        tr.invalid .value{
-            border-bottom: none;
-        }
-
-        .edit{
-            grid-area: edit;
-        }
-    }
-}
-
 // || Price Check Section
 .jobPriceCheckDetails {
     width: fit-content;
@@ -1998,6 +1950,80 @@ $breakpoint_docsCardsToTable: 453px;
 
 .selling-price-container{
     position: relative;
+}
+
+.details-toggle{
+    border-bottom: 1px dotted white;
+}
+
+.status-indicator{
+    display: flex;
+    width: 100%;
+    margin: 0.5rem 0 0 0.5rem;
+    font-size: 0.9rem;
+    color: v.$c_tone_04;
+    font-weight: bold;
+
+    :first-child,
+    :last-child{
+        border: 1px solid v.$c_tone_03;
+    }
+    :first-child{
+        border-top-left-radius: 0.2rem;
+        border-bottom-left-radius: 0.2rem;
+    }
+    :last-child{
+        border-top-right-radius: 0.95rem;
+        border-bottom-right-radius: 0.95rem;  
+    }
+
+    .status-name{
+        display: block;
+        padding: 0.1rem 0.5rem 0.1rem 1rem;
+        width: fit-content;
+        color: white;
+    }
+
+    button{
+        display: block;
+        padding: 0.1rem 1rem 0.1rem 0.7rem;
+        
+        color: v.$c_tone_06;
+        border: 1px solid v.$c_tone_03;
+        border-left: 3px solid v.$c_tone_05;
+
+        &.todo-list-toggle{
+            background: v.$c_tone_01;
+            &:hover{
+                background: v.$c_tone_03;
+            }
+        }
+
+        &#price_confirmation_button{
+            background: transparent;
+
+            &:hover{
+                background: v.$c_tone_03;
+            }
+        }
+
+    }
+
+    &.on{
+        button,
+        button#price_confirmation_button{
+            color: v.$c_accent_secondary;
+            border: 1px solid v.$c_accent_secondary_03;
+            border-left: 3px solid v.$c_accent_secondary;
+
+            min-width: 49px;    // <- this prevents "font-weight: bold" on hover from making the element "twitch" on to-do
+            &:hover{
+                background: v.$g_button_secondary;
+                color: black;
+                font-weight: bold;
+            }
+        }
+    }
 }
 
 
@@ -2301,71 +2327,121 @@ table.price-comparison{
 }
 
 
-// || Outgoing Docs Table
-.jobDocsOut_contentWrapper{
-    display: flex;
-    flex-wrap: wrap;
-    gap: v.px-to-rem(32);
-}
+// || Documents Section
+.jobDocsOut{
 
-.jobDocsOutSubsection{
-    display: grid;
-    grid-template-columns: 130px auto;
-    grid-template-rows: auto auto auto auto;
-    grid-template-areas: 
-    "heading heading"
-    "addBtn unassigned"
-    "docsTable docsTable"
-    ;
+    &_contentWrapper{
+        grid-column: 2;
 
-    column-gap: v.px-to-rem(8);
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: v.px-to-rem(32);
 
-    min-width: 100%;
-    width: 100%;
-    max-width: 100%;
+        margin: v.px-to-rem(16) 0 0 0;
 
-    &_heading{
+        @media screen and (min-width: v.$breakpoint_permaShowJobNav){
+           justify-content: start; 
+        }
+    }
+
+    &_subsection{
+        display: grid;
+        grid-template-columns: 130px auto;
+        grid-template-rows: auto auto auto;
+        grid-template-areas: 
+            "heading heading"
+            "addBtn unassigned"
+            "docsTable docsTable"
+        ;
+        column-gap: v.px-to-rem(8);
+    
+        min-width: min(calc((#{v.$MAX_WIDTH} - #{v.px-to-rem(8)}) / 2), 100%);
+        width: fit-content;
+        max-width: max(100%, v.$MAX_WIDTH);
+
+        padding: 0 0 v.px-to-rem(6) 0;
+        margin: 0;
+    }
+
+    &_subsectionHeading{
         grid-area: heading;
     }
-    &_addButton{
+
+    &_subsectionAddButton{
         grid-area: addBtn;
-    }
-    &_unassigned{
-        grid-area: unassigned;
-        align-self: center;
-        justify-self: end;
-        margin-right: v.px-to-rem(4);
 
-        display: block;
-        background: v.$c_tone_01;
-        border: 1px solid v.$c_tone_04;
-    
-        border-color: v.$c_accent-500;
-    }
-    &_unassignedMsg{
-        margin-right: 3px;
-        display: inline-block;
-        font-size: v.px-to-rem(12);
-        padding: v.px-to-rem(4) v.px-to-rem(8);
+        display: flex;
+        align-items: center;
+        color: v.$c_txt_main;
+        padding: 0;
+        text-decoration: none;
+        font-size: 1rem;
+
+        &:hover{
+            animation-name: expand_add_document;
+        }
     }
 
-    &_unassignedIcon{
-        display: inline-block;
-        border-right: 1px solid transparent;
-        width: v.px-to-rem(24);
-        padding: 0.2rem 0.4rem;
-        text-align: center;
-        font-weight: bold;
+    &_unassigned {
+        &Wrapper{
+            grid-area: unassigned;
+            align-self: center;
+            justify-self: end;
+            margin-right: v.px-to-rem(4);
+
+            display: block;
+            background: v.$c_tone_01;
+            border: 1px solid v.$c_tone_04;
+        
+            border-color: v.$c_accent-500;
+        }
+
+        &Msg{
+            margin-right: 3px;
+            display: inline-block;
+            font-size: v.px-to-rem(12);
+            padding: v.px-to-rem(4) v.px-to-rem(8);
+
+            @media screen and (min-width: $breakpoint_docsCardsToTable){
+                padding: 0.2rem 1rem;
+            }
+        }
+
+        &Icon{
+            display: inline-block;
+            border-right: 1px solid transparent;
+            width: v.px-to-rem(24);
+            padding: 0.2rem 0.4rem;
+            text-align: center;
+            font-weight: bold;
+        
+            color: v.$c_tone_01;
+            background: v.$c_accent-500;
+        }
+    }
+}
+
+@keyframes expand_add_document{
+    from {
+        width: 30px;
+        text-indent: -9999px;
+    }
+
+    95%{
+        text-indent: -9999px;
+    }
     
-        color: v.$c_tone_01;
-        background: v.$c_accent-500;
+    to {
+        width: 8rem;
+        text-indent: 44px;
     }
 }
 
 
 .documentsOutTable{
     grid-area: docsTable;
-    margin: v.px-to-rem(18) 0.3rem v.px-to-rem(2);
+    margin: v.px-to-rem(18) v.px-to-rem(5) v.px-to-rem(2);
     border-collapse: collapse;
 
     th{
@@ -2450,18 +2526,6 @@ table.price-comparison{
         }
         &-issued{
             border-color: v.$c_accent_secondary;
-        }
-    }
-}
-
-@media screen and (min-width: $breakpoint_docsCardsToTable){
-    .jobDocsOutSubsection{
-        min-width: v.px-to-rem(300);
-        width: fit-content;
-        max-width: fit-content;
-
-        &_unassignedMsg{
-            padding: 0.2rem 1rem;
         }
     }
 }
