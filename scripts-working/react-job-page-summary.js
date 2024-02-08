@@ -29,7 +29,7 @@ function JobSummary(props){
                     </div>
                     <JobCommentsSubsection
                         actions = { props.actions_comments }
-                        comments = { props.comments.filter(c => c.pinned) }
+                        comments = { props.comments === null ? [] : props.comments.filter(c => c.pinned) }
                         commentsEditor = { props.commentsEditor }
                         css = { "jobCommentSection-summary" }
                         heading = { "Pinned" }
