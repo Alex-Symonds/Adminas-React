@@ -962,9 +962,20 @@ def api_data(request):
 
 
     elif data_category == 'urls':
+        debug("urls called")
+
+        job_id = get_param_from_get_params('job_id', request.GET)
+
         response_data = {}
         response_data['po_url'] = reverse('api_purchase_order')
         response_data['price_acceptance_url'] = reverse('api_price_acceptance')
+
+        response_data['api_po'] = reverse('api_purchase_order')
+        response_data['api_price_acceptance'] = reverse('api_price_acceptance')
+        response_data['api_items'] = reverse('api_items')
+        response_data['api_comments'] = reverse('api_comments')
+        response_data['url_docbuilder'] = reverse('doc_editor_page') + '?job=' + str(job_id)
+        response_data['url_module_management'] = reverse('manage_modules', kwargs={'job_id': job_id})
 
         return JsonResponse(response_data, status = 200)
 
@@ -980,13 +991,6 @@ def api_data(request):
             return respond_with_error(component_name)
 
         response_data = {}
-        # if component_name == 'comments':
-            # setting_for_order_by = '-created_on'
-            # response_data['url'] = f"{reverse('comments_page')}?job_id={job.id}"
-            # response_data['api'] = reverse('api_comments')
-            # response_data['username'] = request.user.username
-            # response_data['comments'] = job.get_all_comments(request.user, setting_for_order_by)
-
         if component_name == 'details':
             response_data = job.get_dict()
             response_data['url'] = reverse('job_editor_page') + '?job=' + str(job.id)
@@ -1010,9 +1014,8 @@ def api_data(request):
             response_data = get_dict_job_page_root(job)
 
             setting_for_order_by = '-created_on'
-            # response_data['comments_url'] = f"{reverse('comments_page')}?job_id={job.id}"
-            response_data['comments_api'] = reverse('api_comments')
-            response_data['username'] = request.user.username
+            # response_data['comments_api'] = reverse('api_comments')
+            # response_data['username'] = request.user.username
             response_data['comments'] = job.get_all_comments(request.user, setting_for_order_by)
 
 

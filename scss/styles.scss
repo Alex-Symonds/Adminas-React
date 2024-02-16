@@ -17,6 +17,7 @@
         || Comments
         || Visibility functionality
         || Errors
+        || Expandable Wrapper
 */
 
 
@@ -45,10 +46,14 @@ p, h1, h2, h3, h4, h5, h6 {
 
 // My resets
 a{
-    color: v.$c_accent;
+    color: v.$c_accent-500;
     &:hover{
-        color: v.$c_accent_04;
+        color: v.$c_accent-300;
     }
+}
+
+article{
+    padding: 0;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -60,23 +65,25 @@ table{
 }
 
 
+
+
 input,
 select,
 textarea{
     margin-top: 3px;
-    background: v.$c_tone_00;
+    background: v.$c_tone-1000;
     border: 1px solid v.$c_accent-700;
     border-radius: 3px;
     color: v.$c_txt_main;
 
     &:active{
-        background: v.$c_tone_01;
+        background: v.$c_tone-950;
         border: 1px solid v.$c_accent-500;
     }
     &:focus{
         outline: thin dotted rgba(white, 0.5);
         outline-offset: v.px-to-rem(2);
-        background: v.$c_tone_01;
+        background: v.$c_tone-950;
         border: 1px solid v.$c_accent-600;
     }        
 }
@@ -105,9 +112,7 @@ textarea{
     background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="15" viewBox="0 0 24 24"><path fill="%23ffffff" d="M20 3h-1V1h-2v2H7V1H5v2H4c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 18H4V8h16v13z"/></svg>');
 }
 
-article{
-    padding: 0;
-}
+
 
 
 
@@ -127,10 +132,10 @@ article{
 
 .productName{
     font-family: v.$f_adminas;
-    color: v.$c_tone_07;
+    color: v.$c_tone-50;
 
     span{
-        color: v.$c_accent;
+        color: v.$c_accent-500;
     }
 }
 
@@ -148,20 +153,20 @@ article{
     border-top-right-radius: v.px-to-rem(4);
     border-bottom-right-radius: v.px-to-rem(4);
 
-    background: v.$c_tone_950;
+    background: v.$c_tone-950;
 }
 
 .subheading{
     margin: 0;
     padding: 0 0 v.px-to-rem(8) v.px-to-rem(14);
     font-size: 1rem;
-    color: v.$c_tone_200;
+    color: v.$c_tone-200;
 
     border-left: 3px solid v.$c_accent-500;
 
     position: relative;
     top: v.px-to-rem(-7);
-    background: v.$c_tone_950;
+    background: v.$c_tone-950;
 }
 
 .extended-subheading{
@@ -196,7 +201,7 @@ article{
     font-size: v.px-to-rem(18);
     font-weight: 500;
 
-    border-bottom: 1px solid v.$c_tone_700;
+    border-bottom: 1px solid v.$c_tone-700;
 }
 
 
@@ -221,8 +226,8 @@ article{
                 color: white;
                 font-size: v.px-to-rem(14);
                 border-radius: 5px;
-                background: rgba(v.$c_tone_00, 80%);
-                border: 1px solid v.$c_tone_00;
+                background: rgba(v.$c_tone-1000, 80%);
+                border: 1px solid v.$c_tone-1000;
     
                 display: block;
                 width: 3rem;
@@ -256,7 +261,7 @@ article{
 // || Nav bar
 .adminasMainHeading{
     font-size: 1.3rem;
-    border-left: 3px solid v.$c_tone_03;
+    border-left: 3px solid v.$c_tone-500;
     padding: v.px-to-rem(3) v.px-to-rem(8) v.px-to-rem(3);
     background: rgba(black, .2);
 
@@ -277,9 +282,9 @@ article{
         padding: 0 v.px-to-rem(3);
 
         border-style: solid;
-        border-color: v.$c_tone_600;
+        border-color: v.$c_tone-600;
         border-width: 0 0 1px 3px;
-        border-top: 1px solid v.$c_tone_800;
+        border-top: 1px solid v.$c_tone-800;
 
         list-style: none;
 
@@ -299,8 +304,8 @@ article{
         border-bottom: 3px solid transparent;
         &:hover{
             color: v.$c_txt_main_highlight;
-            background: v.$c_tone_02;
-            border-bottom: 3px solid v.$c_accent;
+            background: v.$c_tone-800;
+            border-bottom: 3px solid v.$c_accent-500;
         }
     }
 }
@@ -308,7 +313,7 @@ article{
 
 // || Footer
 .credits{
-    border-top: 1px solid rgba(v.$c_tone_800, .2);
+    border-top: 1px solid rgba(v.$c_tone-800, .2);
     font-size: v.px-to-rem(10);
     margin-top: 5rem;
     padding: 4px 8px;
@@ -319,7 +324,7 @@ article{
     &_heading{
         padding: 0;
         margin: 0;
-        color: v.$c_tone_700;
+        color: v.$c_tone-700;
         font-size: v.px-to-rem(10);
         font-weight: 500;
     }
@@ -339,17 +344,17 @@ article{
             &:before{
                 display: block;
                 content: ", ";
-                color: v.$c_tone_800;
+                color: v.$c_tone-800;
                 padding-right: 0.25rem;
             }
         }
     }
 
     a{
-        color: v.$c_tone_03;
+        color: v.$c_tone-500;
         text-decoration: none;
         &:hover{
-            color: v.$c_tone_05;
+            color: v.$c_tone-300;
             text-decoration: underline;
         }
     }
@@ -376,8 +381,8 @@ article{
         pointer-events: none;
         color: white;
         border-radius: 5px;
-        background: rgba(v.$c_tone_00, 80%);
-        border: 1px solid v.$c_tone_00;
+        background: rgba(v.$c_tone-1000, 80%);
+        border: 1px solid v.$c_tone-1000;
         padding: v.px-to-rem(3) v.px-to-rem(9);
         
         font-family: v.$f_contents;
@@ -393,16 +398,16 @@ article{
     font-weight: bold;
     border-radius: 0.6rem;
 
-    background: v.$c_accent;
+    background: v.$c_accent-500;
     background: v.$g_button_main;
     color: v.$c_txt_alt;
-    border: 1px solid v.$c_accent_02;
+    border: 1px solid v.$c_accent-600;
 
     &:hover{
-        color: v.$c_tone_02;
-        background: v.$c_accent_03;
+        color: v.$c_tone-800;
+        background: v.$c_accent-400;
         background: v.$g_button_hover;
-        box-shadow: 0 0 3px 1px v.$c_tone_02;
+        box-shadow: 0 0 3px 1px v.$c_tone-800;
     }
     &:active{
         background: red;
@@ -417,18 +422,20 @@ article{
         background: v.$g_button_focus;
     }
 }
+
+
 .buttonSecondary{
     font-weight: bold;
     border-radius: 0.6rem;
 
     background: transparent;
-    color: v.$c_accent;
-    border: 1px solid v.$c_accent_02;
+    color: v.$c_accent-500;
+    border: 1px solid v.$c_accent-600;
 
     &:hover{
-        color: v.$c_accent_04;
-        background: v.$c_tone_02;
-        box-shadow: 0 0 3px 1px v.$c_tone_02;
+        color: v.$c_accent-300;
+        background: v.$c_tone-800;
+        box-shadow: 0 0 3px 1px v.$c_tone-800;
     }
 }
 
@@ -436,8 +443,8 @@ article{
     font-weight: bold;
     border-radius: 0.6rem;
 
-    background: v.$c_tone_02;
-    background: v.$g_secondary_btn;
+    background: v.$c_tone-800;
+    background: v.$g_warningButtonFakeSecondary;
     border: 1px solid v.$c_warning;
     color: v.$c_warning;
 
@@ -484,8 +491,8 @@ article{
             transition-delay: 0.05s;
             color: white;
             border-radius: 5px;
-            background: rgba(v.$c_tone_00, 80%);
-            border: 1px solid v.$c_tone_00;
+            background: rgba(v.$c_tone-1000, 80%);
+            border: 1px solid v.$c_tone-1000;
 
             display: block;
             padding: 0.3rem;
@@ -513,13 +520,13 @@ article{
     text-indent: -9999px;
 
     &:hover{
-        border: 1px solid v.$c_tone_05;
+        border: 1px solid v.$c_tone-300;
 
         color: v.$c_txt_main;
         font-weight: bold;
 
         background-image: url(../images/i-plus-filled.svg);
-        background-color: v.$c_tone_02;
+        background-color: v.$c_tone-800;
         animation-duration: 0.2s;
         animation-fill-mode: forwards;
         animation-name: expand_add_default;
@@ -601,8 +608,8 @@ article{
             transition-delay: 0.05s;
             color: white;
             border-radius: 5px;
-            background: rgba(v.$c_tone_00, 80%);
-            border: 1px solid v.$c_tone_00;
+            background: rgba(v.$c_tone-1000, 80%);
+            border: 1px solid v.$c_tone-1000;
 
             display: block;
             width: 3rem;
@@ -628,7 +635,7 @@ article{
 .expand-collapse{
     position: relative;
     float: right;
-    color: v.$c_tone_07;
+    color: v.$c_tone-50;
     margin-right: 3px;
 
     width: 30px;
@@ -659,8 +666,8 @@ article{
         span{
             color: v.$c_txt_main;
             border-radius: 5px;
-            background: rgba(v.$c_tone_00, 80%);
-            border: 1px solid v.$c_tone_00;
+            background: rgba(v.$c_tone-1000, 80%);
+            border: 1px solid v.$c_tone-1000;
         }
     }    
 }
@@ -681,8 +688,8 @@ article{
     &:hover{
         color: v.$c_txt_main;
         border-radius: 5px;
-        background: rgba(v.$c_tone_00, 80%);
-        border: 1px solid v.$c_tone_00;
+        background: rgba(v.$c_tone-1000, 80%);
+        border: 1px solid v.$c_tone-1000;
     }
 }
 
@@ -695,7 +702,7 @@ article{
 }
 
 .delete-panel{
-    color: v.$c_tone_07;
+    color: v.$c_tone-50;
     background-image: url(../images/i-minus-empty.svg);
 
      &:hover{
@@ -704,7 +711,7 @@ article{
 }
 
 .more-icon{
-    color: v.$c_tone_07;
+    color: v.$c_tone-50;
     background-image: url(../images/i-more-empty.svg);
 
     span{
@@ -732,7 +739,7 @@ article{
 // || Return to Job Link
 .return-to-job{
     display: block;
-    border: 1px solid v.$c_accent_02;
+    border: 1px solid v.$c_accent-600;
     border-radius: 8px;
     padding: 6px 8px;
     width: fit-content;
@@ -740,7 +747,7 @@ article{
     text-decoration: none;
     
     &:hover{
-        border: 1px solid v.$c_accent_02;
+        border: 1px solid v.$c_accent-600;
         background: v.$g_button_main;
         font-weight: bold;
         color: v.$c_txt_on_accent;
@@ -753,7 +760,7 @@ article{
     display: inline-block;
     position: relative;
 
-    border: 1px solid v.$c_tone_03;
+    border: 1px solid v.$c_tone-500;
     border-radius: 3px; //8px;
 
     max-width: v.$MAX_WIDTH;
@@ -778,9 +785,9 @@ article{
         padding: 12px 8px;
 
         color: v.$c_txt_main;
-        background: v.$c_tone_03;
-        background: linear-gradient(0deg, v.$c_tone_03 0%, #686868 100%);
-        border-bottom: 1px solid v.$c_tone_03;
+        background: v.$c_tone-500;
+        background: linear-gradient(0deg, v.$c_tone-500 0%, #686868 100%);
+        border-bottom: 1px solid v.$c_tone-500;
 
         h3{
             margin: 0;
@@ -795,7 +802,7 @@ article{
             font-style: italic;
             font-weight: normal;
             font-size: 0.95rem;
-            color: v.$c_tone_06;
+            color: v.$c_tone-200;
         }
     }
 }
@@ -803,14 +810,14 @@ article{
 // Panel subsections
 .subsection{
     margin: 1rem 0 0 3px;
-    border-bottom: 1px solid v.$c_tone_03;
-    border-left: 3px solid v.$c_tone_04;
+    border-bottom: 1px solid v.$c_tone-500;
+    border-left: 3px solid v.$c_tone-400;
 
     h4,
     .subsection-heading,
     &_heading{
         padding: 0.4rem 0 0.4rem 0.4rem;
-        background: v.$c_tone_02; 
+        background: v.$c_tone-800; 
         margin: 0;
         border-bottom: 0;
     }
@@ -871,7 +878,7 @@ article{
 
 
 .read_row{
-    border-bottom: 1px solid v.$c_tone_02;
+    border-bottom: 1px solid v.$c_tone-800;
     padding: 0.2rem 0;
 
     display: flex;
@@ -895,7 +902,7 @@ fieldset.form-row{
 
     padding: 0.4rem 0.5rem;
 
-    border-color: v.$c_tone_03;
+    border-color: v.$c_tone-500;
 
     label{
         margin: 0;
@@ -925,7 +932,7 @@ fieldset.form-row{
         font-size: 0.9rem;
         font-style: italic;
         margin: v.px-to-rem(8) 0 0 v.px-to-rem(4);
-        border-left: 3px solid v.$c_accent_secondary;
+        border-left: 3px solid v.$c_good-500;
         padding: v.px-to-rem(5) v.px-to-rem(8);
     
         max-width: 92%;
@@ -979,7 +986,7 @@ fieldset.form-row{
         position: relative;
         padding: 0.3rem 0.4rem;
         border-radius: 5px;
-        background: v.$c_tone_02;
+        background: v.$c_tone-800;
         margin: 1rem auto 0;
         width: 97%;
 
@@ -1013,6 +1020,7 @@ fieldset.form-row{
 
         position: relative;
         display: flex;
+        align-items: center;
         justify-content: end;
         gap: var(--gapMore);
 
@@ -1038,11 +1046,12 @@ fieldset.form-row{
     
         font-size: 0.8rem;
     
-        background: v.$c_tone_01;
-        border: 1px solid v.$c_tone_00;
+        background: v.$c_tone-950;
+        border: 1px solid v.$c_tone-1000;
         border-radius: 3px;
     
         display: flex;
+        align-items: center;
         justify-content: space-between;
         gap: v.px-to-rem(16);
     }
@@ -1054,9 +1063,9 @@ fieldset.form-row{
     }
 
     &_inputNMore{
+        height: auto;
         width: 3rem;
-        height: 0.9rem;
-        margin-left: 0.1rem;
+        margin: 0 0 0 0.1rem;
     }
 
     &_submitNMore{
@@ -1072,9 +1081,8 @@ fieldset.form-row{
         align-items: center;
         gap: v.px-to-rem(16);
     }
-}
-@media screen and (min-width: 395px){
-    .formSet{
+
+    @media screen and (min-width: 395px){
         &_addMoreContainer{
             --addNItemsW: #{v.px-to-rem(209)};
             --addItemW: #{v.px-to-rem(120)};
@@ -1086,7 +1094,7 @@ fieldset.form-row{
             position: static;
             z-index: auto;
         }
-    }
+    } 
 }
 
 
@@ -1209,7 +1217,7 @@ fieldset.form-row{
         position: relative;
         padding: 0.3rem 0.4rem;
         border-radius: 5px;
-        background: v.$c_tone_02;
+        background: v.$c_tone-800;
         margin: 1rem auto 0;
         width: 97%;
 
@@ -1285,7 +1293,7 @@ fieldset.form-row{
         font-size: 0.9rem;
         font-style: italic;
         margin: 0.2rem 0 0 1.2rem;
-        border-left: 3px solid v.$c_accent_secondary;
+        border-left: 3px solid v.$c_good-500;
         padding: 5px;
     
         &.hide{
@@ -1306,27 +1314,27 @@ fieldset.form-row{
     .display-address{
         margin: 0.5rem 0 0 1rem;
         padding-left: 8px;
-        border-left: 2px solid v.$c_accent_secondary;
-        color: v.$c_tone_07;
+        border-left: 2px solid v.$c_good-500;
+        color: v.$c_tone-50;
     }
 }
 
 
 
 
-@media screen and (min-width: 445px){
-    // NOTE TO SELF: this can probably be better fixed via box-sizing: border-box;
-    // Something about the proliferation of %-based widths results in width issues (on narrow screens)
-    // on the Job page whenever the form to add multiple items is visible.
-    // Setting a pixel-based width above solved the problem for narrow screens, but causes a problem
-    // on wide screens (= weirdly skinny form sections). This widens them again.
+// @media screen and (min-width: 445px){
+//     // NOTE TO SELF: this can probably be better fixed via box-sizing: border-box;
+//     // Something about the proliferation of %-based widths results in width issues (on narrow screens)
+//     // on the Job page whenever the form to add multiple items is visible.
+//     // Setting a pixel-based width above solved the problem for narrow screens, but causes a problem
+//     // on wide screens (= weirdly skinny form sections). This widens them again.
 
-    .form-like{
-        .form-row.panel{
-            width: 95%;
-        }
-    }
-}
+//     .form-like{
+//         .form-row.panel{
+//             width: 95%;
+//         }
+//     }
+// }
 
 
 .combo-input-and-button{
@@ -1382,11 +1390,11 @@ fieldset.form-row{
     font-size: 0.9rem;
 
     color: v.$c_txt_warning_g;
-    background: v.$c_tone_00;
+    background: v.$c_tone-1000;
     
     border-top-right-radius: 0.45rem;
     border-bottom-right-radius: 0.45rem;
-    border: 1px solid v.$c_tone_02;
+    border: 1px solid v.$c_tone-800;
     border-left: 3px solid v.$c_warning;
     
     &.user-management{
@@ -1412,11 +1420,11 @@ fieldset.form-row{
     font-size: 0.9rem;
 
     color: v.$c_txt_warning_g;
-    background: v.$c_tone_00;
+    background: v.$c_tone-1000;
     
     border-top-right-radius: 0.45rem;
     border-bottom-right-radius: 0.45rem;
-    border: 1px solid v.$c_tone_02;
+    border: 1px solid v.$c_tone-800;
     border-left: 3px solid v.$c_warning;
 
     .invalid-icon{
@@ -1434,9 +1442,9 @@ fieldset.form-row{
 .error-message{
     clear: both;
     float: right;
-    border: 1px solid v.$c_tone_00;
+    border: 1px solid v.$c_tone-1000;
     border-right: 3px solid v.$c_warning;
-    background: v.$c_tone_01;
+    background: v.$c_tone-950;
     margin: 0.5rem;
     padding: 4px 8px;
 }
@@ -1450,9 +1458,9 @@ fieldset.form-row{
 
     border-top-right-radius: 3px;
     border-bottom-right-radius: 3px;
-    background: v.$c_tone_01;
-    border: 1px solid v.$c_tone_00;
-    border-left: 2px solid v.$c_accent_secondary_03;
+    background: v.$c_tone-950;
+    border: 1px solid v.$c_tone-1000;
+    border-left: 2px solid v.$c_accent-700;
     color: v.$c_txt_main;
 
     white-space: nowrap;
@@ -1552,17 +1560,17 @@ fieldset.form-row{
         span{
             flex: 1;
             text-align: center;
-            border: 1px solid v.$c_tone_03;
+            border: 1px solid v.$c_tone-500;
             padding: 0.4rem;
         }
     
         .disabled-link{
             font-style: italic;
-            color: v.$c_tone_02;
+            color: v.$c_tone-800;
         }
     
         a:hover{
-            border: 1px solid v.$c_accent_02;
+            border: 1px solid v.$c_accent-600;
             background: v.$g_button_main;
             color: v.$c_txt_on_accent;
             font-weight: bold;
@@ -1584,24 +1592,23 @@ fieldset.form-row{
 // || Responsive tables (i.e. switches from a table to formatted rows when the screen is too narrow)
 .banded{
     tbody tr:nth-of-type(even){ 
-        background: v.$c_tone_02;
+        background: v.$c_tone-800;
     }
 }
 
 #jobitems_table,
 #po_table,
-#price_check_table,
-.responsive-table{
+#price_check_table{
     th,
     td{
         padding: 0.1rem 0.5rem;
     }
     th{
-        border: 1px solid v.$c_tone_02;
-        background: v.$c_tone_03;
+        border: 1px solid v.$c_tone-800;
+        background: v.$c_tone-500;
     }
     td{
-        border: 1px solid v.$c_tone_03;
+        border: 1px solid v.$c_tone-500;
         height: 2rem;
     }
 
@@ -1610,56 +1617,6 @@ fieldset.form-row{
     }
     .edit-icon:hover{
         background-position: 5px 4px;
-    }
-}
-
-@media only screen and (max-width: v.$breakpoint_table_to_rows) {
-    // https://css-tricks.com/responsive-data-tables/
-    .responsive-table{
-        display: block; 
-
-        /* Force table to not be like tables anymore */
-        thead,
-        tbody,
-        th,
-        td,
-        tr { 
-            display: block; 
-        }
-        
-        /* Hide table headers (but not display: none;, for accessibility) */
-        thead tr { 
-            position: absolute;
-            top: -9999px;
-            left: -9999px;
-        }
-        
-        tr { 
-            margin-top: 0.3rem;
-            border: 1px solid v.$c_tone_04; 
-        }
-        
-        td { 
-            /* Behave  like a "row" */
-            border: none;
-            border-bottom: 1px solid v.$c_tone_03; 
-            position: relative;
-            padding-left: 50%; 
-            padding-top: 10px;
-
-            height: 1.75rem;
-        }
-       
-        td:before { 
-            /* Now like a table header */
-            position: absolute;
-            /* Top/left values mimic padding */
-            top: 10px;
-            left: 6px;
-            width: 47%; 
-            padding-right: 10px; 
-            white-space: nowrap;
-        }
     }
 }
 
@@ -1748,8 +1705,8 @@ fieldset.form-row{
                 text-indent: -9999px;
     
                 &:hover{
-                    background-color: v.$c_tone_04;
-                    border: 1px solid v.$c_tone_05;
+                    background-color: v.$c_tone-400;
+                    border: 1px solid v.$c_tone-300;
     
                     color: v.$c_txt_main;
                     font-weight: bold;
@@ -1813,15 +1770,15 @@ fieldset.form-row{
 
     details.wrapper{
         padding: 0;
-        border-color: transparent transparent v.$c_tone_03 transparent;
+        border-color: transparent transparent v.$c_tone-500 transparent;
 
         &[open]{
-            background: v.$c_tone_03;
-            border-color: v.$c_tone_04;
-            border-left: 1px solid v.$c_tone_04;
+            background: v.$c_tone-500;
+            border-color: v.$c_tone-400;
+            border-left: 1px solid v.$c_tone-400;
     
             .comment-body{
-                background: v.$c_tone_02;
+                background: v.$c_tone-800;
                 border-bottom: 1px solid transparent;
                 padding-bottom: 5px;
             }   
@@ -1832,14 +1789,14 @@ fieldset.form-row{
         margin: 1rem 0 0 0;
 
         background: transparent;
-        border-color: v.$c_tone_02;
+        border-color: v.$c_tone-800;
 
         border-top-right-radius: 0.5rem;
         border-bottom-right-radius: 0.5rem;
 
         .comment-body{
             padding: 0.3rem;
-            border-bottom: 1px solid v.$c_tone_02;
+            border-bottom: 1px solid v.$c_tone-800;
 
             background: v.$g_bg_main;
             border-top-right-radius: 0.4rem;
@@ -1857,7 +1814,7 @@ fieldset.form-row{
             margin: 0;
             padding: 3px;
             font-size: 0.9rem;
-            color: v.$c_tone_05;
+            color: v.$c_tone-300;
         }
     }
 
@@ -1883,20 +1840,20 @@ fieldset.form-row{
                 .footer{
                     margin: 0;
                     padding: 3px;
-                    background: v.$c_tone_03;
+                    background: v.$c_tone-500;
                 }
             }
         }
 
         div.wrapper{
-            background: v.$c_tone_03;
+            background: v.$c_tone-500;
             box-shadow: v.$panel_shadow;
 
             .comment-body{
                 background: transparent;
             }
             .footer{
-                color: v.$c_tone_06;
+                color: v.$c_tone-200;
             }
         }
     }
@@ -1922,7 +1879,7 @@ fieldset.form-row{
 }
 
 .job-comment-cu-container{
-    background: v.$c_tone_02;
+    background: v.$c_tone-800;
     padding: 2px 5px 0;
 
     h4{
@@ -1937,8 +1894,8 @@ fieldset.form-row{
     }
 
     .checkbox-container{
-        background: v.$c_tone_01;
-        border: 1px solid v.$c_tone_00;
+        background: v.$c_tone-950;
+        border: 1px solid v.$c_tone-1000;
         border-radius: 3px;
         
         margin: 0.3rem 0 0 0;
@@ -2010,8 +1967,8 @@ fieldset.form-row{
         font-size: 0.8rem;
         padding: 3px 5px 3px 3px;
         color: v.$c_txt_alt;
-        background: v.$c_tone_05;
-        border: 1px solid v.$c_tone_06;
+        background: v.$c_tone-300;
+        border: 1px solid v.$c_tone-200;
         border-radius: 2px;
     }
 
@@ -2023,14 +1980,14 @@ fieldset.form-row{
 
 .statusEle{
     display: block;
-    background: v.$c_tone_01;
+    background: v.$c_tone-950;
 
     &_icon{
         display: flex;
         align-items: center;
         justify-content: center;
 
-        background: v.$c_tone_04;
+        background: v.$c_tone-400;
         border-color: transparent;
         height: v.px-to-rem(20);
         width: v.px-to-rem(22);
@@ -2038,7 +1995,7 @@ fieldset.form-row{
         font-weight: bold;
 
         &-status_action{
-            color: v.$c_tone_01;
+            color: v.$c_tone-950;
             background: v.$c_accent-500;
 
             &:hover{
@@ -2046,15 +2003,18 @@ fieldset.form-row{
             }
         }
         &-status_ok{
-            background: v.$c_secondary-800;
-            border-right: 1px solid v.$c_secondary-800;
+            background: v.$c_good-800;
+            color: white;
+            font-weight: 500;
+            line-height: 1;
+            font-size: v.px-to-rem(14);
 
             &:hover{
-                background: v.$c_secondary-600;
+                background: v.$c_good-600;
             }
         }
         &-status_attn{
-            color: v.$c_tone_01;
+            color: v.$c_tone-950;
             background: v.$c_flag_special;
 
             &:hover{
@@ -2062,7 +2022,7 @@ fieldset.form-row{
             }
         }
         &-status_warning{
-            color: v.$c_tone_01;
+            color: v.$c_tone-950;
             background: v.$c_warning;  
 
             &:hover{
@@ -2074,7 +2034,7 @@ fieldset.form-row{
     &_message{
         position: absolute;
         z-index: 50;
-        background: v.$c_tone_00;
+        background: v.$c_tone-1000;
         border: 2px solid v.$c_tone-200;
         padding: v.px-to-rem(4) v.px-to-rem(8);
         box-shadow: 0 0 v.px-to-rem(12) v.px-to-rem(3) rgba(black, 0.2);
@@ -2083,7 +2043,7 @@ fieldset.form-row{
             border-color: v.$c_accent-500;
         }
         &-status_ok{
-            border-color: v.$c_secondary-800;
+            border-color: v.$c_good-800;
         }
         &-status_attn{
             border-color: v.$c_flag_special;
@@ -2105,12 +2065,12 @@ fieldset.form-row{
 
 .status-ele{
     display: block;
-    background: v.$c_tone_01;
-    border: 1px solid v.$c_tone_04;
+    background: v.$c_tone-950;
+    border: 1px solid v.$c_tone-400;
     
     .icon{
         display: inline-block;
-        background: v.$c_tone_04;
+        background: v.$c_tone-400;
         border-right: 1px solid transparent;
         width: 1rem;
         padding: 0.2rem 0.4rem;
@@ -2126,30 +2086,31 @@ fieldset.form-row{
     }
 
     &.status_action{
-        border-color: v.$c_accent;
+        border-color: v.$c_accent-500;
         .icon{
-            color: v.$c_tone_01;
-            background: v.$c_accent;
+            color: v.$c_tone-950;
+            background: v.$c_accent-500;
         }
     }
     &.status_ok{
-        border-color: v.$c_accent_secondary_02;
+        border-color: v.$c_good-800;
         .icon{
-            background: v.$c_accent_secondary_02;
-            border-right: 1px solid v.$c_accent_secondary_02;
+            background: v.$c_good-800;
+            border-right: 1px solid v.$c_good-800;
+            color: white;
         }
     }
     &.status_attn{
         border-color: v.$c_flag_special;
         .icon{
-            color: v.$c_tone_01;
+            color: v.$c_tone-950;
             background: v.$c_flag_special;
         }
     }
     &.status_warning{
         border-color: v.$c_warning;
         .icon{
-            color: v.$c_tone_01;
+            color: v.$c_tone-950;
             background: v.$c_warning;
         }        
     }
@@ -2222,7 +2183,7 @@ fieldset.form-row{
     padding: 0;
 
     border-style: solid;
-    border-color: v.$c_tone_800;
+    border-color: v.$c_tone-800;
     border-width: v.px-to-rem(1);
     border-radius: v.px-to-rem(16);
 
@@ -2240,7 +2201,7 @@ fieldset.form-row{
         background-position: center;
 
         &:focus-visible{
-            outline: v.$c_tone_700 dotted 1px;
+            outline: v.$c_tone-700 dotted 1px;
             outline-offset: 4px;
         }
     }
@@ -2250,7 +2211,7 @@ fieldset.form-row{
         border-color: v.$c_tone-600;
         padding: v.px-to-rem(14) calc(var(--contentSideMargin) * 2) v.px-to-rem(8);
         width: 100%;
-        background: v.$c_tone_700;
+        background: v.$c_tone-700;
     }
 
     &_contents{
@@ -2285,11 +2246,11 @@ fieldset.form-row{
         background: v.$c_accent-500;
     }
     &-off{
-        background: v.$c_tone_04;
+        background: v.$c_tone-400;
     }
 
     &_labelText{
-        border-left: v.px-to-rem(3) solid v.$c_tone_500;
+        border-left: v.px-to-rem(3) solid v.$c_tone-500;
         padding: 0 0 0 v.px-to-rem(10);
     }
 
@@ -2300,7 +2261,7 @@ fieldset.form-row{
         height: var(--diameter);
         border-radius: 100%;
     
-        background: v.$c_tone_50;
+        background: v.$c_tone-50;
         position: absolute;
         top: v.px-to-rem(2);
         left: v.px-to-rem(2);
@@ -2326,5 +2287,65 @@ fieldset.form-row{
     
     
 }
+
+// || Expandable Wrapper
+.expandableWrapper{
+    position: fixed;
+    top: 0;
+    right: 0;
+    z-index: 50;
+    width: 100%;
+
+    margin: 0;
+    padding: 0;
+
+    border-bottom: 1px solid v.$c_tone-500;
+    box-shadow: 0 0 30px 20px rgba(black, 80%);
+    background: v.$c_tone-800;
+
+    &-retracted{
+        max-height: 50dvh;
+    }
+    &-expanded{
+        min-height: 100dvh;
+        height: 100dvh;
+        max-height: 100dvh;
+    }
+
+    &_toolbar{
+        height: 44px;
+    
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    &_button{
+        width: 60px;
+        height: 40px;
+        background-size: 30px;
+        background-repeat: no-repeat;
+        background-color: transparent;
+        background-position: center;
+    
+        border: none;
+    
+        &-expand{
+            background-image: url(../images/i-chevron-down.svg);
+            &:hover{
+                background-image: url(../images/i-chevron-down-blue.svg);
+            }
+        }
+    
+        &-collapse{
+            background-image: url(../images/i-chevron-up.svg);
+            &:hover{
+                background-image: url(../images/i-chevron-up-blue.svg);
+            }
+        }
+    }
+
+}
+
 
 

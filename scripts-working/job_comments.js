@@ -430,7 +430,7 @@ function get_default_comment_data(){
 
 async function update_backend_comment(btn, data, method, get_params = null){
     let url = get_jobcomments_url(btn);
-    let request_options = get_request_options(method, format_comment_data_for_be(data));
+    let request_options = getRequestOptions(method, format_comment_data_for_be(data));
 
     let get_params_str = '';
     if(get_params !== null){
@@ -443,7 +443,7 @@ async function update_backend_comment(btn, data, method, get_params = null){
 
 async function update_backend_delete_comment(btn, comment_id){
     let url = get_jobcomments_url(btn);
-    let request_options = get_request_options('DELETE');
+    let request_options = getRequestOptions('DELETE');
     return await update_backend(`${url}&id=${comment_id}`, request_options);
 }
 
@@ -515,7 +515,7 @@ function update_job_comments_after_update(data){
         update_comment_ele(data, ele);
     });
 
-    update_comment_presence_in_one_filtered_section(response, 'pinned');
+    update_comment_presence_in_one_filtered_section(data, 'pinned');
     update_todo_list_row_pinned(data, 'update');
 }
 
@@ -728,14 +728,14 @@ function add_event_listeners_to_comment_icons(comment_div){
 }
 
 
-function update_comment_presence_in_one_filtered_section(response, section_class){
+function update_comment_presence_in_one_filtered_section(data, section_class){
     // The assumption is that all filtered sections will have a single name that's used for both a CSS class and a key in the response dict to a boolean value.
-    let class_to_find_comment = `${CLASS_PREFIX_FOR_COMMENT_ID}${response['id']}`;
-    if(!response[section_class]){
+    let class_to_find_comment = `${CLASS_PREFIX_FOR_COMMENT_ID}${data['id']}`;
+    if(!data[section_class]){
         remove_comment_from_section(class_to_find_comment, section_class);
     }
-    else if(response[section_class]){
-        add_comment_to_section(class_to_find_comment, section_class, response);
+    else if(data[section_class]){
+        add_comment_to_section(class_to_find_comment, section_class, data);
     }
     return;
 }
@@ -816,7 +816,7 @@ async function update_backend_for_comment_toggle(url, comment_id, new_status, to
     let body_obj = {}
     body_obj[toggled_attribute] = new_status;
     
-    let request_options = get_request_options('PUT', body_obj);
+    let request_options = getRequestOptions('PUT', body_obj);
     return await update_backend(`${url}&id=${comment_id}`, request_options);
 }
 

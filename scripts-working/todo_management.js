@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 async function remove_from_todo_list(btn){
-    let request_options = get_request_options('DELETE', {
+    let request_options = getRequestOptions('DELETE', {
         'job_id': btn.dataset.job_id
     });
 
@@ -47,7 +47,7 @@ async function remove_from_todo_list(btn){
 
 
 async function add_to_todo_list(btn){
-    let request_options = get_request_options('PUT', {
+    let request_options = getRequestOptions('PUT', {
         'job_id': btn.dataset.job_id
     });
 

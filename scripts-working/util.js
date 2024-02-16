@@ -9,7 +9,7 @@
         || DOM elements
 */
 
-const QTY_RE = /\d+(?=( x ))/g;
+
 const CLASS_MESSAGE_BOX = 'system-message-box';
 const CLASS_ERROR_MESSAGE = 'temp-warning-msg';
 
@@ -19,7 +19,6 @@ const CSS_GENERIC_FORM_LIKE = 'form-like';
 const CSS_EDIT_ICON = 'edit-icon';
 const CSS_HIDE = 'hide';
 
-const KEY_RESPONSE_ERROR_MSG = 'error';
 const KEY_HTTP_CODE = 'http_code';
 const KEY_LOCATION = 'location';
 const GOOD_RESPONSE_CODES = new Set([200, 201, 204]);
@@ -27,7 +26,7 @@ const GOOD_RESPONSE_CODES = new Set([200, 201, 204]);
 const RETURN_ERROR = -1;
 
 // || Server comms
-function get_request_options(method, body = null){
+function getRequestOptions(method, body = null){
     let request_options = {
         method: method,
         headers: getDjangoCsrfHeaders(),
@@ -69,6 +68,7 @@ function getCookie(name) {
 }
 
 
+// TO REMOVE: Used in module management, which has no other error handling
 async function update_backend(url, request_options){
     let response = await fetch(url, request_options)
     .catch(error => {
@@ -78,7 +78,7 @@ async function update_backend(url, request_options){
     return await get_json_with_status(response);
 }
 
-
+// TO REMOVE: Used in module management, document builder, which has no other error handling
 async function query_backend(url){
     let response = await fetch(url)
     .catch(error => {
@@ -134,6 +134,9 @@ function get_error_message(error_info, task_failure_string = null){
             4) Vague messages
             5) Fallback message
     */
+    const KEY_RESPONSE_ERROR_MSG = 'error';
+
+
 
     if(typeof error_info == 'string'){
         return error_info;
@@ -159,64 +162,62 @@ function get_error_message(error_info, task_failure_string = null){
     }
 
     return 'Error: something went wrong.';
-}
 
-
-function prefer_response_error_to_task_error(response_code){
-    // Note to self: you have some generic error messages based on the response code,
-    // but also some tasks actually make their own custom error messages. 
-
-    // A "good" status code means the server is happy, which means the task itself succeeded.
-    // That means the task-related error message is flat-out *wrong* and should not be displayed to the user.
-    // Prefer the response error message, whatever it is (even a blank would be preferable).
-    if(GOOD_RESPONSE_CODES.has(response_code)){
-        return true;
+    // Helpers
+    function prefer_response_error_to_task_error(response_code){
+        // Note to self: you have some generic error messages based on the response code,
+        // but also some tasks actually make their own custom error messages. 
+    
+        // A "good" status code means the server is happy, which means the task itself succeeded.
+        // That means the task-related error message is flat-out *wrong* and should not be displayed to the user.
+        // Prefer the response error message, whatever it is (even a blank would be preferable).
+        if(GOOD_RESPONSE_CODES.has(response_code)){
+            return true;
+        }
+    
+        // Prefer codes which return messages on which the user can act (e.g. "log in"; 
+        // "this clashes with another document")
+        return response_code == 401 || response_code == 403 || response_code == 409;
+    }
+    
+    
+    function get_error_message_from_response(response_json){
+        if(status_is_good(response_json)){
+            return 'Page refresh recommended.';
+        }
+    
+        const status = get_status_from_json(response_json);
+        switch(status){
+            case 400:
+                return 'Invalid inputs.';
+            case 401:
+                return 'You must be logged in.';
+            case 403:
+                if(responded_with_error_reason(response_json)){
+                    return response_json[KEY_RESPONSE_ERROR_MSG];
+                }
+                return 'Request was forbidden by the server.';
+            case 404:
+                return "Requested information was not found.";
+            case 409:
+                if(responded_with_error_reason(response_json)){
+                    return response_json[KEY_RESPONSE_ERROR_MSG];
+                }
+                return 'Request clashed with information on server. (The server won.)'
+            case 500:
+                return 'A server error has occurred.';
+            default:
+                return 'Error: something went wrong.';
+        }
     }
 
-    // Prefer codes which return messages on which the user can act (e.g. "log in"; 
-    // "this clashes with another document")
-    return response_code == 401 || response_code == 403 || response_code == 409;
-}
-
-
-function get_error_message_from_response(response_json){
-    if(status_is_good(response_json)){
-        return 'Page refresh recommended.';
-    }
-
-    const status = get_status_from_json(response_json);
-    switch(status){
-        case 400:
-            return 'Invalid inputs.';
-        case 401:
-            return 'You must be logged in.';
-        case 403:
-            if(responded_with_error_reason(response_json)){
-                return response_json[KEY_RESPONSE_ERROR_MSG];
-            }
-            return 'Request was forbidden by the server.';
-        case 404:
-            return "Requested information was not found.";
-        case 409:
-            if(responded_with_error_reason(response_json)){
-                return response_json[KEY_RESPONSE_ERROR_MSG];
-            }
-            return 'Request clashed with information on server. (The server won.)'
-        case 500:
-            return 'A server error has occurred.';
-        default:
-            return 'Error: something went wrong.';
+    function responded_with_error_reason(response_json){
+        if(typeof response_json != "object"){
+            return false;
+        }
+        return KEY_RESPONSE_ERROR_MSG in response_json;
     }
 }
-
-
-function responded_with_error_reason(response_json){
-    if(typeof response_json != "object"){
-        return false;
-    }
-    return KEY_RESPONSE_ERROR_MSG in response_json;
-}
-
 
 
 // || Formatting

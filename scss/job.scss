@@ -84,7 +84,7 @@ $breakpoint_jobDetailsPO_asRowWithSidebar: $breakpoint_jobDetailsPO_asRowNoSideb
     justify-content: center;
 
     &_button{
-        --stripeColor: #{v.$c_tone_200};
+        --stripeColor: #{v.$c_tone-200};
         --stripeHeight: #{v.px-to-rem(2)};
     
         width: calc(var(--size) + #{v.px-to-rem(4)});
@@ -124,15 +124,16 @@ $breakpoint_jobDetailsPO_asRowWithSidebar: $breakpoint_jobDetailsPO_asRowNoSideb
 
     z-index: 5;
 
-    background: linear-gradient(190deg, v.$c_tone_900 0%, v.$c_tone_950 100%);
+    background: linear-gradient(190deg, v.$c_tone-900 0%, v.$c_tone-950 100%);
     
     max-width: 100vw;
-    height: 100%;
+
     min-height: 100vh;
+    height: 100vh;
 
     display: flex;
     flex-direction: column;
-    height: calc(100vh - v.$body_margin_mobile * 2);
+
     box-shadow: 0 8px 12px 0 rgba(black, 33%);
 
     overflow-x: hidden;
@@ -196,7 +197,7 @@ $breakpoint_jobDetailsPO_asRowWithSidebar: $breakpoint_jobDetailsPO_asRowNoSideb
     &_toggleWrapper{
         width: fit-content;
     
-        color: v.$c_tone_100;
+        color: v.$c_tone-100;
     
         display: flex;
         flex-direction: row-reverse;
@@ -231,11 +232,11 @@ $breakpoint_jobDetailsPO_asRowWithSidebar: $breakpoint_jobDetailsPO_asRowNoSideb
     
         &:hover:enabled{
             border-color: v.$c_accent-500;
-            background: v.$c_tone_700;
+            background: v.$c_tone-700;
         }
     
         &-on{
-            background: rgba(v.$c_tone_950, .5);
+            background: rgba(v.$c_tone-950, .5);
             border-color: v.$c_accent-500;
         }
     }
@@ -308,7 +309,7 @@ $breakpoint_jobDetailsPO_asRowWithSidebar: $breakpoint_jobDetailsPO_asRowNoSideb
     }
 
     &_subheading{
-        color: v.$c_tone_100;
+        color: v.$c_tone-100;
         font-weight: 500;
     }
 }
@@ -355,7 +356,7 @@ $breakpoint_jobDetailsPO_asRowWithSidebar: $breakpoint_jobDetailsPO_asRowNoSideb
     // Used when showing two small sections on a single page.
     //margin: v.px-to-rem(28) 0 0 0;
     border-left: 3px solid v.$c_tone-400;
-    border-bottom: 1px solid v.$c_tone_03;
+    border-bottom: 1px solid v.$c_tone-500;
 
     &_headingWrapper{
         background: v.$c_tone-800;
@@ -476,7 +477,7 @@ $breakpoint_jobDetailsPO_asRowWithSidebar: $breakpoint_jobDetailsPO_asRowNoSideb
 
     &_listItem{
         padding: v.px-to-rem(6) v.px-to-rem(6);
-        border-bottom: 1px solid v.$c_tone_600;
+        border-bottom: 1px solid v.$c_tone-600;
     }
 
     &_poRef{
@@ -484,7 +485,7 @@ $breakpoint_jobDetailsPO_asRowWithSidebar: $breakpoint_jobDetailsPO_asRowNoSideb
     }
 
     &_poDated{
-        color: v.$c_tone_400;
+        color: v.$c_tone-400;
     }
 }
 
@@ -497,11 +498,11 @@ $breakpoint_jobDetailsPO_asRowWithSidebar: $breakpoint_jobDetailsPO_asRowNoSideb
     
     &_item{
         padding: v.px-to-rem(6) v.px-to-rem(6);
-        border-bottom: 1px solid v.$c_tone_600;
+        border-bottom: 1px solid v.$c_tone-600;
     }
 
     &_price{
-        color: v.$c_tone_400;
+        color: v.$c_tone-400;
     }
 
     &_moreItems{
@@ -587,7 +588,7 @@ $breakpoint_jobDetailsPO_asRowWithSidebar: $breakpoint_jobDetailsPO_asRowNoSideb
 
         padding: v.px-to-rem(3) 0;
 
-        border-bottom: 1px solid v.$c_tone_02;
+        border-bottom: 1px solid v.$c_tone-800;
 
         &-wrap{
             display: flex;
@@ -723,7 +724,7 @@ $breakpoint_jobDetailsPO_asRowWithSidebar: $breakpoint_jobDetailsPO_asRowNoSideb
         position: fixed;
         bottom: 0;
 
-        background: v.$c_tone_01;
+        background: v.$c_tone-950;
         z-index: 3;
 
         box-shadow: v.$panel_shadow;
@@ -781,7 +782,7 @@ $breakpoint_jobDetailsPO_asRowWithSidebar: $breakpoint_jobDetailsPO_asRowNoSideb
             margin: 0.5rem 0 0 0;
             padding: 0.3rem 0.2rem;
 
-            border: 1px solid v.$c_tone_00;
+            border: 1px solid v.$c_tone-1000;
             box-shadow: 0 0 10px 1px rgba(black, 35%);
         }
 
@@ -814,8 +815,8 @@ $breakpoint_jobDetailsPO_asRowWithSidebar: $breakpoint_jobDetailsPO_asRowNoSideb
                 padding: 0.08rem 0.5rem 0 0;
             }
 
-            border-left: 3px solid v.$c_accent_secondary;
-            background: v.$c_tone_00;
+            border-left: 3px solid v.$c_good-500;
+            background: v.$c_tone-1000;
             font-size: 0.9rem;
             padding: 0.08rem 0.4rem;
             white-space: nowrap;
@@ -896,13 +897,13 @@ $breakpoint_jobDetailsPO_asRowWithSidebar: $breakpoint_jobDetailsPO_asRowNoSideb
         text-indent: -9999px;
     
         &:hover{
-            border: 1px solid v.$c_tone_05;
+            border: 1px solid v.$c_tone-300;
     
             color: v.$c_txt_main;
             font-weight: bold;
     
             background-image: url(../images/i-filter-filled.svg);
-            background-color: v.$c_tone_02;
+            background-color: v.$c_tone-800;
             animation-duration: 0.2s;
             animation-fill-mode: forwards;
             animation-name: expand_open_filter_button;
@@ -1095,7 +1096,7 @@ $breakpoint_jobDetailsPO_asRowWithSidebar: $breakpoint_jobDetailsPO_asRowNoSideb
                 bottom: calc(-1 * var(--normalBorderWidth));
                 left: calc(-1 * var(--normalBorderWidth));
 
-                border: var(--normalBorderWidth) solid v.$c_tone_400;
+                border: var(--normalBorderWidth) solid v.$c_tone-400;
             }
 
             /*
@@ -1137,13 +1138,13 @@ $breakpoint_jobDetailsPO_asRowWithSidebar: $breakpoint_jobDetailsPO_asRowNoSideb
         .multi-parent-warning{
             margin: 0.5rem;
             padding: 0.5rem;
-            background: v.$c_tone_02;
-            color: v.$c_tone_06;
+            background: v.$c_tone-800;
+            color: v.$c_tone-200;
     
             emphasis{
                 font-weight: bold;
                 font-style: italic;
-                color: v.$c_tone_07;
+                color: v.$c_tone-50;
             }
         }
     
@@ -1154,29 +1155,29 @@ $breakpoint_jobDetailsPO_asRowWithSidebar: $breakpoint_jobDetailsPO_asRowNoSideb
     }
 
     &_detailsWrapper{
-        position: fixed;
-        top: 0;
-        right: 0;
-        z-index: 50;
-        width: 100%;
+        // position: fixed;
+        // top: 0;
+        // right: 0;
+        // z-index: 50;
+        // width: 100%;
 
-        margin: 0;
-        padding: 0;
+        // margin: 0;
+        // padding: 0;
 
-        border-bottom: 1px solid v.$c_tone_03;
-        box-shadow: 0 0 30px 20px rgba(black, 80%);
-        background: v.$c_tone_02;
+        // border-bottom: 1px solid v.$c_tone-500;
+        // box-shadow: 0 0 30px 20px rgba(black, 80%);
+        background: v.$c_tone-800;
 
         display: grid;
         grid-template-rows: 35px 1fr 44px;
         grid-template-columns: 100%;
         
-        &-retracted{
-            height: 50dvh;
-        }
-        &-expanded{
-            height: 100dvh;
-        }
+        // &-retracted{
+        //     height: 50dvh;
+        // }
+        // &-expanded{
+        //     height: 100dvh;
+        // }
 
         &-inactive{
             @include v.visually-hidden;
@@ -1195,8 +1196,8 @@ $breakpoint_jobDetailsPO_asRowWithSidebar: $breakpoint_jobDetailsPO_asRowNoSideb
         align-items: center;
         justify-content: space-between;
 
-        background: v.$c_tone_03;
-        border-left: 3px solid v.$c_tone_05;
+        background: v.$c_tone-500;
+        border-left: 3px solid v.$c_tone-300;
     }
 
     &_detailsHeader{
@@ -1217,47 +1218,47 @@ $breakpoint_jobDetailsPO_asRowWithSidebar: $breakpoint_jobDetailsPO_asRowNoSideb
         align-items: center;
         padding: v.px-to-rem(4) v.px-to-rem(4);
 
-        border-color: transparent transparent v.$c_tone_04 v.$c_tone_05;
+        border-color: transparent transparent v.$c_tone-400 v.$c_tone-300;
         border-style: solid;
         border-width: 0 0 1px 3px;
 
-        background: v.$c_tone_01;
+        background: v.$c_tone-950;
 
         overflow-y: auto;
     }
 
-    &_detailsExpandCollapseWrapper{
-        height: 44px;
+    // &_detailsExpandCollapseWrapper{
+    //     height: 44px;
 
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
+    //     display: flex;
+    //     align-items: center;
+    //     justify-content: center;
+    // }
 
-    &_detailsExpandCollapseButton{
-        width: 60px;
-        height: 40px;
-        background-size: 30px;
-        background-repeat: no-repeat;
-        background-color: transparent;
-        background-position: center;
+    // &_detailsExpandCollapseButton{
+    //     width: 60px;
+    //     height: 40px;
+    //     background-size: 30px;
+    //     background-repeat: no-repeat;
+    //     background-color: transparent;
+    //     background-position: center;
 
-        border: none;
+    //     border: none;
 
-        &-expand{
-            background-image: url(../images/i-chevron-down.svg);
-            &:hover{
-                background-image: url(../images/i-chevron-down-blue.svg);
-            }
-        }
+    //     &-expand{
+    //         background-image: url(../images/i-chevron-down.svg);
+    //         &:hover{
+    //             background-image: url(../images/i-chevron-down-blue.svg);
+    //         }
+    //     }
 
-        &-collapse{
-            background-image: url(../images/i-chevron-up.svg);
-            &:hover{
-                background-image: url(../images/i-chevron-up-blue.svg);
-            }
-        }
-    }
+    //     &-collapse{
+    //         background-image: url(../images/i-chevron-up.svg);
+    //         &:hover{
+    //             background-image: url(../images/i-chevron-up-blue.svg);
+    //         }
+    //     }
+    // }
 
     &_detailsJobItem{
         --indentLeft: 1rem;
@@ -1267,7 +1268,7 @@ $breakpoint_jobDetailsPO_asRowWithSidebar: $breakpoint_jobDetailsPO_asRowNoSideb
         
         background: v.$c_tone-950;
 
-        border-bottom: 1px solid v.$c_tone_04;
+        border-bottom: 1px solid v.$c_tone-400;
         box-shadow: 0 0 20px 1px rgba(black, 50%);
 
         margin: 1rem 0 0 var(--indentLeft);
@@ -1283,7 +1284,7 @@ $breakpoint_jobDetailsPO_asRowWithSidebar: $breakpoint_jobDetailsPO_asRowNoSideb
     
             table{
                 margin: 0;
-                color: v.$c_tone_06;
+                color: v.$c_tone-200;
     
                 .desc{
                     padding: 0 0.4rem;
@@ -1310,7 +1311,7 @@ $breakpoint_jobDetailsPO_asRowWithSidebar: $breakpoint_jobDetailsPO_asRowNoSideb
     
         .subsection{
             margin: 0;
-            border-left: 3px solid v.$c_tone_04;
+            border-left: 3px solid v.$c_tone-400;
             border-bottom: none;
         }
     
@@ -1327,7 +1328,7 @@ $breakpoint_jobDetailsPO_asRowWithSidebar: $breakpoint_jobDetailsPO_asRowNoSideb
                 font-style: italic;
                 font-weight: normal;
                 font-size: 0.95rem;
-                color: v.$c_tone_06;
+                color: v.$c_tone-200;
     
                 padding: 0.1rem;
             }
@@ -1339,12 +1340,12 @@ $breakpoint_jobDetailsPO_asRowWithSidebar: $breakpoint_jobDetailsPO_asRowNoSideb
         }
     
         li{
-            color: v.$c_tone_06;
+            color: v.$c_tone-200;
         }
     
         .assignment-icon{
             display: inline-block;
-            border: 1px solid v.$c_tone_00;
+            border: 1px solid v.$c_tone-1000;
             border-radius: 0.2rem;
             font-size: 0.75rem;
             margin: 0;
@@ -1361,17 +1362,17 @@ $breakpoint_jobDetailsPO_asRowWithSidebar: $breakpoint_jobDetailsPO_asRowNoSideb
             .label{
                 border-top-left-radius: 0.15rem;
                 border-bottom-left-radius: 0.15rem;
-                border-right: 2px solid v.$c_accent_secondary;
-                background: v.$c_tone_01;
-                color: v.$c_tone_06;
+                border-right: 2px solid v.$c_tone-800;
+                background: v.$c_tone-950;
+                color: v.$c_tone-200;
             }
             .status{
-                background: v.$c_tone_01;
+                background: v.$c_tone-950;
                 font-weight: bold;
             }
            
             &:last-of-type{
-                border-bottom: 1px solid v.$c_tone_00;
+                border-bottom: 1px solid v.$c_tone-1000;
             }
         }
     
@@ -1393,12 +1394,12 @@ $breakpoint_jobDetailsPO_asRowWithSidebar: $breakpoint_jobDetailsPO_asRowNoSideb
         }
     
         .std-accs-container{
-            border-left: 3px solid v.$c_tone_04;
+            border-left: 3px solid v.$c_tone-400;
     
             p{
                 padding: 0.2rem 0 0.2rem 0.4rem;
                 width: calc(100% - 0.4rem);
-                background: v.$c_tone_02; 
+                background: v.$c_tone-800; 
                 margin: 0;
             }
         }
@@ -1410,7 +1411,7 @@ $breakpoint_jobDetailsPO_asRowWithSidebar: $breakpoint_jobDetailsPO_asRowNoSideb
                 flex-wrap: wrap;
                 width: 100%;
                 padding: 0.2rem 0.1rem 0.2rem 0.4rem;
-                background: v.$c_accent_02;
+                background: v.$c_accent-600;
     
                 .display-text{
                     flex-grow: 2;
@@ -1442,7 +1443,7 @@ $breakpoint_jobDetailsPO_asRowWithSidebar: $breakpoint_jobDetailsPO_asRowNoSideb
         }
     
         .assignments{
-            border-left: 3px solid v.$c_tone_04;
+            border-left: 3px solid v.$c_tone-400;
             border-color: rgb(212, 199, 163);
 
             .intro-line{
@@ -1457,9 +1458,9 @@ $breakpoint_jobDetailsPO_asRowWithSidebar: $breakpoint_jobDetailsPO_asRowNoSideb
         }
     
         .modules-ok{
-            border-left: 3px solid v.$c_accent_secondary;
+            border-left: 3px solid v.$c_tone-400;
             .intro-line{
-                background: v.$c_tone_02;
+                background: v.$c_tone-800;
             }
         }  
     
@@ -1476,7 +1477,7 @@ $breakpoint_jobDetailsPO_asRowWithSidebar: $breakpoint_jobDetailsPO_asRowNoSideb
                 background: v.$c_flag_special_dark;
             }
             li{
-                color: v.$c_tone_06;
+                color: v.$c_tone-200;
             }
         } 
     
@@ -1541,8 +1542,14 @@ $breakpoint_jobDetailsPO_asRowWithSidebar: $breakpoint_jobDetailsPO_asRowNoSideb
         &_detailsWrapper{
             grid-area: details;
 
-            position: static;
-            box-shadow: none;
+            &.expandableWrapper{
+                position: static;
+                box-shadow: none;
+
+                .expandableWrapper_toolbar{
+                    display: none;
+                }
+            }
 
             &-inactive{
                 @include v.visually-unhidden;
@@ -1569,9 +1576,9 @@ $breakpoint_jobDetailsPO_asRowWithSidebar: $breakpoint_jobDetailsPO_asRowNoSideb
             padding: v.px-to-rem(4);
         }
         
-        &_detailsExpandCollapseWrapper{
-            display: none;
-        }
+        // &_detailsExpandCollapseWrapper{
+        //     display: none;
+        // }
 
         &_detailsJobItem{
             --indentLeft: 1.5rem;
@@ -1645,16 +1652,16 @@ $breakpoint_jobDetailsPO_asRowWithSidebar: $breakpoint_jobDetailsPO_asRowNoSideb
     // When something is selected "dim" the non-selected text and statuses
     &.details-visible{
         td{
-            color: v.$c_tone_03;
+            color: v.$c_tone-500;
         }
 
         .content-highlight-wrapper{
             &.modules-ok,
             &.modules-excess,
             &.modules-incomplete{
-                color: v.$c_tone_04;
-                border-color: v.$c_tone_04;
-                background: v.$c_tone_02;
+                color: v.$c_tone-400;
+                border-color: v.$c_tone-400;
+                background: v.$c_tone-800;
             } 
         }
     }
@@ -1690,14 +1697,14 @@ $breakpoint_jobDetailsPO_asRowWithSidebar: $breakpoint_jobDetailsPO_asRowNoSideb
     //      > When the table is in "default mode", with nothing selected
     //      > When the item has been selected (directly or indirectly)
     &.details-visible .details-active .content-highlight-wrapper,
-    &.details-visible .details-child .content-highlight-wrapper,
-    &.details-visible .details-sibling .content-highlight-wrapper,
+    &.details-visible .details-slotFiller .content-highlight-wrapper,
+    &.details-visible .details-sameProduct .content-highlight-wrapper,
     .content-highlight-wrapper{
 
         &.modules-ok{
             color: white;
-            border-color: v.$c_accent_secondary;
-            background: v.$c_accent_secondary_02;
+            border-color: v.$c_good-500;
+            background: v.$c_good-800;
         }
     
         &.modules-incomplete{
@@ -1715,42 +1722,42 @@ $breakpoint_jobDetailsPO_asRowWithSidebar: $breakpoint_jobDetailsPO_asRowNoSideb
 
     // Set special formatting to <tr>s selected for details (directly or indirectly)
     .details-active {
-        background: v.$c_tone_06;
+        background: v.$c_tone-200;
 
         td{
             color: black;
         }
 
         .ji_id .content-highlight-wrapper{
-            border-color: v.$c_accent;
+            border-color: v.$c_accent-500;
         }
     }
 
-    .details-child{
+    .details-slotFiller{
         .part_no,
         .product_name,
         .selling_price,
         .modular{
             color: white;
-            background: v.$c_tone_03;
-            border-color: v.$c_tone_04;
+            background: v.$c_tone-500;
+            border-color: v.$c_tone-400;
         }
 
         .part_no .content-highlight-wrapper{
-            border-color: v.$c_accent;
+            border-color: v.$c_accent-500;
         }
     }
 
-    .details-sibling{
+    .details-sameProduct{
         .part_no,
         .product_name{
             color: white;
             background: v.$c_product_dark;
-            border-color: v.$c_tone_04;
+            border-color: v.$c_tone-400;
         }
 
         .part_no .content-highlight-wrapper{
-            border-color: v.$c_accent;
+            border-color: v.$c_accent-500;
         }
     }
 
@@ -1798,7 +1805,7 @@ $breakpoint_jobDetailsPO_asRowWithSidebar: $breakpoint_jobDetailsPO_asRowNoSideb
             margin: 0.5rem 0 0 0;
             padding: 0.3rem 0.2rem;
 
-            border: 1px solid v.$c_tone_00;
+            border: 1px solid v.$c_tone-1000;
             box-shadow: 0 0 10px 1px rgba(black, 35%);
         }
 
@@ -1851,7 +1858,7 @@ $breakpoint_jobDetailsPO_asRowWithSidebar: $breakpoint_jobDetailsPO_asRowNoSideb
             &::before{
                 display: inline-block;
                 content: "mod.";
-                background: v.$c_tone_01;
+                background: v.$c_tone-950;
                 padding: 0.1rem 0.4rem 0.2rem 0.4rem;
                 font-size: 0.9rem;
             }
@@ -1883,7 +1890,7 @@ $breakpoint_jobDetailsPO_asRowWithSidebar: $breakpoint_jobDetailsPO_asRowNoSideb
 
             .details-active{
                 // Add wider side-border and adjust padding to avoid content wiggling
-                border-left: 3px solid v.$c_accent;
+                border-left: 3px solid v.$c_accent-500;
                 padding-left: calc(0.2rem - 2px); 
 
                 td.modular{
@@ -1898,18 +1905,18 @@ $breakpoint_jobDetailsPO_asRowWithSidebar: $breakpoint_jobDetailsPO_asRowNoSideb
 
             }
 
-            .details-child{
+            .details-slotFiller{
                 // Add wider side-border and adjust padding to avoid content wiggling
-                border-left: 3px solid v.$c_accent;
+                border-left: 3px solid v.$c_accent-500;
                 padding-left: calc(0.2rem - 2px);
 
                 // Apply colour to the entire row
-                background: v.$c_tone_03;
+                background: v.$c_tone-500;
     
                 td{
                     color: white;
                     height: auto;
-                    border-color: v.$c_tone_04;
+                    border-color: v.$c_tone-400;
                 }
                 
                 .part_no .content-highlight-wrapper{
@@ -1917,7 +1924,7 @@ $breakpoint_jobDetailsPO_asRowWithSidebar: $breakpoint_jobDetailsPO_asRowNoSideb
                 }
             }
         
-            .details-sibling{
+            .details-sameProduct{
                 // Add wider side-border and adjust padding to avoid content wiggling
                 border-left: 3px solid v.$c_product_light;
                 padding-left: calc(0.2rem - 2px);
@@ -1927,7 +1934,7 @@ $breakpoint_jobDetailsPO_asRowWithSidebar: $breakpoint_jobDetailsPO_asRowNoSideb
     
                 td{
                     color: white;
-                    border-color: v.$c_tone_04;
+                    border-color: v.$c_tone-400;
                 }
                 
                 .part_no .content-highlight-wrapper{
@@ -1971,12 +1978,12 @@ $breakpoint_jobDetailsPO_asRowWithSidebar: $breakpoint_jobDetailsPO_asRowNoSideb
     width: 100%;
     margin: 0.5rem 0 0 0.5rem;
     font-size: 0.9rem;
-    color: v.$c_tone_04;
+    color: v.$c_tone-400;
     font-weight: bold;
 
     :first-child,
     :last-child{
-        border: 1px solid v.$c_tone_03;
+        border: 1px solid v.$c_tone-500;
     }
     :first-child{
         border-top-left-radius: 0.2rem;
@@ -1998,14 +2005,14 @@ $breakpoint_jobDetailsPO_asRowWithSidebar: $breakpoint_jobDetailsPO_asRowNoSideb
         display: block;
         padding: 0.1rem 1rem 0.1rem 0.7rem;
         
-        color: v.$c_tone_06;
-        border: 1px solid v.$c_tone_03;
-        border-left: 3px solid v.$c_tone_05;
+        color: v.$c_tone-200;
+        border: 1px solid v.$c_tone-500;
+        border-left: 3px solid v.$c_tone-300;
 
         &.todo-list-toggle{
-            background: v.$c_tone_01;
+            background: v.$c_tone-950;
             &:hover{
-                background: v.$c_tone_03;
+                background: v.$c_tone-500;
             }
         }
 
@@ -2013,7 +2020,7 @@ $breakpoint_jobDetailsPO_asRowWithSidebar: $breakpoint_jobDetailsPO_asRowNoSideb
             background: transparent;
 
             &:hover{
-                background: v.$c_tone_03;
+                background: v.$c_tone-500;
             }
         }
 
@@ -2022,13 +2029,13 @@ $breakpoint_jobDetailsPO_asRowWithSidebar: $breakpoint_jobDetailsPO_asRowNoSideb
     &.on{
         button,
         button#price_confirmation_button{
-            color: v.$c_accent_secondary;
-            border: 1px solid v.$c_accent_secondary_03;
-            border-left: 3px solid v.$c_accent_secondary;
+            color: v.$c_good-500;
+            border: 1px solid v.$c_good-600;
+            border-left: 3px solid v.$c_good-500;
 
             min-width: 49px;    // <- this prevents "font-weight: bold" on hover from making the element "twitch" on to-do
             &:hover{
-                background: v.$g_button_secondary;
+                background: v.$g_button_good;
                 color: black;
                 font-weight: bold;
             }
@@ -2042,7 +2049,7 @@ $breakpoint_jobDetailsPO_asRowWithSidebar: $breakpoint_jobDetailsPO_asRowNoSideb
     z-index: 2;
     left: -10px;
 
-    background: v.$c_tone_02;
+    background: v.$c_tone-800;
     min-width: 280px;
 
     text-align: left;
@@ -2052,7 +2059,7 @@ $breakpoint_jobDetailsPO_asRowWithSidebar: $breakpoint_jobDetailsPO_asRowNoSideb
     }
 
     &_optionsContainer{
-        border-top: 1px solid v.$c_tone_01;
+        border-top: 1px solid v.$c_tone-950;
     }
 
     &_optionsHeading{
@@ -2068,11 +2075,11 @@ $breakpoint_jobDetailsPO_asRowWithSidebar: $breakpoint_jobDetailsPO_asRowNoSideb
         padding: 0.4rem 0.3rem;
         width: 40%;
 
-        background: v.$c_tone_00;
+        background: v.$c_tone-1000;
 
         &:hover{
-            background: v.$c_tone_01;
-            color: v.$c_accent_04;
+            background: v.$c_tone-950;
+            color: v.$c_accent-300;
         }
     }
 
@@ -2107,10 +2114,10 @@ $breakpoint_jobDetailsPO_asRowWithSidebar: $breakpoint_jobDetailsPO_asRowNoSideb
     .details{
         display: block;
         font-style: italic;
-        color: v.$c_tone_06;
+        color: v.$c_tone-200;
 
         padding: 0.2rem 0.7rem;
-        background: v.$c_tone_00;
+        background: v.$c_tone-1000;
         border-radius: 0.3rem;
 
         text-align: center;
@@ -2179,7 +2186,7 @@ $breakpoint_jobDetailsPO_asRowWithSidebar: $breakpoint_jobDetailsPO_asRowNoSideb
             margin: 0.5rem 0 0 0.1rem;
             padding: 0.3rem 0.2rem;
 
-            border: 1px solid v.$c_tone_00;
+            border: 1px solid v.$c_tone-1000;
             box-shadow: 0 0 10px 1px rgba(black, 35%);
         }
 
@@ -2221,7 +2228,7 @@ $breakpoint_jobDetailsPO_asRowWithSidebar: $breakpoint_jobDetailsPO_asRowNoSideb
                 padding-right: 1.4rem;
             }
 
-            border-bottom: 1px solid v.$c_tone_03;
+            border-bottom: 1px solid v.$c_tone-500;
         }
 
         .version{
@@ -2231,18 +2238,18 @@ $breakpoint_jobDetailsPO_asRowWithSidebar: $breakpoint_jobDetailsPO_asRowNoSideb
         .list-price{
             grid-area: list-price;
             padding: 0.4rem 0 0 0.7rem;
-            color: v.$c_tone_05;
+            color: v.$c_tone-300;
         }
         .list-diff-val{
             grid-area: list-dv;
             text-align: right;
-            border-bottom: 1px solid v.$c_tone_03;
+            border-bottom: 1px solid v.$c_tone-500;
             padding: 0 0 0.4rem 0;
         }
         .list-diff-perc{
             grid-area: list-dp;
             padding: 0 0 0.4rem 0.5rem;
-            border-bottom: 1px solid v.$c_tone_03;
+            border-bottom: 1px solid v.$c_tone-500;
 
             &::before{
                 content: '(';
@@ -2262,7 +2269,7 @@ $breakpoint_jobDetailsPO_asRowWithSidebar: $breakpoint_jobDetailsPO_asRowNoSideb
         .resale-price{
             grid-area: resale-price;
             padding: 0.3rem 0 0 0.7rem;
-            color: v.$c_tone_06;
+            color: v.$c_tone-200;
         }
         .resale-diff-val{
             grid-area: resale-dv;
@@ -2293,14 +2300,14 @@ table.price-comparison{
     th{
         text-align: right;
         padding: 0.1rem 0.3rem;
-        border-right: 2px solid v.$c_tone_02;
+        border-right: 2px solid v.$c_tone-800;
     }
     td{
         padding: 0.3rem;
     }
 
     th, td{
-        border-top: 1px solid v.$c_tone_02;
+        border-top: 1px solid v.$c_tone-800;
     }
 
     .diff-perc{
@@ -2318,14 +2325,14 @@ table.price-comparison{
     }
 
     .conclusion{
-        background: v.$c_tone_01;
+        background: v.$c_tone-950;
 
         th{
-            border-right: 2px solid v.$c_accent_secondary; 
+            border-right: 2px solid v.$c_tone-500; 
         }
 
         th, td{
-            border-top: 1px solid v.$c_tone_03;
+            border-top: 1px solid v.$c_tone-500;
         }
     }
 }
@@ -2412,8 +2419,8 @@ table.price-comparison{
             margin-right: v.px-to-rem(4);
 
             display: block;
-            background: v.$c_tone_01;
-            border: 1px solid v.$c_tone_04;
+            background: v.$c_tone-950;
+            border: 1px solid v.$c_tone-400;
         
             border-color: v.$c_accent-500;
         }
@@ -2437,7 +2444,7 @@ table.price-comparison{
             text-align: center;
             font-weight: bold;
         
-            color: v.$c_tone_01;
+            color: v.$c_tone-950;
             background: v.$c_accent-500;
         }
     }
@@ -2467,15 +2474,15 @@ table.price-comparison{
 
     th{
         padding: 0.1rem 0.5rem;
-        border: 1px solid v.$c_tone_02;
-        background: v.$c_tone_03;
+        border: 1px solid v.$c_tone-800;
+        background: v.$c_tone-500;
     }
 
     &_referenceCol,
     &_dateCol,
     &_statusCol,
     &_editCol {
-        border: 1px solid v.$c_tone_03;
+        border: 1px solid v.$c_tone-500;
         height: 2rem;
     }
 
@@ -2512,7 +2519,7 @@ table.price-comparison{
             background: v.$c_accent-900;
         }
         &-issued{
-            background: v.$c_secondary-900;
+            background: v.$c_good-900;
         }
     }
 
@@ -2546,7 +2553,7 @@ table.price-comparison{
             border-color:v.$c_accent_500;
         }
         &-issued{
-            border-color: v.$c_accent_secondary;
+            border-color: v.$c_good-500;
         }
     }
 }
@@ -2601,7 +2608,7 @@ Seems more efficient to deviate from mobile-first in this case.
             margin: 0.5rem 0 0 0;
             padding: 0.3rem 0.2rem;
     
-            border: 1px solid v.$c_tone_00;
+            border: 1px solid v.$c_tone-1000;
             box-shadow: 0 0 10px 1px rgba(black, 35%);
         }
 
@@ -2622,7 +2629,7 @@ Seems more efficient to deviate from mobile-first in this case.
                 background: v.$c_accent-900;
             }
             &-issued{
-                background: v.$c_secondary-900;
+                background: v.$c_good-900;
             }
         }
     
@@ -2662,7 +2669,7 @@ Seems more efficient to deviate from mobile-first in this case.
                 border-color:v.$c_accent_500;
             }
             &-issued{
-                border-color: v.$c_accent_secondary;
+                border-color: v.$c_good-500;
             }
         } 
     }
@@ -2676,10 +2683,19 @@ Seems more efficient to deviate from mobile-first in this case.
     &_form{
         display: flex;
         flex-direction: column;
-        gap: v.px-to-rem(24);
+        gap: v.px-to-rem(8);
 
         width: 100%;
         max-width: 100%;
+    }
+
+    &_submit{
+        height: auto;
+        width: 40%;
+        padding: 0.5rem 0.5rem;
+        align-self: start;
+        vertical-align: middle;
+        font-size: v.px-to-rem(18);
     }
 }
 
@@ -2701,8 +2717,8 @@ Seems more efficient to deviate from mobile-first in this case.
     }
 
     &_checkboxesContainer{
-        background: v.$c_tone_01;
-        border: 1px solid v.$c_tone_00;
+        background: v.$c_tone-950;
+        border: 1px solid v.$c_tone-1000;
         border-radius: 3px;
         
         margin: 0.3rem 0 0 0;

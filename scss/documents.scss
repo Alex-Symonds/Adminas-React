@@ -17,10 +17,10 @@
     font-size: 0.75rem;
     white-space: nowrap;
 
-    background: v.$c_tone_01;
+    background: v.$c_tone-950;
 
-    border: 1px solid v.$c_tone_00;
-    border-left: 3px solid v.$c_accent_secondary;
+    border: 1px solid v.$c_tone-1000;
+    border-left: 3px solid v.$c_accent-700;
     border-top-right-radius: 0.5rem;
     border-bottom-right-radius: 0.5rem;
 }
@@ -32,7 +32,7 @@
     width: calc(100% - 1rem - 3px);
     padding: 0;
     margin: 1rem 0 2rem;
-    border-left: 3px solid v.$c_tone_03;
+    border-left: 3px solid v.$c_tone-500;
 
     position: relative;
 
@@ -60,19 +60,19 @@
 
         border-style: solid;
         border-width: 1px 1px 1px 3px;
-        border-color: v.$c_tone_00 v.$c_tone_00 v.$c_accent_secondary_02 v.$c_accent_secondary;
+        border-color: v.$c_tone-1000 v.$c_tone-1000 v.$c_good-800 v.$c_good-500;
 
-        background: v.$c_tone_01;
+        background: v.$c_tone-950;
 
         &.temp-warning-msg{
             max-width: none;
             min-height: 0;
-            border-color: v.$c_tone_00 v.$c_tone_00 v.$c_accent_secondary_02 v.$c_warning;
+            border-color: v.$c_tone-1000 v.$c_tone-1000 v.$c_good-800 v.$c_warning;
         }
     }
 
     &.draft .system-message-box{
-        border-bottom: 1px solid v.$c_tone_00;
+        border-bottom: 1px solid v.$c_tone-1000;
     }
 
     .unsaved-changes{
@@ -99,25 +99,21 @@
         padding: 0.5rem;
         font-size: 1.1rem;
         border: none;
-        background: v.$c_tone_02;
+        background: v.$c_tone-800;
     }
 
     &.draft{
         h3{
-            //background: v.$c_accent_secondary_02;
-            background: v.$c_accent_01;
+            background: v.$c_accent-800;
         }
-        //border-color: v.$c_accent_secondary;
-        border-color: v.$c_accent;
+        border-color: v.$c_accent-500;
     }
 
     &.issued{
         h3{
-            //background: v.$c_tone_03;
-            background: v.$c_accent_secondary_02;
+            background: v.$c_good-800;
         }
-        border-color: v.$c_accent_secondary;
-        //border-color: v.$c_tone_04;
+        border-color: v.$c_good-500;
     }
 
     .status-header{
@@ -151,34 +147,34 @@
 
     .filled,
     button.revert-replace{
-        border: 1px solid v.$c_accent;
+        border: 1px solid v.$c_accent-500;
         border-left: none;
         border-top-right-radius: 0.5rem;
         border-bottom-right-radius: 0.5rem;
         font-weight: bold;
 
         &:hover{
-            background: v.$c_accent_03;
+            background: v.$c_accent-400;
             background: v.$g_button_hover;
             color: v.$c_txt_on_accent;
         }
     }
 
     .filled{
-        background: v.$c_accent;
+        background: v.$c_accent-500;
         background: v.$g_button_main;
         color: v.$c_txt_main;
     }
 
     button:disabled,
     p.disabled{
-        border-color: v.$c_tone_02;
-        background: v.$c_tone_03;
+        border-color: v.$c_tone-800;
+        background: v.$c_tone-500;
         font-weight: normal;
 
         &:hover{
-            border-color: v.$c_tone_02;
-            background: v.$c_tone_03;
+            border-color: v.$c_tone-800;
+            background: v.$c_tone-500;
         }
     }
 
@@ -193,9 +189,9 @@
 
 
     button.revert-replace{
-        background: v.$c_tone_00;
-        color: v.$c_accent;
-        border-color: v.$c_accent;
+        background: v.$c_tone-1000;
+        color: v.$c_accent-500;
+        border-color: v.$c_accent-500;
     }
 
     .button-warning{
@@ -252,10 +248,10 @@
     }
 
     .document-item-lists li:last-of-type{
-        border-bottom: 1px solid v.$c_tone_02;
+        border-bottom: 1px solid v.$c_tone-800;
     }
     .document-item-lists li{
-        border-top: 1px solid v.$c_tone_02;
+        border-top: 1px solid v.$c_tone-800;
     }
 
     .document-item-lists{
@@ -282,7 +278,7 @@
             top: 0.5rem;
             left: 0.5rem;
             z-index: 3;
-            background: v.$c_tone_02;
+            background: v.$c_tone-800;
             display: flex;
             flex-flow: column nowrap;
             justify-content: center;
@@ -313,7 +309,7 @@
                 display: flex;
                 align-items: center;
 
-                background: v.$c_tone_01;
+                background: v.$c_tone-950;
                 border-left: 3px solid v.$c_warning;
                 padding: 0.3rem 0.5rem;  
             }
@@ -322,20 +318,20 @@
                 display: flex;
                 flex-flow: column nowrap;
                 justify-content: center;
-                background: v.$c_tone_01;
+                background: v.$c_tone-950;
                 padding-bottom: 0.5rem;
 
                 .split-direction-strip{
                     display: flex;
                     width: 100%;
-                    background: v.$c_tone_01;
-                    border-top: 1px solid v.$c_tone_00;
+                    background: v.$c_tone-950;
+                    border-top: 1px solid v.$c_tone-1000;
     
                     div{
                         display: block;
                         text-align: center;
                         width: 33%;
-                        background: v.$c_tone_01;
+                        background: v.$c_tone-950;
                     }
                 }
             }
@@ -345,14 +341,14 @@
                 justify-content: center;
 
                 .container{
-                    border: 1px solid v.$c_tone_00;
+                    border: 1px solid v.$c_tone-1000;
                     width: 50%;
                     max-width: 8rem;
                     text-align: center;
 
                     h5{
-                        background: v.$c_tone_02;
-                        border-bottom: 1px solid v.$c_tone_01;
+                        background: v.$c_tone-800;
+                        border-bottom: 1px solid v.$c_tone-950;
                         padding: 0.3rem 0 0.2rem;
                     }
 
@@ -420,7 +416,7 @@
 
         width: 100%;
 
-        border: 1px solid v.$c_tone_03;
+        border: 1px solid v.$c_tone-500;
         padding: 0.3rem;
         margin-top: 0.5rem;
         border-radius: 5px;
@@ -460,7 +456,7 @@
         min-width: 100%;
     }
     .who-and-when{
-        color: v.$c_tone_04;
+        color: v.$c_tone-400;
         font-style: italic;
         font-size: 0.9rem;
         min-width: 100%;
@@ -491,8 +487,8 @@
     }
 
     .add-new{
-        border: 1px solid v.$c_tone_03;
-        background: v.$c_tone_02;
+        border: 1px solid v.$c_tone-500;
+        background: v.$c_tone-800;
         border-radius: 0.6rem;
         margin: 1rem 0.3rem 0.8rem;
 
@@ -524,7 +520,7 @@
 
         &.invalid{
             border-left: 3px solid v.$c_warning_bright;
-            background: v.$c_tone_02;
+            background: v.$c_tone-800;
         }
         
         .invalid-icon{
@@ -539,7 +535,7 @@
     &.excluded-container ul{
         .display,
         .none{
-            color: v.$c_tone_03;
+            color: v.$c_tone-500;
             font-style: italic;
         }
     }
@@ -552,11 +548,10 @@
             width: calc(100% - 2 * 0.5rem);
 
             &.issued{
-                background: v.$c_accent_secondary_02;
-                //background: v.$c_tone_05;
+                background: v.$c_good-800;
             }
             &.draft{
-                background: v.$c_accent_02;//v.$c_accent_secondary_02;
+                background: v.$c_accent-600;
             }
         }
     }

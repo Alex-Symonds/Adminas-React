@@ -25,10 +25,8 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 async function replace_issued_document(){
-    let request_options = get_request_options('POST');
+    let request_options = getRequestOptions('POST');
     let resp_data = await update_backend(`${URL_DOC_MAIN}?doc_id=${DOC_ID}&task=replace`, request_options);
-
-    // console.log(resp_data);
 
     if(status_is_good(resp_data, 201)){
         window.location.href = resp_data[KEY_LOCATION];
@@ -39,7 +37,7 @@ async function replace_issued_document(){
 }
 
 async function revert_issued_document(){
-    let request_options = get_request_options('POST');
+    let request_options = getRequestOptions('POST');
     let resp_data = await update_backend(`${URL_DOC_MAIN}?doc_id=${DOC_ID}&task=revert`, request_options);
 
     console.log(resp_data);

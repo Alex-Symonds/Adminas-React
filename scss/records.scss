@@ -62,7 +62,7 @@
     }
 
     &_list{
-        --subtle: #{v.$c_tone_300};
+        --subtle: #{v.$c_tone-300};
         --lineHeight: #{v.px-to-rem(18)};
         --paddingX: #{v.px-to-rem(8)};
         --paddingY: #{v.px-to-rem(8)};
@@ -85,11 +85,11 @@
 
         &:not(:nth-of-type(1)){
             padding-top: var(--paddingY);
-            border-top: 1px solid v.$c_tone_700;
+            border-top: 1px solid v.$c_tone-700;
         }
 
         &:nth-of-type(even){
-            background: rgba(v.$c_tone_900, 0.8);
+            background: rgba(v.$c_tone-900, 0.8);
         }
 
         /*
@@ -512,17 +512,17 @@
         width: var(--todoButtonSize);
         flex: 0 0 var(--todoButtonSize);
 
-        border: 2px solid v.$c_secondary-500;
+        border: 2px solid v.$c_accent-500;
         border-radius: var(--todoButtonSize);
         box-sizing: border-box;
 
         &-on{
-            background: v.$c_secondary-500;
+            background: v.$c_accent-500;
         }
         &-off{
             background: transparent;
             &:hover{
-                background: v.$c_secondary-700;
+                background: v.$c_accent-700;
             }
         }
     }
@@ -612,9 +612,9 @@
             font-weight: 500;
             color: v.$c_tone-200;
 
-            background: v.$c_tone_00;
-            border: v.px-to-rem(1) solid v.$c_tone_950;
-            border-bottom: v.px-to-rem(1) solid v.$c_tone_900;
+            background: v.$c_tone-1000;
+            border: v.px-to-rem(1) solid v.$c_tone-950;
+            border-bottom: v.px-to-rem(1) solid v.$c_tone-900;
         }
         &_todoHeading{
             white-space: nowrap;
@@ -775,7 +775,8 @@
         }
 
         &_todoButtonSpan{
-            top: -6px;
+            top: -24px;
+            right: -16px;
         }
     }
 }

@@ -7,11 +7,10 @@
         || Create PO section
         || Discrepancy Warning
         || Existing POs
-        || PO editor form
 */
 
 // || Main section
-function JobPo(props){
+function JobPo({ actions_po, currency, difference, has_invalid_currency_po, job_id, modalKit, poList, total_items_value, total_po_value }){
     return [
         <section class="jobPO jobPanelSection">
             <h3 className={"jobPanelSection_headingWrapper"}>
@@ -21,19 +20,18 @@ function JobPo(props){
             </h3>
             <div className="jobPO_content">
                 <JobPoCreate    
-                    actions_po = { props.actions_po }
-                    currency = { props.currency }
-                    job_id =  { props.job_id }
-                    URL_GET_DATA = {props.URL_GET_DATA}
+                    actions_po = { actions_po }
+                    currency = { currency }
+                    modalKit = { modalKit }
                 />
-            { props.has_invalid_currency_po ?
+            { has_invalid_currency_po ?
                 <WarningSubSubsectionUI
                     message = {"All POs should be in the same currency as the job."}
                     title = {"Error: Currency Mismatch"}
                 />
                 : null
             }
-            { props.difference === 0 || props.poList.length === 0 ?
+            { difference === 0 || poList.length === 0 ?
                 null
                 :
                 <WarningSubSubsectionUI
@@ -41,20 +39,20 @@ function JobPo(props){
                     title = {"Discrepancy"}
                 >
                     <JobPoDiscrepancyUI 
-                        currency = { props.currency}
-                        difference = { props.difference }
-                        poList = { props.poList }
-                        total_po_value = { props.total_po_value }
-                        total_items_value = { props.total_items_value }
+                        currency = { currency}
+                        difference = { difference }
+                        poList = { poList }
+                        total_po_value = { total_po_value }
+                        total_items_value = { total_items_value }
                     />
                 </WarningSubSubsectionUI>
             }
                 <JobPOReceived 
-                    actions_po = { props.actions_po }
-                    currency = { props.currency } 
-                    poList = { props.poList }
-                    job_id = { props.job_id }
-                    URL_GET_DATA = { props.URL_GET_DATA }
+                    actions_po = { actions_po }
+                    currency = { currency } 
+                    modalKit = { modalKit }
+                    poList = { poList }
+                    job_id = { job_id }
                 />
             </div>
         </section>
@@ -63,85 +61,69 @@ function JobPo(props){
 
 
 // || Create PO section
-function JobPoCreate(props){
+function JobPoCreate({ actions_po, currency, modalKit }){
     // Either the button or the form should be visible, never both.
-    // Use an editor object to monitor this, allowing reuse of code with that called by components
-    // monitoring multiple competing children.
-    const [activeEdit, setActiveEdit] = React.useState(null);
-    const editor = get_editor_object('create_po_form', activeEdit, setActiveEdit);
+    const ID_FOR_MODAL = 'create_po_form';
 
     return [
         <div class="jobPO_addPO">
             <button 
                 id="toggle_po_form_btn" 
                 class="add-button" 
-                onClick={ editor.on }
-                disabled = { editor.is_active }
+                onClick={ () => { console.log("click!"); modalKit.open(ID_FOR_MODAL) } }
+                disabled = { modalKit.isOpen() }
             >
                 New PO
             </button>
-            <JobPoAddNew        
-                actions_po = { props.actions_po }
-                currency = { props.currency }
-                editor = { editor }
-                job_id =  { props.job_id }
-                URL_GET_DATA = {props.URL_GET_DATA}
-            />
+            { modalKit.isOpenedBy(ID_FOR_MODAL) ?
+                <JobPoAddNew        
+                    actions_po = { actions_po }
+                    closePOCreator = { () => modalKit.close() }
+                    currency = { currency }
+                />
+                : null
+            }
         </div>
     ]
 }
 
 
-// "Create mode" wrapper for the JobPoEditor
-function JobPoAddNew(props){
-
-    if(!props.editor.is_active){
-        return null;
-    }
-
-    // JobPoEditor is shared with the Update/Delete form
-    // It requires the parent to pass in functions to "handle_submit" and "handle_delete"
-    // on the frontend. Make submit = create.
-    function handle_submit(new_po_id, po_attributes){
-        props.actions_po.create_f(new_po_id, po_attributes);
-    }
-
+function JobPoAddNew({ actions_po, closePOCreator, currency }){
     // Make a "blank" data object for passing into the editor
     const data = {
         'po_id': null,
-        'currency': props.currency,
+        'currency': currency,
         'date_on_po': null,
         'date_received': null,
         'reference': null,
         'value': null
     }
 
-    return <JobPoEditor data = { data }
-                        editor = { props.editor }
-                        form_id = 'po_form'
-                        state_submit = { handle_submit }
-                        state_delete = { null }
-                        job_id = { props.job_id }
-                        title = 'Add PO'
-                        URL_GET_DATA = { props.URL_GET_DATA }
-                        />
+    return <JobPoEditor 
+            closeFn = { closePOCreator }
+            data = { data }
+            form_id = 'po_form'
+            onDelete = { null }
+            onSubmit = { actions_po.create }
+            title = 'Add PO'
+        />
 }
 
 
 
 // || Discrepancy Warning
 // Subsection showing the difference between total PO value and total line items value. Conditionally displayed when there's a mismatch with prices.
-function JobPoDiscrepancyUI(props){
+function JobPoDiscrepancyUI({ currency, difference, total_items_value, total_po_value }){
     return [
             <div class="jobPO_comparisonTableWrapper">
                 <h5 class="jobPO_comparisonTableHeading">Comparison: Items to PO</h5>
                 <PriceComparisonTable   
-                    currency = {props.currency}
-                    difference = {props.difference}
+                    currency = {currency}
+                    difference = {difference}
                     first_title = 'PO Sum'
-                    first_value = {props.total_po_value}
+                    first_value = {total_po_value}
                     second_title = 'Line Items Sum'
-                    second_value = {props.total_items_value}
+                    second_value = {total_items_value}
                 />
             </div>
     ]
@@ -150,39 +132,27 @@ function JobPoDiscrepancyUI(props){
 
 // || Existing POs
 // Container to hold the elements for each individual PO
-function JobPOReceived(props){
+function JobPOReceived({ actions_po, currency, modalKit, poList }){
     return  <div className={"jobPO_receivedSection"}>
                 <h4 className={"jobPO_subsectionHeading jobPanelSection_subsectionHeading"}>Received</h4>
-                { props.poList.length === 0 ?
-                    <EmptySectionUI message={'No purchase orders have been entered'} css={'jobPage_emptySection'} />
+                { poList === null || poList === undefined || poList.length === 0 ?
+                    <EmptySectionUI 
+                        css={'jobPage_emptySection'} 
+                        message={'No purchase orders have been entered'} 
+                    />
                 :
-                    <JobPoList          
-                        actions_po = { props.actions_po }
-                        currency = { props.currency } 
-                        poList = { props.poList }
-                        job_id = { props.job_id }
-                        URL_GET_DATA = { props.URL_GET_DATA }
+                    <JobPoTableUI       
+                        actions_po = { actions_po }
+                        currency = { currency } 
+                        modalKit = { modalKit }
+                        poList = { poList }
                     />
                 }
             </div>
 }
 
-function JobPoList(props){
-    // manage edit mode: only one PO should be editable at a time
-    const [activeEdit, setActiveEdit] = React.useState(null);
-    const editor_state = getter_and_setter(activeEdit, setActiveEdit);
 
-    return <JobPoListUI 
-                poList = { props.poList }
-                actions_po = { props.actions_po }
-                currency = { props.currency }
-                editor_state = { editor_state }
-                job_id = { props.job_id }
-                URL_GET_DATA = { props.URL_GET_DATA }
-            />
-}
-
-function JobPoListUI(props){
+function JobPoTableUI({ actions_po, currency, modalKit, poList }){
     return [
         <div class="jobPO_poListWrapper">
             <table id="po_table" class="banded">
@@ -195,16 +165,14 @@ function JobPoListUI(props){
                     </tr>
                 </thead>
                 <tbody>
-            {props.poList.map((po) =>
-                <JobPoElement   key = { po.po_id.toString() }
-                                actions_po = { props.actions_po }
-                                currency = { props.currency }
-                                data = { po }
-                                editor_state = { props.editor_state }
-                                job_id = { props.job_id }
-                                URL_GET_DATA = { props.URL_GET_DATA }
-                                />
-            )}
+                {poList.map((po) =>
+                    <JobPoRow key = { po.po_id.toString() }
+                        actions_po = { actions_po }
+                        currency = { currency }
+                        data = { po }
+                        modalKit = { modalKit }
+                    />
+                )}
                 </tbody>
             </table>
         </div>
@@ -213,301 +181,82 @@ function JobPoListUI(props){
 
 
 // Element displaying info for a single PO
-function JobPoElement(props){
-
-    const editor = get_editor_object(props.data.po_id, props.editor_state.get, props.editor_state.set);
-
+function JobPoRow({ actions_po, currency, data, modalKit }){
     // JobPoEditor is shared with the Update/Delete form
     // It requires the parent to pass in functions to "handle_submit" and "handle_delete"
     // on the frontend. Make submit = update and delete = ... well, delete.
-    function handle_edit(po_attributes){
-        props.actions_po.update_f(props.data.po_id, po_attributes);
+    async function handle_edit(feData, beData){
+        return await actions_po.update(data.po_id, feData, beData);
     }
 
-    function handle_delete(){
-        props.actions_po.delete_f(props.data.po_id);
+    async function handle_delete(){
+        return await actions_po.remove(data.po_id);
     }
 
-    // If edit mode is active, display the editor while passing in the data for this PO
-    if(editor.is_active){
-        return [
-            <tr>
-                <td colspan={5}>
-                    <JobPoEditor 
-                        data = { props.data }
-                        editor = { editor }
-                        form_id = 'po_edit_form'
-                        state_delete = { handle_delete }
-                        state_submit = { handle_edit }
-                        job_id = { props.job_id }
-                        title = 'Edit PO'
-                        URL_GET_DATA = { props.URL_GET_DATA }
-                    />
-                </td>
-            </tr>
-        ]
-    }
-
-    // Otherwise show the read-mode
-    return <JobPoReadUI 
-                currency = {props.currency}
-                data = {props.data}
-                editor = { editor } 
-            />
+    const ID_FOR_MODAL = `po_editor_for_id_${data.po_id}`;
+    return modalKit.isOpenedBy(ID_FOR_MODAL) ?
+        <JobPoRowEditUI
+            data = { data }
+            closePOEditor = { () => modalKit.close() }
+            onDelete = { handle_delete }
+            onSubmit = { handle_edit }
+        />
+    :
+        <JobPoRowReadUI 
+            currency = { currency }
+            data = { data }
+            openPOEditor = { () => modalKit.open(ID_FOR_MODAL) } 
+            poEditorIsUnavailable = { modalKit.isOpen() }
+        />
 }
 
 
 // Element for reading info of a single PO
-function JobPoReadUI(props){
-    let currency_matches_job = props.data.currency === props.currency;
-
+function JobPoRowReadUI({ currency, data, openPOEditor, poEditorIsUnavailable }){
+    const currency_matches_job = data.currency === currency;
     return [
         <tr class={currency_matches_job ? null : "invalid"}>
-            <td class="ref">{ props.data.reference }</td>
-            <td class="date_on_po">{ props.data.date_on_po }</td>
-            <td class="date_received">{ props.data.date_received }</td>
+            <td class="ref">{ data.reference }</td>
+            <td class="date_on_po">{ data.date_on_po }</td>
+            <td class="date_received">{ data.date_received }</td>
             <td class="value">
-                <InvalidIconUI  is_valid = { currency_matches_job }
-                                message = "job has different currency"
-                                />
-                <span class="display-text">{ props.data.currency + nbsp() + format_money(parseFloat(props.data.value)) }</span>
+                { currency_matches_job
+                    ? null
+                    : <InvalidIconUI message = "job has different currency" />
+                }
+                <span class="display-text">
+                    { data.currency + nbsp() + format_money(parseFloat(data.value)) }
+                </span>
             </td>
-            <td class="edit"><button type="button" class="po-edit edit-icon" onClick={ props.editor.on }><span>edit</span></button></td>
+            <td class="edit">
+                <button 
+                    type="button" 
+                    class="po-edit edit-icon" 
+                    disabled = { poEditorIsUnavailable }
+                    onClick={ openPOEditor }
+                >
+                    <span>edit</span>
+                </button>
+            </td>
         </tr>
     ]
 }
 
-
-// || PO editor form
-// Shared by CREATE and UPDATE/DELETE
-function JobPoEditor(props){
-    const {
-        error,
-        isLoaded,
-        backend_error,
-        controlled,
-        handle_delete,
-        handle_submit,
-    } = usePOEditor(props.data, props.URL_GET_DATA, props.state_submit, props.state_delete, props.editor);
-
-    if(error){
-        return <LoadingErrorUI name='form' />
-    }
-    else if(!isLoaded){
-        return <LoadingUI />
-    }
-    return  <JobPoEditorUI   
-                backend_error = { backend_error }
-                editor = { props.editor }
-                controlled = { controlled }
-                form_id = { props.form_id }
-                po_id = { props.data.po_id }
-                handle_delete = { handle_delete }
-                handle_submit = { handle_submit }
-                title = { props.title }
-                URL_GET_DATA = { props.URL_GET_DATA }
-            />
-}
-
-
-function JobPoEditorUI(props){
-    const ID_REFERENCE = 'id_po_reference';
-    const ID_DATE_ON_PO = 'id_date_on_po';
-    const ID_DATE_RECEIVED = 'id_po_date_received';
-    const ID_CURRENCY = 'id_po_currency';
-    const ID_VALUE = 'id_po_value';
-
+function JobPoRowEditUI({ closePOEditor, data, handle_delete, handle_edit }){
     return [
-        <Modal close={props.editor.off}>
-            <div className={"poEditor"}>
-                <h3 class="modal_heading">{ props.title }</h3>
-                <div className={"modal_contents"}>
-                    <BackendErrorUI 
-                        message = { props.backend_error.message }
-                        turn_off_error = { props.backend_error.clear } 
-                    />
-
-                    <form class="poEditor_form formy" id={ props.form_id }>
-                        <div className={"formy_inputsContainer"}>
-                            <LabelFieldContainer>
-                                <FormLabel inputID={ID_REFERENCE}>
-                                    Customer PO Number:
-                                </FormLabel>
-                                <input className={"poEditor_poNumInput formy_input"} type="text" name="reference" maxlength="50" required="" id={ID_REFERENCE} value={ props.controlled.reference.get } onChange={ props.controlled.reference.set }/>
-                            </LabelFieldContainer>
-                            <LabelFieldContainer>
-                                <FormLabel inputID={ID_DATE_ON_PO}>
-                                    Date on PO:
-                                </FormLabel>
-                                <input className={"formy_date"} type="date" name="date_on_po" required="" id={ID_DATE_ON_PO} value={ props.controlled.date_on_po.get } onChange={ props.controlled.date_on_po.set }/>
-                            </LabelFieldContainer>
-                            <LabelFieldContainer>
-                                <FormLabel inputID={ID_DATE_RECEIVED}>
-                                    Date received:
-                                </FormLabel>
-                                <input className={"formy_date"} type="date" name="date_received" required="" id={ID_DATE_RECEIVED} value={ props.controlled.date_received.get } onChange={ props.controlled.date_received.set } />
-                            </LabelFieldContainer>
-                            <LabelFieldContainer>
-                                <FormLabel inputID={ID_CURRENCY}>
-                                    Currency:
-                                </FormLabel>
-                                <SelectBackendOptions   
-                                    select_id = { ID_CURRENCY }
-                                    select_name = { 'currency' }
-                                    is_required = {true}
-                                    api_url = { props.URL_GET_DATA }
-                                    get_param = 'currencies'
-                                    selected_opt_id = { props.controlled.currency.get }
-                                    handle_change = { props.controlled.currency.set }
-                                    cssClass={"formy_currencySelect"} 
-                                />
-                            </LabelFieldContainer>
-                            <LabelFieldContainer>
-                                <FormLabel inputID={ID_VALUE}>
-                                    Value:
-                                </FormLabel>
-                                <input className={"formy_input"} type="number" name="value" step="0.01" required="" id={ID_VALUE} value={ props.controlled.po_value.get } onChange={ props.controlled.po_value.set }/>
-                            </LabelFieldContainer>
-                        </div>
-                        <EditorControls 
-                            submit = { props.handle_submit }
-                            delete = { props.handle_delete }
-                            want_delete = { props.po_id !== null } 
-                        />
-                    </form>
-                </div>
-            </div>
-        </Modal>
+        <tr>
+            <td colspan={5}>
+                <JobPoEditor 
+                    closeFn = { closePOEditor }
+                    data = { data }
+                    form_id = 'po_edit_form'
+                    onDelete = { handle_delete }
+                    onSubmit = { handle_edit }
+                    title = 'Edit PO'
+                />
+            </td>
+        </tr>
     ]
-}
-
-
-function usePOEditor(poData, URL_GET_DATA, state_submit, state_delete, editor){
-    const [reference, setReference] = React.useState(poData.reference);
-    const [dateOnPo, setDateOnPo] = React.useState(poData.date_on_po);
-    const [dateReceived, setDateReceived] = React.useState(poData.date_received);
-    const [currency, setCurrency] = React.useState(poData.currency);
-    const [poValue, setPoValue] = React.useState(poData.value);
-
-    function update_reference(e){
-        setReference(e.target.value);
-    }
-    function update_date_on_po(e){
-        setDateOnPo(e.target.value);
-    }
-    function update_date_received(e){
-        setDateReceived(e.target.value);
-    }
-    function update_currency(e){
-        setCurrency(e.target.value);
-    }
-    function update_po_value(e){
-        setPoValue(e.target.value);
-    }
-
-    var controlled = {
-        'reference': getter_and_setter(reference, update_reference),
-        'date_on_po': getter_and_setter(dateOnPo, update_date_on_po),
-        'date_received': getter_and_setter(dateReceived, update_date_received),
-        'currency': getter_and_setter(currency, update_currency),
-        'po_value': getter_and_setter(poValue, update_po_value)
-    }
-
-    // Fetching the URL for purchase order actions from the BE
-    const [actionUrl, setActionUrl] = React.useState('');
-    const { data, error, isLoaded } = useFetch(url_for_url_list(URL_GET_DATA));
-    React.useEffect(() => {
-        set_if_ok(data, 'po_url', setActionUrl);
-    }, [data]);
-
-    // Functions for handling form buttons
-    function handle_submit(e){
-        e.preventDefault();
-        save_po();  
-    }
-
-    function handle_delete(e){
-        e.preventDefault();
-        delete_po();
-    }
-
-    const [backendError, setBackendError] = React.useState(null);
-    const backend_error = get_backend_error_object(backendError, setBackendError);
-
-    const save_po = () => {
-        if(poData.po_id === null){
-            save_po_on_be('POST', 201, actionUrl, (resp_data) => {
-                var attributes = state_to_object_fe();
-                attributes.po_id = resp_data.id;
-                state_submit(attributes);
-            });
-
-        } else {
-            save_po_on_be('PUT', 204, `${actionUrl}?id=${poData.po_id}`, () => {
-                state_submit(state_to_object_fe());
-            });
-        }
-    };
-
-    function save_po_on_be(method, expected_response_code, url, update_po_state_funct){
-        const headers = getFetchHeaders(method, state_to_object_be());
-
-        update_server(url, headers, resp_data => {
-            if(status_is_good(resp_data, expected_response_code)){
-                update_po_state_funct(resp_data);
-                editor.off();
-            }
-            else{
-                backend_error.set(get_error_message(resp_data));
-            }
-        });
-    }
-
-
-    const delete_po = () => {
-        const url = `${actionUrl}?id=${poData.po_id}`;
-        const headers = getFetchHeaders('DELETE', null);
-
-        update_server(url, headers, resp_data => {
-            if(status_is_good(resp_data, 204)){
-                state_delete();
-                editor.off();
-            }
-            else{
-                backend_error.set(get_error_message(resp_data));
-            }
-        });
-    };
-
-    function state_to_object_fe(){
-        return {
-            reference: reference,
-            date_on_po: dateOnPo,
-            value: poValue,
-            date_received: dateReceived,
-            currency: currency
-        };   
-    }
-
-    function state_to_object_be(){
-        return {
-            reference: reference,
-            date_on_po: dateOnPo,
-            value: poValue,
-            date_received: dateReceived,
-            currency: currency,
-            job: window.JOB_ID
-        };   
-    }
-
-    return {
-        error,
-        isLoaded,
-        backend_error,
-        controlled,
-        handle_delete,
-        handle_submit,
-    }
 }
 
 
