@@ -90,7 +90,7 @@ $breakpoint_testimonialsThreeCol: 1150px;
         font-size: var(--mainFontSize);
         line-height: 1.4;
     
-        border-left: var(--sideBorderWidth) solid v.$c_accent_secondary;
+        border-left: var(--sideBorderWidth) solid v.$c_accent-300;
         border-top-right-radius: v.px-to-rem(4);
         border-bottom-right-radius: v.px-to-rem(4);
 
@@ -139,7 +139,7 @@ $breakpoint_testimonialsThreeCol: 1150px;
 
     padding: 0 0 var(--contentSpacing) 0;
 
-    color: v.$c_tone_100;
+    color: v.$c_tone-100;
 
     font-family: v.$f_contents;
     background: v.$c_bg_main;
@@ -198,7 +198,7 @@ $breakpoint_testimonialsThreeCol: 1150px;
         padding: 0;
         width: 100%;
     
-        color: v.$c_tone_06;
+        color: v.$c_tone-200;
         font-size: calc(var(--adminasFontSize) * .4);
         font-weight: 400;
         text-align: center;
@@ -239,28 +239,28 @@ $breakpoint_testimonialsThreeCol: 1150px;
 
     background-image:
         radial-gradient(    circle at calc(100% - var(--bigCircle) + var(--bigCircle)/5) calc(2% + var(--bigCircle) + var(--bigCircle)/5), 
-                            v.$c_accent_03 0%,
-                            v.$c_accent var(--bigCircle),
+                            v.$c_accent-400 0%,
+                            v.$c_accent-500 var(--bigCircle),
                             transparent calc(var(--bigCircle) + 1px)),
         radial-gradient(    circle at calc(64% - var(--midCircle) + var(--midCircle)/5) calc(8% + var(--midCircle) + var(--midCircle)/5), 
-                            v.$c_accent 0%,
-                            v.$c_accent var(--midCircle),
+                            v.$c_accent-500 0%,
+                            v.$c_accent-500 var(--midCircle),
                             transparent calc(var(--midCircle) + 1px)),
         radial-gradient(    circle at calc(90% - var(--midCircle) + var(--midCircle)/5) calc(72% + var(--midCircle) + var(--midCircle)/5), 
-                            v.$c_accent 0%,
-                            v.$c_accent var(--midCircle),
+                            v.$c_accent-500 0%,
+                            v.$c_accent-500 var(--midCircle),
                             transparent calc(var(--midCircle) + 1px)),
         radial-gradient(    circle at calc(25% - var(--smallCircle) + var(--smallCircle)/5) calc(25% + var(--smallCircle) + var(--smallCircle)/5), 
-                            v.$c_accent 0%,
-                            v.$c_accent var(--smallCircle),
+                            v.$c_accent-500 0%,
+                            v.$c_accent-500 var(--smallCircle),
                             transparent calc(var(--smallCircle) + 1px)),
         radial-gradient(    circle at calc(64% - var(--smallCircle) + var(--smallCircle)/5) calc(81% + var(--smallCircle) + var(--smallCircle)/5), 
-                            v.$c_accent 0%,
-                            v.$c_accent var(--smallCircle),
+                            v.$c_accent-500 0%,
+                            v.$c_accent-500 var(--smallCircle),
                             transparent calc(var(--smallCircle) + 1px)),
         radial-gradient(    circle at calc(93% - var(--smallCircle) + var(--smallCircle)/5) calc(47% + var(--smallCircle) + var(--smallCircle)/5), 
-                            v.$c_accent 0%,
-                            v.$c_accent var(--smallCircle),
+                            v.$c_accent-500 0%,
+                            v.$c_accent-500 var(--smallCircle),
                             transparent calc(var(--smallCircle) + 1px)),
         linear-gradient(    rgba(black, .45) 0%, rgba(black, .3) 80%, transparent 100% ),  
     ;
@@ -367,7 +367,7 @@ $breakpoint_testimonialsThreeCol: 1150px;
         height: var(--size);
         width: var(--size);
     
-        background: v.$c_accent;
+        background: v.$c_accent-500;
         border-radius: 50%;
     
         display: flex;

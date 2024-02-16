@@ -321,12 +321,12 @@ def get_dict_job_page_root(job):
 
     result['items_url'] = reverse('api_items')
 
-    result['main'] = {
-        'currency': job.currency,
-        'doc_quantities': job.all_documents_item_quantities(),
-        'timestamp': job.created_on,
-        'URL_MODULE_MANAGEMENT': reverse('manage_modules', kwargs={'job_id': job.id})
-    }
+    # result['main'] = {
+    #     'currency': job.currency,
+    #     'doc_quantities': job.all_documents_item_quantities(),
+    #     'timestamp': job.created_on,
+    #     'URL_MODULE_MANAGEMENT': reverse('manage_modules', kwargs={'job_id': job.id})
+    # }
     result['currency'] = job.currency
     result['doc_quantities'] = job.all_documents_item_quantities()
     result['timestamp'] = job.created_on

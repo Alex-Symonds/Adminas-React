@@ -7,27 +7,25 @@
 */
 
 // || Main section
-function JobDocumentsUI(props){
+function JobDocumentsUI({ docList, docQuantities, totalQuantityAllItems, URL_DOCS }){
     return [
         <section class="jobDocsOut jobNarrowSection">
             <JobSectionHeadingNarrowUI text={"Documents"} />
             <div className={"jobDocsOut_contentWrapper"}>
                 <JobDocumentsSubsection
-                    docList = { props.docList }
-                    docQuantities = { props.docQuantities}
-                    totalQuantityAllItems = { props.totalQuantityAllItems }
-                    URL_DOCS = { props.URL_DOCS }
+                    docList = { docList }
+                    docQuantities = { docQuantities}
+                    totalQuantityAllItems = { totalQuantityAllItems }
+                    URL_DOCS = { URL_DOCS }
                     doc_type = 'WO'
-                    job_id = { props.job_id }
                     title = 'Works Order'
                 />
                 <JobDocumentsSubsection
-		            docList = { props.docList }
-                    docQuantities = { props.docQuantities}
-                    totalQuantityAllItems = { props.totalQuantityAllItems }
-                    URL_DOCS = { props.URL_DOCS }
+		            docList = { docList }
+                    docQuantities = { docQuantities}
+                    totalQuantityAllItems = { totalQuantityAllItems }
+                    URL_DOCS = { URL_DOCS }
                     doc_type = 'OC'
-                    job_id = { props.job_id }
                     title = 'Order Confirmation'
                 />  
             </div>                                      
@@ -35,64 +33,65 @@ function JobDocumentsUI(props){
     ]
 }
 
-function JobDocumentsSubsection(props){
-    const url_builder = props.URL_DOCS + '&type=' + props.doc_type;
+function JobDocumentsSubsection({ docList, docQuantities, doc_type, title, totalQuantityAllItems, URL_DOCS }){
+    const url_builder = URL_DOCS + '&type=' + doc_type;
+    const unassigned_qty = get_unassigned_quantity(doc_type, docQuantities, totalQuantityAllItems);
+    const filtered_doclist = docList.filter(doc => doc.doc_type == doc_type);
 
-    var unassigned_qty = get_unassigned_quantity(props.doc_type, props.docQuantities, props.totalQuantityAllItems);
-    var filtered_doclist = props.docList.filter(doc => doc.doc_type == props.doc_type);
+    function get_unassigned_quantity(target_doc_type, docQuantities, totalQuantityAllItems){
+        let unassigned_qty = parseInt(totalQuantityAllItems);
+        for (let idx in docQuantities){
+            const doc_qty_data = docQuantities[idx];
+            if(doc_qty_data.doc_type == target_doc_type){
+                unassigned_qty -= parseInt(doc_qty_data.qty_on_issued);
+                unassigned_qty -= parseInt(doc_qty_data.qty_on_draft);
+                return unassigned_qty;
+            }
+        }
+        return unassigned_qty;
+    }
 
     return  <JobDocumentsSubsectionUI    
                 doc_list = { filtered_doclist }
-                doc_type = { props.doc_type }
-                title = { props.title }
+                doc_type = { doc_type }
+                title = { title }
                 unassigned_qty = { unassigned_qty }
                 url_builder = { url_builder }
             />
 }
 
 
-function get_unassigned_quantity(target_doc_type, docQuantities, totalQuantityAllItems){
-    var unassigned_qty = parseInt(totalQuantityAllItems);
-
-    for (var idx in docQuantities){
-        var doc_qty_data = docQuantities[idx];
-        if(doc_qty_data.doc_type == target_doc_type){
-            unassigned_qty -= parseInt(doc_qty_data.qty_on_issued);
-            unassigned_qty -= parseInt(doc_qty_data.qty_on_draft);
-            return unassigned_qty;
-        }
-    }
-
-    return unassigned_qty;
-}
-
-function JobDocumentsSubsectionUI(props){
+function JobDocumentsSubsectionUI({ doc_list, doc_type, title, unassigned_qty, url_builder }){
     return [
         <div className={`subsection jobDocsOut_subsection`}>
             <h4 className={"jobDocsOut_subsectionHeading"}>
-                { props.title }
+                { title }
             </h4>
-            <a  href={ props.url_builder } 
+            <a  href={ url_builder } 
                 class="add-button jobDocsOut_subsectionAddButton"
             >
-                New { props.doc_type }
+                New { doc_type }
             </a>
-            <JobDocumentsUnassignedItemsUI  
-                unassigned_qty = { props.unassigned_qty } 
+        { unassigned_qty == null || isNaN(unassigned_qty) || unassigned_qty <= 0 
+            ? <JobDocumentsUnassignedItemsUI />
+            : null
+        }
+        {doc_list === null || doc_list === undefined || doc_list.length == 0 
+            ?
+            <EmptySectionUI 
+                message={`No ${doc_type} documents yet`} 
+                css={'jobDocsOut_emptySection'} 
             />
+            :
             <JobDocumentsOutgoingTable 
-                doc_list = { props.doc_list } 
-                doc_type = { props.doc_type }
+                doc_list = { doc_list } 
             />
+        }
         </div>
     ]
 }
 
-function JobDocumentsUnassignedItemsUI(props){
-    if(props.unassigned_qty == null || isNaN(props.unassigned_qty) || props.unassigned_qty <= 0){
-        return null;
-    }
-
+function JobDocumentsUnassignedItemsUI(){
     return [
         <div class="jobDocsOut_unassignedWrapper">
             <span class="jobDocsOut_unassignedIcon">
@@ -106,13 +105,7 @@ function JobDocumentsUnassignedItemsUI(props){
 }
 
 
-function JobDocumentsOutgoingTable(props){
-    if(props.doc_list == null || props.doc_list.length == 0){
-        return  <EmptySectionUI 
-                    message={`No ${props.doc_type} documents yet`} 
-                    css={'jobDocsOut_emptySection'} 
-                />;
-    }
+function JobDocumentsOutgoingTable({ doc_list }){
     return [
         <table className={"documentsOutTable banded"}>
             <thead>
@@ -123,10 +116,9 @@ function JobDocumentsOutgoingTable(props){
                 </tr>
             </thead>
             <tbody>
-            { props.doc_list.map((doc) => {
-                return  <JobDocumentsOutgoingTableRow   
-                            key = { doc.doc_version_id }
-                            doc = { doc } 
+            { doc_list.map((doc) => {
+                return  <JobDocumentsOutgoingTableRow key = { doc.doc_version_id }
+                            data = { doc } 
                         />
             })}
             </tbody>
@@ -135,33 +127,26 @@ function JobDocumentsOutgoingTable(props){
 }
 
 
-function JobDocumentsOutgoingTableRow(props){
-    var doc_date_prefix_string = props.doc.issue_date == null ? "" : "issued";
-    var doc_date = props.doc.issue_date == null ? props.doc.created_on : props.doc.issue_date;
-
-    var css_classes = props.doc.issue_date == null ? 'draft' : 'issued';
-    css_classes = props.doc.is_valid == true ? css_classes : css_classes + ' invalid';
-    
-    var doc_status = props.doc.issue_date == null ? 'Draft' : 'Issued';
-    if(!props.doc.is_valid){
-        doc_status = <InvalidIconUI   is_valid = { props.doc.is_valid }
-                                                    message = "invalid item assignments" />
-    }
-
+function JobDocumentsOutgoingTableRow({ data }){
+    const doc_date = data.issue_date === null ? data.created_on : data.issue_date;
+    const doc_status = data.issue_date === null ? "draft" : "issued";
     return  <tr>
                 <td className={"documentsOutTable_referenceCol"}>
-                    { props.doc.reference }
+                    { data.reference }
                 </td>
                 <td className={"documentsOutTable_dateCol"}>
-                    { doc_date_prefix_string } { doc_date }
+                    { doc_date }
                 </td>
                 <td className={"documentsOutTable_statusCol documentsOutTable_statusCol-" + doc_status.toLowerCase()}>
                     <div className={"documentsOutTable_status documentsOutTable_status-" + doc_status.toLowerCase() }>
-                        { doc_status }
+                        { data.is_valid
+                            ? data.issue_date == null ? 'Draft' : 'Issued'
+                            : <InvalidIconUI message = "invalid item assignments" />
+                        }
                     </div>
                 </td>
                 <td className={"documentsOutTable_editCol"}>
-                    <a href={ props.doc.url } className={"edit-icon"}>
+                    <a href={ data.url } className={"edit-icon"}>
                         <span>edit</span>
                     </a>
                 </td>

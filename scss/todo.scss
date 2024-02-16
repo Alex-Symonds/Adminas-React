@@ -231,7 +231,7 @@ $breakpoint_set_min_modal_size: 650px;
         flex: 0 0 auto;
         
         background-image: url(../images/i-pin-filled-grey.svg);
-        background-color: v.$c_tone_02;
+        background-color: v.$c_tone-800;
         background-repeat: no-repeat;
         background-size: 1rem;
         background-position: v.px-to-rem(12) center;
@@ -262,7 +262,7 @@ $breakpoint_set_min_modal_size: 650px;
             }
 
             .job-comment-cu-container{
-                background: v.$c_tone_950;
+                background: v.$c_tone-950;
                 border-style: solid;
                 border-color: v.$c_tone-800;
                 border-width: 1px 0;
@@ -288,7 +288,7 @@ $breakpoint_set_min_modal_size: 650px;
         max-height: calc(100% - var(--heightHeading));
         overflow-y: auto;
 
-        background: v.$c_tone_950;
+        background: v.$c_tone-950;
 
         &-open{
             animation: animate-add-pinned-open 0.5s ease-in;

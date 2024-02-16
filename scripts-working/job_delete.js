@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 async function delete_job(){
-    let request_options = get_request_options('DELETE');
+    let request_options = getRequestOptions('DELETE');
 
     let response_data = await update_backend(URL_DELETE_JOB, request_options);
     if(get_status_from_json(response_data) === 204){

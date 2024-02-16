@@ -188,7 +188,7 @@ function update_document(issue_date){
 
 
 async function update_document_on_server(method, expected_response_code, doc_data, get_params){
-    var request_options = get_request_options(method, doc_data);
+    var request_options = getRequestOptions(method, doc_data);
     let resp_data = await update_backend(`${URL_DOCBUILDER}?${get_params}`, request_options);
 
     if(status_is_good(resp_data, expected_response_code)){
@@ -317,7 +317,7 @@ function get_special_instructions_as_list(){
 async function delete_document(){
     let delete_confirmed = confirm('Deleting a document cannot be undone except by a system administrator. Are you sure?');
     if(delete_confirmed){
-        let request_options = get_request_options('DELETE');
+        let request_options = getRequestOptions('DELETE');
         let resp_data = await update_backend(`${URL_DOCBUILDER}?id=${DOC_ID}`, request_options);
         if(status_is_good(resp_data, 204)){
             window.location.href = JOB_URL;

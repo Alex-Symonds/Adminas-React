@@ -522,24 +522,26 @@ async function update_server_create_jobmodule(child_id, id_obj, assignment_qty, 
 
 
 async function update_server_post_jobitem(parent_id, qty, product){
-    let request_options = get_request_options('POST', {
+    let request_options = getRequestOptions('POST', {
         'quantity': qty,
         'product': product,
         'parent': parent_id
     });
 
+    // TODO: switch this to fetchAndJSON after adding something to catch errors
     return await update_backend(URL_ITEMS, request_options);
 }
 
 
 async function update_server_post_jobmodule(child_id, parent_id, slot_id, quantity = 1){ 
-    let request_options = get_request_options('POST', {
+    let request_options = getRequestOptions('POST', {
         'parent': parent_id,
         'child': child_id,
         'slot': slot_id,
         'quantity': quantity
     });
-
+    
+    // TODO: switch this to fetchAndJSON after adding something to catch errors
     return await update_backend(URL_ASSIGNMENTS, request_options);
 }
 
@@ -741,7 +743,7 @@ async function update_module_slot_quantity(qty_field){
 
 
 async function update_server_put_module_slot_quantity(qty_field){
-    let request_options = get_request_options('PUT', {
+    let request_options = getRequestOptions('PUT', {
         'qty': qty_field.value,
         'prev_qty': qty_field.dataset.prev_qty,
         'id': qty_field.dataset.id
@@ -780,7 +782,7 @@ async function remove_jobitem_from_slot(e){
 
 
 async function update_server_delete_jobmodule(e){
-    let request_options = get_request_options('DELETE');
+    let request_options = getRequestOptions('DELETE');
     return await update_backend(`${URL_ASSIGNMENTS}?id=${e.target.dataset.jobmod}`, request_options);
 }
 
