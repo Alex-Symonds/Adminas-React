@@ -1,6 +1,6 @@
 // Build file bundling JavaScript, applying Babel/JSX transpiling (when needed) and uglifying.
 var concat = require('gulp-concat');
-var babel = require("gulp-babel");
+// var babel = require("gulp-babel");
 const uglify = require('gulp-uglify');
 const rename = require('gulp-rename');
 const gulp = require('gulp');
@@ -22,22 +22,23 @@ function css(){
   .pipe(gulp.dest(PATH_DIST_CSS));
 }
 
-function jsReact() {
-    return gulp.src([
-      `${PATH_WORKING_SCRIPTS}react-util.js`, 
-      `${PATH_WORKING_SCRIPTS}hooks/*.js`,
-      `${PATH_WORKING_SCRIPTS}reactComponents/*.js`,
-      `${PATH_WORKING_SCRIPTS}reactComponentsWithHooks/*.js`,
-      `${PATH_WORKING_SCRIPTS}react-job-page*.js`,
-    ])
-        .pipe(concat('react-job.js'))
-        .pipe(babel({
-            presets: ["@babel/preset-react"]
-          }))
-        .pipe(uglify())
-        .pipe(rename({ extname: '.min.js' }))
-        .pipe(gulp.dest(PATH_BUILT_SCRIPTS));
-}
+// function jsReact() {
+//     return gulp.src([
+//       `${PATH_WORKING_SCRIPTS}react-util.js`, 
+//       `${PATH_WORKING_SCRIPTS}hooks/*.js`,
+//       `${PATH_WORKING_SCRIPTS}reactComponents/*.js`,
+//       `${PATH_WORKING_SCRIPTS}reactComponentsWithHooks/*.js`,
+//       `${PATH_WORKING_SCRIPTS}react-job-page*.js`,
+//       `${PATH_WORKING_SCRIPTS}app.js`,
+//     ])
+//         .pipe(concat('react-job.js'))
+//         .pipe(babel({
+//             presets: ["@babel/preset-react"]
+//           }))
+//         .pipe(uglify())
+//         .pipe(rename({ extname: '.min.js' }))
+//         .pipe(gulp.dest(PATH_BUILT_SCRIPTS));
+// }
 
 function jsModuleManagement(){
   return gulp.src(`${PATH_WORKING_SCRIPTS}manage_modules.js`)
@@ -96,7 +97,7 @@ function buildConcat(glob_arr, filename){
 // exports.default = gulp.parallel(jsReact, jsMain, jsDocumentBuilder, jsModuleManagement, css);
 
 exports.default = function(){
-  watch(PATH_WORKING_SCRIPTS, jsReact);
+  // watch(PATH_WORKING_SCRIPTS, jsReact);
   watch(PATH_WORKING_SCRIPTS, jsMain);
   watch(PATH_WORKING_SCRIPTS, jsDocumentBuilder);
   watch(PATH_WORKING_SCRIPTS, jsModuleManagement);

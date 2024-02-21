@@ -216,12 +216,14 @@ $breakpoint_jobDetailsPO_asRowWithSidebar: $breakpoint_jobDetailsPO_asRowNoSideb
     }
 
     &_button{
+        display: block;
         padding: v.px-to-rem(8) v.px-to-rem(16);
         width: 100%;
         
         font-size: v.px-to-rem(20);
         font-weight: 500;
         text-align: left;
+        text-decoration: none;
         color: v.$c_txt_main;
     
         background: none;
@@ -230,14 +232,26 @@ $breakpoint_jobDetailsPO_asRowWithSidebar: $breakpoint_jobDetailsPO_asRowNoSideb
         border-style: solid;
         border-color: transparent;
     
-        &:hover:enabled{
-            border-color: v.$c_accent-500;
-            background: v.$c_tone-700;
+        &:hover{
+            color: v.$c_txt_main;
         }
-    
+
         &-on{
             background: rgba(v.$c_tone-950, .5);
             border-color: v.$c_accent-500;
+        }
+        &:not(.jobSideNav_button-on):hover {
+            border-color: v.$c_accent-500;
+            background: v.$c_tone-700;
+        }
+
+        &:active{
+            color: v.$c_tone-100;
+        }
+        &:focus-visible{
+            outline-color: v.$c_tone-300;
+            outline-style: dotted;
+            outline-width: v.px-to-rem(1);
         }
     }
 
