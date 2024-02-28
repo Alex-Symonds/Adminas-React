@@ -2,6 +2,15 @@
     Delete Job button on the edit Job page.
 */
 
+import {
+    create_generic_ele_dismissable_error,
+    get_error_message,
+    getRequestOptions,
+    get_status_from_json,
+    status_is_good,
+    update_backend,
+} from './util.js';
+
 const ID_DELETE_JOB_BTN = 'delete_job_btn';
 
 document.addEventListener('DOMContentLoaded', () => {

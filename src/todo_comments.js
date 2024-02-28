@@ -20,16 +20,45 @@
         || Update Todo List Element
 */
 
+import {  
+    CSS_CLOSE_BUTTON,
+    CSS_MODAL,
+    open_modal 
+} from './modal.js';
+
+import {
+    animateAndThen
+} from './animation_helper.js';
+
+import {
+    CSS_HIDE,
+    hide_all_by_class,
+    unhide_all_by_class,
+} from './util.js';
+
+import {
+    CLASS_COMMENT,
+    CLASS_PREFIX_FOR_COMMENT_ID,
+    close_jobcomment_editor,
+    create_ele_jobcomment_editor,
+    DEFAULT_COMMENT_ID,
+    get_comment_data_from_comment_ele,
+    TASK_CREATE_COMMENT,
+} from './job_comments.js';
 
 document.addEventListener('DOMContentLoaded', () => {
+    setupTodoPinnedCommentsModal();
+});
 
+
+function setupTodoPinnedCommentsModal(){
     const BUTTON_CLASS = "pinnedModalOpener";
     document.querySelectorAll(`.${BUTTON_CLASS}`).forEach(btn => {
         btn.addEventListener('click', (e) => openPinnedCommentsModal(e));
     });
 
     initialiseAnimatedAddCommentEditor();
-})
+}
 
 
 // || Modal Opener
@@ -57,7 +86,7 @@ function openPinnedCommentsModal(e){
 
 
 // || Control Front-End Update
-function toggle_todo_list(comment_ele, new_status, toggled_attribute){
+export function toggle_todo_list(comment_ele, new_status, toggled_attribute){
     const task = 'pinned' === toggled_attribute && !new_status ?
         'unpin'
         : 'update';
@@ -70,7 +99,7 @@ function toggle_todo_list(comment_ele, new_status, toggled_attribute){
 }
 
 
-function update_todo_list_row_pinned(commentData, task){
+export function update_todo_list_row_pinned(commentData, task){
     const buttonEleOrNull = find_pinned_button_which_opened_modal();
     if(buttonEleOrNull === null){
         return;

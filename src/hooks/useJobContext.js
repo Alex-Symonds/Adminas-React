@@ -9,39 +9,39 @@ import { useJobMenu } from '../reactComponentsWithHooks/jobSideNav.js';
 const Context = createContext({});
 
 export function JobDataProvider({ children }){
-        // Job data initial fetching and storing in state
-        const {
-            job,
-            updateKey : updateJobKey,
-            fetchProps,
-        } = useJobState();
-    
-        // The Job page should only show one modal at a time, so setup management of that here
-        const modalKit = useEditor();
-    
-        // Setup some Job state updaters, with any errors to be displayed in the shared modal
-        const actions = useJobStateUpdater(job, updateJobKey, modalKit);
-    
-        // Derive some numbers from the Job state data
-        const calc = jobCalc(job.poList, job.itemsList, job.currency);
-    
-        // Management for the Job page's "tabs" / routes
-        const jobMenu = useJobMenu();
+    // Job data initial fetching and storing in state
+    const {
+        job,
+        updateKey : updateJobKey,
+        fetchProps,
+    } = useJobState();
 
-        // Separate out "currency" for convenience (it's used in SO MANY places)
-        return (
-            <Context.Provider value={{ 
-                actions,
-                calc, 
-                "currency": job.currency, 
-                fetchProps, 
-                job,
-                jobMenu, 
-                modalKit 
-            }}>
-                { children }
-            </Context.Provider>
-        )
+    // The Job page should only show one modal at a time, so setup management of that here
+    const modalKit = useEditor();
+
+    // Setup some Job state updaters, with any errors to be displayed in the shared modal
+    const actions = useJobStateUpdater(job, updateJobKey, modalKit);
+
+    // Derive some numbers from the Job state data
+    const calc = jobCalc(job.poList, job.itemsList, job.currency);
+
+    // Management for the Job page's "tabs" / routes
+    const jobMenu = useJobMenu();
+
+    // Separate out "currency" for convenience (it's used in SO MANY places)
+    return (
+        <Context.Provider value={{ 
+            actions,
+            calc, 
+            "currency": job.currency, 
+            fetchProps, 
+            job,
+            jobMenu, 
+            modalKit 
+        }}>
+            { children }
+        </Context.Provider>
+    )
 }
 
 export const useJobContext = () => useContext(Context);

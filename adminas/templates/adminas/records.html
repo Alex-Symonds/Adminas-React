@@ -11,13 +11,13 @@
 {% endblock %}
 
 {% block javascript %}
-<script src="{% static 'adminas/scripts/records.min.js' %}" crossorigin></script>
     <script>
         const URL_TODO_MANAGEMENT = "{% url 'api_todo_list' %}";
         const CALLED_BY = 'records';
         const URL_SELECT_OPTIONS = "{% url 'api_data' %}";
         const URL_RECORDS = "{% url 'records' %}";
     </script>
+    <script src="{% static 'adminas/scripts/records.bundle.js' %}" type="module" ></script>
 {% endblock %}
 
 {% block body %}

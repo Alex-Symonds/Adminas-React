@@ -2,8 +2,11 @@ import { useState, useEffect } from 'react';
 
 import { 
     url_for_page_load,
-    useFetchWithLoading, 
 } from '../util';
+
+import {
+    useFetchWithLoading
+} from './useFetchWithLoading';
 
 export function useJobState(){
     const job_id = window.JOB_ID;
@@ -52,6 +55,7 @@ export function useJobState(){
       setJob(loadedJob);
     }, [data]);
 
+    
     function updateKey(key, contents){
         if(!(key in job)){
             throw Error("Failed to update Job")

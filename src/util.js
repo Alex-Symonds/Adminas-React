@@ -8,7 +8,8 @@
         || DOM utils
         || DOM elements
 */
-import { useEffect, useState } from 'react';
+
+export const QTY_RE = /\d+(?=( x ))/g;
 
 const CLASS_MESSAGE_BOX = 'system-message-box';
 export const CLASS_ERROR_MESSAGE = 'temp-warning-msg';
@@ -89,35 +90,6 @@ export function url_for_select_options(get_param){
 
 
 // || Fetch and request helpers
-// GET only, reports on loading status
-export const useFetchWithLoading = url => {
-    const [data, setData] = useState([]);
-    const [error, setError] = useState(null);
-    const [isLoaded, setLoaded] = useState(false);
-
-    useEffect(() => {
-        const fetchData = async () => {
-            const my_fetch = await fetch(url)
-            .then(response => get_json_with_status(response))
-            .then(resp_json => {
-                if(!status_is_good(resp_json)){
-                    setError(get_error_message(resp_json));
-                }
-                setData(resp_json);
-                setLoaded(true);
-            })
-            .catch(error => {
-                setError(error);
-                setLoaded(true);
-            });
-        };
-        fetchData();
-    }, [url]);
-
-    return { data, error, isLoaded };
-};
-
-
 // General use, doesn't bother with loading status
 export async function fetchAndJSON(url, headers, expectedStatus){
     const response = await fetch(url, headers);

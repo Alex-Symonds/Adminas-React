@@ -10,8 +10,11 @@ import {
     getUpdatedObjectFromList, 
     set_if_ok, 
     url_for_url_list, 
-    useFetchWithLoading, 
-} from '../util';
+} from '../util.js';
+
+import {
+    useFetchWithLoading
+} from './useFetchWithLoading.js';
 
 export function useComments(comments, updateState, reportError){
     // Key for comments array in job state; key used to identify one specific comment

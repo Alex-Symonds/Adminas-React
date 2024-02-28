@@ -12,8 +12,11 @@ import {
     getRequestOptions, 
     set_if_ok, 
     url_for_url_list, 
-    useFetchWithLoading,
-} from '../util';
+} from '../util.js';
+
+import {
+    useFetchWithLoading
+} from '../hooks/useFetchWithLoading.js';
 
 import { LoadingUI, LoadingErrorUI } from '../reactComponents/loadingAndEmptiness';
 
