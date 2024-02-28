@@ -13,9 +13,8 @@
 */
 
 import {
-    QTY_RE,
     show_save_warning_ele
-} from './document_builder_main';
+} from './document_builder_main.js';
 
 import { 
     create_generic_ele_cancel_button,
@@ -24,8 +23,9 @@ import {
     CSS_GENERIC_PANEL,
     CSS_GENERIC_PANEL_HEADING,
     hide_all_by_class,
+    QTY_RE,
     unhide_all_by_class,
-} from './util';
+} from './util.js';
 
 export const ID_INCLUDES_UL = 'included';
 export const ID_EXCLUDES_UL = 'excluded';
@@ -52,10 +52,12 @@ const STR_SPLIT_BTN = '&laquo; split &raquo;';
 const CSS_CLASS_INVALID_LI = 'invalid';
 const CSS_CLASS_INVALID_ICON = 'invalid-icon';
 
-
-
 document.addEventListener('DOMContentLoaded', () => {
+    setupDocumentBuilderItemSelection();
+});
 
+
+function setupDocumentBuilderItemSelection(){
     document.querySelectorAll('.' + CLASS_TOGGLE_BTN).forEach(btn => {
         btn.addEventListener('click', (e) => {
             toggle_doc_item(e);
@@ -68,8 +70,7 @@ document.addEventListener('DOMContentLoaded', () => {
         })
     });
 
-});
-
+}
 
 
 // || Toggle docitems between included/excluded
@@ -124,7 +125,7 @@ function move_docitem_li(dst_ul, src_li){
         merge_into_dst_docitem_li(src_li, dst_li);
     }
     else {
-        let toggle_btn_str = get_toggle_button_display_str(dst_ul);
+        const toggle_btn_str = get_toggle_button_display_str(dst_ul);
         src_li.querySelector('.' + CLASS_TOGGLE_BTN).innerHTML = toggle_btn_str;
         dst_ul.append(src_li);
     }
@@ -681,7 +682,7 @@ function create_ele_docitem_li(jobitem_id, description, ul_id){
 
     const split_btn = document.createElement('button');
     split_btn.classList.add(CLASS_SPLIT_BTN);
-    split_btn.classList.add('button-primary-hollow');
+    split_btn.classList.add('buttonSecondary');
     split_btn.innerHTML = STR_SPLIT_BTN;
     split_btn.addEventListener('click', (e) => {
         split_doc_item(e);

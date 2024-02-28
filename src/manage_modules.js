@@ -19,6 +19,27 @@
         || Error messages
 */
 
+import {
+    create_generic_ele_cancel_button,
+    create_generic_ele_edit_button,
+    create_generic_ele_jobitem_quantity_input,
+    create_generic_ele_submit_button,
+    CLASS_ERROR_MESSAGE,
+    CSS_EDIT_ICON,
+    CSS_GENERIC_FORM_LIKE,
+    CSS_GENERIC_PANEL,
+    CSS_GENERIC_PANEL_HEADING,
+    CSS_HIDE,
+    getRequestOptions,
+    hide_all_by_class,
+    QTY_RE,
+    query_backend,
+    status_is_good,
+    unhide_all_by_class,
+    update_backend,
+} from './util.js';
+
+
 // || Constants
 const CLASS_ADD_SLOT_BUTTON = 'add-slot';
 const CLASS_EDITOR_SLOT_FILLER_QUANTITY = 'editor-slot-filler-quantity';
@@ -869,7 +890,7 @@ function update_ele_slot_status_indicator(slot_ele, class_indicator, display_tex
     let text_ele = indicator_ele.querySelector('.body');
 
     text_ele.innerHTML = display_text;
-    text_is_full = slot_status_display_text_shows_full_slot(display_text);
+    const text_is_full = slot_status_display_text_shows_full_slot(display_text);
     update_conditional_css_class(indicator_ele, CLASS_INDICATOR_IS_FULL, text_is_full);
 }
 

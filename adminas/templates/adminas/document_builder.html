@@ -19,8 +19,9 @@
         const URL_DOCMAIN = "{% url 'doc_main' doc_id %}"
         const URL_PREVIEW = "{% url 'doc_display' doc_id %}?mode=preview";
     </script>
-    <script src="{% static 'adminas/scripts/document_builder.min.js' %}" type="text/javascript"></script>
+    <script defer src="{% static 'adminas/scripts/docBuilder.bundle.js' %}" type="text/javascript"></script>
 {% endblock %}
+
 
 
 {% block body %}
@@ -126,7 +127,7 @@
                         <div class="button-container">
                             <button class="toggle-docitem-btn button-primary">excl. &raquo;</button>
         {% if inc.max_available > 1 %}
-                            <button class="split-docitem-btn button-primary-hollow">&laquo; split &raquo;</button>
+                            <button class="split-docitem-btn buttonSecondary">&laquo; split &raquo;</button>
         {% endif %}
                         </div>
                     </li>
@@ -148,7 +149,7 @@
                         <div class="button-container">
                             <button class="toggle-docitem-btn button-primary">&laquo; incl.</button>
                 {% if excl.total_quantity > 1 %}
-                            <button class="split-docitem-btn button-primary-hollow">&laquo; split &raquo;</button>
+                            <button class="split-docitem-btn buttonSecondary">&laquo; split &raquo;</button>
                 {% endif %}
                         </div>
             {% else %}

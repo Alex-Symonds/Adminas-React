@@ -4,21 +4,28 @@
     and displays it underneath.
  */
 
-import { get_error_message, get_json_with_status, status_is_good } from "./util";
+import { 
+    get_error_message, 
+    get_json_with_status, 
+    status_is_good 
+} from "./util";
 
-const CLASS_ADDRESS_DROPDOWN = 'address-dropdown';
 
-document.addEventListener('DOMContentLoaded', (e) => {
+document.addEventListener('DOMContentLoaded', () => {
+    setupAddressDropdownDescription();
+});
 
+
+function setupAddressDropdownDescription(){
+    const CLASS_ADDRESS_DROPDOWN = 'address-dropdown';
     document.querySelectorAll('.' + CLASS_ADDRESS_DROPDOWN).forEach(ele => {
-        let dd = ele.querySelector('select');
+        const dd = ele.querySelector('select');
         update_address(dd);
         dd.addEventListener('change', (e) => {
             update_address(e.target);
         });
     });
-
-});
+}
 
 async function update_address(ele){
     let display_div = ele.closest('.form-row').querySelector('.display-address');

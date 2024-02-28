@@ -1,7 +1,11 @@
 import { 
     url_for_select_options, 
-    useFetchWithLoading, 
 } from '../util';
+
+import {
+    useFetchWithLoading
+} from '../hooks/useFetchWithLoading.js';
+
 import { LoadingUI, LoadingErrorUI } from './loadingAndEmptiness';
 
 export function SelectBackendOptions({ cssClasses, get_param, handle_change, is_required, select_id, select_name, selected_opt_id }){

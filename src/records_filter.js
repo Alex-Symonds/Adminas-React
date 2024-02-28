@@ -6,7 +6,13 @@
         || Submit Filter Options
 */
 
-const ID_BEGIN_FILTER_BUTTON = 'id_filter_records';
+import {
+    create_generic_modal,
+    create_generic_modal_heading,
+} from './modal.js';
+
+
+
 const ID_FILTER_OPTIONS_ELE = 'id_filter_options';
 const CLASS_FILTER_OPTIONS_BODY = 'filter-options-body';
 const ID_PREFIX_FILTER_FIELDS = 'id_filter_';
@@ -50,15 +56,22 @@ const RECORDS_FILTER_SETTINGS = [
 ]
 
 
-
 // Event listeners for existing buttons
 document.addEventListener('DOMContentLoaded', () => {
+    const ID_BEGIN_FILTER_BUTTON = 'id_filter_records';
     document.getElementById(ID_BEGIN_FILTER_BUTTON).addEventListener('click', () => {
         open_filter_options();
     });
-
 });
 
+
+// export function setupRecordsFilter(){
+//     document.addEventListener('DOMContentLoaded', () => {
+//         document.getElementById(ID_BEGIN_FILTER_BUTTON).addEventListener('click', () => {
+//             open_filter_options();
+//         });
+//     });
+// }
 
 
 // || Open menu
@@ -93,8 +106,9 @@ async function create_ele_filter_options(){
 
 
 function create_ele_filter_options_heading(){
-    let ele = document.createElement('h4');
-    ele.classList.add(CSS_MODAL_HEADING);
+    const ele = create_generic_modal_heading(4);
+    // let ele = document.createElement('h4');
+    // ele.classList.add(CSS_MODAL_HEADING);
     ele.innerHTML = 'Filter Options';
     return ele;
 }

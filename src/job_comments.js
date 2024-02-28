@@ -1,13 +1,12 @@
 /*
     Functionality for JobComments, which appear on:
         > to-do list (presently populating the home page)
-        > job_comments
 
     They also appear on the job page, but that page has been converted to React (including the comments section).
 
     This handles:
-        > Edit and delete a comment from any of the three pages
-        > Create a comment (from to-do and job_comments)
+        > Edit and delete a comment
+        > Create a comment
         > Two types of create/edit form (one with checkboxes, one without)
         > Two ways of displaying a comment (the bigger ones on the job_comments page vs. the streamlined ones on job and to-do list)
         > Toggle the status of pinned and highlight via clicking a button
@@ -19,19 +18,40 @@
         || Toggles
 */
 
+import {
+    toggle_todo_list,
+    update_todo_list_row_pinned,
+} from './todo_comments.js';
+
+import {
+    add_event_listener_if_element_exists,
+    create_generic_ele_cancel_button,
+    create_generic_ele_delete_button,
+    create_generic_ele_submit_button,
+    CLASS_ERROR_MESSAGE,
+    CSS_GENERIC_FORM_LIKE,
+    CSS_GENERIC_PANEL,
+    CSS_HIDE,
+    getRequestOptions,
+    status_is_good,
+    string_to_boolean,
+    unhide_all_by_class,
+    update_backend,
+} from './util.js';
+
 
 const ATTR_LABEL_FORM_TYPE = 'data-form_type';
 const CLASS_ADD_BUTTON = 'add-button';
 const CLASS_ADD_BUTTON_COMMENT = `${CLASS_ADD_BUTTON}.addComment`;
 const CLASS_EMPTINESS_MESSAGE = 'empty-section-notice';
-const CLASS_COMMENT = 'one-comment';
+export const CLASS_COMMENT = 'one-comment';
 const CLASS_COMMENT_CONTENTS = 'contents';
 const CLASS_COMMENT_CONTROLS = 'controls';
 const CLASS_COMMENT_EDIT_BTN = 'edit-comment';
 const CLASS_COMMENT_EDITOR = 'job-comment-cu-container';
 const CLASS_COMMENT_FOOTER = 'footer';
 const CLASS_COMMENT_HIGHLIGHTED_TOGGLE = 'highlighted-toggle';
-const CLASS_COMMENT_INPUT_CHECKBOX_CONTAINER = 'checkbox-container';
+// const CLASS_COMMENT_INPUT_CHECKBOX_CONTAINER = 'checkbox-container';
 const CLASS_COMMENT_MAIN = 'main';
 const CLASS_COMMENT_OWNERSHIP = 'ownership';
 const CLASS_COMMENT_PINNED_TOGGLE = 'pinned-toggle';
@@ -44,11 +64,11 @@ const CLASS_HIGHLIGHTED_COMMENT = 'highlighted';
 const CLASS_PINNED_TOGGLE = 'pinned-toggle';
 const CLASS_PINNED_BTN_ON = 'pin-on';
 const CLASS_PINNED_BTN_OFF = 'pin-off';
-const CLASS_PREFIX_FOR_COMMENT_ID = 'id-';
+export const CLASS_PREFIX_FOR_COMMENT_ID = 'id-';
 const CLASS_PRIVACY_STATUS = 'privacy-status';
 const CLASS_SAVE_BTN = 'save';
 const CLASS_TODO_HAS_JOB_ID = 'todoJob';
-const DEFAULT_COMMENT_ID = '0';
+export const DEFAULT_COMMENT_ID = '0';
 const ID_COMMENT_TEXTAREA = 'id_comment_contents';
 const ID_COMMENT_CHECKBOX_HIGHLIGHTED = 'id_highlighted_checkbox';
 const ID_COMMENT_CHECKBOX_PINNED = 'id_pinned_checkbox';
@@ -56,9 +76,9 @@ const ID_COMMENT_CHECKBOX_PRIVATE = 'id_private_checkbox';
 const ID_PREFIX_JOB_PANEL_ON_TODO_LIST = 'todo_panel_job_';
 const KEY_COMMENT_OWNERSHIP_STRING = 'footer_str';
 const STR_FALLBACK = '???';
-const TASK_CREATE_COMMENT = 'create';
+export const TASK_CREATE_COMMENT = 'create';
 const VALUE_FORM_TYPE_CONTENT_ONLY = 'content-only';
-const VALUE_FORM_TYPE_FULL = 'full';
+// const VALUE_FORM_TYPE_FULL = 'full';
 
 
 
@@ -85,7 +105,6 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 
-
 // || Editor
 function open_jobcomment_editor_for_update(btn){
     close_jobcomment_editor();
@@ -99,7 +118,7 @@ function open_jobcomment_editor_for_update(btn){
 }
 
 
-function close_jobcomment_editor(){
+export function close_jobcomment_editor(){
     let editor_ele = document.querySelector('.' + CLASS_COMMENT_EDITOR);
     if(editor_ele == null){
         return;
@@ -118,7 +137,7 @@ function close_jobcomment_editor(){
 }
 
 
-function create_ele_jobcomment_editor(comment_id, wantDefaultClose, task_name = null){
+export function create_ele_jobcomment_editor(comment_id, wantDefaultClose, task_name = null){
     let settings = get_settings_jobcomment_editor(task_name);
     let form_type_attr = VALUE_FORM_TYPE_CONTENT_ONLY;
 
@@ -945,7 +964,7 @@ function handle_missing_comment_data(data, class_to_find_comment){
 }
 
 
-function get_comment_data_from_comment_ele(ele){
+export function get_comment_data_from_comment_ele(ele){
     let result = {};
     result['id'] = ele.dataset.comment_id;
     result['footer_str'] = ele.querySelector(`.${CLASS_COMMENT_OWNERSHIP}`).innerHTML.trim();

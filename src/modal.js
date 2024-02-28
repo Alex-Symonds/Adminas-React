@@ -1,11 +1,17 @@
-const CSS_MODAL = 'modal';
+import {
+    create_generic_ele_cancel_button,
+    CSS_HIDE,
+} from './util.js';
+
+
+export const CSS_MODAL = 'modal';
 const CSS_MODAL_CLOSE_BUTTON = 'modal_closeButton';
-const CSS_CLOSE_BUTTON = 'closeButton';
+export const CSS_CLOSE_BUTTON = 'closeButton';
 const CSS_MODAL_WRAPPER = "modalWrapper";
 const CSS_MODAL_HEADING = "modal_heading";
 const CSS_MODAL_CONTENTS = 'modal_contents';
 
-function create_generic_modal(contents){
+export function create_generic_modal(contents){
     const wrapper = create_generic_modal_wrapper();
     const dialog = create_generic_modal_dialog();
 
@@ -36,7 +42,22 @@ function create_generic_modal_wrapper(){
     return wrapper;
 }
 
-function open_modal(modalWrapper){
+export function create_generic_modal_heading(level){
+    let headingEle;
+    if(
+        typeof level !== 'number' 
+        || level > 6
+        || level < 1
+    ){
+        headingEle = document.createElement('h2');
+    } else {
+        headingEle = document.createElement(`h${level}`);
+    }
+    ele.classList.add(CSS_MODAL_HEADING);
+    return ele;
+}
+
+export function open_modal(modalWrapper){
     modalWrapper.classList.remove(CSS_HIDE);
     const modalEle = modalWrapper.querySelector(`.${CSS_MODAL}`);
     modalEle.show();
@@ -53,7 +74,7 @@ function close_modal(dialog, wrapper = null){
     dialog.close();
 }
 
-function findAllModalCloseButtons(){
+export function findAllModalCloseButtons(){
     return document.querySelectorAll(`.${CSS_MODAL_CLOSE_BUTTON}`);
 }
 
@@ -61,19 +82,15 @@ function findModalDialogFromChild(child){
     return child.closest(`.${CSS_MODAL}`);
 }
 
-function findModalDialogFromParent(parent){
-    return parent.querySelector(`.${CSS_MODAL}`);
-}
-
 function findModalWrapperFromChild(child){
     return child.closest(`.${CSS_MODAL_WRAPPER}`);
 }
 
-function findModalWrapperFromParent(parent){
+export function findModalWrapperFromParent(parent){
     return parent.querySelector(`.${CSS_MODAL_WRAPPER}`);
 }
 
-function setupModalCloseButton(closeBtn){
+export function setupModalCloseButton(closeBtn){
     const dialog = findModalDialogFromChild(closeBtn);
     if(dialog !== null){
         closeBtn.addEventListener('click', () => {

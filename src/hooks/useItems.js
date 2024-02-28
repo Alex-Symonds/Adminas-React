@@ -8,9 +8,11 @@ import {
     set_if_ok, 
     url_for_page_load,
     url_for_url_list, 
-    useFetchWithLoading, 
 } from '../util';
 
+import {
+    useFetchWithLoading
+} from './useFetchWithLoading.js';
 
 export function useJobItems(itemsList, updateJobKey, job_id, reportError){
     const JOB_KEY = 'itemsList';

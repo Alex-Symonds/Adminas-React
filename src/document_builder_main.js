@@ -39,25 +39,23 @@ import {
     getRequestOptions,
     hide_all_by_class, 
     KEY_LOCATION,
+    QTY_RE,
     query_backend,
     status_is_good,
     unhide_all_by_class,
     update_backend,
-} from "./util";
+} from "./util.js";
 
 import { 
     CLASS_NONE_LI,
     ID_EXCLUDES_UL,
     ID_INCLUDES_UL, 
-} from './document_items';
+} from './document_builder_items.js';
 
-
-export const QTY_RE = /\d+(?=( x ))/g;
 
 const CLASS_SPECIAL_INSTRUCTION_EDITOR = 'editing-special-instruction';
 const CLASS_SPECIAL_INSTRUCTION_EDIT = 'edit-special-instruction-btn';
 const CLASS_SPECIAL_INSTRUCTION_DELETE = 'delete-special-instruction-btn';
-const CLASS_LOCAL_NAV = 'status-controls';
 
 const CLASS_INSTRUCTIONS_EMPTY_MESSAGE = 'no-special-instructions';
 const CLASS_INSTRUCTIONS_SECTION = 'special-instructions';
@@ -70,7 +68,11 @@ const CLASS_UNSAVED_CHANGES = 'unsaved-changes';
 
 
 document.addEventListener('DOMContentLoaded', () => {
+    setupDocumentBuilderMainControls();
+});
 
+
+function setupDocumentBuilderMainControls(){
     document.querySelector('#document_save_btn').addEventListener('click', () => {
         save_document();
     });
@@ -83,7 +85,8 @@ document.addEventListener('DOMContentLoaded', () => {
         delete_document();
     });
 
-    let fields_container_ele = document.querySelector('.document-fields-container');
+
+    const fields_container_ele = document.querySelector('.document-fields-container');
     if(fields_container_ele != null){
         document.querySelectorAll('input').forEach(input_ele => {
             input_ele.addEventListener('input', () => {
@@ -117,15 +120,67 @@ document.addEventListener('DOMContentLoaded', () => {
             delete_ele_special_instruction(e.target);
         })
     });
+}
 
-});
+
+
+// document.addEventListener('DOMContentLoaded', () => {
+
+//     document.querySelector('#document_save_btn').addEventListener('click', () => {
+//         save_document();
+//     });
+
+//     document.querySelector('#document_issue_btn').addEventListener('click', (e) => {
+//         open_issue_document_window(e);
+//     });
+
+//     document.querySelector('#document_delete_btn').addEventListener('click', () => {
+//         delete_document();
+//     });
+
+//     let fields_container_ele = document.querySelector('.document-fields-container');
+//     if(fields_container_ele != null){
+//         document.querySelectorAll('input').forEach(input_ele => {
+//             input_ele.addEventListener('input', () => {
+//                 show_save_warning_ele();
+//             })
+//         });
+//     }
+
+
+//     const CLASS_ADD_NEW_SI = 'add-new';
+//     document.querySelector('.' + CLASS_SHOW_ADD_INSTRUCTION_FORMLIKE).addEventListener('click', () => {
+//         unhide_all_by_class(CLASS_ADD_NEW_SI);
+//     });
+//     document.querySelector('.' + CLASS_HIDE_ADD_INSTRUCTION_FORMLIKE).addEventListener('click', () => {
+//         hide_all_by_class(CLASS_ADD_NEW_SI);
+//     });
+
+//     document.querySelector('.add-special-instruction-btn').addEventListener('click', () => {
+//         add_special_instruction_to_page();
+//         hide_all_by_class(CLASS_ADD_NEW_SI);
+//     });
+
+//     document.querySelectorAll('.' + CLASS_SPECIAL_INSTRUCTION_EDIT).forEach(btn => {
+//         btn.addEventListener('click', (e) => {
+//             open_editor_special_instruction(e.target);
+//         })
+//     });
+
+//     document.querySelectorAll('.' + CLASS_SPECIAL_INSTRUCTION_DELETE).forEach(btn => {
+//         btn.addEventListener('click', (e) => {
+//             delete_ele_special_instruction(e.target);
+//         })
+//     });
+
+// });
 
 
 
 
 // || Issue document window
-function open_issue_document_window(e){
-    let window = create_ele_issue_document_window();
+export function open_issue_document_window(e){
+    const window = create_ele_issue_document_window();
     e.target.after(window);
 }
 
@@ -137,7 +192,7 @@ function close_issue_document_window(btn){
 
 
 function create_ele_issue_document_window(){
-    let div = document.createElement('div');
+    const div = document.createElement('div');
     div.classList.add(CSS_GENERIC_PANEL);
     div.classList.add(CSS_GENERIC_FORM_LIKE);
 
@@ -151,7 +206,7 @@ function create_ele_issue_document_window(){
 
 
 function create_ele_issue_document_window_cancel_btn(){
-    let cancel_btn = create_generic_ele_cancel_button();
+    const cancel_btn = create_generic_ele_cancel_button();
     cancel_btn.addEventListener('click', (e) => {
         close_issue_document_window(e.target);
     });
@@ -160,7 +215,7 @@ function create_ele_issue_document_window_cancel_btn(){
 
 
 function create_ele_issue_document_window_heading(){
-    let heading = document.createElement('h4');
+    const heading = document.createElement('h4');
     heading.classList.add(CSS_GENERIC_PANEL_HEADING);
     heading.innerHTML = 'Issue Date';
     return heading;
@@ -168,7 +223,7 @@ function create_ele_issue_document_window_heading(){
 
 
 function create_ele_issue_document_window_issue_date_input(){
-    let input = document.createElement('input');
+    const input = document.createElement('input');
     input.classList.add('issue-date');
     input.type = 'date';
     const today = new Date();
@@ -179,7 +234,7 @@ function create_ele_issue_document_window_issue_date_input(){
 
 
 function create_ele_issue_document_window_issue_btn(){
-    let issue_btn = create_generic_ele_submit_button();
+    const issue_btn = create_generic_ele_submit_button();
     issue_btn.classList.add('full-width-button');
     issue_btn.innerHTML = 'issue';
     issue_btn.addEventListener('click', (e) => {
@@ -192,20 +247,20 @@ function create_ele_issue_document_window_issue_btn(){
 
 // || Update document
 function issue_document(btn){
-    let input = btn.parentElement.querySelector('input');
-    let issue_date = input.value;
+    const input = btn.parentElement.querySelector('input');
+    const issue_date = input.value;
     update_document(issue_date);    
 }
 
 
-function save_document(){
+export function save_document(){
     update_document(null);
 }
 
 
 function update_document(issue_date){
     const DOC_ID_WHEN_CREATING_NEW = '0';
-    let obj = get_document_data_as_object(issue_date);
+    const obj = get_document_data_as_object(issue_date);
 
     if(window.DOC_ID === DOC_ID_WHEN_CREATING_NEW){
         update_document_on_server('POST', 201, obj, `job=${window.JOB_ID}&type=${window.DOC_CODE}`);
@@ -217,8 +272,8 @@ function update_document(issue_date){
 
 
 async function update_document_on_server(method, expected_response_code, doc_data, get_params){
-    var request_options = getRequestOptions(method, doc_data);
-    let resp_data = await update_backend(`${window.URL_DOCBUILDER}?${get_params}`, request_options);
+    const request_options = getRequestOptions(method, doc_data);
+    const resp_data = await update_backend(`${window.URL_DOCBUILDER}?${get_params}`, request_options);
 
     if(status_is_good(resp_data, expected_response_code)){
         if(expected_response_code === 201){
@@ -235,7 +290,7 @@ async function update_document_on_server(method, expected_response_code, doc_dat
 
 
 async function update_page_after_successful_save(full_url){
-    let resp_data = await query_backend(full_url);
+    const resp_data = await query_backend(full_url);
     if(status_is_good(resp_data, 200)){
         
         if('doc_is_issued' in resp_data){
@@ -259,18 +314,18 @@ async function update_page_after_successful_save(full_url){
 
 
 function get_document_data_as_object(issue_date){
-    let obj = {};
+    const obj = {};
     obj['reference'] = document.querySelector('#id_doc_reference').value;
     obj['issue_date'] = issue_date;
     obj['assigned_items'] = get_docitems_assignment_quantity_object();
     obj['special_instructions'] = get_special_instructions_as_list();
 
-    let req_prod_date_value = get_value_from_id('id_req_prod_date');
+    const req_prod_date_value = get_value_from_id('id_req_prod_date');
     if(req_prod_date_value !== null){
         obj['req_prod_date'] = req_prod_date_value;
     }
 
-    let sched_prod_date_value = get_value_from_id('id_sched_prod_date');
+    const sched_prod_date_value = get_value_from_id('id_sched_prod_date');
     if(sched_prod_date_value !== null){
         obj['sched_prod_date'] = sched_prod_date_value;
     }
@@ -280,7 +335,7 @@ function get_document_data_as_object(issue_date){
 
 
 function get_value_from_id(id_str){
-    let target_ele = document.getElementById(id_str);
+    const target_ele = document.getElementById(id_str);
     if(target_ele){
         var target_value = target_ele.value;
         if(target_value == ''){
@@ -299,16 +354,16 @@ function get_docitems_assignment_quantity_object(){
     //  >> JobItems entirely excluded:  value = 0
     //  >> Split JobItems:              value = included quantity
     //  >> JobItems entirely included:  value = included quantity
-    let included_ul = document.querySelector('#' + ID_INCLUDES_UL);
-    let excluded_ul = document.querySelector('#' + ID_EXCLUDES_UL);
-    let obj_included_items_with_quantities = ul_to_docitems_assignment_quantity_object(included_ul, false);
-    let obj_excluded_items_set_to_zero = ul_to_docitems_assignment_quantity_object(excluded_ul, true);
+    const included_ul = document.querySelector('#' + ID_INCLUDES_UL);
+    const excluded_ul = document.querySelector('#' + ID_EXCLUDES_UL);
+    const obj_included_items_with_quantities = ul_to_docitems_assignment_quantity_object(included_ul, false);
+    const obj_excluded_items_set_to_zero = ul_to_docitems_assignment_quantity_object(excluded_ul, true);
     return {...obj_excluded_items_set_to_zero, ...obj_included_items_with_quantities};
 }
 
 
 function ul_to_docitems_assignment_quantity_object(ul_ele, force_0_quantity){
-    let result = {};
+    const result = {};
     if(null == ul_ele.querySelector('.' + CLASS_NONE_LI)){
         Array.from(ul_ele.children).forEach(ele => {
             if(ele.tagName === 'LI'){
@@ -322,9 +377,9 @@ function ul_to_docitems_assignment_quantity_object(ul_ele, force_0_quantity){
 
 
 function get_special_instructions_as_list(){
-    let special_instructions = [];
-    let container_ele = document.querySelector('.' + CLASS_INSTRUCTIONS_SECTION);
-    let parent_ele = container_ele.querySelector('.existing');
+    const special_instructions = [];
+    const container_ele = document.querySelector('.' + CLASS_INSTRUCTIONS_SECTION);
+    const parent_ele = container_ele.querySelector('.existing');
 
     Array.from(parent_ele.children).forEach(ele => {
         if(!ele.classList.contains(CLASS_INSTRUCTIONS_EMPTY_MESSAGE)){
@@ -343,7 +398,7 @@ function get_special_instructions_as_list(){
 
 
 // || Delete document
-async function delete_document(){
+export async function delete_document(){
     let delete_confirmed = window.confirm('Deleting a document cannot be undone except by a system administrator. Are you sure?');
     if(delete_confirmed){
         let request_options = getRequestOptions('DELETE');
@@ -393,7 +448,7 @@ function remove_unsaved_changes_ele(){
 
 
 // || Special instructions
-function open_editor_special_instruction(btn){
+export function open_editor_special_instruction(btn){
     let target_div = btn.parentElement;
     let contents_div = target_div.querySelector('.contents');
     contents_div.classList.add(CSS_HIDE);
@@ -490,7 +545,7 @@ function create_ele_editor_special_instruction_delete_button(){
 }
 
 
-function add_special_instruction_to_page(){
+export function add_special_instruction_to_page(){
     let section_div = document.querySelector('.special-instructions');
     let input = section_div.querySelector('textarea');
     let new_contents_str = input.value;
@@ -577,7 +632,7 @@ function update_ele_special_instruction(btn){
 }
 
 
-function delete_ele_special_instruction(btn){
+export function delete_ele_special_instruction(btn){
     btn.closest('.' + CLASS_ONE_SPECIAL_INSTRUCTION).remove();
     update_emptiness_of_special_instructions();
     show_save_warning_ele();

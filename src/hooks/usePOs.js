@@ -7,8 +7,11 @@ import {
     getUpdatedObjectFromList, 
     set_if_ok, 
     url_for_url_list, 
-    useFetchWithLoading, 
 } from '../util';
+
+import {
+    useFetchWithLoading
+} from './useFetchWithLoading.js';
 
 export function usePOs(poList, updateJobKey, reportError){
     const JOB_KEY = 'poList';
