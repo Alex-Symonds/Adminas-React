@@ -9,7 +9,7 @@ const CSS_MODAL_CLOSE_BUTTON = 'modal_closeButton';
 export const CSS_CLOSE_BUTTON = 'closeButton';
 const CSS_MODAL_WRAPPER = "modalWrapper";
 const CSS_MODAL_HEADING = "modal_heading";
-const CSS_MODAL_CONTENTS = 'modal_contents';
+export const CSS_MODAL_CONTENTS = 'modal_contents';
 
 export function create_generic_modal(contents){
     const wrapper = create_generic_modal_wrapper();
@@ -53,8 +53,8 @@ export function create_generic_modal_heading(level){
     } else {
         headingEle = document.createElement(`h${level}`);
     }
-    ele.classList.add(CSS_MODAL_HEADING);
-    return ele;
+    headingEle.classList.add(CSS_MODAL_HEADING);
+    return headingEle;
 }
 
 export function open_modal(modalWrapper){
