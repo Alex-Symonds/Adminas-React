@@ -9,9 +9,16 @@
 import {
     create_generic_modal,
     create_generic_modal_heading,
+    CSS_MODAL_CONTENTS,
+    open_modal,
 } from './modal.js';
 
-
+import {
+    create_generic_ele_label,
+    create_generic_ele_submit_button,
+    get_json_with_status,
+    status_is_good,
+} from './util.js';
 
 const ID_FILTER_OPTIONS_ELE = 'id_filter_options';
 const CLASS_FILTER_OPTIONS_BODY = 'filter-options-body';
@@ -63,15 +70,6 @@ document.addEventListener('DOMContentLoaded', () => {
         open_filter_options();
     });
 });
-
-
-// export function setupRecordsFilter(){
-//     document.addEventListener('DOMContentLoaded', () => {
-//         document.getElementById(ID_BEGIN_FILTER_BUTTON).addEventListener('click', () => {
-//             open_filter_options();
-//         });
-//     });
-// }
 
 
 // || Open menu
