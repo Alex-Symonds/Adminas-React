@@ -2,10 +2,883 @@
 
 /* Document_Builder and Document_Main formatting
     Contents:
+        || documentPage
+        || iconTextButtons
+        || Warnings / Notifications
+        || Section: General
+        || Section: Special Instructions
+        || Section: Line Items
+        || Modal: Split docItems
+        || Modal: Issue Document
         || Text formatting
-        || Layout
-        || Custom adjustments to common CSS (.subsection and .panel)
+        || Responsive Layout
 */
+
+// || SCSS vars
+$breakpoint_oneOrTwoColumns: 950px;
+
+
+// || documentPage
+.documentPage{
+    --paddingSubSectionHeadings: #{v.px-to-rem(7)} #{v.px-to-rem(8)};
+
+    &_layout{
+        display: grid;
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto auto auto;
+        grid-template-areas:
+            "controls"
+            "general"
+            "special"
+            "lineItems"
+        ;
+        row-gap: v.px-to-rem(16);
+        column-gap: v.px-to-rem(32);
+        justify-content: stretch;
+        width: 40rem;
+        max-width: calc(100vw - var(--mainContentSideMargins) - 1rem);
+    }
+
+    &_controlsAndWarningsWrapper{
+        grid-area: controls;
+
+        display: flex;
+        flex-direction: column;
+        gap: v.px-to-rem(6);
+    }
+
+    &_controls{
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    &_safeButtonsContainer{
+        display: flex;
+        justify-content: start;
+        align-items: center;
+        gap: v.px-to-rem(16);
+
+        padding: v.px-to-rem(6) 0;
+    }
+}
+
+
+// || iconTextButtons
+@mixin iconTextButton{
+/*
+    Requirement for use:
+        * Include a CSS variable name "--bgSize", which is <= 30px and makes the icon look nice
+        * Include @mixin iconTextButton_text on a child element containing the text to go underneath
+
+    Why --bgSize?
+    The controls bar looks wrong/messy if all the icons are displayed at the same size.
+    This is partly about some SVGs not going right up to all four edges and partly about an 
+    optical illusion where circles of diameter N look smaller than squares of height N (it's a 
+    thing: fonts are designed with it in mind).
+
+    To get the icons to "look right", they must be displayed at slightly different sizes. The plan:
+        * --iconMaxHeight is used to leave space for the icon
+        * Each icon-specific class using this mixin will set --bgSize
+        * The Y offset will be calculated as per --bgPosY below
+
+    Why --bgPosY instead of just having that equation inside background-size?
+    When there's a gradient BG on hover, it's necessary to redeclare all the background-X properties 
+    to include settings for both the icon AND the gradient. --bgPosY is used in those.
+*/
+    --iconMaxHeight: #{v.px-to-rem(30)}; // This is also used in a child mixin
+    --bgPosY: calc((var(--iconMaxHeight) - var(--bgSize)) / 2); // Read the comment before getting ideas about refactoring this.
+
+    // reset
+    text-decoration: none;
+    border: none;
+
+    // The rest
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    width: v.px-to-rem(42);
+    padding: 0;
+
+    background-color: transparent;
+    background-repeat: no-repeat;
+    background-size: var(--bgSize, #{v.px-to-rem(24)}) var(--bgSize, #{v.px-to-rem(24)});
+    background-position: center var(--bgPosY);
+
+    border-radius: v.px-to-rem(2);
+
+    color: v.$c_tone-100;
+    &:enabled:hover{
+        color: white;
+        background-color: v.$c_tone-700;
+    }
+
+    // The "button" might actually be an anchor, in which case there will be a "-disabled" CSS class
+    &:disabled,
+    &-disabled{
+        opacity: 0.4;
+        font-style: italic;
+        cursor: default;
+        pointer-events: none;
+    }
+}
+
+@mixin iconTextButton_text{
+    // Use with @mixin iconTextButton: sets up the text underneath nicely
+    padding: var(--iconMaxHeight) v.px-to-rem(4) v.px-to-rem(4);
+    font-size: v.px-to-rem(11);
+}
+
+
+// Optional addition: when the button is an anchor, use this to override the anchor hover formatting
+@mixin iconTextButtonOverrideAnchorHover{
+    color: white;
+    background-color: v.$c_tone-700;
+}
+
+// Button-specific details
+.closeIconTextButton{
+    --bgSize: #{v.px-to-rem(24)};
+
+    @include iconTextButton();
+    background-image: url(../images/i-x-hollow.svg);
+
+    &:hover{
+        @include iconTextButtonOverrideAnchorHover();
+    }
+
+    &_text{
+        @include iconTextButton_text();
+    }
+}
+
+.deleteIconTextButton{
+    --bgSize: #{v.px-to-rem(24)};
+
+    @include iconTextButton();
+    background-image: url(../images/i-minus-empty.svg);
+
+    &:enabled:hover{
+        color: white;
+        background: url(../images/i-minus-filled.svg), v.$g_warning_hover;
+        background-repeat: no-repeat, no-repeat;
+        background-position: center var(--bgPosY), 0 0;
+        background-size: var(--bgSize) var(--bgSize), 100% 100%;
+    }
+
+    &_text{
+        @include iconTextButton_text();
+    }
+}
+
+.editIconTextButton{
+    --bgSize: #{v.px-to-rem(22)};
+
+    @include iconTextButton();
+    background-image: url(../images/i-edit.svg);
+
+    &:hover{
+        @include iconTextButtonOverrideAnchorHover();
+    }
+
+    &_text{
+        @include iconTextButton_text();
+    }
+}
+
+.issueFinalIconTextButton{
+    --bgSize: #{v.px-to-rem(22)};
+
+    @include iconTextButton();
+    background-image: url(../images/i-check-hollow.svg);
+
+    &_text{
+        @include iconTextButton_text();
+    }
+}
+
+.previewIconTextButton{
+    --bgSize: #{v.px-to-rem(22)};
+
+    @include iconTextButton();
+    background-image: url(../images/i-preview-hollow.svg);
+
+    &:hover{
+        @include iconTextButtonOverrideAnchorHover();
+    }
+
+    &_text{
+        @include iconTextButton_text();
+    }
+}
+
+.saveIconTextButton{
+    --bgSize: #{v.px-to-rem(20)};
+
+    @include iconTextButton();
+    background-image: url(../images/i-save.svg);
+
+    &_text{
+        @include iconTextButton_text();
+    }
+}
+
+.replaceIconTextButton{
+    --bgSize: #{v.px-to-rem(24)};
+
+    @include iconTextButton();
+    background-image: url(../images/i-replace.svg);
+
+    &_text{
+        @include iconTextButton_text();
+    }
+}
+
+.revertIconTextButton{
+    --bgSize: #{v.px-to-rem(24)};
+
+    @include iconTextButton();
+    background-image: url(../images/i-revert.svg);
+
+    &_text{
+        @include iconTextButton_text();
+    }
+}
+
+.viewFinalIconTextButton{
+    --bgSize: #{v.px-to-rem(24)};
+
+    @include iconTextButton();
+    background-image: url(../images/i-view-doc.svg);
+
+    &:hover{
+        @include iconTextButtonOverrideAnchorHover();
+    }
+
+    &_text{
+        @include iconTextButton_text();
+    }
+}
+
+
+// || Warnings / Notifications
+.documentPageWarnings{
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    justify-content: start;
+    gap: v.px-to-rem(10);
+
+    &_unsavedChanges{
+        height: v.px-to-rem(32);
+        &-on{
+            @include v.notification(v.$c_attention);
+
+            display: flex;
+            justify-content: start;
+            align-items: center;
+            gap: v.px-to-rem(8);
+        }
+    }
+
+    &_invalid{
+        @include v.notification(v.$c_warning);
+
+        display: flex;
+        flex-direction: column;
+        gap: v.px-to-rem(8);
+
+        h4{
+            display: flex;
+            align-items: center;
+            justify-content: start;
+            gap: v.px-to-rem(7);
+
+            font-size: v.px-to-rem(16);
+        }
+    }
+
+    &_isDeleted{
+        height: v.px-to-rem(32);
+
+        @include v.notification(v.$c_warning);
+
+        display: flex;
+        justify-content: start;
+        align-items: center;
+        gap: v.px-to-rem(8);
+
+    }
+}
+
+
+.documentResponseMessage{
+    display: grid;
+    grid-template-columns: auto auto;
+    grid-template-rows: auto auto;
+    grid-template-areas: 
+        "main close"
+        "timestamp close"
+    ;
+    align-items: start;
+    justify-content: start;
+
+    width: fit-content;
+    max-width: 100%;
+
+    &-error{
+        @include v.notification(v.$c_warning);
+    }
+
+    &-neutral{
+        @include v.notification(v.$c_accent-600);
+    }
+
+    &_content{
+        grid-area: main;
+    }
+
+    &_timestamp{
+        grid-area: timestamp;
+        margin: v.px-to-rem(3) 0 0;
+        font-size: v.px-to-rem(12);
+        color: v.$c_tone-400;
+        font-style: italic;
+    }
+
+    &_closeBtn{
+        grid-area: close;
+        justify-self: end;
+
+        position: relative;
+        left: v.px-to-rem(10);
+    }
+}
+
+
+// || Section: General
+.documentPageGeneral{
+    grid-area: general;
+
+    max-width: 100%;
+
+    &_headingContent{
+        display: block;
+        padding: var(--paddingSubSectionHeadings);
+    }
+
+    &_formRow{
+        display: flex;
+        flex-direction: column;
+        align-items: start;
+        row-gap: v.px-to-rem(2);
+
+        padding: v.px-to-rem(6) v.px-to-rem(12) v.px-to-rem(10);
+    
+        border-color: v.$c_tone-500;
+    
+        label{
+            margin: 0;
+        }
+    }
+
+    &_readonlyRow{
+        --spaceToLeft: calc(#{v.px-to-rem(5)} + 6px);
+
+        border-bottom: 1px solid v.$c_tone-800;
+        padding: 0.25rem 0;
+    
+        display: flex;
+        flex-flow: row wrap;
+        align-items: center;
+    }
+
+    &_readonlyRowContent{
+        padding: 0 0 0 var(--spaceToLeft);
+    }
+
+    &_readonlyRowLabel{
+        display: inline-block;
+        min-width: 8rem;
+        width: 100%;
+        max-width: 100%;
+
+        padding: 0 0 0 var(--spaceToLeft);
+
+        color: v.$c_tone-200;
+
+        @media screen and (min-width: $breakpoint_oneOrTwoColumns){
+            max-width: 8rem;
+        }
+    }
+
+    &_inputAndNoteWrapper{
+        display: flex;
+        align-items: center;
+        column-gap: v.px-to-rem(3);
+    }
+}
+
+
+// || Section: Special Instructions
+.documentPageSpecialInstructions{
+    grid-area: special;
+
+    min-width: 270px;
+    max-width: 100%;
+
+    --xPadding: #{v.px-to-rem(16)};
+
+    &_addButtonContainer{
+        padding: 0.3rem;
+    }
+
+    &_form{
+        --outerXPadding: #{v.px-to-rem(16)};
+
+        padding: v.px-to-rem(16) 0 0;
+
+        display: flex;
+        flex-direction: column;
+        gap: v.px-to-rem(6);
+    }
+
+    &_label{
+        padding: 0 var(--outerXPadding);
+    }
+
+    &_textarea{
+        margin: 0 var(--outerXPadding);
+        width: calc(80ch - var(--outerXPadding) * 2);
+        max-width: calc(100%  - var(--outerXPadding) * 2);
+        height: 8rem;
+        max-height: 80svh;
+    }
+
+    &_headingContent{
+        display: block;
+        padding: var(--paddingSubSectionHeadings);
+    }
+
+    &_controlsContainer{
+        display: flex;
+        justify-content: space-between;
+        padding: var(--outerXPadding);
+    }
+
+    &_button{
+        min-height: 2rem;
+        width: 8rem;
+        max-width: 40%;
+    }
+
+    &_specialInstruction{
+        &Container{
+            position: relative;
+
+            display: flex;
+            flex-flow: column nowrap;
+            align-items: stretch;
+            width: 100%;
+
+            border-bottom: 1px solid v.$c_tone-800;
+            padding: v.px-to-rem(4) 0;
+        }
+
+        &Contents{
+            padding: v.px-to-rem(5) var(--xPadding) 0;
+            min-width: 100%;
+        }
+
+        &EditBtn{
+            position: absolute;
+            top: 2px;
+            right: 0;
+
+            &:enabled:hover{
+                background-position: 5px 4px;
+            }
+        }
+
+        &WhoAndWhen{
+            color: v.$c_tone-400;
+            font-style: italic;
+            font-size: v.px-to-rem(14);
+            min-width: 100%;
+            padding: v.px-to-rem(2) var(--xPadding);
+        }
+    }
+    
+}
+
+
+// || Section: Line Items
+@mixin docBuilderItemsIconButtons{
+    height: var(--itemToggleButtonSize);
+    width: var(--itemToggleButtonSize);
+
+    background-color: transparent;
+    background-repeat: no-repeat;
+    background-position: 0 0;
+    background-size: cover;
+
+    border: none;
+
+    &:disabled{
+        opacity: 0.4;
+    }
+
+    .hoverLabel{
+        @include v.visually-hidden();
+        color: white;
+    }
+
+    position: relative;
+    &:enabled:hover{
+        .hoverLabel{
+            @include v.visually-unhidden();
+
+            position: absolute;
+            top: 0;
+            right: v.px-to-rem(26);
+            z-index: 2;
+
+            min-width: 3rem;
+            padding: v.px-to-rem(2) v.px-to-rem(6);
+
+            font-size: v.px-to-rem(14);
+            font-style: normal;
+            color: white;
+
+            background: rgba(v.$c_tone-1000, 0.9);
+            border: 1px solid v.$c_tone-1000;
+            border-radius: v.px-to-rem(5);
+        }
+    }
+
+    &:disabled{
+        opacity: 0.4;
+    }
+}
+
+
+@mixin docBuilderItemsLiShared{
+    padding: v.px-to-rem(6) v.px-to-rem(10);
+
+    display: grid;
+    grid-template-columns: 1fr 1.5rem 1.5rem;
+    grid-template-rows: auto auto;
+    grid-template-areas: 
+        "desc desc desc"
+        ". buttons buttons"
+    ;
+    align-items: center;
+    gap: 0.5rem 1.75rem;
+
+    width: 100%;
+    max-width: 100%;
+
+    border-bottom: 1px solid v.$c_tone-800;
+
+    @media screen and (min-width: $breakpoint_oneOrTwoColumns){
+        grid-template-columns: 1fr 1.5rem 1.5rem;
+        grid-template-rows: auto;
+        grid-template-areas: 
+            "desc buttons buttons"
+        ;
+        gap: 0 2rem;
+    }
+}
+
+
+.documentPageItems{
+    --itemToggleButtonSize: #{v.px-to-rem(24)};
+
+    grid-area: lineItems;
+    justify-self: stretch;
+
+    &_headingContent{
+        display: block;
+        padding: var(--paddingSubSectionHeadings);
+    }
+
+    &_content{
+        display: flex;
+        flex-direction: column;
+        align-items: start;
+
+        gap: v.px-to-rem(16);
+
+        padding: v.px-to-rem(12) 0;
+    }
+
+    &_included,
+    &_excluded{
+        width: 100%;
+    }
+
+
+    &_subsectionHeading{
+        width: 8rem;
+    }
+
+    &_itemsUl{
+        list-style: none;
+        padding: v.px-to-rem(6) 0;
+        margin: 0;
+    }
+
+    &_emptyLi{
+        @include docBuilderItemsLiShared();
+    }
+
+    &_itemLi{
+        @include docBuilderItemsLiShared();
+
+        &-excluded{
+            color: v.$c_tone-400;
+            font-style: italic;
+        }
+
+        .invalid-icon{
+            top: 0;
+            width: 1.5rem;
+            height: 1.5rem;
+            margin: 0;
+        }
+    }
+
+    &_itemDisplay{
+        grid-area: desc;
+
+        display: flex;
+        align-items: center;
+        justify-content: start;
+        gap: 0.5rem;
+    }
+
+    &_itemControls{
+        grid-area: buttons;
+
+        display: grid;
+        grid-template-columns: subgrid;
+        grid-template-rows: auto;
+    }
+
+    &_excludeButton{
+        grid-column: 2;
+        grid-row: 1;
+
+        @include docBuilderItemsIconButtons();
+
+        background-image: url(../images/i-minus-empty.svg);
+        &:enabled:hover{
+            background-image: url(../images/i-minus-filled.svg);
+        }
+    }
+
+    &_includeButton{
+        grid-column: 2;
+        grid-row: 1;
+
+        @include docBuilderItemsIconButtons();
+
+        background-image: url(../images/i-plus-empty.svg);
+        &:enabled:hover{
+            background-image: url(../images/i-plus-filled.svg);
+        }
+    }
+
+    &_splitButton{
+        grid-column: 1;
+        grid-row: 1;
+
+        @include docBuilderItemsIconButtons();
+
+        background-size: v.px-to-rem(20) v.px-to-rem(20);
+        background-position: v.px-to-rem(2) v.px-to-rem(1);
+
+        background-image: url(../images/i-splitJoin.svg);
+        border-bottom: 2px solid transparent;
+
+        &:enabled:hover{
+            border-color: v.$c_accent-500;
+        }
+    }
+}
+
+// || Modal: Split docItems
+.splitDocitemModal{
+    &_content{
+        --xPadding: 1rem;
+
+        width: fit-content;
+        display: flex;
+        flex-flow: column nowrap;
+        justify-content: center;
+    }
+
+    &_introduction{
+        margin: 0;
+        padding: v.px-to-rem(12) var(--xPadding);
+        border-bottom: 1px solid v.$c_tone-800;
+    }
+
+    &_invalidSplit{
+        display: flex;
+        align-items: center;
+        gap: v.px-to-rem(8);
+
+        background: v.$c_tone-950;
+        border-left: 3px solid v.$c_warning;
+        padding: v.px-to-rem(5) v.px-to-rem(8);  
+    }
+}
+
+
+.splitDocitemForm{
+    font-style: normal;
+    color: white;
+
+    &_direction{
+        display: flex;
+        align-items: start;
+        flex-direction: column;
+    }
+
+    &_label{
+        display: flex;
+        flex-direction: column;
+        justify-content: start;
+        align-items: start;
+    }
+
+    &_labelStr{
+        color: v.$c_tone-50;
+        font-weight: normal;
+    }
+
+    &_labelSubStr{
+        color: v.$c_tone-300;
+        font-weight: normal;
+        font-size: v.px-to-rem(14);
+    }
+
+    &_inputWrapper{
+        display: flex;
+        flex-flow: column nowrap;
+        align-items: start;
+        justify-content: center;
+        gap: 1rem;
+
+        padding: 0.75rem var(--xPadding) v.px-to-rem(14);
+    }
+
+    &_previewResults{
+        display: grid;
+        grid-template-columns: auto auto;
+        grid-template-rows: auto auto;
+        gap: v.px-to-rem(10) 1rem;
+
+        padding: 0.5rem var(--xPadding) 0.75rem;
+
+        border-style: solid;
+        border-color: v.$c_tone-900;
+        border-width: 1px 0;
+        background: v.$c_tone-950;
+    }
+
+    &_previewResultsHeading{
+        font-size: v.px-to-rem(12);
+        font-weight: 500;
+        color: v.$c_tone-200;
+
+        grid-column-start: 1;
+        grid-column-end: 3;
+        justify-self: start;
+    }
+
+    &_previewExcludedResult{
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+
+        @include v.notification(v.$c_tone-300);
+
+        font-style: italic;
+        color: v.$c_tone-300;
+
+        margin: 0;
+
+        justify-self: start;
+    }
+
+    &_previewIncludedResult{
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+
+        @include v.notification(v.$c_good-500);
+
+        margin: 0;
+
+        justify-self: end;
+    }
+
+    &_quantityWrapper{
+        display: flex;
+        flex-direction: column;
+        align-items: start;
+        justify-content: center;
+        gap: v.px-to-rem(4);
+
+        input{
+            margin: 0;
+            max-width: calc(100% - 2rem);
+        }
+    }
+
+    &_buttonContainer{
+        padding: var(--xPadding);
+    }
+
+    &_submitBtn{
+        padding: v.px-to-rem(6) v.px-to-rem(16);
+        height: v.px-to-rem(37); 
+    }
+}
+
+
+
+// || Modal: Issue Document
+.docBuilderIssueDoc{
+    &_form{
+        display: flex;
+        flex-direction: column;
+        align-items: start;
+        justify-content: start;
+        gap: v.px-to-rem(24);
+
+        width: 15rem;
+        max-width: 100%;
+
+        padding: v.px-to-rem(24) v.px-to-rem(16) v.px-to-rem(16);
+    }
+
+    &_formRow{
+        display: flex;
+        flex-direction: column;
+        align-items: start;
+        justify-content: start;
+    }
+    &_submitBtn{
+        width: 6rem;
+        max-width: 40%;
+        height: 2rem;
+    }
+}
+
 
 
 // || Text formatting
@@ -25,535 +898,36 @@
     border-bottom-right-radius: 0.5rem;
 }
 
-
-// || Layout
-.status-controls{
-    display: block;
-    width: calc(100% - 1rem - 3px);
-    padding: 0;
-    margin: 1rem 0 2rem;
-    border-left: 3px solid v.$c_tone-500;
-
-    position: relative;
-
-    .system-message-box,
-    .unsaved-changes{
-        clear: both;
-        display: block;
-        width: 100%;
-        padding: 0.5rem;
-        border-left: none;
-        margin-top: 0;
-    }
-
-    &::after{
-        content: "";
-        clear: both;
-        display: block;
-        width: 100%;
-    }
-
-
-    .system-message-box{
-        width: 98.5%;
-        margin: 0.5rem;
-
-        border-style: solid;
-        border-width: 1px 1px 1px 3px;
-        border-color: v.$c_tone-1000 v.$c_tone-1000 v.$c_good-800 v.$c_good-500;
-
-        background: v.$c_tone-950;
-
-        &.temp-warning-msg{
-            max-width: none;
-            min-height: 0;
-            border-color: v.$c_tone-1000 v.$c_tone-1000 v.$c_good-800 v.$c_warning;
-        }
-    }
-
-    &.draft .system-message-box{
-        border-bottom: 1px solid v.$c_tone-1000;
-    }
-
-    .unsaved-changes{
-        width: 100%;
-
-        margin-top: 3.5rem;
-        padding: 0.5rem;
-
-        font-size: 1.1rem;
-        font-weight: bold;
-        text-align: center;
-
-        border: 1px solid v.$c_warning;
-        border-left: none;
-
-        background: v.$c_warning;
-        background: v.$g_warning_hover;
-        color: v.$c_txt_on_accent; 
-    }
-
-
-    h3{
-        margin: 0;
-        padding: 0.5rem;
-        font-size: 1.1rem;
-        border: none;
-        background: v.$c_tone-800;
-    }
-
-    &.draft{
-        h3{
-            background: v.$c_accent-800;
-        }
-        border-color: v.$c_accent-500;
-    }
-
-    &.issued{
-        h3{
-            background: v.$c_good-800;
-        }
-        border-color: v.$c_good-500;
-    }
-
-    .status-header{
-        position: relative;
-        width: 100%;
-    }
-
-    .edit-icon{
-        position: absolute;
-        top: 0.3rem;
-        right: -0.2rem;
-    }
-
-    a{
-        text-decoration: none;
-    }
-
-    .filled,
-    button.revert-replace,
-    .button-warning{
-        width: fit-content;
-        display: block;
-        padding: 0.3rem 1.5rem;
-    }
-
-    .filled,
-    button.revert-replace,
-    #document_delete_btn{
-        margin: 1rem 0 0;
-    }
-
-    .filled,
-    button.revert-replace{
-        border: 1px solid v.$c_accent-500;
-        border-left: none;
-        border-top-right-radius: 0.5rem;
-        border-bottom-right-radius: 0.5rem;
-        font-weight: bold;
-
-        &:hover{
-            background: v.$c_accent-400;
-            background: v.$g_button_hover;
-            color: v.$c_txt_on_accent;
-        }
-    }
-
-    .filled{
-        background: v.$c_accent-500;
-        background: v.$g_button_main;
-        color: v.$c_txt_main;
-    }
-
-    button:disabled,
-    p.disabled{
-        border-color: v.$c_tone-800;
-        background: v.$c_tone-500;
-        font-weight: normal;
-
-        &:hover{
-            border-color: v.$c_tone-800;
-            background: v.$c_tone-500;
-        }
-    }
-
-    .filled.disabled,
-    .filled:disabled{
-        color: v.$c_txt_main;
-    }
-    .button-warning:disabled:hover{
-        color: v.$c_warning;
-    }
-
-
-
-    button.revert-replace{
-        background: v.$c_tone-1000;
-        color: v.$c_accent-500;
-        border-color: v.$c_accent-500;
-    }
-
-    .button-warning{
-        position: absolute;
-        right: 0;
-    }
-
-    .panel{
-        max-width: 11.75rem;
-    }
-
-    .return-to-job{
-        border-top-left-radius: 0;
-        border-bottom-left-radius: 0;
-        border-left: none;
-    }
-
-
-
-}
-
-.included,
-.excluded{
-    margin: 1rem 0;
-
-    li{
-        padding-bottom: v.px-to-rem(5);
-    }
-}
-
-.document-item-lists{
-    width: 100%;
-}
-
-.document-item-lists-container{
-    display: flex;
-    flex-wrap: wrap;
-}
-
-.edit-document{
-    .panel.included-container li{
-        padding-bottom: 0;
-
-        .invalid-icon{
-            top: 0;
-            width: 1.5rem;
-            height: 1.5rem;
-            margin: 0 0.3rem 0 0;
-        }
-    }
-
-    .document-fields-container{
-        padding-bottom: 1rem;
-    }
-
-    .document-item-lists li:last-of-type{
-        border-bottom: 1px solid v.$c_tone-800;
-    }
-    .document-item-lists li{
-        border-top: 1px solid v.$c_tone-800;
-    }
-
-    .document-item-lists{
-
-        ul{
-            padding: 0;
-        }
-
-        li{
-            display: flex;
-            flex-flow: row wrap;
-            align-items: center;
-            position: relative;
-            padding-left: 1rem;
-            
-            .button-container{
-                flex-grow: 2;
-            }
-        }
-
-        .split-docitem-window{
-            width: fit-content;
-            position: absolute;
-            top: 0.5rem;
-            left: 0.5rem;
-            z-index: 3;
-            background: v.$c_tone-800;
-            display: flex;
-            flex-flow: column nowrap;
-            justify-content: center;
-
-            .panel-header{
-                padding: 0;
-                width: 100%;
-            }
-
-            h5{
-                font-size: 1rem;
-                margin: 0;
-                padding: 0.5rem;
-            }
-
-            p{
-                margin: 0;
-                padding: 0.5rem;
-            }
-
-            #id_qty{
-                margin: 0.3rem auto 0;
-                font-size: 1.3rem;
-                height: 2rem;
-            }
-
-            .invalid{
-                display: flex;
-                align-items: center;
-
-                background: v.$c_tone-950;
-                border-left: 3px solid v.$c_warning;
-                padding: 0.3rem 0.5rem;  
-            }
-
-            .split-direction-setter{
-                display: flex;
-                flex-flow: column nowrap;
-                justify-content: center;
-                background: v.$c_tone-950;
-                padding-bottom: 0.5rem;
-
-                .split-direction-strip{
-                    display: flex;
-                    width: 100%;
-                    background: v.$c_tone-950;
-                    border-top: 1px solid v.$c_tone-1000;
-    
-                    div{
-                        display: block;
-                        text-align: center;
-                        width: 33%;
-                        background: v.$c_tone-950;
-                    }
-                }
-            }
-
-            .docitem-split-status-container{
-                display: flex;
-                justify-content: center;
-
-                .container{
-                    border: 1px solid v.$c_tone-1000;
-                    width: 50%;
-                    max-width: 8rem;
-                    text-align: center;
-
-                    h5{
-                        background: v.$c_tone-800;
-                        border-bottom: 1px solid v.$c_tone-950;
-                        padding: 0.3rem 0 0.2rem;
-                    }
-
-                    span{
-                        font-size: 2rem;
-                    }
-                }
-
-                &:first-child{
-                    border-left: none;
-                }
-                &:last-child{
-                    border-right: none;
-                }
-            }
-        }
-    }
-
-    .split-docitem-btn, .toggle-docitem-btn{
-        margin: 0.2rem 1rem;
-        width: 5rem;
-        border-radius: 0.3rem;
-        float: right;
-    }
-
-    .subsection{
-        max-width: v.$MAX_WIDTH;
-    }
-
-    .editing-special-instruction{
-        width: 90%;
-
-        textarea{
-            margin: 0.3rem;
-            width: calc(100% - 2 * 0.3rem - 1rem);
-            min-height: 3rem;
-        }
-    
-        .controls{
-            margin: 0.3rem;
-        }
-    }
-}
-
-
-// || Custom adjustments to common CSS
-.document-sections-wrapper{
-    display: flex;
-    flex-flow: row wrap;
-    align-items: flex-start;
-    gap: 3rem;
-    width: 100%;
-
-    h3{
-        margin-bottom: 0;
-    }
-
-    .subsection{
-        flex-grow: 2;
-    }
-
-    .po-row{
-        display: flex;
-        justify-content: space-between;
-
-        width: 100%;
-
-        border: 1px solid v.$c_tone-500;
-        padding: 0.3rem;
-        margin-top: 0.5rem;
-        border-radius: 5px;
-
-        .panel{
-            display: block;
-        }
-
-        .edit-icon:hover{
-            background-position: 5px 4px;
-        }
-    }
-}
-
-.document-sections-wrapper .subsection{
-    margin-left: 0;
-}
-
 .no-special-instructions{
     margin: 0.75rem;
     padding: 0.5rem 0.75rem;
 }
 
-.subsection.special-instructions{
-    // Set this to something bigger than the expanded "add instruction" button, but small enough to fit on narrow screens
-    min-width: 270px;
 
-    .read_row{
-        position: relative;
-        flex-flow: column nowrap;
-        align-items: stretch;
-        width: 100%;
-    }
-    
-    .contents{
-        padding: 0.3rem 0.3rem 0;
-        min-width: 100%;
-    }
-    .who-and-when{
-        color: v.$c_tone-400;
-        font-style: italic;
-        font-size: 0.9rem;
-        min-width: 100%;
-        padding: 0.1rem 0.3rem;
-    }
 
-    .edit-icon{
-        position: absolute;
-        top: 2px;
-        right: 0;
-
-        &:hover{
-            background-position: 5px 4px;
+// || Responsive Layout
+// Spread out into two columns on wider screens
+@media screen and (min-width: $breakpoint_oneOrTwoColumns){
+    .documentPage{
+        &_layout{
+            grid-template-columns: 25rem auto;
+            grid-template-rows: auto min-content 1fr;
+            grid-template-areas:
+                "controls   controls"
+                "general    lineItems"
+                "special    lineItems"
+            ;
+            justify-content: start;
+            width: auto;
         }
     }
 
-    .add-button{
-        margin: 0.3rem;
+    .documentPageGeneral{
+        width: 25rem;
     }
 
-    // Bit hacky: the add-button expands to 12rem wide on hover. While visually this 
-    // fits inside the parent element ok, it somehow gives the flexbox new ideas about 
-    // the ideal width of the parent element, so the width "twitches" when you 
-    // hover over the button, which looks stupid.
-    // This container is used to set the width wider than the button needs to begin with.
-    .add-button-container{
-        width: 15rem;
-    }
-
-    .add-new{
-        border: 1px solid v.$c_tone-500;
-        background: v.$c_tone-800;
-        border-radius: 0.6rem;
-        margin: 1rem 0.3rem 0.8rem;
-
-        label{
-            font-size: 1.1rem;
-            font-weight: bold;
-            padding: 0;
-            margin: 0.3rem 0.5rem 0;
-            border: none;
-        }
-
-        textarea{
-            width: calc(100% - 2rem);
-            margin: 0.3rem 0.5rem 0;
-        }
-
-        .full-width-button{
-            margin-top: 0.3rem;
-        }
-
-    }
-}
-
-
-.panel{
-
-    &.included-container li{
-        padding-bottom: 0.3rem;
-
-        &.invalid{
-            border-left: 3px solid v.$c_warning_bright;
-            background: v.$c_tone-800;
-        }
-        
-        .invalid-icon{
-            margin-left: 0.3rem;
-            width: 1.2rem;
-            height: 1.2rem;
-            top: 0.3rem;
-        }
-    }
-
-
-    &.excluded-container ul{
-        .display,
-        .none{
-            color: v.$c_tone-500;
-            font-style: italic;
-        }
-    }
-
-    &.status-controls{
-        .status-strip{
-            display: block;
-            text-align: center;
-            padding: 0.5rem;
-            width: calc(100% - 2 * 0.5rem);
-
-            &.issued{
-                background: v.$c_good-800;
-            }
-            &.draft{
-                background: v.$c_accent-600;
-            }
-        }
+    .documentPageSpecialInstructions{
+        width: 25rem;
     }
 }
 

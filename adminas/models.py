@@ -68,6 +68,7 @@ class DocAssignment(models.Model):
             'is_available': False,
             'is_invalid': not self.quantity_is_valid(),
             'jiid': self.item.pk,
+            'quantity': self.quantity,
             'max_available': self.max_valid_quantity(),
             'total_quantity': self.item.quantity,
             'used_by': self.version.document.reference

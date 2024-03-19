@@ -299,7 +299,8 @@ def get_dict_document_line_item_available(jobitem, qty_available):
         'display': jobitem.display_str().replace(str(jobitem.quantity), str(qty_available)),
         'is_available': True,
         'jiid': jobitem.pk,
-        'total_quantity': jobitem.quantity
+        'total_quantity': jobitem.quantity,
+        'max_available': qty_available
     }
 
 
