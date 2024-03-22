@@ -74,6 +74,14 @@ $g_button_main: linear-gradient(45deg, $c_accent-400 0%, $c_accent-500 50%, #00c
 $g_button_hover: linear-gradient(135deg, $c_accent-300, $c_accent-400 66%, $c_accent-500 100%);
 $g_button_focus: linear-gradient(135deg, $c_accent-200, $c_accent-300 45%, $c_accent-500 100%);
 
+// $g_button_inputAdjuster_main: linear-gradient(45deg, #00bbd8 5%, $c_accent-500 25%, $c_accent-500 50%,  #47e6ff 100%);
+// $g_button_inputAdjuster_hover: linear-gradient(45deg, $c_accent-400 50%, $c_accent-300 100%);
+// $g_button_inputAdjuster_focus: linear-gradient(45deg, $c_accent-300 50%, $c_accent-200 100%);
+$g_button_inputAdjuster_main: linear-gradient(45deg, #0b6c85 5%, $c_accent-700 25%, $c_accent-700 50%, #0987a7 100%);
+$g_button_inputAdjuster_hover: linear-gradient(45deg, #0f88a3 5%, $c_accent-600 25%, $c_accent-600 50%, #03a3c7 100%);
+$g_button_inputAdjuster_focus: linear-gradient(45deg, rgb(12, 131, 158) 5%, $c_accent-600 25%, $c_accent-600 50%, #06add3 100%);
+
+
 $g_button_good: linear-gradient(335deg, #0AC778 0%,  #0DFA96 100%);
 
 // Used for modular items to flag when one is "special"
@@ -96,6 +104,8 @@ $c_txt_warning_g: white;
 $warning_shadow: 0 0 2px 2px rgba(white, 80%);
 $g_warningButtonFakeSecondary: linear-gradient(335deg, rgb(48, 48, 48) 0%,  rgb(60, 60, 60) 100%);
 $g_warning_hover: linear-gradient(0deg, rgb(172, 0, 0) 0%, rgb(230, 0, 0) 100%);
+$g_warning_hover2: linear-gradient(0deg, rgb(184, 1, 1) 0%, rgb(247, 2, 2) 100%);
+
 
 // Misc Shadows
 $shadow_popout:  0 0 1rem 1.5rem rgba(black, 40%);

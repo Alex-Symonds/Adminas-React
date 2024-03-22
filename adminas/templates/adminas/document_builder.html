@@ -52,21 +52,18 @@
                         >
                             <span class="closeIconTextButton_text">close</span>
                         </a>
-
                         <button 
                             class="saveIconTextButton"
                             disabled
                         >
                             <span class="saveIconTextButton_text">save</span>
                         </button>
-
                         <a  
                             href="{% url 'doc_display' doc_id %}"
                             class="previewIconTextButton {% if doc_id == 0 %}previewIconTextButton-disabled{% endif %}"
                         >
                             <span class="previewIconTextButton_text">preview</span>
                         </a>
-
                         <button 
                             class="issueFinalIconTextButton" 
                             {% if not is_valid or doc_id == 0 %}disabled{% endif %}
@@ -74,7 +71,6 @@
                             <span class="issueFinalIconTextButton_text">issue</span>
                         </button>
                     </div>
-
                     <div class="docBuilderControls_deleteButtonContainer">
                         <button 
                             class="deleteIconTextButton"
@@ -100,7 +96,7 @@
                 </section>
             </div>
 
-            <section class="documentPageGeneral jobPanelSection">
+            <form method="post" class="documentPageGeneral jobPanelSection" onkeydown="return event.key != 'Enter';">
                 <h4 class="jobPanelSection_headingWrapper">
                     <span class="jobPanelSection_headingContent documentPageGeneral_headingContent">
                         General
@@ -115,8 +111,7 @@
                     </div>
                 </div>
 
-
-            {% if doc_type == 'WO' %}
+    {% if doc_type == 'WO' %}
                 <div class="documentPageGeneral_formRow">
                     <label class="row-label" for="id_req_prod_date">Requested Completion Date</label>
                     <input class="subsection_input" type="date" id="id_req_prod_date" value="{{doc_specific.date_requested|date:'Y-m-d'}}">
@@ -126,8 +121,8 @@
                     <label class="row-label" for="id_sched_prod_date">Scheduled Completion Date</label>
                     <input class="subsection_input" type="date" id="id_sched_prod_date" value="{{doc_specific.date_scheduled|date:'Y-m-d'}}">
                 </div>
-            {% endif %}
-            </section>
+    {% endif %}
+            </form>
 
             <section class="documentPageSpecialInstructions jobPanelSection">
                 <h4 class="jobPanelSection_headingWrapper">
@@ -138,23 +133,21 @@
                 <div class="documentPageSpecialInstructions_addButtonContainer">
                     <button class="add-button openCreateSpecialInstruction">special instruction</button>
                 </div>
-
                 <div class="modalWrapper hide addNewSpecialInstructionModal">
                     <dialog class="modal">
                         <button class="close modal_closeButton close-new-instr">
                             <span>close</span>
                         </button>
-                            <h2 class="modal_heading">Special Instructions</h2>
-                            <form class="documentPageSpecialInstructions_form" method="post" >
-                                <label for="id_add_special_instruction" class="documentPageSpecialInstructions_label">Enter new special instruction</label>
-                                <textarea id="id_add_special_instruction" class="documentPageSpecialInstructions_textarea"></textarea>
-                                <div class="documentPageSpecialInstructions_controlsContainer">
-                                    <button type="button" class="add-special-instruction-btn button-primary documentPageSpecialInstructions_button">add to pending</button>
-                                </div>
-                            </form>
+                        <h2 class="modal_heading">Special Instructions</h2>
+                        <form class="documentPageSpecialInstructions_form" method="post" >
+                            <label for="id_add_special_instruction" class="documentPageSpecialInstructions_label">Enter new special instruction</label>
+                            <textarea id="id_add_special_instruction" class="documentPageSpecialInstructions_textarea"></textarea>
+                            <div class="documentPageSpecialInstructions_controlsContainer">
+                                <button type="button" class="add-special-instruction-btn button-primary documentPageSpecialInstructions_button">add to pending</button>
+                            </div>
+                        </form>
                     </dialog>
                 </div>
-                
                 <div class="existing">
             {% for sp_inst in special_instructions %}
                     <div class="documentPageSpecialInstructions_specialInstructionContainer" 
@@ -174,90 +167,60 @@
                 </div>
             </section>
 
-
-            <section class="documentPageItems jobPanelSection">
+            <form method="post" class="documentPageItems jobPanelSection" onkeydown="return event.key != 'Enter';">
                 <h3 class="jobPanelSection_headingWrapper">
                     <span class="jobPanelSection_headingContent documentPageItems_headingContent">
-                        Items
+                        Items on this document
                     </span>
                 </h3>
-                <div class="documentPageItems_content">
+                <div class="documentPageItems_builderContent">
 
-                    <div class="documentPageItems_included">
-                        <h4 class="jobPanelSection_subsectionHeading documentPageItems_subsectionHeading">
-                            Include
-                        </h4>
-                        <ul class="documentPageItems_itemsUl documentPageItems_itemsUl-included">
-            {% for inc in included_items %}
-                            <li 
-                                data-jiid="{{ inc.jiid }}" 
-                                class="documentPageItems_itemLi{% if inc.is_invalid %} documentPageItems_itemLi-invalid{% endif %}"
-                                {% if inc.is_invalid %}data-max_available="{{ inc.max_available }}"{% endif %}
-                            >
-                                <span class="documentPageItems_itemDisplay">
-                                    {% if inc.is_invalid %}<span class="invalid-icon"><span>quantity is invalid</span></span>{% endif %}
-                                    <span class="documentPageItems_itemDisplayText">{{ inc.display }}</span>
-                                </span>
-                                <div class="documentPageItems_itemControls">
-                                    <button
-                                        class="documentPageItems_excludeButton"
-                                    >
-                                        <span class="hoverLabel">exclude</span>
-                                    </button>
-                {% if inc.max_available > 1 or inc.quantity > 1 and inc.is_invalid %}
-                                    <button class="documentPageItems_splitButton">
-                                        <span class="hoverLabel">split / join</span>
-                                    </button>
-                {% endif %}
-                                </div>
-                            </li>
-            {% empty %}
-                            <li class="documentPageItems_emptyLi none">None</li>
-            {% endfor %}
-                        </ul>
-                    </div>
-                    <div class="documentPageItems_excluded">
-                        <h4 class="jobPanelSection_subsectionHeading documentPageItems_subsectionHeading">
-                            Exclude
-                        </h4>
-                        <ul class="documentPageItems_itemsUl documentPageItems_itemsUl-excluded">
-                {% for excl in excluded_items %}
-                            <li 
-                                data-jiid="{{ excl.jiid }}"
-                                class="documentPageItems_itemLi documentPageItems_itemLi-excluded{% if excl.is_available == False %} documentPageItems_itemLi-unavailable{% endif %}"
-                            >
-                                <span class="documentPageItems_itemDisplay">
-                                    {% if excl.is_invalid %}<span class="invalid-icon"><span>quantity is invalid</span></span>{% endif %}
-                                    <span class="documentPageItems_itemDisplayText">{{ excl.display }}</span>
-                    {% if excl.is_available %}
-                                </span>
-                                <div class="documentPageItems_itemControls">
-                                    <button class="documentPageItems_includeButton">
-                                        <span class="hoverLabel">include</span>
-                                    </button>
-                        {% if excl.total_quantity > 1 %}
-                                    <button class="documentPageItems_splitButton">
-                                        <span class="hoverLabel">split / join</span>
-                                    </button>
-                        {% endif %}
-                                </div>
-                    {% else %}
-                                <span><a href="{% url 'doc_editor_page' %}?id={{excl.doc_id}}">
-                                    (on&nbsp;{% if excl.used_by %}{{ excl.used_by }}{% else %}unnamed{% endif %})
-                                </a></span>
-                                </span>
-                    {% endif %}
-                            </li>
-                {% empty %}
-                            <li class="documentPageItems_emptyLi none">None</li>
-                {% endfor %}                
-                        </ul>
-                    </div>
+    {% for lineitem in workingItems %}
+                    <div 
+                        class="documentPageItems_itemBuilder{% if lineitem.qty_included == 0 %} documentPageItems_itemBuilder-excluded{% endif %}"
+                        data-jiid="{{ lineitem.jiid }}" 
+                        data-totalQty="{{ lineitem.total_quantity }}"
+                        data-availableQty="{{ lineitem.max_available }}"
+                        data-isInvalid="{{ lineitem.is_invalid|lower }}"
+                    >
+                        <label class="documentPageItems_itemDisplay" for="id_qty_jobitem_{{ lineitem.jiid }}">
+        {% if lineitem.is_invalid %}
+                            <span class="documentPageItems_invalidIcon invalid-icon"><span>quantity is invalid</span></span>
+        {% endif %}
+                            <span class="documentPageItems_itemDisplayQty">{{ lineitem.qty_included }}</span>
+                            <span class="documentPageItems_itemDisplayPartNo partNumber{% if lineitem.qty_included == 0 %} partNumber-disabled{% endif %}">{{ lineitem.part_number }}</span>
+                            <span class="documentPageItems_itemDisplayName">{{ lineitem.product_name }}</span>
+                        </label>
 
+                        <div class="documentPageItems_itemInputsContainer">
+                            <button 
+                                type="button" 
+                                class="documentPageItems_maxBtn buttonSecondary {% if lineitem.is_invalid %} documentPageItems_maxBtn-invalid{% endif %}"
+                                {% if lineitem.qty_included == lineitem.max_available %}disabled{% endif %}
+                            >
+                                max
+                            </button>
+                            <input 
+                                class="documentPageItems_qtyInput"
+                                id="id_qty_jobitem_{{ lineitem.jiid }}"
+                                type="number" min="0" max="{{ lineitem.max_available }}" 
+                                value="{{ lineitem.qty_included }}" 
+                            />
+                            <button 
+                                type="button"
+                                class="documentPageItems_minBtn buttonSecondary {% if lineitem.is_invalid %} documentPageItems_minBtn-invalid{% endif %}"
+                                {% if lineitem.qty_included == 0  %}disabled{% endif %}
+                            >
+                                min
+                            </button> 
+                        </div>              
+
+                    </div>            
+    {% empty %}
+                    <div class="documentPageItems_empty">None</div>      
+    {% endfor %}
                 </div>
-            </section>
+            </form>
         </div>
     </div>
-
-
 {% endblock %}

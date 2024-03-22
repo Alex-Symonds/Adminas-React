@@ -430,36 +430,6 @@ export function create_generic_ele_dismissable_error(error_obj, task_failure_str
 }
 
 
-export function display_document_response_message(data, string_is_error = false){
-    let anchor_ele = document.querySelector('.documentWarnings');
-    let message_ele = document.querySelector('.' + CLASS_MESSAGE_BOX);
-
-    if(message_ele == null){
-        message_ele = create_generic_ele_message();
-        anchor_ele.append(message_ele);
-    }
-
-    let message_str;
-    if(typeof data === 'string'){
-        if(string_is_error) message_ele.classList.add(CLASS_ERROR_MESSAGE);
-        message_str = data;
-    }
-    else if('message' in data){
-        message_str = data['message'];
-    }
-    else if(get_error_message().responded_with_error_reason(data)){
-        message_ele.classList.add(CLASS_ERROR_MESSAGE);
-        message_str = `Error: ${get_error_message(data)}`;
-    }  
-    else {
-        message_ele.classList.add(CLASS_ERROR_MESSAGE);
-        message_str = 'Something went wrong, try refreshing the page';
-    }
-
-    message_ele.textContent = `${message_str} @ ${get_date_time()}`;
-    
-}
-
 export function create_generic_ele_message(){
     let message_ele = document.createElement('div');
     message_ele.classList.add(CLASS_MESSAGE_BOX);

@@ -47,11 +47,16 @@ import {
     display_document_response_message
 } from './document_main.js';
 
-import { 
-    CLASS_NONE_LI,
-    findIncludedUl,
-    findExcludedUl,
-    CSS_DOCITEM_DESC_STRING,
+// import { 
+//     CLASS_NONE_LI,
+//     findIncludedUl,
+//     findExcludedUl,
+//     CSS_DOCITEM_DESC_STRING,
+// } from './document_builder_items_OLD.js';
+
+import {
+    CSS_DOCITEM_INPUT_WRAPPER,
+    getQtyInput
 } from './document_builder_items.js';
 
 import { 
@@ -60,6 +65,10 @@ import {
     CSS_MODAL, 
     open_modal 
 } from "./modal.js";
+
+// Moved from old docitems
+const CLASS_NONE_LI = 'none';
+const CSS_DOCITEM_DESC_STRING = 'documentPageItems_itemDisplayText';
 
 
 const CLASS_INSTRUCTIONS_EMPTY_MESSAGE = 'no-special-instructions';
@@ -255,14 +264,10 @@ function update_document(issue_date){
     const DOC_ID_WHEN_CREATING_NEW = '0';
     const obj = get_document_data_as_object(issue_date);
 
-    console.log(obj);
-    console.log("DOC_ID", DOC_ID);
     if(DOC_ID === DOC_ID_WHEN_CREATING_NEW){
-        console.log("creating a new document", DOC_ID);
         update_document_on_server('POST', 201, obj, `job=${JOB_ID}&type=${DOC_CODE}`);
     }
     else {
-        console.log("saving an existing document", DOC_ID);
         update_document_on_server('PUT', 204, obj, `id=${DOC_ID}`);
     }
 }
@@ -300,10 +305,7 @@ async function update_page_after_successful_save(full_url){
 
             unsavedDocumentChangesWarning().off();
             
-            console.log("page updated, checking validity");
-            console.log("\tresp data", resp_data);
             if('doc_is_valid' in resp_data && 'item_is_valid' in resp_data){
-                console.log("\tall is valid");
                 update_validity_warnings(resp_data['doc_is_valid'], resp_data['item_is_valid']);
                 display_document_response_message('Document saved');
                 return;
@@ -350,31 +352,46 @@ function get_value_from_id(id_str){
 }
 
 
+
 function get_docitems_assignment_quantity_object(){
-    // Creates an object with a key for each JobItem ID, where the values are the quantities to assign to the document.
-    //  >> JobItems entirely excluded:  value = 0
-    //  >> Split JobItems:              value = included quantity
-    //  >> JobItems entirely included:  value = included quantity
-    const included_ul = findIncludedUl();
-    const excluded_ul = findExcludedUl();
-    const obj_included_items_with_quantities = ul_to_docitems_assignment_quantity_object(included_ul, false);
-    const obj_excluded_items_set_to_zero = ul_to_docitems_assignment_quantity_object(excluded_ul, true);
-    return {...obj_excluded_items_set_to_zero, ...obj_included_items_with_quantities};
-}
-
-
-function ul_to_docitems_assignment_quantity_object(ul_ele, force_0_quantity){
+    const docitemInputWrappers = document.querySelectorAll(`.${CSS_DOCITEM_INPUT_WRAPPER}`);
     const result = {};
-    if(null === ul_ele.querySelector('.' + CLASS_NONE_LI)){
-        Array.from(ul_ele.children).forEach(ele => {
-            if(ele.tagName === 'LI'){
-                const id_to_str = String(ele.dataset.jiid);
-                result[id_to_str] = force_0_quantity ? 0 : parseInt(ele.querySelector(`.${CSS_DOCITEM_DESC_STRING}`).innerHTML.match(QTY_RE)[0]);
-            }
-        });
-    }
+    docitemInputWrappers.forEach(wrapper => {
+        const id_to_str = String(wrapper.dataset.jiid);
+        const input = getQtyInput(wrapper);
+        const qty = parseInt(input.value);
+        result[id_to_str] = isNaN(qty) ? 0 : qty;
+    });
     return result;
 }
+
+
+
+// function OLDget_docitems_assignment_quantity_object(){
+//     // Creates an object with a key for each JobItem ID, where the values are the quantities to assign to the document.
+//     //  >> JobItems entirely excluded:  value = 0
+//     //  >> Split JobItems:              value = included quantity
+//     //  >> JobItems entirely included:  value = included quantity
+//     const included_ul = findIncludedUl();
+//     const excluded_ul = findExcludedUl();
+//     const obj_included_items_with_quantities = ul_to_docitems_assignment_quantity_object(included_ul, false);
+//     const obj_excluded_items_set_to_zero = ul_to_docitems_assignment_quantity_object(excluded_ul, true);
+//     return {...obj_excluded_items_set_to_zero, ...obj_included_items_with_quantities};
+// }
+
+
+// function ul_to_docitems_assignment_quantity_object(ul_ele, force_0_quantity){
+//     const result = {};
+//     if(null === ul_ele.querySelector('.' + CLASS_NONE_LI)){
+//         Array.from(ul_ele.children).forEach(ele => {
+//             if(ele.tagName === 'LI'){
+//                 const id_to_str = String(ele.dataset.jiid);
+//                 result[id_to_str] = force_0_quantity ? 0 : parseInt(ele.querySelector(`.${CSS_DOCITEM_DESC_STRING}`).innerHTML.match(QTY_RE)[0]);
+//             }
+//         });
+//     }
+//     return result;
+// }
 
 
 function get_special_instructions_as_list(){
@@ -388,7 +405,7 @@ function get_special_instructions_as_list(){
             // All special instructions must have an 'id' key.
             // New special instructions won't have an assigned ID yet, so use 0
             // to indicate newness.
-            d['id'] = ele.hasAttribute('siid') ? ele.dataset.siid : 0;
+            d['id'] = ele.hasAttribute('data-siid') ? ele.dataset.siid : 0;
             d['contents'] = ele.querySelector(`.${CSS_SPECIALINSTR_CONTENTS}`).innerHTML;
             special_instructions.push(d);
         }

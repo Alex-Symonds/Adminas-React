@@ -8,7 +8,6 @@
         || Section: General
         || Section: Special Instructions
         || Section: Line Items
-        || Modal: Split docItems
         || Modal: Issue Document
         || Text formatting
         || Responsive Layout
@@ -129,7 +128,6 @@ $breakpoint_oneOrTwoColumns: 950px;
     padding: var(--iconMaxHeight) v.px-to-rem(4) v.px-to-rem(4);
     font-size: v.px-to-rem(11);
 }
-
 
 // Optional addition: when the button is an anchor, use this to override the anchor hover formatting
 @mixin iconTextButtonOverrideAnchorHover{
@@ -423,12 +421,12 @@ $breakpoint_oneOrTwoColumns: 950px;
 
 // || Section: Special Instructions
 .documentPageSpecialInstructions{
+    --xPadding: #{v.px-to-rem(16)};
+
     grid-area: special;
 
     min-width: 270px;
     max-width: 100%;
-
-    --xPadding: #{v.px-to-rem(16)};
 
     &_addButtonContainer{
         padding: 0.3rem;
@@ -514,64 +512,15 @@ $breakpoint_oneOrTwoColumns: 950px;
 
 
 // || Section: Line Items
-@mixin docBuilderItemsIconButtons{
-    height: var(--itemToggleButtonSize);
-    width: var(--itemToggleButtonSize);
-
-    background-color: transparent;
-    background-repeat: no-repeat;
-    background-position: 0 0;
-    background-size: cover;
-
-    border: none;
-
-    &:disabled{
-        opacity: 0.4;
-    }
-
-    .hoverLabel{
-        @include v.visually-hidden();
-        color: white;
-    }
-
-    position: relative;
-    &:enabled:hover{
-        .hoverLabel{
-            @include v.visually-unhidden();
-
-            position: absolute;
-            top: 0;
-            right: v.px-to-rem(26);
-            z-index: 2;
-
-            min-width: 3rem;
-            padding: v.px-to-rem(2) v.px-to-rem(6);
-
-            font-size: v.px-to-rem(14);
-            font-style: normal;
-            color: white;
-
-            background: rgba(v.$c_tone-1000, 0.9);
-            border: 1px solid v.$c_tone-1000;
-            border-radius: v.px-to-rem(5);
-        }
-    }
-
-    &:disabled{
-        opacity: 0.4;
-    }
-}
-
-
-@mixin docBuilderItemsLiShared{
+@mixin docBuilderItemShared{
     padding: v.px-to-rem(6) v.px-to-rem(10);
 
     display: grid;
-    grid-template-columns: 1fr 1.5rem 1.5rem;
     grid-template-rows: auto auto;
+    grid-template-columns: 1fr auto;
     grid-template-areas: 
-        "desc desc desc"
-        ". buttons buttons"
+        "desc desc"
+        ". buttons"
     ;
     align-items: center;
     gap: 0.5rem 1.75rem;
@@ -581,72 +530,80 @@ $breakpoint_oneOrTwoColumns: 950px;
 
     border-bottom: 1px solid v.$c_tone-800;
 
+    &-excluded{
+        color: v.$c_tone-400;
+        font-style: italic;
+    }
+
     @media screen and (min-width: $breakpoint_oneOrTwoColumns){
-        grid-template-columns: 1fr 1.5rem 1.5rem;
         grid-template-rows: auto;
+        grid-template-columns: 1fr auto;
         grid-template-areas: 
-            "desc buttons buttons"
+            "desc buttons"
         ;
         gap: 0 2rem;
     }
 }
 
+@mixin minMaxButtons{
+    --maxMinButtonsOuterRadius: 2rem;
+    --maxMinButtonsOuterXPadding: 1rem;
+    --maxMinButtonsInnerXPadding: 0.75rem;
+
+    align-self: stretch;
+    font-size: v.px-to-rem(14);
+    font-weight: 600;
+
+    color: v.$c_tone-50;
+    background: v.$g_button_inputAdjuster_main;
+    border-color: v.$c_accent-700;
+
+    // For the input-side radius
+    border-radius: 0;
+
+    &:disabled{
+        background: transparent;
+    }
+
+    &:focus{
+        background: v.$g_button_inputAdjuster_focus;
+    }
+
+    &:enabled:hover{
+        color: v.$c_tone-50;
+        background: v.$g_button_inputAdjuster_hover;
+        border-color: v.$c_accent-600;
+    }
+
+    &-invalid{
+        font-weight: 500;
+        color: v.$c_txt_warning_g;
+        background: v.$g_warning_hover;
+        border-color: v.$c_warning;
+       
+        &:enabled:hover{
+            color: v.$c_txt_warning_g;
+            background: v.$g_warning_hover2;
+            border-color: v.$c_warning;
+            box-shadow: none;
+        }
+    }
+}
+
+
 
 .documentPageItems{
-    --itemToggleButtonSize: #{v.px-to-rem(24)};
-
     grid-area: lineItems;
     justify-self: stretch;
 
+    // ||| Shared
     &_headingContent{
         display: block;
         padding: var(--paddingSubSectionHeadings);
     }
 
-    &_content{
-        display: flex;
-        flex-direction: column;
-        align-items: start;
-
-        gap: v.px-to-rem(16);
-
-        padding: v.px-to-rem(12) 0;
-    }
-
-    &_included,
-    &_excluded{
-        width: 100%;
-    }
-
-
-    &_subsectionHeading{
-        width: 8rem;
-    }
-
-    &_itemsUl{
-        list-style: none;
-        padding: v.px-to-rem(6) 0;
-        margin: 0;
-    }
-
-    &_emptyLi{
-        @include docBuilderItemsLiShared();
-    }
-
-    &_itemLi{
-        @include docBuilderItemsLiShared();
-
-        &-excluded{
-            color: v.$c_tone-400;
-            font-style: italic;
-        }
-
-        .invalid-icon{
-            top: 0;
-            width: 1.5rem;
-            height: 1.5rem;
-            margin: 0;
-        }
+    &_empty{
+        @include docBuilderItemShared();
     }
 
     &_itemDisplay{
@@ -658,197 +615,141 @@ $breakpoint_oneOrTwoColumns: 950px;
         gap: 0.5rem;
     }
 
-    &_itemControls{
+    &_invalidIcon{
+        top: 0;
+        width: 1.25rem;
+        height: 1.25rem;
+        margin: 0;
+
+        font-style: normal;
+    }
+
+    // ||| Reader Only
+    &_readerContent{
+        display: flex;
+        flex-direction: column;
+        align-items: start;
+        gap: 1rem;
+
+        padding: v.px-to-rem(12) 0;
+    }
+
+    &_included,
+    &_excluded{
+        width: 100%;
+    }
+
+    &_subsectionHeading{
+        width: 8rem;
+    }
+
+    &_itemsUl{
+        list-style: none;
+        padding: v.px-to-rem(6) 0;
+        margin: 0;
+    }
+
+    &_itemReader{
+        @include docBuilderItemShared();
+
+        // Set by eye. Adds extra padding in the spot where the arrow would be
+        // if this row were a details/summary element
+        padding-left: v.px-to-rem(30);
+    }
+
+    &_itemAboveAssignments{
+        cursor: pointer;  
+
+        // Set by eye. Move details/summaries back so they line up with the "normal"
+        // rows and the arrow goes in the spot left for it with the padding
+        position: relative;
+        left: v.px-to-rem(-17);
+    }
+
+    &_otherAssignments{
+        margin-top: 0.25rem;
+        font-style: normal;
+        list-style-type: disc;
+
+        // Set by eye. Positions the bullets under the main quantity
+        padding-inline-start: v.px-to-rem(18);
+    }
+
+    &_qtyUsedElsewhere{
+        position: relative;
+
+        // Set by eye. Line up the strings with the part number
+        left: v.px-to-rem(-2);
+    }
+
+    &_itemID{
+        min-width: 3rem;
+
+        &-withDetails{
+            align-self: start;
+        }
+    }
+
+    // || Builder only
+    &_builderContent{
+        display: flex;
+        flex-direction: column;
+        align-items: start;
+    }
+
+    &_itemBuilder{
+        @include docBuilderItemShared();
+    }
+
+    &_itemInputsContainer{
         grid-area: buttons;
 
-        display: grid;
-        grid-template-columns: subgrid;
-        grid-template-rows: auto;
+        display: flex;
+        font-style: normal;
+
+        position: relative;
     }
 
-    &_excludeButton{
-        grid-column: 2;
-        grid-row: 1;
+    &_qtyErrorTooltip{
+        position: absolute;
+        top: 0;
+        right: 0;
+        z-index: 3;
 
-        @include docBuilderItemsIconButtons();
-
-        background-image: url(../images/i-minus-empty.svg);
-        &:enabled:hover{
-            background-image: url(../images/i-minus-filled.svg);
-        }
+        margin: 0;
+        width: 40ch;
+        max-width: 75vw;
+        
+        padding: v.px-to-rem(8) v.px-to-rem(10);
     }
 
-    &_includeButton{
-        grid-column: 2;
-        grid-row: 1;
-
-        @include docBuilderItemsIconButtons();
-
-        background-image: url(../images/i-plus-empty.svg);
-        &:enabled:hover{
-            background-image: url(../images/i-plus-filled.svg);
-        }
+    &_maxBtn{
+        @include minMaxButtons();
+        padding: 0 var(--maxMinButtonsInnerXPadding) 0 var(--maxMinButtonsOuterXPadding);
+        border-right: none;
+        border-top-left-radius: var(--maxMinButtonsOuterRadius);
+        border-bottom-left-radius: var(--maxMinButtonsOuterRadius);
     }
 
-    &_splitButton{
-        grid-column: 1;
-        grid-row: 1;
+    &_minBtn{
+        @include minMaxButtons();
+        padding: 0 var(--maxMinButtonsOuterXPadding) 0 var(--maxMinButtonsInnerXPadding);
+        border-left: none;
+        border-top-right-radius: var(--maxMinButtonsOuterRadius);
+        border-bottom-right-radius: var(--maxMinButtonsOuterRadius);
+    }
 
-        @include docBuilderItemsIconButtons();
+    &_qtyInput{
+        margin: 0;
+        // So the default uppy downy arrows are flush with the side
+        padding: v.px-to-rem(4) 0 v.px-to-rem(4) v.px-to-rem(8);
+        border-radius: 0;
 
-        background-size: v.px-to-rem(20) v.px-to-rem(20);
-        background-position: v.px-to-rem(2) v.px-to-rem(1);
-
-        background-image: url(../images/i-splitJoin.svg);
-        border-bottom: 2px solid transparent;
-
-        &:enabled:hover{
-            border-color: v.$c_accent-500;
+        &:invalid{
+            border-color: v.$c_warning;
         }
     }
 }
-
-// || Modal: Split docItems
-.splitDocitemModal{
-    &_content{
-        --xPadding: 1rem;
-
-        width: fit-content;
-        display: flex;
-        flex-flow: column nowrap;
-        justify-content: center;
-    }
-
-    &_introduction{
-        margin: 0;
-        padding: v.px-to-rem(12) var(--xPadding);
-        border-bottom: 1px solid v.$c_tone-800;
-    }
-
-    &_invalidSplit{
-        display: flex;
-        align-items: center;
-        gap: v.px-to-rem(8);
-
-        background: v.$c_tone-950;
-        border-left: 3px solid v.$c_warning;
-        padding: v.px-to-rem(5) v.px-to-rem(8);  
-    }
-}
-
-
-.splitDocitemForm{
-    font-style: normal;
-    color: white;
-
-    &_direction{
-        display: flex;
-        align-items: start;
-        flex-direction: column;
-    }
-
-    &_label{
-        display: flex;
-        flex-direction: column;
-        justify-content: start;
-        align-items: start;
-    }
-
-    &_labelStr{
-        color: v.$c_tone-50;
-        font-weight: normal;
-    }
-
-    &_labelSubStr{
-        color: v.$c_tone-300;
-        font-weight: normal;
-        font-size: v.px-to-rem(14);
-    }
-
-    &_inputWrapper{
-        display: flex;
-        flex-flow: column nowrap;
-        align-items: start;
-        justify-content: center;
-        gap: 1rem;
-
-        padding: 0.75rem var(--xPadding) v.px-to-rem(14);
-    }
-
-    &_previewResults{
-        display: grid;
-        grid-template-columns: auto auto;
-        grid-template-rows: auto auto;
-        gap: v.px-to-rem(10) 1rem;
-
-        padding: 0.5rem var(--xPadding) 0.75rem;
-
-        border-style: solid;
-        border-color: v.$c_tone-900;
-        border-width: 1px 0;
-        background: v.$c_tone-950;
-    }
-
-    &_previewResultsHeading{
-        font-size: v.px-to-rem(12);
-        font-weight: 500;
-        color: v.$c_tone-200;
-
-        grid-column-start: 1;
-        grid-column-end: 3;
-        justify-self: start;
-    }
-
-    &_previewExcludedResult{
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-
-        @include v.notification(v.$c_tone-300);
-
-        font-style: italic;
-        color: v.$c_tone-300;
-
-        margin: 0;
-
-        justify-self: start;
-    }
-
-    &_previewIncludedResult{
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-
-        @include v.notification(v.$c_good-500);
-
-        margin: 0;
-
-        justify-self: end;
-    }
-
-    &_quantityWrapper{
-        display: flex;
-        flex-direction: column;
-        align-items: start;
-        justify-content: center;
-        gap: v.px-to-rem(4);
-
-        input{
-            margin: 0;
-            max-width: calc(100% - 2rem);
-        }
-    }
-
-    &_buttonContainer{
-        padding: var(--xPadding);
-    }
-
-    &_submitBtn{
-        padding: v.px-to-rem(6) v.px-to-rem(16);
-        height: v.px-to-rem(37); 
-    }
-}
-
 
 
 // || Modal: Issue Document

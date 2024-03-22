@@ -10,7 +10,6 @@ from django.contrib.auth import authenticate, login, logout
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.db import IntegrityError
 from django.urls import reverse
-from django.utils import formats
 
 from wkhtmltopdf.views import PDFTemplateResponse
 
@@ -20,7 +19,7 @@ from adminas.forms import   DocumentDataForm, JobForm, POForm, JobItemForm, JobI
                             JobModuleForm, JobItemPriceForm, ProductionReqForm, DocumentVersionForm, JobCommentFullForm
 from adminas.constants import MAX_NUM_FORMS, DOCUMENT_TYPES, CSS_FORMATTING_FILENAME, HTML_HEADER_FILENAME, HTML_FOOTER_FILENAME, SUPPORTED_CURRENCIES, WO_CARD_CODE
 from adminas.util import anonymous_user, dict_from_json, error_page, debug, get_dict_document_editor_settings,\
-    get_dict_job_page_root, get_dict_todo, get_dict_record, get_dict_manage_modules, get_page, get_customer_via_agent_string, \
+    get_dict_job_page_root, get_dict_todo, get_dict_record, get_dict_manage_modules, get_page, \
     filter_jobs, get_dict_currency, create_jobmodule, get_object, anonymous_user_json, get_param_from_dict, get_value_from_json, \
     get_param_from_get_params, is_error, render_with_error, create_job, create_comment, create_po, create_jobitem, create_document, \
     error, respond_with_error, get_comment, extract_toggle_data
@@ -135,8 +134,8 @@ def document_main_page(request, doc_id):
         'doc_version': doc_obj,
         'doc_specific': doc_specific_obj,
         'doc_type': doc_obj.document.doc_type,
-        'excluded_items': doc_obj.get_excluded_items(),
-        'included_items': doc_obj.get_included_items(),
+        'excluded_items': doc_obj.get_excluded_items_data(),
+        'included_items': doc_obj.get_included_items_data(),
         'job_id': doc_obj.document.job.id,
         'reference': doc_obj.document.reference,
         'show_validity_error': not doc_obj.issue_date and doc_obj.active and not doc_obj.is_valid(),
@@ -204,13 +203,13 @@ def document_editor_page(request):
     if is_error(settings):
         return render_with_error(request, settings)
 
-    # Prepare additional variables for an existing document
     doc_obj = settings['doc_obj']
+
+    # Prepare additional variables for an existing document
     if doc_obj != None:
-        included_list = doc_obj.get_included_items()
-        excluded_list = doc_obj.get_excluded_items()
         special_instructions = doc_obj.instructions.all().order_by('-created_on')
         version_num = doc_obj.version_number
+        working_items = doc_obj.get_working_items()
 
         doc_specific_obj = None
         if doc_obj.document.doc_type == WO_CARD_CODE:
@@ -218,11 +217,15 @@ def document_editor_page(request):
 
     # Prepare additional variables for a blank new document
     else:
-        included_list = settings['job_obj'].get_items_unassigned_to_doc(settings['doc_code'])
-        excluded_list = settings['job_obj'].get_items_assigned_to_doc(settings['doc_code'])
         special_instructions = None
         doc_specific_obj = None
         version_num = 1
+
+        line_items = settings['job_obj'].main_item_list()
+        working_items = []
+        for line_item in line_items:
+            working_items.append(line_item.get_document_dict(settings['doc_code']))
+
 
     return render(request, 'adminas/document_builder.html', {
         'doc_title': settings['doc_title'],
@@ -234,9 +237,8 @@ def document_editor_page(request):
         'reference': settings['doc_ref'],
         'job_id': settings['job_obj'].id,
         'doc_specific': doc_specific_obj,
-        'included_items': included_list,
-        'excluded_items': excluded_list,
-        'special_instructions': special_instructions
+        'special_instructions': special_instructions,
+        'workingItems': working_items
     })
 
 
