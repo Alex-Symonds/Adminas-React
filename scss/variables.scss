@@ -66,11 +66,21 @@ $c_good-800: #087347;
 $c_good-900: #095e3d;
 $c_good-950: #003520;
 
+$g_good: linear-gradient(0deg, $c_good-700 0%, $c_good-600 100%);
+
 $c_txt_on_accent: black;
 
 $g_button_main: linear-gradient(45deg, $c_accent-400 0%, $c_accent-500 50%, #00c2e0 100%);
 $g_button_hover: linear-gradient(135deg, $c_accent-300, $c_accent-400 66%, $c_accent-500 100%);
 $g_button_focus: linear-gradient(135deg, $c_accent-200, $c_accent-300 45%, $c_accent-500 100%);
+
+// $g_button_inputAdjuster_main: linear-gradient(45deg, #00bbd8 5%, $c_accent-500 25%, $c_accent-500 50%,  #47e6ff 100%);
+// $g_button_inputAdjuster_hover: linear-gradient(45deg, $c_accent-400 50%, $c_accent-300 100%);
+// $g_button_inputAdjuster_focus: linear-gradient(45deg, $c_accent-300 50%, $c_accent-200 100%);
+$g_button_inputAdjuster_main: linear-gradient(45deg, #0b6c85 5%, $c_accent-700 25%, $c_accent-700 50%, #0987a7 100%);
+$g_button_inputAdjuster_hover: linear-gradient(45deg, #0f88a3 5%, $c_accent-600 25%, $c_accent-600 50%, #03a3c7 100%);
+$g_button_inputAdjuster_focus: linear-gradient(45deg, rgb(12, 131, 158) 5%, $c_accent-600 25%, $c_accent-600 50%, #06add3 100%);
+
 
 $g_button_good: linear-gradient(335deg, #0AC778 0%,  #0DFA96 100%);
 
@@ -78,6 +88,8 @@ $g_button_good: linear-gradient(335deg, #0AC778 0%,  #0DFA96 100%);
 $c_flag_special: #cc00ff;
 $c_flag_special_dark: #9600ec;
 $c_flag_special_bright: #eb9dff;
+
+$c_attention: rgb(255, 208, 0);
 
 $c_product_dark: rgb(77, 73, 65);
 $c_product_light: rgb(212, 199, 163);
@@ -92,6 +104,8 @@ $c_txt_warning_g: white;
 $warning_shadow: 0 0 2px 2px rgba(white, 80%);
 $g_warningButtonFakeSecondary: linear-gradient(335deg, rgb(48, 48, 48) 0%,  rgb(60, 60, 60) 100%);
 $g_warning_hover: linear-gradient(0deg, rgb(172, 0, 0) 0%, rgb(230, 0, 0) 100%);
+$g_warning_hover2: linear-gradient(0deg, rgb(184, 1, 1) 0%, rgb(247, 2, 2) 100%);
+
 
 // Misc Shadows
 $shadow_popout:  0 0 1rem 1.5rem rgba(black, 40%);
@@ -118,4 +132,47 @@ $panel_shadow_highlight: 0 0 10px 1px rgba($c_accent-500, 50%);
     height: auto;
     overflow: auto;
     clip-path: none;
+}
+
+
+@mixin notification($leftBorderColor){
+    --borderRadius: #{px-to-rem(4)};
+    --mainBorderWidth: 1px;
+
+    width: fit-content;
+    max-width: min(80ch, 100%);
+    min-height: px-to-rem(32);
+    
+    padding: px-to-rem(6) px-to-rem(17) px-to-rem(6) px-to-rem(16);
+
+    color: $c_tone-50;
+    background: rgba($c_tone-1000, 0.9);
+    
+    border-top-right-radius: var(--borderRadius);
+    border-bottom-right-radius: var(--borderRadius);
+    border: var(--mainBorderWidth) solid $c_tone-1000;
+
+    // Left "border" to avoid bevelled corners
+    position: relative;
+    &:before{
+        display: block;
+        content: "";
+        position: absolute;
+        top: calc(var(--mainBorderWidth) * -1);
+        bottom: calc(var(--mainBorderWidth) * -1);
+        left: calc(var(--mainBorderWidth) * -1);
+        z-index: 2;
+        width: 3px;
+        background: $leftBorderColor;
+    }
+
+    &_message{
+        flex-grow: 3;
+    }
+
+    &_close{
+        min-width: 30px;
+        max-width: 30px;
+        margin-left: px-to-rem(12);
+    }
 }

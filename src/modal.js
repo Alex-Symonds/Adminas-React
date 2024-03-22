@@ -3,6 +3,9 @@ import {
     CSS_HIDE,
 } from './util.js';
 
+/*
+    Contains reusable functions relating to modals.
+*/
 
 export const CSS_MODAL = 'modal';
 const CSS_MODAL_CLOSE_BUTTON = 'modal_closeButton';
@@ -11,14 +14,21 @@ const CSS_MODAL_WRAPPER = "modalWrapper";
 const CSS_MODAL_HEADING = "modal_heading";
 export const CSS_MODAL_CONTENTS = 'modal_contents';
 
-export function create_generic_modal(contents){
+export function create_generic_modal(contents, css, onClose = null){
     const wrapper = create_generic_modal_wrapper();
+    if(css !== "" && css !== undefined && css !== null){
+        wrapper.className = `${wrapper.className} ${css}`;
+    }
+
     const dialog = create_generic_modal_dialog();
 
     const closeBtn = create_generic_ele_cancel_button();
     closeBtn.classList.add(`${CSS_MODAL}_${CSS_CLOSE_BUTTON}`);
     closeBtn.addEventListener('click', () => {
-        close_modal(dialog, wrapper);
+        if(onClose !== null){
+            onClose();
+        }
+        close_modal({dialog, wrapper});
     });
 
     dialog.append(closeBtn);
@@ -63,19 +73,44 @@ export function open_modal(modalWrapper){
     modalEle.show();
 }
 
-function close_modal(dialog, wrapper = null){
-    const modalWrapper = wrapper === null ?
-        findModalWrapperFromChild(dialog)
-        : wrapper;
 
-    if(!modalWrapper.classList.contains(CSS_HIDE)){
-        modalWrapper.classList.add(CSS_HIDE);
+
+export function close_modal({ dialog, wrapper }){
+    if(wrapper !== null && wrapper !== undefined && !wrapper?.classList.contains(CSS_HIDE)){
+        wrapper?.classList.add(CSS_HIDE);
     }
-    dialog.close();
+
+    if(dialog !== null && dialog !== undefined){
+        dialog?.close();
+    }
 }
+
+
+export function removeModal(cssClassToID){
+    // For when the modal should be entirely removed
+    const wrappers = findModalWrappersInDoc();
+    const selectedWrappers = cssClassToID === undefined
+        ? wrappers
+        : Array.from(wrappers).filter(wrapper => wrapper.classList.contains(cssClassToID));
+    selectedWrappers.forEach(wrapper => {
+        wrapper?.remove();
+    });
+}
+
 
 export function findAllModalCloseButtons(){
     return document.querySelectorAll(`.${CSS_MODAL_CLOSE_BUTTON}`);
+}
+
+
+function findModalDialogsInDoc(){
+    const dialog = document.getElementsByTagName('dialog');
+    return dialog.length > 0 ? dialog : null;
+}
+
+function findModalWrappersInDoc(){
+    const wrapper = document.querySelectorAll(`.${CSS_MODAL_WRAPPER}`);
+    return wrapper.length > 0 ? wrapper : null;
 }
 
 function findModalDialogFromChild(child){
@@ -94,8 +129,10 @@ export function setupModalCloseButton(closeBtn){
     const dialog = findModalDialogFromChild(closeBtn);
     if(dialog !== null){
         closeBtn.addEventListener('click', () => {
-            close_modal(dialog, null)
+            close_modal({dialog, wrapper: findModalWrapperFromChild(dialog)});
         });
         return;
     }
 }
+
+

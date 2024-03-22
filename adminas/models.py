@@ -20,7 +20,7 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django_countries.fields import CountryField
 
 from adminas.constants import DOCUMENT_TYPES, KEY_ERROR_MESSAGE, KEY_RESPONSE_CODE, NUM_BODY_ROWS_ON_EMPTY_DOCUMENT, SUPPORTED_CURRENCIES, SUPPORTED_LANGUAGES, DEFAULT_LANG, INCOTERMS, DOC_CODE_MAX_LENGTH, ERROR_NO_DATA, SUCCESS_CODE
-from adminas.util import get_object, format_money, get_dict_document_line_item_available, copy_relations_to_new_document_version, debug, update_membership,\
+from adminas.util import get_object, format_money, copy_relations_to_new_document_version, debug, update_membership,\
     is_error, error
 import datetime
 
@@ -62,15 +62,14 @@ class DocAssignment(models.Model):
 
     def get_dict(self):
         return {
-            'display': self.item.display_str().replace(str(self.item.quantity), str(self.quantity)),
-            'doc_id': self.version.id,
-            'id': self.pk,
-            'is_available': False,
-            'is_invalid': not self.quantity_is_valid(),
             'jiid': self.item.pk,
-            'max_available': self.max_valid_quantity(),
             'total_quantity': self.item.quantity,
-            'used_by': self.version.document.reference
+            'part_number': self.item.product.part_number,
+            'product_name': self.item.product.name,
+            'is_available': False,
+            'max_available': self.max_valid_quantity(),
+            'qty_included': self.quantity,
+            'is_invalid': not self.quantity_is_valid(),
         }
 
     def max_valid_quantity(self, exclude_drafts = False):
@@ -992,53 +991,10 @@ class Job(AdminAuditTrail):
 
 
     ## || Job.Documents
-    def get_items_unassigned_to_doc(self, doc_type):
-        """
-            Get a list of JobItem quantities on this Job which have not yet been assigned to a document of the given type.
-        """
-        jobitems = self.main_item_list()
-
-        if jobitems == None or jobitems.count() == 0:
-            return None
-
-        else:
-            result = []
-            for poss_item in jobitems:
-                qty = poss_item.quantity
-
-                assignments = DocAssignment.objects.filter(item=poss_item).filter(version__document__doc_type=doc_type).filter(version__active=True)
-                for assignment in assignments:
-                    qty = qty - assignment.quantity
-
-                if qty > 0:
-                    result.append(get_dict_document_line_item_available(poss_item, qty))    
 
 
-            if len(result) == 0:
-                return None
-            else:
-                return result
 
 
-    def get_items_assigned_to_doc(self, doc_type):
-        """
-            Get a list of JobItems on this Job which have already been assigned to a document of the given type.
-        """        
-        assigned_elsewhere = DocAssignment.objects\
-                            .filter(version__document__job=self)\
-                            .filter(version__document__doc_type=doc_type)\
-                            .filter(version__active=True)\
-
-        if assigned_elsewhere.all().count() == 0:
-            return None
-
-        result = []
-        for ae in assigned_elsewhere.all():
-            result.append(ae.get_dict())                
-        return result
-
-    def __str__(self):
-        return f'{self.name} {self.created_on}'
 
 
 
@@ -1186,6 +1142,71 @@ class JobItem(AdminAuditTrail):
         result['formatted_value'] = format_money(self.selling_price)
 
         return result
+
+
+    def get_document_dict(self, doc_type, document_version = None):
+        result = {}
+        result['jiid'] = self.pk
+        result['total_quantity'] = self.quantity
+        result['part_number'] = self.product.part_number
+        result['product_name'] = self.product.name
+        
+        # Items on new documents and excluded items on existing documents have a lot in common,
+        # so let's make those defaults
+        is_invalid = False
+        max_available = self.quantity - self.quantity_assigned_to_docs(doc_type)
+        
+        # Handle new document version
+        if document_version == None:
+            # Default = Assume the new document is being made to cover all outstanding items
+            qty_included = max_available
+        
+        # Handle existing document version
+        else:
+            self_on_specified_version_qs = self.document_assignments(doc_type).filter(version=document_version)
+
+            # Existing document, but this item is not assigned to it
+            if self_on_specified_version_qs.count() == 0:
+                qty_included = 0
+
+            # Existing document and this item is assigned to it
+            else:
+                self_assignment = self_on_specified_version_qs[0]
+                is_invalid = not self_assignment.quantity_is_valid()
+                max_available = self_assignment.max_valid_quantity()
+                qty_included = self_assignment.quantity
+
+        result['is_available'] = max_available > 0,
+        result['max_available'] = max_available
+        result['qty_included'] = qty_included
+        result['is_invalid'] = is_invalid
+
+        return result
+
+
+    def document_assignments(self, doc_type):
+        """
+            Queryset of assignments for this JobItem on a document of a given type
+        """
+        return DocAssignment.objects\
+                .filter(item=self)\
+                .filter(version__document__doc_type=doc_type)\
+                .filter(version__active=True)
+
+
+    def quantity_assigned_to_docs(self, doc_type):
+        """
+            Quantity of this JobItem which have been assigned to an active document of a given type
+        """
+        assignment_qs = self.document_assignments(doc_type)
+
+        if assignment_qs.count() == 0:
+            qty_assigned = 0
+        else:
+            qty_assigned_agg = assignment_qs.aggregate(Sum('quantity'))
+            qty_assigned = qty_assigned_agg['quantity__sum']
+
+        return qty_assigned
 
 
     def display_str(self):
@@ -1944,7 +1965,26 @@ class DocumentVersion(AdminAuditTrail):
 
         return False
        
-    def get_included_items(self):
+    def get_working_items(self):
+        """
+            List of JobItems on the order with document-specific info in the dict
+        """  
+        jobitems = self.document.job.main_item_list()
+        if jobitems == None or jobitems.count() == 0:
+            return None
+        
+        else:
+            result = []
+            for jobitem in jobitems:
+                result.append(jobitem.get_document_dict(self.document.doc_type, self))
+
+        if len(result) == 0:
+            return None
+        else:
+            return result       
+
+
+    def get_included_items_data(self):
         """
             List of JobItems assigned to this document version.
         """
@@ -1963,18 +2003,77 @@ class DocumentVersion(AdminAuditTrail):
         return len(self.get_included_items())
 
 
-    def get_excluded_items(self):
+    def get_excluded_items_data(self):
         """
-            List of JobItems excluded from this document version.
+            List of data about JobItems excluded from this document version.
         """
-        available = self.get_available_items()
-        unavailable = self.get_unavailable_items()
-        if available == None or self.id == None:
-            return unavailable
-        elif unavailable == None:
-            return available
+        jobitems = self.document.job.main_item_list()
+        if jobitems == None or jobitems.count() == 0:
+            return None
+        
         else:
-            return available + unavailable
+            # The excluded section is supposed to show all jobitems "left over" after the ones included
+            # in this document are removed. It should contain a mixture of unassigned jobitems and 
+            # jobitems which are included on another document of the same type.
+            excluded = []
+            for jobitem in jobitems:
+                total_qty_assigned = jobitem.quantity_assigned_to_docs(self.document.doc_type)
+
+                # Begin with one of the dicts used by the document builder
+                excluded_dict = self.get_excluded_item_document_dict(jobitem, total_qty_assigned)
+                if excluded_dict == None:
+                    continue
+                
+                # Add contextual information, about how other documents of the same type affect this one
+                is_invalid = jobitem.quantity - total_qty_assigned < 0
+                excluded_dict['invalid_overflow'] = 0 if not is_invalid else total_qty_assigned - jobitem.quantity
+                excluded_dict['quantity_unassigned'] = jobitem.quantity - total_qty_assigned
+                excluded_dict['quantity_assigned'] = total_qty_assigned
+                excluded_dict['other_assignments'] = self.get_excluded_item_assignment_data(jobitem)
+
+                excluded.append(excluded_dict)
+            
+            return excluded
+
+
+    def get_excluded_item_document_dict(self, jobitem, total_qty_assigned):
+        assignment_to_self_qs = DocAssignment.objects\
+            .filter(item=jobitem)\
+            .filter(version=self)
+        
+        if assignment_to_self_qs.count() == 1:
+            assignment_to_self = assignment_to_self_qs[0]
+            self_covers_full_qty = jobitem.quantity - assignment_to_self.quantity == 0 
+            self_has_only_assignment = assignment_to_self.quantity == total_qty_assigned
+
+            if self_covers_full_qty and self_has_only_assignment:
+                return None
+
+            else:
+                excluded_dict = assignment_to_self.get_dict()
+                excluded_dict['excluded_qty'] = jobitem.quantity - assignment_to_self.quantity
+                return excluded_dict
+                
+        excluded_dict = jobitem.get_document_dict(self.document.doc_type)
+        excluded_dict['excluded_qty'] = jobitem.quantity
+        return excluded_dict
+
+
+    def get_excluded_item_assignment_data(self, jobitem):
+        other_assignments = jobitem.document_assignments(self.document.doc_type)\
+            .exclude(version__id=self.id)
+
+        other_assignments_arr = []
+        for other_assignment in other_assignments:
+            other_assignment_dict = {
+                'doc_id': other_assignment.version.id,
+                'name': other_assignment.version.document.reference,
+                'quantity': other_assignment.quantity
+            }
+            other_assignments_arr.append(other_assignment_dict)
+
+        return other_assignments_arr
+
 
     def get_empty_body_line(self):
         """
@@ -2035,54 +2134,6 @@ class DocumentVersion(AdminAuditTrail):
             return result
 
 
-    def get_available_items(self):
-        """
-            List of items assigned to this Job which have not yet been assigned to a document of this type.
-            On a new document, the assumption is that the user is creating the new document to cover the leftover items, so this is used to populate the default "included" list.
-            On an existing document, the user has already indicated which items they wish to include, so this is used to populate the top of the "excluded" list.
-        """
-        jobitems = self.document.job.main_item_list()
-        if jobitems == None or jobitems.count() == 0:
-            return None
-
-        else:
-            result = []
-            for poss_item in jobitems:
-                qty = poss_item.quantity
-
-                assignments = DocAssignment.objects.filter(item=poss_item).filter(version__document__doc_type=self.document.doc_type).filter(version__active=True)
-                for assignment in assignments:
-                    qty = qty - assignment.quantity
-
-                if qty > 0:
-                    result.append(get_dict_document_line_item_available(poss_item, qty))    
-
-            if len(result) == 0:
-                return None
-            else:
-                return result
-
-
-    def get_unavailable_items(self):
-        """
-            List of items already assigned to another document of this type.
-            Used to populate the "excluded" list.
-        """
-        assigned_elsewhere = DocAssignment.objects\
-                            .filter(version__document__job=self.document.job)\
-                            .filter(version__document__doc_type=self.document.doc_type)\
-                            .filter(version__active=True)\
-                            .exclude(version=self)
-
-        if assigned_elsewhere.all().count() == 0:
-            return None
-
-        result = []
-        for ae in assigned_elsewhere.all():
-            result.append(ae.get_dict())                
-        return result
-
-
     def update_item_assignments(self, assignment_dict):
         """
         Update, delete and create DocAssignments according to the assignment_obj.
@@ -2119,14 +2170,18 @@ class DocumentVersion(AdminAuditTrail):
 
                 if 'id' in req and int(req['id']) == existing_speci.id:
                     found = True
-                    existing_speci.instruction = req['contents']
-                    existing_speci.save()
+
+                    if existing_speci.instruction != req['contents']:
+                        existing_speci.instruction = req['contents']
+                        existing_speci.save()
+
                     required.remove(req)
                     break
     
             if not found:
                 existing_speci.delete()
 
+        debug(SpecialInstruction.objects.filter(version=self))
         self.add_special_instructions(required, user)
 
 

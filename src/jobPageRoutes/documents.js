@@ -132,7 +132,12 @@ function JobDocumentsOutgoingTable({ doc_list }){
 
 function JobDocumentsOutgoingTableRow({ data }){
     const doc_date = data.issue_date === null ? data.created_on : data.issue_date;
-    const doc_status = data.issue_date === null ? "draft" : "issued";
+    const doc_status = !data.is_valid 
+        ? "invalid"
+        : data.issue_date === null 
+            ? "draft" 
+            : "issued";
+
     return  <tr>
                 <td className={"documentsOutTable_referenceCol"}>
                     { data.reference }
@@ -141,7 +146,7 @@ function JobDocumentsOutgoingTableRow({ data }){
                     { doc_date }
                 </td>
                 <td className={"documentsOutTable_statusCol documentsOutTable_statusCol-" + doc_status.toLowerCase()}>
-                    <div className={"documentsOutTable_status documentsOutTable_status-" + doc_status.toLowerCase() }>
+                    <div className={"documentsOutTable_status"}>
                         { data.is_valid
                             ? data.issue_date == null ? 'Draft' : 'Issued'
                             : <InvalidIconUI message = "invalid item assignments" />

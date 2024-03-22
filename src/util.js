@@ -2,6 +2,11 @@
     General-purpose functions available on all pages.
 
     Contents:
+        || Strings and Formatting
+        || Package Data and Methods
+        || URL Finders
+        || Fetch and request helpers
+        || State helper export functions
         || Server comms
         || Formatting
         || Toggle element visibility CSS class
@@ -366,6 +371,18 @@ export function unhide_all_by_class(classname){
     });
 }
 
+export function disableAllByClass(classname){
+    document.querySelectorAll('.' + classname).forEach(ele => {
+        ele.disabled = true;
+    });
+}
+
+export function enableAllByClass(classname){
+    document.querySelectorAll('.' + classname).forEach(ele => {
+        ele.disabled = false;
+    });
+}
+
 
 // || DOM utils
 export function get_ele_index(target_child, parent){
@@ -412,36 +429,6 @@ export function create_generic_ele_dismissable_error(error_obj, task_failure_str
     return error_message_ele;
 }
 
-
-export function display_document_response_message(data, string_is_error = false){
-    let anchor_ele = document.querySelector('.status-controls');
-    let message_ele = document.querySelector('.' + CLASS_MESSAGE_BOX);
-
-    if(message_ele == null){
-        message_ele = create_generic_ele_message();
-        anchor_ele.append(message_ele);
-    }
-
-    let message_str;
-    if(typeof data === 'string'){
-        if(string_is_error) message_ele.classList.add(CLASS_ERROR_MESSAGE);
-        message_str = data;
-    }
-    else if('message' in data){
-        message_str = data['message'];
-    }
-    else if(get_error_message().responded_with_error_reason(data)){
-        message_ele.classList.add(CLASS_ERROR_MESSAGE);
-        message_str = `Error: ${get_error_message(data)} @ ${get_date_time()}`;
-    }  
-    else {
-        message_ele.classList.add(CLASS_ERROR_MESSAGE);
-        message_str = 'Something went wrong, try refreshing the page';
-    }
-
-    message_ele.innerHTML = `${message_str} @ ${get_date_time()}`;
-    
-}
 
 export function create_generic_ele_message(){
     let message_ele = document.createElement('div');

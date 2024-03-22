@@ -294,14 +294,6 @@ def get_dict_document_editor_settings(get_params):
     return error("Invalid GET parameters.", 400)
 
 
-def get_dict_document_line_item_available(jobitem, qty_available):
-    return {
-        'display': jobitem.display_str().replace(str(jobitem.quantity), str(qty_available)),
-        'is_available': True,
-        'jiid': jobitem.pk,
-        'total_quantity': jobitem.quantity
-    }
-
 
 def get_dict_job_page_root(job):
     """
@@ -321,12 +313,6 @@ def get_dict_job_page_root(job):
 
     result['items_url'] = reverse('api_items')
 
-    # result['main'] = {
-    #     'currency': job.currency,
-    #     'doc_quantities': job.all_documents_item_quantities(),
-    #     'timestamp': job.created_on,
-    #     'URL_MODULE_MANAGEMENT': reverse('manage_modules', kwargs={'job_id': job.id})
-    # }
     result['currency'] = job.currency
     result['doc_quantities'] = job.all_documents_item_quantities()
     result['timestamp'] = job.created_on

@@ -21,11 +21,9 @@ import {
 } from './util.js';
 
 const ID_FILTER_OPTIONS_ELE = 'id_filter_options';
-const CLASS_FILTER_OPTIONS_BODY = 'filter-options-body';
 const ID_PREFIX_FILTER_FIELDS = 'id_filter_';
 const CSS_CLASS_RECORDS_FILTER_WRAPPER = 'recordsFilterWrapper';
 
-const FALLBACK_STR = '-';
 const RANGE_START = 's';
 const RANGE_END = 'e';
 
@@ -65,12 +63,10 @@ const RECORDS_FILTER_SETTINGS = [
 
 // Event listeners for existing buttons
 document.addEventListener('DOMContentLoaded', () => {
-    const ID_BEGIN_FILTER_BUTTON = 'id_filter_records';
-    document.getElementById(ID_BEGIN_FILTER_BUTTON).addEventListener('click', () => {
+    document.getElementById('id_filter_records').addEventListener('click', () => {
         open_filter_options();
     });
 });
-
 
 // || Open menu
 async function open_filter_options(){

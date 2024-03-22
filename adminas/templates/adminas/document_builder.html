@@ -18,6 +18,7 @@
         const URL_DOCBUILDER = "{% url 'api_draft_documents' %}";
         const URL_DOCMAIN = "{% url 'doc_main' doc_id %}"
         const URL_PREVIEW = "{% url 'doc_display' doc_id %}?mode=preview";
+        const JOB_DOCTAB_URL = "{% url 'jobTabDocuments' job_id %}"
     </script>
     <script defer src="{% static 'adminas/scripts/docBuilder.bundle.js' %}" type="text/javascript"></script>
 {% endblock %}
@@ -28,147 +29,198 @@
 
     <h2 class="pageHeading">Document Builder</h2>
     <div class="subheading">{{ doc_title }}</div>
-    <a class="return-to-job" href="{% url 'job' job_id %}">&laquo; return to Job</a>
+    <a class="return-to-job" href="{% url 'jobTabDocuments' job_id %}">&laquo; return to Job</a>
 
-<div class="document-sections-wrapper edit-document"> 
-    <section class="status-controls draft">
-        <h3 class="sectionHeading">Working on document</h3>
+    <div class="pageContent documentPage"> 
+        <h3 class="pageContent_header sectionHeading">
+            <span class="pageContent_headerText">
+                Working on document
+            </span>
+        </h3>
+        <div class="documentPage_layout pageContent_content">
 
-    {% if doc_id == 0 %}
-        <p class="filled disabled">preview PDF</p>
-    {% else %}
-        <a class="return-to-job" href="{% url 'doc_main' doc_id %}">&laquo; exit edit mode</a>
-        <a class="filled" href="{% url 'doc_display' doc_id %}?mode=preview">preview PDF</a>
-    {% endif %}
+            <div class="documentPage_controlsAndWarningsWrapper">
+                <div class="documentPage_controls">
+                    <div class="documentPage_safeButtonsContainer">
+                        <a 
+{% if doc_id == 0 %}
+                            href="{% url 'jobTabDocuments' job_id %}"
+{% else %}
+                            href="{% url 'doc_main' doc_id %}"
+{% endif %}
+                            class="closeIconTextButton"
+                        >
+                            <span class="closeIconTextButton_text">close</span>
+                        </a>
+                        <button 
+                            class="saveIconTextButton"
+                            disabled
+                        >
+                            <span class="saveIconTextButton_text">save</span>
+                        </button>
+                        <a  
+                            href="{% url 'doc_display' doc_id %}"
+                            class="previewIconTextButton {% if doc_id == 0 %}previewIconTextButton-disabled{% endif %}"
+                        >
+                            <span class="previewIconTextButton_text">preview</span>
+                        </a>
+                        <button 
+                            class="issueFinalIconTextButton" 
+                            {% if not is_valid or doc_id == 0 %}disabled{% endif %}
+                        >
+                            <span class="issueFinalIconTextButton_text">issue</span>
+                        </button>
+                    </div>
+                    <div class="docBuilderControls_deleteButtonContainer">
+                        <button 
+                            class="deleteIconTextButton"
+                            {% if doc_id == 0 %}disabled{% endif %}
+                        >
+                            <span class="deleteIconTextButton_text">delete</span>
+                        </button>
+                    </div>
+                </div>
 
-        <button id="document_save_btn" class="filled">save draft</button>
+                <section class="documentPageWarnings documentWarnings">
+                    <div class="documentPageWarnings_unsavedChanges documentPageWarnings_unsavedChanges-off">
+                    </div>
 
-    {% if doc_id == 0 %} 
-        <button id="document_delete_btn" class="button-warning" disabled>delete</button>
-    {% else %}
-        <button id="document_delete_btn" class="button-warning">delete</button>
-    {% endif %}
-        
-        <button id="document_issue_btn" class="filled" {% if not is_valid or doc_id == 0 %}disabled{% endif %}>issue final</button>
-    </section>
+                    {% if not is_valid %}
+                    <section class="documentPageWarnings_invalid">
+                        <h4>Invalid Item Quantities</h4>
+                        <p>
+                            JobItem quantities have altered since the draft document was created: there are no longer enough to fulfil all draft document assignments.
+                        </p>
+                    </section>
+                    {% endif %}
+                </section>
+            </div>
 
-    {% if not is_valid %}
-    <section class="subsection warning" id="invalid_document_warning">
-        <h4>Invalid Item Quantities</h4>
-        <p>
-            JobItem quantities have altered since the draft document was created: there are no longer enough to fulfil all draft document assignments.
-        </p>
-    </section>
-    {% endif %}
+            <form method="post" class="documentPageGeneral jobPanelSection" onkeydown="return event.key != 'Enter';">
+                <h4 class="jobPanelSection_headingWrapper">
+                    <span class="jobPanelSection_headingContent documentPageGeneral_headingContent">
+                        General
+                    </span>
+                </h4>
 
-
-    <section class="document-fields-container subsection">
-        <h4>General</h4>
-        <div class="form-row">
-            <label class="row-label" for="id_doc_reference">Reference</label>
-            <input class="subsection_input" type="text" id="id_doc_reference" value="{{reference}}">
-            <div class="doc-version" id="id_doc_version">version {{ version_number }}</div>
-        </div>
-
+                <div class="documentPageGeneral_formRow">
+                    <label class="row-label" for="id_doc_reference">Reference</label>
+                    <div class="documentPageGeneral_inputAndNoteWrapper">
+                        <input class="subsection_input" type="text" id="id_doc_reference" value="{{reference}}">
+                        <div class="doc-version" id="id_doc_version">version {{ version_number }}</div>
+                    </div>
+                </div>
 
     {% if doc_type == 'WO' %}
-        <div class="form-row">
-            <label class="row-label" for="id_req_prod_date">Requested Completion Date</label>
-            <input class="subsection_input" type="date" id="id_req_prod_date" value="{{doc_specific.date_requested|date:'Y-m-d'}}">
-        </div>
+                <div class="documentPageGeneral_formRow">
+                    <label class="row-label" for="id_req_prod_date">Requested Completion Date</label>
+                    <input class="subsection_input" type="date" id="id_req_prod_date" value="{{doc_specific.date_requested|date:'Y-m-d'}}">
+                </div>
 
-        <div class="form-row">
-            <label class="row-label" for="id_sched_prod_date">Scheduled Completion Date</label>
-            <input class="subsection_input" type="date" id="id_sched_prod_date" value="{{doc_specific.date_scheduled|date:'Y-m-d'}}">
-        </div>
+                <div class="documentPageGeneral_formRow">
+                    <label class="row-label" for="id_sched_prod_date">Scheduled Completion Date</label>
+                    <input class="subsection_input" type="date" id="id_sched_prod_date" value="{{doc_specific.date_scheduled|date:'Y-m-d'}}">
+                </div>
     {% endif %}
-    </section>
+            </form>
 
+            <section class="documentPageSpecialInstructions jobPanelSection">
+                <h4 class="jobPanelSection_headingWrapper">
+                    <span class="jobPanelSection_headingContent documentPageSpecialInstructions_headingContent">
+                        Special Instructions
+                    </span>
+                </h4>
+                <div class="documentPageSpecialInstructions_addButtonContainer">
+                    <button class="add-button openCreateSpecialInstruction">special instruction</button>
+                </div>
+                <div class="modalWrapper hide addNewSpecialInstructionModal">
+                    <dialog class="modal">
+                        <button class="close modal_closeButton close-new-instr">
+                            <span>close</span>
+                        </button>
+                        <h2 class="modal_heading">Special Instructions</h2>
+                        <form class="documentPageSpecialInstructions_form" method="post" >
+                            <label for="id_add_special_instruction" class="documentPageSpecialInstructions_label">Enter new special instruction</label>
+                            <textarea id="id_add_special_instruction" class="documentPageSpecialInstructions_textarea"></textarea>
+                            <div class="documentPageSpecialInstructions_controlsContainer">
+                                <button type="button" class="add-special-instruction-btn button-primary documentPageSpecialInstructions_button">add to pending</button>
+                            </div>
+                        </form>
+                    </dialog>
+                </div>
+                <div class="existing">
+            {% for sp_inst in special_instructions %}
+                    <div class="documentPageSpecialInstructions_specialInstructionContainer" 
+                        data-siid="{{ sp_inst.id }}"
+                    >
+                        <div class="documentPageSpecialInstructions_specialInstructionContents">{{ sp_inst.instruction }}</div>
+                        <button class="documentPageSpecialInstructions_specialInstructionEditBtn edit-icon">
+                            <span>edit</span>
+                        </button>
+                        <div class="documentPageSpecialInstructions_specialInstructionWhoAndWhen">
+                            <span class="username">{{ sp_inst.created_by }}</span> on <span class="when">{{ sp_inst.created_on }}</span>
+                        </div>
+                    </div>
+            {% empty %}
+                    <p class="no-special-instructions empty-section-notice">No special instructions on this document</p>
+            {% endfor %}
+                </div>
+            </section>
 
+            <form method="post" class="documentPageItems jobPanelSection" onkeydown="return event.key != 'Enter';">
+                <h3 class="jobPanelSection_headingWrapper">
+                    <span class="jobPanelSection_headingContent documentPageItems_headingContent">
+                        Items on this document
+                    </span>
+                </h3>
+                <div class="documentPageItems_builderContent">
 
-
-    <section class="special-instructions subsection">
-        <h4>Special Instructions</h4>
-        <div class="add-button-container">
-            <button class="add-button special-instruction">special instruction</button>
-        </div>
-        <div class="add-new form-like panel hide">
-            <button class="close close-new-instr"><span>close</span></button>
-            <label for="id_add_special_instruction">Add pending special instruction</label>
-            <textarea id="id_add_special_instruction"></textarea>
-            <button class="add-special-instruction-btn button-primary full-width-button">add to pending</button>
-        </div>
-        <div class="existing">
-    {% for sp_inst in special_instructions %}
-            <div class="read_row" data-siid="{{ sp_inst.id }}">
-                <div class="contents">{{ sp_inst.instruction }}</div>
-                <button class="edit-special-instruction-btn edit-icon"><span>edit</span></button>
-                <div class="who-and-when"><span class="username">{{ sp_inst.created_by }}</span> on <span class="when">{{ sp_inst.created_on }}</span></div>
-            </div>
-    {% empty %}
-            <p class="no-special-instructions empty-section-notice">No special instructions on this document</p>
-    {% endfor %}
-        </div>
-    </section>
-
-
-    <section class="document-item-lists">
-        <h3>Items</h3>
-
-        <div class="document-item-lists-container">
-
-            <div class="included-container panel">
-                <h4 class="panel-header">Include</h4>
-                <ul id="included">
-    {% for inc in included_items %}
-                    <li data-jiid="{{ inc.jiid }}" {% if inc.is_invalid %}class="invalid" data-max_available="{{ inc.max_available }}"{% endif %}>
-                        {% if inc.is_invalid %}<span class="invalid-icon"><span>quantity is invalid</span></span>{% endif %}
-                        <span class="display">{{ inc.display }}</span>
-                        <div class="button-container">
-                            <button class="toggle-docitem-btn button-primary">excl. &raquo;</button>
-        {% if inc.max_available > 1 %}
-                            <button class="split-docitem-btn buttonSecondary">&laquo; split &raquo;</button>
+    {% for lineitem in workingItems %}
+                    <div 
+                        class="documentPageItems_itemBuilder{% if lineitem.qty_included == 0 %} documentPageItems_itemBuilder-excluded{% endif %}"
+                        data-jiid="{{ lineitem.jiid }}" 
+                        data-totalQty="{{ lineitem.total_quantity }}"
+                        data-availableQty="{{ lineitem.max_available }}"
+                        data-isInvalid="{{ lineitem.is_invalid|lower }}"
+                    >
+                        <label class="documentPageItems_itemDisplay" for="id_qty_jobitem_{{ lineitem.jiid }}">
+        {% if lineitem.is_invalid %}
+                            <span class="documentPageItems_invalidIcon invalid-icon"><span>quantity is invalid</span></span>
         {% endif %}
-                        </div>
-                    </li>
+                            <span class="documentPageItems_itemDisplayQty">{{ lineitem.qty_included }}</span>
+                            <span class="documentPageItems_itemDisplayPartNo partNumber{% if lineitem.qty_included == 0 %} partNumber-disabled{% endif %}">{{ lineitem.part_number }}</span>
+                            <span class="documentPageItems_itemDisplayName">{{ lineitem.product_name }}</span>
+                        </label>
+
+                        <div class="documentPageItems_itemInputsContainer">
+                            <button 
+                                type="button" 
+                                class="documentPageItems_maxBtn buttonSecondary {% if lineitem.is_invalid %} documentPageItems_maxBtn-invalid{% endif %}"
+                                {% if lineitem.qty_included == lineitem.max_available %}disabled{% endif %}
+                            >
+                                max
+                            </button>
+                            <input 
+                                class="documentPageItems_qtyInput"
+                                id="id_qty_jobitem_{{ lineitem.jiid }}"
+                                type="number" min="0" max="{{ lineitem.max_available }}" 
+                                value="{{ lineitem.qty_included }}" 
+                            />
+                            <button 
+                                type="button"
+                                class="documentPageItems_minBtn buttonSecondary {% if lineitem.is_invalid %} documentPageItems_minBtn-invalid{% endif %}"
+                                {% if lineitem.qty_included == 0  %}disabled{% endif %}
+                            >
+                                min
+                            </button> 
+                        </div>              
+
+                    </div>            
     {% empty %}
-                    <li class="none">None</li>
+                    <div class="documentPageItems_empty">None</div>      
     {% endfor %}
-                </ul>
-            </div>
-            <div class="excluded-container panel">
-                <h4 class="panel-header">Exclude</h4>
-                <ul id="excluded">
-        {% for excl in excluded_items %}
-                    <li data-jiid="{{ excl.jiid }}"{% if excl.is_available == False %} class="unavailable"{% endif %}>
-                        {% if excl.is_invalid %}<span class="invalid-icon"><span>quantity is invalid</span></span>{% endif %}
-                        <span class="display">
-                            {{ excl.display }}
-            {% if excl.is_available %}
-                        </span>
-                        <div class="button-container">
-                            <button class="toggle-docitem-btn button-primary">&laquo; incl.</button>
-                {% if excl.total_quantity > 1 %}
-                            <button class="split-docitem-btn buttonSecondary">&laquo; split &raquo;</button>
-                {% endif %}
-                        </div>
-            {% else %}
-                        <span><a href="{% url 'doc_editor_page' %}?id={{excl.doc_id}}">
-                            (on&nbsp;{% if excl.used_by %}{{ excl.used_by }}{% else %}unnamed{% endif %})
-                        </a></span>
-                        </span>
-            {% endif %}
-                    </li>
-        {% empty %}
-                    <li class="none">None</li>
-        {% endfor %}                
-                </ul>
-            </div>
-
+                </div>
+            </form>
         </div>
-    </section>
-
-</div>
-
-
+    </div>
 {% endblock %}
