@@ -2334,7 +2334,7 @@ table.price-comparison{
     
         min-width: min(calc((#{v.$MAX_WIDTH} - #{v.px-to-rem(8)}) / 2), 100%);
         width: fit-content;
-        max-width: max(100%, v.$MAX_WIDTH);
+        max-width: calc(100vw - var(--mainContentSideMargins));
 
         padding: 0 0 v.px-to-rem(6) 0;
         margin: 0;
