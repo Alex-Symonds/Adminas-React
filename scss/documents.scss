@@ -15,6 +15,7 @@
 
 // || SCSS vars
 $breakpoint_oneOrTwoColumns: 950px;
+$breakpoint_itemContentsOnOneLine: 550px;
 
 
 // || documentPage
@@ -120,6 +121,10 @@ $breakpoint_oneOrTwoColumns: 950px;
         font-style: italic;
         cursor: default;
         pointer-events: none;
+    }
+
+    &:focus{
+        @include v.focusOutline();
     }
 }
 
@@ -512,111 +517,57 @@ $breakpoint_oneOrTwoColumns: 950px;
 
 
 // || Section: Line Items
-@mixin docBuilderItemShared{
-    padding: v.px-to-rem(6) v.px-to-rem(10);
-
+@mixin docItemSharedWrapper{
+    // Make the doc items share the same column widths
     display: grid;
-    grid-template-rows: auto auto;
     grid-template-columns: 1fr auto;
-    grid-template-areas: 
-        "desc desc"
-        ". buttons"
-    ;
     align-items: center;
-    gap: 0.5rem 1.75rem;
+    gap: 0 1.75rem;
 
     width: 100%;
     max-width: 100%;
+}
 
+
+@mixin docItemShared{
     border-bottom: 1px solid v.$c_tone-800;
 
     &-excluded{
         color: v.$c_tone-400;
         font-style: italic;
     }
-
-    @media screen and (min-width: $breakpoint_oneOrTwoColumns){
-        grid-template-rows: auto;
-        grid-template-columns: 1fr auto;
-        grid-template-areas: 
-            "desc buttons"
-        ;
-        gap: 0 2rem;
-    }
 }
-
-@mixin minMaxButtons{
-    --maxMinButtonsOuterRadius: 2rem;
-    --maxMinButtonsOuterXPadding: 1rem;
-    --maxMinButtonsInnerXPadding: 0.75rem;
-
-    align-self: stretch;
-    font-size: v.px-to-rem(14);
-    font-weight: 600;
-
-    color: v.$c_tone-50;
-    background: v.$g_button_inputAdjuster_main;
-    border-color: v.$c_accent-700;
-
-    // For the input-side radius
-    border-radius: 0;
-
-    &:disabled{
-        background: transparent;
-    }
-
-    &:focus{
-        background: v.$g_button_inputAdjuster_focus;
-    }
-
-    &:enabled:hover{
-        color: v.$c_tone-50;
-        background: v.$g_button_inputAdjuster_hover;
-        border-color: v.$c_accent-600;
-    }
-
-    &-invalid{
-        font-weight: 500;
-        color: v.$c_txt_warning_g;
-        background: v.$g_warning_hover;
-        border-color: v.$c_warning;
-       
-        &:enabled:hover{
-            color: v.$c_txt_warning_g;
-            background: v.$g_warning_hover2;
-            border-color: v.$c_warning;
-            box-shadow: none;
-        }
-    }
-}
-
 
 
 .documentPageItems{
     grid-area: lineItems;
     justify-self: stretch;
 
-    // ||| Shared
+    @media screen and (min-width: $breakpoint_oneOrTwoColumns) {
+        // Prevent "empty" from looking weirdly mushed up
+        min-width: min(25rem, 50vw);
+    }
+
+    // Shared
     &_headingContent{
         display: block;
         padding: var(--paddingSubSectionHeadings);
     }
 
     &_empty{
-        @include docBuilderItemShared();
-    }
+        @include docItemShared();
 
-    &_itemDisplay{
-        grid-area: desc;
+        grid-column-start: 1;
+        grid-column-end: 3;
 
-        display: flex;
-        align-items: center;
-        justify-content: start;
-        gap: 0.5rem;
+        padding: v.px-to-rem(6) v.px-to-rem(10);
+        max-width: 100%;
     }
 
     &_invalidIcon{
         top: 0;
+
+        flex: 0 0 auto;
         width: 1.25rem;
         height: 1.25rem;
         margin: 0;
@@ -624,7 +575,7 @@ $breakpoint_oneOrTwoColumns: 950px;
         font-style: normal;
     }
 
-    // ||| Reader Only
+    // Reader Only
     &_readerContent{
         display: flex;
         flex-direction: column;
@@ -644,17 +595,87 @@ $breakpoint_oneOrTwoColumns: 950px;
     }
 
     &_itemsUl{
+        @include docItemSharedWrapper();
+       
         list-style: none;
         padding: v.px-to-rem(6) 0;
         margin: 0;
     }
 
-    &_itemReader{
-        @include docBuilderItemShared();
+    
+    // Builder only
+    &_builderContent{
+        @include docItemSharedWrapper();
+    }
+}
 
-        // Set by eye. Adds extra padding in the spot where the arrow would be
-        // if this row were a details/summary element
-        padding-left: v.px-to-rem(30);
+
+.docItemReadOnly{
+    @include docItemShared();
+
+    grid-column-start: 1;
+    grid-column-end: 3;
+
+    // Set by eye. Adds extra padding in the spot where the arrow would be
+    // if this row were a details/summary element
+    padding: v.px-to-rem(6) v.px-to-rem(10) v.px-to-rem(6) v.px-to-rem(30);
+
+    display: grid;
+    grid-template-columns: subgrid;
+
+    &_itemDisplay{
+        grid-column: 1;
+        grid-row: 1;
+
+        display: grid;
+        grid-template-columns: auto auto 1fr;
+        grid-template-rows: auto auto auto;
+        grid-template-areas: 
+            "qty qty qty"
+            "partNo partNo ."
+            "desc desc desc"
+        ;
+        gap: 0.5rem;
+
+        @media screen and (min-width: $breakpoint_itemContentsOnOneLine) {
+            grid-template-columns: auto auto 1fr;
+            grid-template-rows: auto;
+            grid-template-areas:
+                "qty partNo desc"
+            ;
+        }
+
+    }
+
+    &_qtyAndInvalidWrapper{
+        grid-area: qty;
+
+        display: flex;
+        gap: 0.25rem;
+    }
+
+    &_itemDisplayQty{
+        width: 6rem;
+        max-width: 50vw;
+        overflow-x: auto;
+
+        @media screen and (min-width: $breakpoint_itemContentsOnOneLine) {
+            width: fit-content;
+            max-width: 6rem;
+        }
+    }
+
+    &_itemDisplayPartNo{
+        grid-area: partNo;
+    }
+
+    &_itemDisplayName{
+        grid-area: desc;
+    }
+
+    &_itemID{
+        grid-column: 2;
+        grid-row: 1;
     }
 
     &_itemAboveAssignments{
@@ -689,20 +710,102 @@ $breakpoint_oneOrTwoColumns: 950px;
             align-self: start;
         }
     }
+}
 
-    // || Builder only
-    &_builderContent{
-        display: flex;
-        flex-direction: column;
-        align-items: start;
+
+@mixin minMaxButtons{
+    --maxMinButtonsOuterRadius: 2rem;
+    --maxMinButtonsOuterXPadding: 1rem;
+    --maxMinButtonsInnerXPadding: 0.75rem;
+
+    flex: 0 0 auto;
+
+    align-self: stretch;
+    font-size: v.px-to-rem(14);
+    font-weight: 600;
+
+    color: v.$c_tone-50;
+    background: v.$g_button_inputAdjuster_main;
+    border-color: v.$c_accent-700;
+
+    // For the input-side radius
+    border-radius: 0;
+
+    &:disabled{
+        background: transparent;
     }
 
-    &_itemBuilder{
-        @include docBuilderItemShared();
+    &:focus{
+        @include v.focusOutline();
+        background: v.$g_button_inputAdjuster_focus;
+        position: relative;
+        z-index: 2;
+    }
+
+    &:enabled:hover{
+        color: v.$c_tone-50;
+        background: v.$g_button_inputAdjuster_hover;
+        border-color: v.$c_accent-600;
+    }
+
+    &-invalid{
+        font-weight: 500;
+        color: v.$c_txt_warning_g;
+        background: v.$g_warning_hover;
+        border-color: v.$c_warning;
+       
+        &:enabled:hover{
+            color: v.$c_txt_warning_g;
+            background: v.$g_warning_hover2;
+            border-color: v.$c_warning;
+            box-shadow: none;
+        }
+    }
+}
+
+
+.docItemEditor{
+    @include docItemShared();
+
+    grid-column-start: 1;
+    grid-column-end: 3;
+
+    padding: v.px-to-rem(6) v.px-to-rem(10);
+    width: 100%;
+    max-width: 100%;
+
+    display: grid;
+    grid-template-rows: auto auto;
+    grid-template-columns: subgrid;
+    grid-template-areas: 
+        "desc desc"
+        ". buttons"
+    ;
+    align-items: center;
+    gap: 0.5rem 1.75rem;
+
+    @media screen and (min-width: $breakpoint_oneOrTwoColumns){
+        grid-template-rows: auto;
+        grid-template-columns: subgrid;
+        grid-template-areas: 
+            "desc buttons"
+        ;
+        gap: 0 2rem;
+    }
+    padding: v.px-to-rem(8) v.px-to-rem(10);
+
+    &_itemDisplay{
+        grid-area: desc;
+
+        display: flex;
+        align-items: center;
+        justify-content: start;
+        gap: 0.5rem;
     }
 
     &_itemInputsContainer{
         grid-area: buttons;
+        justify-self: stretch;
 
         display: flex;
         font-style: normal;
@@ -741,15 +844,26 @@ $breakpoint_oneOrTwoColumns: 950px;
 
     &_qtyInput{
         margin: 0;
-        // So the default uppy downy arrows are flush with the side
-        padding: v.px-to-rem(4) 0 v.px-to-rem(4) v.px-to-rem(8);
+        padding: v.px-to-rem(4);
         border-radius: 0;
+
+        flex-grow: 2;
+        min-width: 3rem;
+        max-width: 5rem;
+        overflow-x: auto;
+        text-align: center;
 
         &:invalid{
             border-color: v.$c_warning;
         }
+
+        &:focus{
+            position: relative;
+            z-index: 2;
+        }
     }
 }
+
 
 
 // || Modal: Issue Document
