@@ -21,21 +21,21 @@ import {
 
 // || CSS and exported CSS
 const CSS_CLASS = {
-    itemWrapper: 'documentPageItems_itemBuilder',
-    maxButton: 'documentPageItems_maxBtn',
-    minButton: 'documentPageItems_minBtn',
-    qtyInput: 'documentPageItems_qtyInput',
+    itemWrapper: 'docItemEditor',
+    maxButton: 'docItemEditor_maxBtn',
+    minButton: 'docItemEditor_minBtn',
+    qtyInput: 'docItemEditor_qtyInput',
     
-    itemWrapperExcluded: 'documentPageItems_itemBuilder-excluded',
+    itemWrapperExcluded: 'docItemEditor_itemBuilder-excluded',
     invalidMessage: 'documentPageItems_invalidIcon',
-    invalidMinBtn: 'documentPageItems_minBtn-invalid',
-    invalidMaxBtn: 'documentPageItems_maxBtn-invalid',
-    itemDisplayText: 'documentPageItems_itemDisplayText',
-    itemQtySpan: 'documentPageItems_itemDisplayQty',
-    itemPartNo: 'documentPageItems_itemDisplayPartNo',
+    invalidMinBtn: 'docItemEditor_minBtn-invalid',
+    invalidMaxBtn: 'docItemEditor_maxBtn-invalid',
+    itemDisplayText: 'docItemEditor_itemDisplayText',
+    itemQtySpan: 'docItemEditor_itemDisplayQty',
+    itemPartNo: 'docItemEditor_itemDisplayPartNo',
     itemPartNoExcluded: 'partNumber-excluded',
-    inputsContainer: 'documentPageItems_itemInputsContainer',
-    inputErrorTooltip: 'documentPageItems_qtyErrorTooltip',
+    inputsContainer: 'docItemEditor_itemInputsContainer',
+    inputErrorTooltip: 'docItemEditor_qtyErrorTooltip',
 }
 export const CSS_DOCITEM_INPUT_WRAPPER = CSS_CLASS.itemWrapper;
 

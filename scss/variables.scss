@@ -176,3 +176,10 @@ $panel_shadow_highlight: 0 0 10px 1px rgba($c_accent-500, 50%);
         margin-left: px-to-rem(12);
     }
 }
+
+
+@mixin focusOutline{
+    outline: dotted px-to-rem(2) rgba($c_accent-50, 0.9);
+    outline-offset: px-to-rem(2);
+    outline-width: px-to-rem(1);
+}

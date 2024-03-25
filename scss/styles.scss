@@ -64,6 +64,11 @@ table{
     border-collapse: collapse;
 }
 
+/* ensures the increment/decrement arrows always display */
+input[type=number]::-webkit-inner-spin-button, 
+input[type=number]::-webkit-outer-spin-button {
+  opacity: 1;
+}
 
 
 
@@ -349,6 +354,11 @@ textarea{
             background: v.$c_tone-800;
             border-bottom: 3px solid v.$c_accent-500;
         }
+
+        &:focus,
+        &:focus-visible{
+            @include v.focusOutline();
+        }
     }
 }
 
@@ -457,8 +467,9 @@ textarea{
     &:focus,
     &:focus-visible
     &:focus-within{
-        outline: dotted v.px-to-rem(2) rgba(v.$c_accent-50, 0.9);
-        outline-offset: v.px-to-rem(2);
+        // outline: dotted v.px-to-rem(2) rgba(v.$c_accent-50, 0.9);
+        // outline-offset: v.px-to-rem(2);
+        @include v.focusOutline();
         color: v.$c_txt_alt;
         background: v.$c_accent-400;
         background: v.$g_button_focus;
@@ -589,7 +600,7 @@ textarea{
     border: 1px solid transparent;
 
     height: 30px;
-    width: 30px;
+    width: 36px;
 
     &.comment{
         margin: 0;
@@ -618,6 +629,11 @@ textarea{
         &.openCreateSpecialInstruction{
             animation-name: expand_add_wide;
         }
+    }
+
+    &:focus,
+    &:focus-visible{
+        @include v.focusOutline();
     }
 }
 
@@ -660,6 +676,9 @@ textarea{
     border: 0;
     border-bottom: 2px solid transparent;
 
+    // This makes the focus outline look nicer
+    border-radius: v.px-to-rem(2);
+
     height: 26px;
     width: 26px;
 
@@ -680,6 +699,11 @@ textarea{
 
         color: transparent;
         text-align: center;
+    }
+
+    &:focus,
+    &:focus-visible{
+        @include v.focusOutline();
     }
 
     &:hover:enabled{
@@ -752,6 +776,11 @@ textarea{
             background: rgba(v.$c_tone-1000, 80%);
             border: 1px solid v.$c_tone-1000;
         }
+    }
+
+    &:focus,
+    &:focus-visible{
+        @include v.focusOutline();
     }
 }
 
@@ -1691,6 +1720,11 @@ fieldset.form-row{
             border-color: v.$c_accent-300;
             background: rgba(white, 0.1);
         }
+
+        &:focus,
+        &:focus-visible{
+            @include v.focusOutline();
+        }
     }
 
     &_separator{
@@ -1867,6 +1901,11 @@ fieldset.form-row{
                     animation-duration: 0.2s;
                     animation-fill-mode: forwards;
                     animation-name: expand_comment_controls;
+                }
+
+                &:focus,
+                &:focus-visible{
+                    @include v.focusOutline();
                 }
 
             }

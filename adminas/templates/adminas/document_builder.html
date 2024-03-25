@@ -177,38 +177,38 @@
 
     {% for lineitem in workingItems %}
                     <div 
-                        class="documentPageItems_itemBuilder{% if lineitem.qty_included == 0 %} documentPageItems_itemBuilder-excluded{% endif %}"
+                        class="docItemEditor{% if lineitem.qty_included == 0 %} docItemEditor-excluded{% endif %}"
                         data-jiid="{{ lineitem.jiid }}" 
                         data-totalQty="{{ lineitem.total_quantity }}"
                         data-availableQty="{{ lineitem.max_available }}"
                         data-isInvalid="{{ lineitem.is_invalid|lower }}"
                     >
-                        <label class="documentPageItems_itemDisplay" for="id_qty_jobitem_{{ lineitem.jiid }}">
+                        <label class="docItemEditor_itemDisplay" for="id_qty_jobitem_{{ lineitem.jiid }}">
         {% if lineitem.is_invalid %}
                             <span class="documentPageItems_invalidIcon invalid-icon"><span>quantity is invalid</span></span>
         {% endif %}
-                            <span class="documentPageItems_itemDisplayQty">{{ lineitem.qty_included }}</span>
-                            <span class="documentPageItems_itemDisplayPartNo partNumber{% if lineitem.qty_included == 0 %} partNumber-disabled{% endif %}">{{ lineitem.part_number }}</span>
-                            <span class="documentPageItems_itemDisplayName">{{ lineitem.product_name }}</span>
+                            <span class="docItemEditor_itemDisplayQty">{{ lineitem.qty_included }}</span>
+                            <span class="docItemEditor_itemDisplayPartNo partNumber{% if lineitem.qty_included == 0 %} partNumber-disabled{% endif %}">{{ lineitem.part_number }}</span>
+                            <span class="docItemEditor_itemDisplayName">{{ lineitem.product_name }}</span>
                         </label>
 
-                        <div class="documentPageItems_itemInputsContainer">
+                        <div class="docItemEditor_itemInputsContainer">
                             <button 
                                 type="button" 
-                                class="documentPageItems_maxBtn buttonSecondary {% if lineitem.is_invalid %} documentPageItems_maxBtn-invalid{% endif %}"
+                                class="docItemEditor_maxBtn buttonSecondary {% if lineitem.is_invalid %} docItemEditor_maxBtn-invalid{% endif %}"
                                 {% if lineitem.qty_included == lineitem.max_available %}disabled{% endif %}
                             >
                                 max
                             </button>
                             <input 
-                                class="documentPageItems_qtyInput"
+                                class="docItemEditor_qtyInput"
                                 id="id_qty_jobitem_{{ lineitem.jiid }}"
                                 type="number" min="0" max="{{ lineitem.max_available }}" 
                                 value="{{ lineitem.qty_included }}" 
                             />
                             <button 
                                 type="button"
-                                class="documentPageItems_minBtn buttonSecondary {% if lineitem.is_invalid %} documentPageItems_minBtn-invalid{% endif %}"
+                                class="docItemEditor_minBtn buttonSecondary {% if lineitem.is_invalid %} docItemEditor_minBtn-invalid{% endif %}"
                                 {% if lineitem.qty_included == 0  %}disabled{% endif %}
                             >
                                 min

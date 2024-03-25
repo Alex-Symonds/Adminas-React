@@ -860,6 +860,11 @@ $breakpoint_jobDetailsPO_asRowWithSidebar: $breakpoint_jobDetailsPO_asRowNoSideb
             animation-fill-mode: forwards;
             animation-name: expand_open_filter_button;
         }   
+
+        &:focus,
+        &:focus-visible{
+            @include v.focusOutline();
+        }
     }
 
     &_filterButtonText{

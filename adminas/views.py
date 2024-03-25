@@ -223,8 +223,10 @@ def document_editor_page(request):
 
         line_items = settings['job_obj'].main_item_list()
         working_items = []
-        for line_item in line_items:
-            working_items.append(line_item.get_document_dict(settings['doc_code']))
+
+        if line_items:
+            for line_item in line_items:
+                working_items.append(line_item.get_document_dict(settings['doc_code']))
 
 
     return render(request, 'adminas/document_builder.html', {

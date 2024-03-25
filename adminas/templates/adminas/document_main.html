@@ -161,14 +161,16 @@
                         </h4>
                         <ul class="documentPageItems_itemsUl">
 {% for inc in included_items %}
-                            <li class="documentPageItems_itemReader">
-                                <span class="documentPageItems_itemDisplay">
-                                    {% if inc.is_invalid %}<span class="invalid-icon documentPageItems_invalidIcon"><span>quantity is invalid</span></span>{% endif %}
-                                    <span class="documentPageItems_itemDisplayQty">{{ inc.qty_included }}</span>
-                                    <span class="documentPageItems_itemDisplayPartNo partNumber{% if inc.qty_included == 0 %} partNumber-disabled{% endif %}">{{ inc.part_number }}</span>
-                                    <span class="documentPageItems_itemDisplayName">{{ inc.product_name }}</span>
+                            <li class="docItemReadOnly">
+                                <span class="docItemReadOnly_itemDisplay">
+                                    <div class="docItemReadOnly_qtyAndInvalidWrapper">
+                                        {% if inc.is_invalid %}<span class="invalid-icon documentPageItems_invalidIcon"><span>quantity is invalid</span></span>{% endif %}
+                                        <span class="docItemReadOnly_itemDisplayQty">{{ inc.qty_included }}</span>
+                                    </div>
+                                    <span class="docItemReadOnly_itemDisplayPartNo partNumber{% if inc.qty_included == 0 %} partNumber-disabled{% endif %}">{{ inc.part_number }}</span>
+                                    <span class="docItemReadOnly_itemDisplayName">{{ inc.product_name }}</span>
                                 </span>
-                                <div class="documentPageItems_itemID"><span class="name-tag id">{{ inc.jiid }}</span></div>
+                                <div class="docItemReadOnly_itemID"><span class="name-tag id">{{ inc.jiid }}</span></div>
                             </li>
 {% empty %}
                             <li class="documentPageItems_empty none">None</li>
@@ -184,21 +186,24 @@
                         <ul class="documentPageItems_itemsUl">
         {% for excl in excluded_items %}
                             <li 
-                                class="documentPageItems_itemReader documentPageItems_itemReader-excluded"
+                                class="docItemReadOnly docItemReadOnly-excluded"
                             >  
             {% if excl.other_assignments %}
-                                <details class="documentPageItems_itemWithOtherAssignments">
-                                    <summary class="documentPageItems_itemAboveAssignments">
+                                <details>
+                                    <summary class="docItemReadOnly_itemAboveAssignments">
                                         <div class="summaryContentNextToArrow">
             {% endif %}
-                                            <span class="documentPageItems_itemDisplay">
+                                            <span class="docItemReadOnly_itemDisplay">
+                                                <div class="docItemReadOnly_qtyAndInvalidWrapper">
             {% if excl.is_invalid %}
-                                                <span class="documentPageItems_invalidIcon invalid-icon"><span>quantity is invalid</span></span>
+                                                    <span class="documentPageItems_invalidIcon invalid-icon"><span>quantity is invalid</span></span>
             {% else %}
-                                                <span class="documentPageItems_itemDisplayQty">{{ excl.excluded_qty }}</span>
+                                                 <span class="docItemReadOnly_itemDisplayQty">{{ excl.excluded_qty }}</span>
+                                                
             {% endif %}
-                                                <span class="documentPageItems_itemDisplayPartNo partNumber partNumber-disabled">{{ excl.part_number }}</span>
-                                                <span class="documentPageItems_itemDisplayName">{{ excl.product_name }}</span>
+                                                </div>
+                                                <span class="docItemReadOnly_itemDisplayPartNo partNumber partNumber-disabled">{{ excl.part_number }}</span>
+                                                <span class="docItemReadOnly_itemDisplayName">{{ excl.product_name }}</span>
                                             </span>
 
             {% if excl.other_assignments %}
@@ -208,21 +213,21 @@
 
             {% for assignment in excl.other_assignments %}
                 {% if forloop.first %}
-                                    <ul class="documentPageItems_otherAssignments">
+                                    <ul class="docItemReadOnly_otherAssignments">
                     {% if excl.is_invalid %}
                                         <li>
-                                            <span class="documentPageItems_qtyUsedElsewhere">{{ excl.total_quantity }} on order, {{ excl.quantity_assigned }} on {{ doc_type }}s, {{ excl.invalid_overflow }} surplus</span>
+                                            <span class="docItemReadOnly_qtyUsedElsewhere">{{ excl.total_quantity }} on order, {{ excl.quantity_assigned }} on {{ doc_type }}s, {{ excl.invalid_overflow }} surplus</span>
                                         </li>
                     {% elif excl.quantity_unassigned > 0 %}
                                         <li>
-                                            <span class="documentPageItems_qtyUsedElsewhere">{{ excl.quantity_unassigned }} &raquo;</span>
+                                            <span class="docItemReadOnly_qtyUsedElsewhere">{{ excl.quantity_unassigned }} &raquo;</span>
                                             <span>unassigned</span>
                                         </li>
                     {% endif %}
                 {% endif %}
                                         <li>
-                                            <span class="documentPageItems_qtyUsedElsewhere">{{ assignment.quantity }} &raquo;</span>
-                                            <a class="documentPageItems_linkToOtherDoc" href="{% url 'doc_main' assignment.doc_id %}">   
+                                            <span class="docItemReadOnly_qtyUsedElsewhere">{{ assignment.quantity }} &raquo;</span>
+                                            <a class="docItemReadOnly_linkToOtherDoc" href="{% url 'doc_main' assignment.doc_id %}">   
                 {% if assignment.name %}
                                             {{ assignment.name }}
                 {% else %}
@@ -237,7 +242,7 @@
             {% if excl.other_assignments %}
                                 </details>
             {% endif %}
-                                <div class="documentPageItems_itemID{% if excl.other_assignments %} documentPageItems_itemID-withDetails{% endif %}">
+                                <div class="docItemReadOnly_itemID{% if excl.other_assignments %} documentPageItems_itemID-withDetails{% endif %}">
                                     <span class="name-tag id">{{ excl.jiid }}</span>
                                 </div>
                             </li>
