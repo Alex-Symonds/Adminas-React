@@ -2324,7 +2324,7 @@ table.price-comparison{
     &_subsection{
         display: grid;
         grid-template-columns: 130px auto;
-        grid-template-rows: auto auto auto;
+        grid-template-rows: auto auto 1fr;
         grid-template-areas: 
             "heading heading"
             "addBtn unassigned"
@@ -2429,6 +2429,7 @@ table.price-comparison{
     grid-area: docsTable;
     margin: v.px-to-rem(18) v.px-to-rem(5) v.px-to-rem(2);
     border-collapse: collapse;
+    align-self: start;
 
     th{
         padding: 0.1rem 0.5rem;
@@ -2573,7 +2574,7 @@ Seems more efficient to deviate from mobile-first in this case.
             ;
             column-gap: v.px-to-rem(8);
     
-            min-width: 268px;
+            //min-width: 268px;
             max-width: 100%;
     
             margin: 0.5rem 0 0 0;
