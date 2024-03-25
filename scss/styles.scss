@@ -1599,7 +1599,6 @@ fieldset.form-row{
 }
 
 
-
 .error-message{
     clear: both;
     float: right;
@@ -1671,6 +1670,12 @@ fieldset.form-row{
         font-style: italic;
     }
 
+}
+
+
+.loading{
+    @include v.notification(v.$c_accent-700);
+    margin: 1rem 0;
 }
 
 
