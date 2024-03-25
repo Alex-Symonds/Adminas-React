@@ -17,16 +17,6 @@ $breakpoint_set_min_modal_size: 650px;
     --cellPaddingY: #{v.px-to-rem(12)};
     --cellPaddingX: #{v.px-to-rem(12)};
 
-    --colW-remove: #{v.px-to-rem(42)};
-    --colW-jobID: #{v.px-to-rem(150)};
-    --numStatuses: 5;
-    --statusIconW: #{v.px-to-rem(22)};
-    --statusIconGap: #{v.px-to-rem(3)};
-    --colW-status: calc(var(--statusIconW) * var(--numStatuses) + var(--statusIconGap) * (var(--numStatuses) - 1) + var(--cellPaddingX) * 2);
-    --colW-summary: calc((100% - var(--colW-jobID) - var(--colW-status)) / 5 * 2);
-    --colW-pinned: calc(100% - var(--colW-jobID) - var(--colW-status) - var(--colW-summary));
-
-    --gridCols: var(--colW-jobID) var(--colW-summary) var(--colW-status) var(--colW-pinned);
     --cellPadding: var(--cellPaddingY) var(--cellPaddingX);
     --rowHeight: #{v.px-to-rem(40)};
 
@@ -135,7 +125,7 @@ $breakpoint_set_min_modal_size: 650px;
         padding: var(--cellPadding);
         display: flex;
         align-items: start;
-        gap: var(--statusIconGap);
+        gap: v.px-to-rem(3);
         background: v.$c_tone-800;
         background: linear-gradient(180deg, v.$c_tone-800 0%, v.$c_tone-900 100%);
 
@@ -349,13 +339,46 @@ $breakpoint_set_min_modal_size: 650px;
     }
 }
 
-@media screen and (min-width: $breakpoint_stacked_to_row){
-    .todoList{
-        display: table;
-        max-width: 100%;
 
+@media screen and (min-width: $breakpoint_stacked_to_row){
+    .emptyTH{
+        position: absolute;
+    }
+    .todoList{
+        --colW-remove: #{v.px-to-rem(42)};
+        --colW-jobID: #{v.px-to-rem(160)};
+
+        /*
+        Note to explain some faffiness in here
+
+        Goal:
+            Each job row has a pretty shadow around it.
+            The remove button on each row should appear outside of the "row" and its shadow.
+            
+        Currently achieved by:
+            * Shadow on the tr
+            * Set the remove <td> to position absolute, taking it out of the <tr>s flow 
+              and, by extension, its shadow
+            * Add a margin to each row that leaves space for the remove <td> on the left
+            * Absolutely position remove <td> in the allotted space
+            * Set the <th> for the removal row to position absolute as well, taking it 
+              out of the grid flow, so the other headings will line up nicely
+        */
+
+        display: grid;
+        grid-template-columns: var(--colW-jobID) 0.4fr auto 0.6fr;
+        gap: 0;
+
+        max-width: calc(100vw - var(--mainContentSideMargins));
+
+        tbody,
         &_head{
-            display: table-header-group;
+            grid-column-start: 1;
+            grid-column-end: 6;
+
+            display: grid;
+            grid-template-columns: subgrid;
+            gap: 0.75rem 0;
         }
 
         &_th{
@@ -375,13 +398,17 @@ $breakpoint_set_min_modal_size: 650px;
                 width as the remove column would be, then positioning the remove button back where it was in the 
                 first place.
             */
+            grid-column-start: 1;
+            grid-column-end: 6;
+
             display: grid;
-            grid-template-columns: 0px var(--gridCols);
+            grid-template-columns: subgrid;
             grid-template-rows: repeat(auto-fill, var(--rowHeight));
             justify-items: start;
             align-items: end; 
             margin: 0 0 0 var(--colW-remove);
         }
+
 
         &_container{
             gap: v.px-to-rem(8);
@@ -392,8 +419,11 @@ $breakpoint_set_min_modal_size: 650px;
     .todoJob{
         --spaceForRemove: var(--colW-remove);
 
+        grid-column-start: 1;
+        grid-column-end: 6;
+
         display: grid;
-        grid-template-columns: var(--gridCols);
+        grid-template-columns: subgrid;
         align-items: stretch;
         justify-content: stretch;
     
