@@ -2343,7 +2343,7 @@ table.price-comparison{
     &_emptySection{
         grid-area: docsTable;
         width: var(--widthJobDocsTable);
-        max-width: 100%;
+        max-width: calc(100vw - var(--mainContentSideMargins));
 
         margin: v.px-to-rem(8);
         align-self: start; 
