@@ -136,7 +136,7 @@ function JobSummaryItems(){
                     :
                     topN.map((item) => {
                         return  <li key={`${ item.ji_id }`} className={"jobSummaryItems_item"}>
-                                    {`${ item.quantity } x [${ item.part_number }] ${ item.product_name }`}
+                                    { item.quantity }<span className="partNumber jobSummaryItems_partNumber">{ item.part_number }</span>{ item.product_name }
                                     <span className={"jobSummaryItems_price"}>
                                         {` @ ${ currency } ${ format_money( parseFloat(item.selling_price) ) }`}
                                     </span>

@@ -185,7 +185,7 @@ function JobItemRowUI({ data, detailsKit, toggle_details }){
             </td>
             <td className="part_no">
                 <div className={CSS_HIGHLIGHTED_TD}>
-                    { data.part_number }
+                    <span className="partNumber">{ data.part_number }</span>
                 </div>
             </td>
             <td className="product_name">

@@ -19,30 +19,57 @@ export function PriceComparisonTable(props){
 }
 
 function PriceComparisonTableUI(props){
+    // id="po-discrepancy"
     return (
-        <table id="po-discrepancy" className="price-comparison">
-            <tbody>
-                <tr>
-                    <th>{props.first_title}</th>
-                    <td>{props.currency}</td>
-                    <td className="po-total-price-f number">{format_money(props.first_value)}</td>
-                    <td></td>
-                </tr>
-                <tr>
-                    <th>{props.second_title}</th>
-                    <td>{props.currency }</td>
-                    <td className="selling-price number">{format_money(props.second_value)}</td>
-                    <td></td>
-                </tr>
-                <tr className="conclusion">
-                    <th>Difference</th>
-                    <td>{props.currency}</td>
-                    <td className="diff-val number">{format_money(props.difference)}</td>
-                    <td><span className="diff-perc">{format_percentage(props.difference_as_perc)}</span></td>
-                </tr>
-            </tbody>
-        </table>
+        <section className="priceComparison">
+            <dl>
+                <div className="priceComparison_step">
+                    <dt>{props.first_title}</dt>
+                    <dd>
+                        <span className="currency">{props.currency}</span>
+                        <span className="po-total-price-f number">{format_money(props.first_value)}</span>
+                    </dd>
+                </div>
+                <div className="priceComparison_step">
+                    <dt>{props.second_title}</dt>
+                    <dd>
+                        <span className="currency">{props.currency }</span>
+                        <span className="selling-price number">{format_money(props.second_value)}</span>
+                    </dd>
+                </div>
+                <div className="priceComparison_conclusion">
+                    <dt>Difference</dt>
+                    <dd>
+                        <span className="currency">{props.currency}</span>
+                        <span className="diff-val number">{format_money(props.difference)}</span>
+                        <span className="diff-perc">{format_percentage(props.difference_as_perc)}</span>
+                    </dd>
+                </div>
+            </dl>
+        </section>
     )
 }
 
 
+{/* <table className="priceComparison">
+<tbody className="priceComparison_body">
+    <tr className="priceComparison_step">
+        <th>{props.first_title}</th>
+        <td className="currency">{props.currency}</td>
+        <td className="po-total-price-f number">{format_money(props.first_value)}</td>
+        <td></td>
+    </tr>
+    <tr className="priceComparison_step">
+        <th>{props.second_title}</th>
+        <td className="currency">{props.currency }</td>
+        <td className="selling-price number">{format_money(props.second_value)}</td>
+        <td></td>
+    </tr>
+    <tr className="conclusion">
+        <th>Difference</th>
+        <td className="currency">{props.currency}</td>
+        <td className="diff-val number">{format_money(props.difference)}</td>
+        <td><span className="diff-perc">{format_percentage(props.difference_as_perc)}</span></td>
+    </tr>
+</tbody>
+</table> */}

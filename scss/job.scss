@@ -451,6 +451,15 @@ $breakpoint_jobDetailsPO_asRowWithSidebar: $breakpoint_jobDetailsPO_asRowNoSideb
     &_item{
         padding: v.px-to-rem(6) v.px-to-rem(6);
         border-bottom: 1px solid v.$c_tone-600;
+
+        display: flex;
+        align-items: start;
+        flex-wrap: wrap;
+        gap: v.px-to-rem(6);
+    }
+
+    &_partNumber{
+        width: fit-content;
     }
 
     &_price{
@@ -847,6 +856,8 @@ $breakpoint_jobDetailsPO_asRowWithSidebar: $breakpoint_jobDetailsPO_asRowNoSideb
         background-position: right 5px top 2px;
         background-size: 24px 24px;
         text-indent: -9999px;
+
+        cursor: pointer;
     
         &:hover{
             border: 1px solid v.$c_tone-300;
@@ -907,6 +918,8 @@ $breakpoint_jobDetailsPO_asRowWithSidebar: $breakpoint_jobDetailsPO_asRowNoSideb
         border-color: v.$c_tone-700;
         margin: 0;
         font-size: v.px-to-rem(14);
+
+        cursor: pointer;
     }
 
     &_container{
@@ -1681,6 +1694,7 @@ $breakpoint_jobDetailsPO_asRowWithSidebar: $breakpoint_jobDetailsPO_asRowNoSideb
     .details-active {
         background: v.$c_tone-200;
 
+        .partNumber,
         td{
             color: black;
         }
@@ -1912,8 +1926,18 @@ $breakpoint_jobDetailsPO_asRowWithSidebar: $breakpoint_jobDetailsPO_asRowNoSideb
 
 
 .jobPriceCheckDetails {
+    position: relative;
     width: fit-content;
     max-width: 100%;
+
+    &_contentWrapper{
+        max-width: calc(100vw - var(--mainContentSideMargins) * 2);
+        overflow-x: auto;
+        
+        @media screen and (min-width: v.$breakpoint_permaShowJobNav){
+            max-width: calc(100vw - var(--mainContentSideMargins) * 3 - var(--jobSidebarW) - var(--jobSidebarGap));
+        }
+    }
 }
 
 .jobPriceCheckComparison{
@@ -1922,12 +1946,22 @@ $breakpoint_jobDetailsPO_asRowWithSidebar: $breakpoint_jobDetailsPO_asRowNoSideb
     max-width: 100%;
 }
 
-.selling-price-container{
-    position: relative;
-}
-
 .details-toggle{
-    border-bottom: 1px dotted white;
+    width: fit-content;
+    position: relative;
+    &:after{
+        display: block;
+        content: '';
+
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: -4px;
+        z-index: 3;
+
+        height: 2px;
+        border-bottom: 1px dotted white;
+    }
 }
 
 .status-indicator{
@@ -1966,6 +2000,8 @@ $breakpoint_jobDetailsPO_asRowWithSidebar: $breakpoint_jobDetailsPO_asRowNoSideb
         border: 1px solid v.$c_tone-500;
         border-left: 3px solid v.$c_tone-300;
 
+        cursor: pointer;
+
         &.todo-list-toggle{
             background: v.$c_tone-950;
             &:hover{
@@ -1979,6 +2015,10 @@ $breakpoint_jobDetailsPO_asRowWithSidebar: $breakpoint_jobDetailsPO_asRowNoSideb
             &:hover{
                 background: v.$c_tone-500;
             }
+        }
+
+        &:focus, &:focus-visible, &:focus-within{
+            @include v.focusOutline();
         }
 
     }
@@ -2001,52 +2041,185 @@ $breakpoint_jobDetailsPO_asRowWithSidebar: $breakpoint_jobDetailsPO_asRowNoSideb
 }
 
 
-.priceCheckEditor{
-    position: absolute;
-    z-index: 2;
-    left: -10px;
+@mixin pricePresetButton{
+    --borderRadius: #{v.px-to-rem(4)};
 
-    background: v.$c_tone-800;
-    min-width: 280px;
+    // For covering and highlighting borders
+    position: relative;
+    top: -1px;
+
+    width: calc(50% + 1px);
+    padding: v.px-to-rem(4) v.px-to-rem(6);
+    
+    font-size: v.px-to-rem(14);
+    font-weight: 500;
+    color: v.$c_tone-50;
+
+    background: rgba(black, 0.2);
+
+    border-style: solid;
+    border-width: 1px;
+    border-color: v.$c_accent-700;
+    border-radius: 0;
+
+    cursor: pointer;
+
+    color: v.$c_tone-50;
+    border-color: v.$c_accent-600;
+    background: v.$c_tone-950;
+
+    &:enabled:hover{
+        color: v.$c_tone-50;
+        border-color: v.$c_accent-700;
+        background: rgba(black, 0.2);
+        z-index: 2;
+    }
+
+    &:focus{
+        @include v.focusOutline();
+        z-index: 2;
+    }
+}
+
+
+.priceCheckEditor{
+    --outerXPadding: 0.75rem;
+    --editorWidth: 18rem;
+
+    position: absolute;
+    z-index: 4; // To get above the dotted lines
+    left: -2px;
+
+    background: v.$c_tone-900;
+
+    width: var(--editorWidth);
+    max-width: calc(100vw - var(--mainContentSideMargins) * 3);
 
     text-align: left;
 
-    &_description{
-        margin: 0.5rem;
+    @media screen and (min-width: 500px){
+        min-width: 300px;
     }
 
-    &_optionsContainer{
-        border-top: 1px solid v.$c_tone-950;
+    &_descriptionContainer{
+        font-weight: 500;
+        border-bottom: 1px solid v.$c_tone-600;
     }
 
-    &_optionsHeading{
-        font-size: 0.95rem;
-        font-weight: normal;
-        width: 100%;
-        margin: 0.5rem 0 0 0.5rem;
-        padding-bottom: 0.2rem;
-    }
+    &_descriptionSummary{
+        padding: var(--outerXPadding);
 
-    &_presetPriceButton{
-        margin: 0.2rem 5% 0.2rem;
-        padding: 0.4rem 0.3rem;
-        width: 40%;
-
-        background: v.$c_tone-1000;
-
-        &:hover{
-            background: v.$c_tone-950;
-            color: v.$c_accent-300;
+        &:focus,
+        &:focus-visible{
+            @include v.focusOutline();
+            position: relative;
+            z-index: 2;
         }
     }
 
-    &_customPrice{
-        margin: 1rem 0 1rem 0.5rem;
+    &_nextToDetailsArrow{
+        --descArrowOffset: #{v.px-to-rem(32)};
+        max-width: calc(100% - var(--descArrowOffset));
+    }
+
+    &_description{
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.25rem 0.5rem;
+    }
+
+    &_descQty{
+        white-space: nowrap;
+        max-width: 100%;
+        overflow-x: auto;
+    }
+
+    &_partNumber{
+        border-color: v.$c_tone-500;
+    }
+
+    &_pricesContainer{
+        padding: v.px-to-rem(8) var(--outerXPadding) 0.5rem;
+
+        display: flex;
+        flex-direction: column;
+        align-items: start;
+        justify-content: center;
+
+        background: rgba(black, 0.2);
+    }
+
+    &_currencyForPrices{
+        width: 100%;
+        text-align: right;
+        font-size: v.px-to-rem(14);
+        color: v.$c_tone-200;
+        border-bottom: 1px solid v.$c_tone-600;
+    }
+
+    &_onePriceData{
+        font-size: v.px-to-rem(14);
+        width: 100%;
+
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    &_form{
+        padding: 0.75rem var(--outerXPadding) 0.75rem;
+
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: stretch;
+        gap: 1.75rem; // gap between content and submit button
+    }
+
+    &_manualInputWrapper{
+        padding: 0;
+    }
+
+    &_input{
+        font-weight: 400;
+        width: 100%;
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
+
+        &:focus, &:focus-visible{
+            position: relative;
+            z-index: 2;
+        }
+    }
+
+    &_presetButtonsContainer{
+        display: flex;
+        justify-content: space-between;
+        align-items: stretch;
+
+        padding: 0;
+    }
+
+    &_presetListButton{
+        @include pricePresetButton();
+        border-bottom-left-radius: var(--borderRadius);
+    }
+
+    &_presetResaleButton{
+        @include pricePresetButton();
+        margin-left: -1px;
+        border-bottom-right-radius: var(--borderRadius);
+    }
+
+    &_submit{
+        width: 45%;
     }
 }
 
 
 #price_check_table{
+
     .name-tag{
         margin: 0;
     }
@@ -2054,6 +2227,7 @@ $breakpoint_jobDetailsPO_asRowWithSidebar: $breakpoint_jobDetailsPO_asRowNoSideb
     .ji_id{
         text-align: left;
     }
+
     .resale-percentage .name-tag::before{
         content: 'RD';
         padding-right: 0.3rem;
@@ -2062,6 +2236,22 @@ $breakpoint_jobDetailsPO_asRowWithSidebar: $breakpoint_jobDetailsPO_asRowNoSideb
         display: inline-block;
         margin-top: 0.25rem;
     }
+
+    .qty{
+        max-width: 6rem;
+        overflow-x: auto;
+    }
+
+    .selling-price,
+    .list-price,
+    .list-diff-val,
+    .resale-price,
+    .resale-diff-val
+    {
+        max-width: 7rem;
+        overflow-x: auto;
+    }
+
     td{
         text-align: right;
     }
@@ -2096,17 +2286,20 @@ $breakpoint_jobDetailsPO_asRowWithSidebar: $breakpoint_jobDetailsPO_asRowNoSideb
         min-width: 12rem;
     }
 }
+
+// Turn the table into cards
 @media screen and (max-width: 1098px){
 
     .jobPriceCheckDetails{
         width: v.px-to-rem(464);
+        max-width: calc(100vw - var(--mainContentSideMargins) * 2);
     }
 
     #price_check_table{
         // Make it stop behaving like a table
         width: 100%;
-        margin: 0.3rem 0;
-
+        margin: v.px-to-rem(5) 0;
+        
         thead tr { 
             position: absolute;
             top: -9999px;
@@ -2122,30 +2315,35 @@ $breakpoint_jobDetailsPO_asRowWithSidebar: $breakpoint_jobDetailsPO_asRowNoSideb
             vertical-align: middle;
         }
 
-        .selling-price{
-            margin: 0;
-        }
-
         tbody tr{
             display: grid;
-            grid-template-columns: repeat(4, auto) 1fr auto;
+            grid-template-columns: auto auto auto 1fr;
             grid-template-rows: repeat(7, auto);
             grid-template-areas: 
-                "ji_id qty part_no part_no part_no part_no"
-                "price price price price price price"
-                "version      version       version     list-price  list-price  list-price"
-                "list-dv      list-dv       list-dv     list-dv     list-dv     list-dp"
-                "resale-perc  resale-perc   resale-perc resale-price resale-price resale-price"
-                "resale-dv    resale-dv     resale-dv   resale-dv  resale-dv    resale-dp"
+                "ji_id part_no part_no qty"
+                "price price price price"
+                "version version list-price list-price"
+                "list-dp list-dp list-dv list-dv"
+                "resale-perc resale-perc resale-price resale-price"
+                "resale-dp resale-dp resale-dv resale-dv"
             ;
 
             width: 100%;
 
-            margin: 0.5rem 0 0 0.1rem;
-            padding: 0.3rem 0.2rem;
+            margin: 0.5rem 0 0 v.px-to-rem(2);
+            padding: v.px-to-rem(5) v.px-to-rem(6);
 
             border: 1px solid v.$c_tone-1000;
             box-shadow: 0 0 10px 1px rgba(black, 35%);
+        }
+
+        .selling-price,
+        .list-price,
+        .list-diff-val,
+        .resale-price,
+        .resale-diff-val
+        {
+            max-width: 100%;
         }
 
         .ji_id{
@@ -2156,19 +2354,24 @@ $breakpoint_jobDetailsPO_asRowWithSidebar: $breakpoint_jobDetailsPO_asRowNoSideb
             grid-area: qty;
             
             // In the absence of a heading, append " x " to hint at the quantity-ness
+            max-width: 100%;
+            
             padding-left: 0.5rem;
-            &::after{
+            &::before{
                 content: "x";
-                padding: 0 0.4rem;
+                padding: 0 0.25rem 0 0;
             }
         }
         .description{
             grid-area: part_no;
+            padding: 0 0 0 0.5rem;
 
             .details{
                 padding: 0.2rem 0.4rem;
                 bottom: 1rem;
                 max-width: 90%;
+                font-weight: 400;
+                font-style: normal;
             }
         }
 
@@ -2188,6 +2391,11 @@ $breakpoint_jobDetailsPO_asRowWithSidebar: $breakpoint_jobDetailsPO_asRowNoSideb
 
             border-bottom: 1px solid v.$c_tone-500;
         }
+        .selling-price{
+            position: relative;
+            margin: 0;
+            top: v.px-to-rem(5);
+        }
 
         .version{
             grid-area: version;
@@ -2197,6 +2405,7 @@ $breakpoint_jobDetailsPO_asRowWithSidebar: $breakpoint_jobDetailsPO_asRowNoSideb
             grid-area: list-price;
             padding: 0.4rem 0 0 0.7rem;
             color: v.$c_tone-300;
+            text-align: right;
         }
         .list-diff-val{
             grid-area: list-dv;
@@ -2206,13 +2415,15 @@ $breakpoint_jobDetailsPO_asRowWithSidebar: $breakpoint_jobDetailsPO_asRowNoSideb
         }
         .list-diff-perc{
             grid-area: list-dp;
-            padding: 0 0 0.4rem 0.5rem;
+            // padding: 0 0 0.4rem 0.5rem;
+            padding: v.px-to-rem(2) 0 0 0;
             border-bottom: 1px solid v.$c_tone-500;
+            font-size: v.px-to-rem(14);
 
             &::before{
                 content: '(';
                 display: inline-block;
-                padding-left: 0.5rem;
+                // padding-left: 0.5rem;
             }
             &::after{
                 content: ')';
@@ -2228,6 +2439,7 @@ $breakpoint_jobDetailsPO_asRowWithSidebar: $breakpoint_jobDetailsPO_asRowNoSideb
             grid-area: resale-price;
             padding: 0.3rem 0 0 0.7rem;
             color: v.$c_tone-200;
+            text-align: right;
         }
         .resale-diff-val{
             grid-area: resale-dv;
@@ -2235,11 +2447,13 @@ $breakpoint_jobDetailsPO_asRowWithSidebar: $breakpoint_jobDetailsPO_asRowNoSideb
         }
         .resale-diff-perc{
             grid-area: resale-dp;
+            font-size: v.px-to-rem(14);
+            padding: v.px-to-rem(2) 0 0 0;
 
             &::before{
                 content: '(';
                 display: inline-block;
-                padding-left: 0.5rem;
+                // padding-left: 0.5rem;
             }
             &::after{
                 content: ')';
@@ -2251,20 +2465,77 @@ $breakpoint_jobDetailsPO_asRowWithSidebar: $breakpoint_jobDetailsPO_asRowNoSideb
 
 
 // || Price Comparison Table
-table.price-comparison{
-    margin: 0.5rem;
-    border-spacing: 0;
+@mixin priceComparisonRow{
+    grid-column-start: 1;
+    grid-column-end: 5;
 
-    th{
+    display: grid;
+    grid-template-columns: subgrid;
+    grid-template-areas: "heading value value value";
+
+    dt{
+        grid-area: heading;
+    }
+
+    dd{
+        grid-area: value;
+        justify-self: stretch;
+
+        display: grid;
+        grid-template-columns: subgrid;
+        gap: 0 0.75rem;
+    }
+
+    @media screen and (max-width: 400px){
+        grid-template-rows: auto auto auto;
+        grid-template-areas: 
+            "heading heading" 
+            "value value"
+            "value value"
+        ;
+
+        dd{
+            justify-self: end;
+        }
+
+        .diff-perc{
+            grid-column: 2;
+            justify-self: end;
+        }
+
+
+        .number{
+            max-width: calc(100vw - var(--mainContentSideMargins) * 3 - 3rem);
+            overflow-x: auto;
+        }
+    }
+
+}
+
+
+.priceComparison{
+    padding: 0.5rem;
+    border-spacing: 0;
+    max-width: calc(100vw - var(--mainContentSideMargins) * 2);
+
+    dl{
+        display: grid;
+        grid-template-columns: auto auto 1fr auto;
+        gap: 0;
+    }
+
+    dt{
         text-align: right;
-        padding: 0.1rem 0.3rem;
+        padding: v.px-to-rem(6) v.px-to-rem(10);
         border-right: 2px solid v.$c_tone-800;
     }
-    td{
-        padding: 0.3rem;
+
+    dd{
+        padding: v.px-to-rem(5);
     }
 
-    th, td{
+    dt, 
+    dd{
         border-top: 1px solid v.$c_tone-800;
     }
 
@@ -2282,22 +2553,84 @@ table.price-comparison{
         text-align: right;
     }
 
-    .conclusion{
+    &_step{
+        @include priceComparisonRow();
+    }
+
+    &_conclusion{
+        @include priceComparisonRow();
+        
         background: v.$c_tone-950;
 
-        th{
+        dt{
             border-right: 2px solid v.$c_tone-500; 
         }
 
-        th, td{
+        dt, 
+        dd{
             border-top: 1px solid v.$c_tone-500;
         }
     }
 }
 
+
 @media screen and (max-width: 400px){
-    table.price-comparison{
-        margin: 0.2rem;
+    .priceComparison{
+        display: block;
+        width: 100vw;
+        padding: 0;
+
+        dl{
+            grid-template-columns: 1fr auto;
+        }
+
+        &_step{
+            padding: 0.75rem 0 0 0;
+
+            dt{
+                @include v.subsectionHeading();
+
+                width: v.px-to-rem(130);
+                max-width: 90vw;
+
+                border: none;
+            }
+
+            dd{
+                border: none;
+            }
+        }
+
+        .currency{
+            text-align: right;
+        }
+
+        .number{
+            text-align: right;
+        }
+
+        &_conclusion{
+            padding: 0.75rem 0 0.75rem 0;
+            background: transparent;
+
+            dt{
+                @include v.subsectionHeading();
+                background: v.$c_accent-800;
+
+                text-align: left;
+
+                width: v.px-to-rem(130);
+                max-width: 90vw;
+
+                border: none;
+            }
+
+            dd{
+                border: none;
+                border-right: 3px solid v.$c_accent-900;
+                background: linear-gradient(to left, v.$c_tone-950 0%, transparent 100%);
+            }
+        }
     }
 }
 
