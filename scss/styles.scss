@@ -46,11 +46,10 @@ p, h1, h2, h3, h4, h5, h6 {
 
 // My resets
 a{
-    color: v.$c_accent-500;
-    &:hover{
-        color: v.$c_accent-300;
-    }
+
 }
+
+
 
 article{
     padding: 0;
@@ -446,36 +445,85 @@ textarea{
 
 
 // || Buttons
+// .button-primary{
+//     font-weight: bold;
+//     border-radius: 0.6rem;
+
+//     background: v.$c_accent-500;
+//     background: v.$g_button_main;
+//     color: v.$c_txt_alt;
+//     border: 1px solid v.$c_accent-600;
+
+//     &:hover{
+//         color: v.$c_tone-800;
+//         background: v.$c_accent-400;
+//         background: v.$g_button_hover;
+//         box-shadow: 0 0 3px 1px v.$c_tone-800;
+//     }
+//     &:active{
+//         background: red;
+//     }
+//     &:focus,
+//     &:focus-visible
+//     &:focus-within{
+//         // outline: dotted v.px-to-rem(2) rgba(v.$c_accent-50, 0.9);
+//         // outline-offset: v.px-to-rem(2);
+//         @include v.focusOutline();
+//         color: v.$c_txt_alt;
+//         background: v.$c_accent-400;
+//         background: v.$g_button_focus;
+//     }
+// }
+
+
+@mixin primaryButtonHover{
+    color: v.$c_tone-50;
+    background: v.$c_accent-600;
+    background: v.$g_button_inputAdjuster_hover;
+    border-color: v.$c_accent-600;
+}
+
 .button-primary{
-    font-weight: bold;
-    border-radius: 0.6rem;
+    font-weight: 600;
 
-    background: v.$c_accent-500;
-    background: v.$g_button_main;
-    color: v.$c_txt_alt;
-    border: 1px solid v.$c_accent-600;
+    color: v.$c_tone-50;
+    background: v.$c_accent-700;
+    background: v.$g_button_inputAdjuster_main;
 
-    &:hover{
-        color: v.$c_tone-800;
-        background: v.$c_accent-400;
-        background: v.$g_button_hover;
-        box-shadow: 0 0 3px 1px v.$c_tone-800;
+    border: 1px solid v.$c_accent-700;
+    border-radius: v.px-to-rem(4);
+
+    box-shadow: 0 0 2px 1px rgba(black, 0.1);
+
+    cursor: pointer;
+
+    &:disabled{
+        background: transparent;
     }
-    &:active{
-        background: red;
-    }
+
     &:focus,
     &:focus-visible
     &:focus-within{
-        // outline: dotted v.px-to-rem(2) rgba(v.$c_accent-50, 0.9);
-        // outline-offset: v.px-to-rem(2);
         @include v.focusOutline();
-        color: v.$c_txt_alt;
-        background: v.$c_accent-400;
-        background: v.$g_button_focus;
+        background: v.$c_accent-600;
+        background: v.$g_button_inputAdjuster_focus;
+        position: relative;
+        z-index: 2;
     }
+
+    &:enabled:hover{
+        @include primaryButtonHover();
+    }
+
 }
 
+
+@mixin secondaryButtonHover{
+    color: v.$c_accent-300;
+    border-color: v.$c_accent-300;
+    background: v.$c_tone-800;
+    box-shadow: 0 0 3px 1px v.$c_tone-800;
+}
 
 .buttonSecondary{
     font-weight: bold;
@@ -483,19 +531,37 @@ textarea{
 
     background: transparent;
     color: v.$c_accent-500;
-    border: 1px solid v.$c_accent-600;
+    border: 1px solid v.$c_accent-700;
+    border-radius: v.px-to-rem(4);
 
     &:enabled:hover{
-        color: v.$c_accent-300;
-        background: v.$c_tone-800;
-        box-shadow: 0 0 3px 1px v.$c_tone-800;
+        @include secondaryButtonHover();
     }
 
     &:disabled{
         color: v.$c_tone-500;
         border-color: v.$c_tone-500;
     }
+
+    &:focus,
+    &:focus-visible{
+        @include v.focusOutline();
+    }
 }
+
+
+// When a link uses the button formatting, ":enabled:hover" won't work because the link 
+// doesn't have a disabled property. Removing ":enabled" means the buttons start displaying
+// hover formatting when they're disabled, which is also bad. So mixins and these declarations
+// it is
+a.button-primary:hover{
+    @include primaryButtonHover();
+}
+
+a.buttonSecondary:hover{
+    @include secondaryButtonHover();
+}
+
 
 .button-warning{
     font-weight: bold;
@@ -613,6 +679,8 @@ textarea{
     background-size: 24px 24px;
     text-indent: -9999px;
 
+    cursor: pointer;
+
     &:hover{
         border: 1px solid v.$c_tone-300;
 
@@ -692,6 +760,8 @@ textarea{
     margin-right: 3px;
     max-width: 26px;
 
+    cursor: pointer;
+
     span{
         position: absolute;
         top:0;
@@ -754,6 +824,8 @@ textarea{
     background-color: transparent;
     padding: 3px 5px;
     z-index: 2;
+
+    cursor: pointer;
 
     span{
         display: block;
@@ -849,6 +921,13 @@ textarea{
 
 
 // || Return to Job Link
+.textLink{
+    color: v.$c_accent-500;
+    &:hover{
+        color: v.$c_accent-300;
+    }
+}
+
 .return-to-job{
     display: block;
     position: relative;
@@ -877,12 +956,13 @@ textarea{
 }
 
 
+
 // || Panels and Form-Likes
 .panel{
     display: inline-block;
     position: relative;
 
-    border: 1px solid v.$c_tone-500;
+    border: 1px solid v.$c_tone-600;
     border-radius: 3px; //8px;
 
     max-width: v.$MAX_WIDTH;
@@ -907,9 +987,10 @@ textarea{
         padding: 12px 8px;
 
         color: v.$c_txt_main;
-        background: v.$c_tone-500;
-        background: linear-gradient(0deg, v.$c_tone-500 0%, #686868 100%);
-        border-bottom: 1px solid v.$c_tone-500;
+
+        background: v.$c_tone-600;
+        background: linear-gradient(0deg, v.$c_tone-600 0%, #585858 100%);
+        border-bottom: 1px solid v.$c_tone-600;
 
         h3{
             margin: 0;
@@ -951,19 +1032,7 @@ textarea{
     }
 
     &_subsectionHeading{
-        --h4BorderRadius: 1rem;
-
-        padding: v.px-to-rem(5);
-        max-width: 100%;
-        font-weight: 500;
-        font-size: v.px-to-rem(16);
-        line-height: v.px-to-rem(16);
-        background: v.$c_tone-800;
-        border-top-right-radius: var(--h4BorderRadius);
-        border-bottom-right-radius: var(--h4BorderRadius);
-
-        display: flex;
-        align-items: center;
+        @include v.subsectionHeading();
     }
 }
 
@@ -1518,10 +1587,14 @@ fieldset.form-row{
     }
     button{
         margin: 0;
-        font-size: 0.9rem;
-        width: 3.5rem;
+        font-size: v.px-to-rem(14);
+        width: 4.5rem;
+        padding-right: 0.75rem;
+
         border-top-left-radius: 0;
         border-bottom-left-radius: 0;
+        border-top-right-radius: 1rem;
+        border-bottom-right-radius: 1rem;
         min-width: 0;
         line-height: 1;
     }
@@ -1678,6 +1751,15 @@ fieldset.form-row{
     margin: 1rem 0;
 }
 
+.errorWithRoute{
+    @include v.notification(v.$c_warning);
+    margin: 1rem 0;
+
+    p{
+        margin: 0.75rem 0;
+    }
+}
+
 
 // || Pagination
 .pagination{
@@ -1785,6 +1867,10 @@ fieldset.form-row{
 .banded{
     tbody tr:nth-of-type(even){
         background: v.$c_tone-800;
+
+        .partNumber{
+            border-color: v.$c_tone-500;
+        }
     }
 }
 
@@ -1895,6 +1981,8 @@ fieldset.form-row{
                 background-position: center;
                 background-size: 16px 16px;
                 text-indent: -9999px;
+
+                cursor: pointer;
 
                 &:hover{
                     background-color: v.$c_tone-400;
@@ -2532,6 +2620,7 @@ fieldset.form-row{
         background-position: center;
 
         border: none;
+        cursor: pointer;
 
         &-expand{
             background-image: url(../images/i-chevron-down.svg);

@@ -38,15 +38,11 @@
     &_submitButton{
         display: block;
         margin: 2rem auto 0;
-        font-size: 1.2rem;
-        background: v.$c_accent-500;
-        background: v.$g_button_main;
-        color: v.$c_txt_main;
+        font-size: 1.25rem;
         font-weight: bold;
         height: 2.5rem;
         width: 98%;
         max-width: 15rem;
-        border-radius: 0.4rem;
         border: 1px solid v.$c_accent-600;
     
         &:hover{
@@ -81,6 +77,11 @@
         background: v.$c_accent-400;
         background: v.$g_button_hover;
         box-shadow: 0 0 3px 1px v.$c_tone-800;
+    }
+
+    &:focus,
+    &:focus-visible{
+        @include v.focusOutline();
     }
 
     @media screen and (min-width:500px){

@@ -8,7 +8,7 @@
 
 import { useState } from 'react';
 
-import { format_money } from '../util';
+import { capitaliseFirstLetter, format_money } from '../util';
 
 import { useAsyncWithError } from '../hooks/useAsyncWithError';
 
@@ -16,20 +16,24 @@ import { CancelButton, SubmitButton } from '../reactComponents/buttons';
 
 // || Hook
 export function usePriceCheckEditor(calc, closeFn, itemsActions, ji_id){
-    const [customPrice, setCustomPrice] = useState('');
+    const [inputPrice, setInputPrice] = useState('');
 
     function handle_change(e){
-        setCustomPrice(e.target.value);
+        console.log("Changed detected. Setting price to ", e.target.value);
+        setInputPrice(e.target.value);
     }
 
-    function handle_submit(){
-        update_price(customPrice);
+    function handle_submit(e){
+        e.preventDefault();
+        update_price(inputPrice);
     }
     function handle_list_click(){
-        update_price(calc.list_price);
+        console.log("list clicked", calc.list_price.toString());
+        setInputPrice(calc.list_price.toString());
     }
     function handle_resale_click(){
-        update_price(calc.resale_price);
+        console.log("resale clicked", calc.resale_price.toString());
+        setInputPrice(calc.resale_price.toString());
     }
 
     const asyncHelper = useAsyncWithError(closeFn);
@@ -42,7 +46,7 @@ export function usePriceCheckEditor(calc, closeFn, itemsActions, ji_id){
 
     return {
         backend_error: asyncHelper.asyncError,
-        customPrice,
+        customPrice: inputPrice,
         handle_change,
         handle_list_click,
         handle_resale_click,
@@ -51,73 +55,132 @@ export function usePriceCheckEditor(calc, closeFn, itemsActions, ji_id){
 }
 
 
+
+
 // || Components
-export function JobPriceCheckPriceEditorUI({ calc, cancel, controlledPrice, data, handle_change, handle_list_click, handle_resale_click, handle_submit }){
+export function JobPriceCheckPriceEditorUI({ calc, cancel, controlledPrice, currency, data, handle_change, handle_list_click, handle_resale_click, handle_submit }){
+    console.log("JobPriceCheckPriceEditorUI data", data);
     return (
         <div className="priceCheckEditor panel popout">
             <CancelButton cancel = { cancel }/>
+
             <h5 className="panel-header">
                 Edit Price
             </h5>
-            <p className={"priceCheckEditor_description"}>
-                {data.quantity} x [{data.part_number }] {data.product_name }
-            </p>
-            <div className="priceCheckEditor_optionsContainer">
-                <h6 className={"priceCheckEditor_optionsHeading"}>
-                    Click new price
-                </h6>
-                <PresetPriceButtonUI    
-                    handle_click = { handle_list_click }
-                    price_preset = { calc.list_price }
-                    price_type = 'list'
-                />
-                <PresetPriceButtonUI    
-                    handle_click = { handle_resale_click }
-                    price_preset = { calc.resale_price }
-                    price_type = 'resale'
-                />
-            </div>
-            <ManualPriceInput
+
+            <details className={"priceCheckEditor_descriptionContainer"}>
+                <summary className="priceCheckEditor_descriptionSummary">
+                    <div className="summaryContentNextToArrow priceCheckEditor_nextToDetailsArrow">
+                        <p className={"priceCheckEditor_description"}>
+                            <span className={"priceCheckEditor_descQty"}>{data.quantity}</span><span className={"priceCheckEditor_partNumber partNumber"}>{data.part_number }</span>{data.product_name }
+                        </p>
+                    </div>
+                </summary>
+                <dl className={"priceCheckEditor_pricesContainer"}>
+                    <span className={"priceCheckEditor_currencyForPrices"}>
+                        { currency }
+                    </span>
+                    <PresetPriceInfoUI
+                        price={ data.selling_price }
+                        title={"Current"}
+                    />
+                    <PresetPriceInfoUI
+                        price={ calc.list_price }
+                        title={"List"}
+                    />
+                    <PresetPriceInfoUI
+                        price={ calc.resale_price }
+                        title={"Resale"}
+                    />
+                </dl>
+            </details>
+
+            <PriceEditorFormUI 
                 controlledPrice = { controlledPrice }
                 handle_change = { handle_change }
+                handle_list_click = { handle_list_click }
+                handle_resale_click = { handle_resale_click }
                 handle_submit = { handle_submit }
+            />
+
+        </div>
+
+    )
+}
+
+
+function PresetPriceInfoUI({price, title}){
+    return (
+        <div className={"priceCheckEditor_onePriceData"}>
+            <dt className={"priceCheckEditor_priceTitle"}>{ title }</dt>
+            <dd className={"priceCheckEditor_priceValue"}>{ format_money(parseFloat(price)) }</dd>
+        </div>
+    )
+}
+
+
+function PriceEditorFormUI({ controlledPrice, handle_change, handle_list_click, handle_resale_click, handle_submit }){
+    return (
+        <form className="priceCheckEditor_form" method="post" onkeydown="return event.key != 'Enter';">
+
+            <div class={"priceCheckEditor_formContentsInputsWrapper"}>
+                <div className={"priceCheckEditor_manualInputWrapper"} >
+                    <label 
+                        className={"priceCheckEditor_label"} 
+                        htmlFor={"id_new_price"} 
+                    >
+                        Enter new price
+                    </label>
+
+                    <input 
+                        className={"priceCheckEditor_input"} 
+                        id={"id_new_price"} 
+                        type="number" 
+                        step={0.01} 
+                        name='new_price' 
+                        value={ controlledPrice } 
+                        onChange={ handle_change } 
+                    />
+                </div>
+
+                <PricePresets 
+                    handle_list_click = { handle_list_click }
+                    handle_resale_click = { handle_resale_click }
+                />
+            </div>
+
+            <SubmitButton 
+                submit={ handle_submit } 
+                cssClasses={"priceCheckEditor_submit formControls_submit"} 
+            />
+        </form>
+    )
+}
+
+
+function PricePresets({ handle_list_click, handle_resale_click }){
+    return(
+        <div className="priceCheckEditor_presetButtonsContainer">
+            <PresetPriceButtonUI    
+                handle_click = { handle_list_click }
+                price_type = 'list'
+            />
+            <PresetPriceButtonUI    
+                handle_click = { handle_resale_click }
+                price_type = 'resale'
             />
         </div>
     )
 }
 
-function PresetPriceButtonUI({ handle_click, price_type, price_preset }){
+
+function PresetPriceButtonUI({ handle_click, price_type }){
     return  <button 
-                className="priceCheckEditor_presetPriceButton buttonSecondary" 
-                onClick={handle_click }
+                className={`priceCheckEditor_preset${capitaliseFirstLetter(price_type)}Button`}
+                onClick={ handle_click }
                 type={"button"}
             >
-                { price_type } ({ format_money(parseFloat(price_preset)) })
+                <span>set to { price_type }</span>
             </button>
 }
 
-function ManualPriceInput({ customPrice, handle_change, handle_submit }){
-    return (
-        <form className="priceCheckEditor_customPrice singleInputWithButton">
-            <label 
-                className={"singleInputWithButton_label"} 
-                htmlFor={"id_new_price"} 
-            >
-                Or enter your own and submit
-            </label>
-            <input 
-                className={"singleInputWithButton_input"} 
-                id={"id_new_price"} 
-                type="number" 
-                step={0.01} 
-                name='new_price' 
-                value={ customPrice } 
-                onChange={ handle_change } 
-            />
-            <SubmitButton 
-                submit={ handle_submit } 
-                cssClasses={"singleInputWithButton_submit formControls_submit"} 
-            />
-        </form>
-    )
-}

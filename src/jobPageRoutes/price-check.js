@@ -112,12 +112,13 @@ function JobPriceCheckDetails({ itemsActions, currency, items_list }){
     return (
         <div className="subsection jobPriceCheckDetails jobNarrowSection_content">
             <h4>Details</h4>
-            <div className="subsection_contentWrapper">
+            <div className="subsection_contentWrapper jobPriceCheckDetails_contentWrapper">
                 <table id="price_check_table" className="banded">
                     <JobPriceCheckDetailsTableHeadUI    
                         currency = { currency } 
                     />
-                    <JobPriceCheckDetailsTableBodyUI    
+                    <JobPriceCheckDetailsTableBodyUI  
+                        currency = { currency }  
                         itemsActions = { itemsActions }
                         editor = { editor }
                         items_list = { items_list }
@@ -152,11 +153,12 @@ function JobPriceCheckDetailsTableHeadUI({ currency }){
     )
 }
 
-function JobPriceCheckDetailsTableBodyUI({ itemsActions, editor, items_list }){
+function JobPriceCheckDetailsTableBodyUI({ currency, editor, itemsActions, items_list }){
     return (
         <tbody>
             { items_list.map((item) => 
                 <JobPriceCheckDetailsTableRow key = { item.ji_id.toString() }
+                    currency = { currency }
                     data = { item }
                     editor = { editor }    
                     itemsActions = { itemsActions }
@@ -167,7 +169,7 @@ function JobPriceCheckDetailsTableBodyUI({ itemsActions, editor, items_list }){
 }
 
 
-function JobPriceCheckDetailsTableRow({ data, editor, itemsActions }){
+function JobPriceCheckDetailsTableRow({ currency, data, editor, itemsActions }){
     // Work out the numbers for this row and package them up nicely
     const price_calc = () => {
         const selling_price = parseFloat(data.selling_price);
@@ -193,6 +195,7 @@ function JobPriceCheckDetailsTableRow({ data, editor, itemsActions }){
 
     return <JobPriceCheckDetailsRowUI   
                 calc = { price_calc() }
+                currency = { currency }
                 data = { data }
                 editor = { editor }
                 itemsActions={ itemsActions }
@@ -200,7 +203,7 @@ function JobPriceCheckDetailsTableRow({ data, editor, itemsActions }){
 }
 
 // One row in the price check table
-function JobPriceCheckDetailsRowUI({ calc, data, editor, itemsActions }){
+function JobPriceCheckDetailsRowUI({ calc, currency, data, editor, itemsActions }){
     return (
         <tr id={'price_check_row_' + data.ji_id }>
             <td className="ji_id">
@@ -216,6 +219,7 @@ function JobPriceCheckDetailsRowUI({ calc, data, editor, itemsActions }){
             </td>
             <JobPriceCheckDetailsSellingPrice   
                 calc = { calc }
+                currency = { currency }
                 data = { data }
                 editor = { editor }
                 itemsActions = { itemsActions }
@@ -238,7 +242,7 @@ function JobPriceCheckDetailsRowUI({ calc, data, editor, itemsActions }){
             <td className="resale-price">{ format_money(calc.resale_price) }</td>
             <td className="resale-diff-val">{ format_money(calc.difference_resale) }</td>
             <td className="resale-diff-perc">
-                { format_percentage(calc.difference_resale / calc.resale_price * 100, 2) }
+                { format_percentage(calc.difference_resale / calc.list_price * 100, 2) }
             </td>
         </tr>
     )
@@ -257,7 +261,7 @@ function JobPriceCheckDetailsDescription({ data }){
    return (
         <td className="description">
             <span 
-                className="details-toggle" 
+                className="details-toggle partNumber" 
                 onClick={ toggle_name }
             >
                 { data.part_number }
@@ -274,7 +278,7 @@ function JobPriceCheckDetailsDescription({ data }){
 
 
 // Selling price <td>, with the price editor
-function JobPriceCheckDetailsSellingPrice({ calc, data, editor, itemsActions }){
+function JobPriceCheckDetailsSellingPrice({ calc, currency, data, editor, itemsActions }){
     const {
         backend_error,
         handle_list_click,
@@ -305,7 +309,8 @@ function JobPriceCheckDetailsSellingPrice({ calc, data, editor, itemsActions }){
                 <JobPriceCheckPriceEditorUI  
                     calc = { calc }
                     cancel = { editor.close }
-                    customPrice = { customPrice }
+                    controlledPrice = { customPrice }
+                    currency = { currency }
                     data = { data }
                     handle_change = { handle_change }
                     handle_list_click = { handle_list_click }

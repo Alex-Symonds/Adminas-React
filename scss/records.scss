@@ -116,7 +116,7 @@
 
         &QuantityPartNumber{
             display: flex;
-            align-items: end;
+            align-items: center;
             gap: 0 v.px-to-rem(4);
         }
 
@@ -165,7 +165,7 @@
             &Description{
                 flex-grow: 0;
                 flex-direction: row;
-                align-items: end;
+                align-items: center;
             }
 
             &Name{

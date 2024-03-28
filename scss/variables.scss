@@ -74,9 +74,6 @@ $g_button_main: linear-gradient(45deg, $c_accent-400 0%, $c_accent-500 50%, #00c
 $g_button_hover: linear-gradient(135deg, $c_accent-300, $c_accent-400 66%, $c_accent-500 100%);
 $g_button_focus: linear-gradient(135deg, $c_accent-200, $c_accent-300 45%, $c_accent-500 100%);
 
-// $g_button_inputAdjuster_main: linear-gradient(45deg, #00bbd8 5%, $c_accent-500 25%, $c_accent-500 50%,  #47e6ff 100%);
-// $g_button_inputAdjuster_hover: linear-gradient(45deg, $c_accent-400 50%, $c_accent-300 100%);
-// $g_button_inputAdjuster_focus: linear-gradient(45deg, $c_accent-300 50%, $c_accent-200 100%);
 $g_button_inputAdjuster_main: linear-gradient(45deg, #0b6c85 5%, $c_accent-700 25%, $c_accent-700 50%, #0987a7 100%);
 $g_button_inputAdjuster_hover: linear-gradient(45deg, #0f88a3 5%, $c_accent-600 25%, $c_accent-600 50%, #03a3c7 100%);
 $g_button_inputAdjuster_focus: linear-gradient(45deg, rgb(12, 131, 158) 5%, $c_accent-600 25%, $c_accent-600 50%, #06add3 100%);
@@ -182,4 +179,21 @@ $panel_shadow_highlight: 0 0 10px 1px rgba($c_accent-500, 50%);
     outline: dotted px-to-rem(2) rgba($c_accent-50, 0.9);
     outline-offset: px-to-rem(2);
     outline-width: px-to-rem(1);
+}
+
+@mixin subsectionHeading{
+    --h4BorderRadius: 1rem;
+
+    padding: px-to-rem(5);
+    max-width: 100%;
+    font-weight: 500;
+    font-size: px-to-rem(16);
+    line-height: px-to-rem(16);
+    background: $c_tone-800;
+
+    border-top-right-radius: var(--h4BorderRadius);
+    border-bottom-right-radius: var(--h4BorderRadius);
+
+    display: flex;
+    align-items: center;
 }
