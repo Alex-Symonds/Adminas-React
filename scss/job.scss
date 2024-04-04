@@ -994,6 +994,7 @@ $breakpoint_jobDetailsPO_asRowWithSidebar: $breakpoint_jobDetailsPO_asRowNoSideb
 
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: auto;
     justify-items: stretch;
 
     border: 1px solid v.$c_tone-900;
@@ -1007,9 +1008,10 @@ $breakpoint_jobDetailsPO_asRowWithSidebar: $breakpoint_jobDetailsPO_asRowNoSideb
         justify-content: center;
         align-items: center;
 
-        font-size: v.px-to-rem(14);
-
         padding: v.px-to-rem(6) v.px-to-rem(8);
+        max-height: max-content; // Attempt to fix an issue in Safari
+
+        font-size: v.px-to-rem(14);
 
         border: var(--normalBorderWidth) solid v.$c_tone-600;
         
@@ -1810,16 +1812,8 @@ $breakpoint_jobDetailsPO_asRowWithSidebar: $breakpoint_jobDetailsPO_asRowNoSideb
         .part_no{
             grid-area: part_no;
 
-            // In the absence of a heading, add [...] and padding to separate it from the name
+            // In the absence of a heading, add padding to separate it from the name
             padding-right: 0.2rem;
-            .content-highlight-wrapper{
-                &::before{
-                    content: "[";
-                }
-                &::after{
-                    content: "]";
-                }
-            }
         }
 
         .modular{
@@ -2001,13 +1995,6 @@ $breakpoint_jobDetailsPO_asRowWithSidebar: $breakpoint_jobDetailsPO_asRowNoSideb
         border-left: 3px solid v.$c_tone-300;
 
         cursor: pointer;
-
-        &.todo-list-toggle{
-            background: v.$c_tone-950;
-            &:hover{
-                background: v.$c_tone-500;
-            }
-        }
 
         &#price_confirmation_button{
             background: transparent;

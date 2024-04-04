@@ -45,10 +45,13 @@ p, h1, h2, h3, h4, h5, h6 {
 }
 
 // My resets
-a{
-
+summary{
+    cursor: pointer;
 }
 
+button{
+    cursor: pointer;
+}
 
 
 article{
@@ -2279,6 +2282,8 @@ fieldset.form-row{
 
         font-weight: bold;
 
+        cursor: pointer;
+
         &-status_action{
             color: v.$c_tone-950;
             background: v.$c_accent-500;
@@ -2532,6 +2537,8 @@ fieldset.form-row{
     font-size: var(--fontSize);
 
     position: relative;
+
+    cursor: pointer;
 
     &-on{
         background: v.$c_accent-500;

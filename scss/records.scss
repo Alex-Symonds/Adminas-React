@@ -494,6 +494,7 @@
     &_productsButton{
         background: transparent;
         border: none;
+        cursor: pointer;
     }
 
 
@@ -516,6 +517,13 @@
         border-radius: var(--todoButtonSize);
         box-sizing: border-box;
 
+        &:disabled{
+            cursor: not-allowed;
+        }
+        &:enabled{
+            cursor: pointer;
+        }
+        
         &-on{
             background: v.$c_accent-500;
         }
@@ -534,13 +542,17 @@
     }
 }
 
-// Move the records into side-by-side cards of equal widths
-@media screen and (min-width: 550px){
+// Move the records into cards, in two columns of equal widths
+@media screen and (min-width: 500px){
     .recordsTable{
         &_body{
             display: grid;
-            grid-auto-flow: column;
-            grid-auto-columns: 1fr;
+            grid-template-columns: 47.5% 47.5%;
+            gap: 5%;
+        }  
+        
+        &_row{
+            width: 100%;
         }
     }
 }
@@ -662,8 +674,8 @@
         &_incoterm,
         &_products {
             // table is set to width 100%. Left to its own devices, it stretches all columns to fill the space.
-            // I'd rather it saved the extra space for columns with contents of variable widths, rather than
-            // "wasting" any on columns containing things like icons, 2-3 letter codes, etc.
+            // I'd rather it saved the extra space for the columns with contents of variable widths, rather than
+            // "wasting" any on columns containing fixed-width things like icons, 2-3 letter codes, etc.
             width: 1px;
         }
 
@@ -774,9 +786,11 @@
             max-width: 8rem;
         }
 
+        // There is now more space to the right, so point that way
         &_todoButtonSpan{
-            top: -24px;
-            right: -16px;
+            top: v.px-to-rem(-6);
+            right: auto;
+            left: v.px-to-rem(16);
         }
     }
 }
