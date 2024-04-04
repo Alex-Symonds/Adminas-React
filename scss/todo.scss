@@ -170,6 +170,8 @@ $breakpoint_set_min_modal_size: 650px;
         background: v.$c_tone-800;
         background: linear-gradient(45deg, v.$c_tone-800 0%, v.$c_tone-900 100%);
 
+        cursor: pointer;
+
         &-highlighted{
             border-color: yellow;
             background: v.$c_tone-700;

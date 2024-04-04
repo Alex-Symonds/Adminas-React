@@ -26,14 +26,14 @@ const CSS_CLASS = {
     minButton: 'docItemEditor_minBtn',
     qtyInput: 'docItemEditor_qtyInput',
     
-    itemWrapperExcluded: 'docItemEditor_itemBuilder-excluded',
+    itemWrapperExcluded: 'docItemEditor-excluded',
     invalidMessage: 'documentPageItems_invalidIcon',
     invalidMinBtn: 'docItemEditor_minBtn-invalid',
     invalidMaxBtn: 'docItemEditor_maxBtn-invalid',
     itemDisplayText: 'docItemEditor_itemDisplayText',
     itemQtySpan: 'docItemEditor_itemDisplayQty',
     itemPartNo: 'docItemEditor_itemDisplayPartNo',
-    itemPartNoExcluded: 'partNumber-excluded',
+    itemPartNoExcluded: 'partNumber-disabled',
     inputsContainer: 'docItemEditor_itemInputsContainer',
     inputErrorTooltip: 'docItemEditor_qtyErrorTooltip',
 }
