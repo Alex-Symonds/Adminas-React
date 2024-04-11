@@ -448,83 +448,53 @@ textarea{
 
 
 // || Buttons
-// .button-primary{
-//     font-weight: bold;
-//     border-radius: 0.6rem;
-
-//     background: v.$c_accent-500;
-//     background: v.$g_button_main;
-//     color: v.$c_txt_alt;
-//     border: 1px solid v.$c_accent-600;
-
-//     &:hover{
-//         color: v.$c_tone-800;
-//         background: v.$c_accent-400;
-//         background: v.$g_button_hover;
-//         box-shadow: 0 0 3px 1px v.$c_tone-800;
-//     }
-//     &:active{
-//         background: red;
-//     }
-//     &:focus,
-//     &:focus-visible
-//     &:focus-within{
-//         // outline: dotted v.px-to-rem(2) rgba(v.$c_accent-50, 0.9);
-//         // outline-offset: v.px-to-rem(2);
-//         @include v.focusOutline();
-//         color: v.$c_txt_alt;
-//         background: v.$c_accent-400;
-//         background: v.$g_button_focus;
-//     }
-// }
-
-
 @mixin primaryButtonHover{
-    color: v.$c_tone-50;
-    background: v.$c_accent-600;
-    background: v.$g_button_inputAdjuster_hover;
-    border-color: v.$c_accent-600;
+    color: v.$c_tone-900;
+    background: v.$c_accent-400;
+    background: v.$g_button_hover;
+    border-color: v.$c_accent-500;
 }
 
 .button-primary{
     font-weight: 600;
 
-    color: v.$c_tone-50;
-    background: v.$c_accent-700;
-    background: v.$g_button_inputAdjuster_main;
+    color: v.$c_tone-950;
+    background: v.$c_accent-500;
+    background: v.$g_button_main;
 
-    border: 1px solid v.$c_accent-700;
+    border: 1px solid v.$c_accent-600;
     border-radius: v.px-to-rem(4);
 
     box-shadow: 0 0 2px 1px rgba(black, 0.1);
 
     cursor: pointer;
 
-    &:disabled{
-        background: transparent;
-    }
-
     &:focus,
     &:focus-visible
     &:focus-within{
         @include v.focusOutline();
-        background: v.$c_accent-600;
-        background: v.$g_button_inputAdjuster_focus;
+        background: v.$c_accent-400;
+        background: v.$g_button_focus;
         position: relative;
         z-index: 2;
+    }
+
+    &:hover{
+        color: v.$c_tone-900;
+        background: v.$c_accent-400;
+        background: v.$g_button_hover;
     }
 
     &:enabled:hover{
         @include primaryButtonHover();
     }
-
 }
 
 
 @mixin secondaryButtonHover{
     color: v.$c_accent-300;
-    border-color: v.$c_accent-300;
-    background: v.$c_tone-800;
+    border-color: v.$c_accent-400;
+    background: rgba(v.$c_tone-800, 0.2);
     box-shadow: 0 0 3px 1px v.$c_tone-800;
 }
 
@@ -633,34 +603,6 @@ a.buttonSecondary:hover{
             transition-delay: 0.05s;
         }
     }
-
-
-    // span{
-    //     position: absolute;
-    //     bottom: v.px-to-rem(-32);
-    //     left: 0;
-    //     z-index: 3;
-    //     color: transparent;
-    //     text-align: center;
-
-    //     pointer-events: none;
-    // }
-
-    // &:hover{
-    //     span{
-    //         transition-delay: 0.05s;
-    //         color: white;
-    //         border-radius: 5px;
-    //         background: rgba(v.$c_tone-1000, 0.9);
-    //         border: 1px solid v.$c_tone-1000;
-
-    //         display: block;
-    //         padding: v.px-to-rem(5);
-
-    //         font-size: v.px-to-rem(14);
-    //         width: max-content;
-    //     }
-    // }
 }
 
 .add-button{
